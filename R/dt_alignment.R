@@ -5,7 +5,9 @@ dt_alignment <- function(data,psals,aligntd,NumOfSamples,NumOfRows,ind_tr,max_tr
   print(" / Drift Time Alignment /")
   print("////////////////////////")
   print(" ")
-  
+
+  print("Hola Prueba")
+
   setwd(data)
   M1 <- readMat("M1.mat")[[1]]
   acc_ind_max <- NULL
@@ -26,7 +28,7 @@ dt_alignment <- function(data,psals,aligntd,NumOfSamples,NumOfRows,ind_tr,max_tr
       aux2[j, (which(is.na(aux2[j, ]) == TRUE))] <- 0
     }
     setwd(aligntd)
-    saveRDS(aux2, file = paste0("Md", i, ".rds")) 
+    saveRDS(aux2, file = paste0("Md", i, ".rds"))
     setwd(psals)
   }
 }
