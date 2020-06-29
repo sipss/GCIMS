@@ -6,7 +6,6 @@ dt_alignment <- function(data,psals,aligntd,NumOfSamples,NumOfRows,ind_tr,max_tr
   print("////////////////////////")
   print(" ")
 
-  print("Hola Prueba")
 
   setwd(data)
   M1 <- readMat("M1.mat")[[1]]

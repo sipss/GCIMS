@@ -6,8 +6,8 @@ rt_alignment <- function(data, aligntr, aux, NumOfSamples, NumOfRows, inicio, fi
   print("////////////////////////////")
   print(" ")
 
-  print("hola7")
-  # The maximes of the previous variable are looked for in the intervals previous defined (inicio and fin),
+
+    # The maximes of the previous variable are looked for in the intervals previous defined (inicio and fin),
   max_row <- NULL
   for (i in (1:NumOfSamples)){
     max_col <- NULL
