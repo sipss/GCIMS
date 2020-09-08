@@ -15,7 +15,7 @@ dt_baseline <- function(filtd,bslnd,NumOfSamples,lambda,p,k,order,niter){
     aux <- readRDS(aux_string)
     Mb <- NULL
     setwd(wd)
-    Mb <- t(apply(aux, 1, function(x) asysm(x, lambda, p)))
+    Mb <- t(apply(aux, 1, function(x) psalsa(x, lambda, p, k)))
     Mb <- aux - Mb
     setwd(bslnd)
     saveRDS(Mb, file = paste0("Mbd", i, ".rds"))
