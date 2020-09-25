@@ -1,13 +1,14 @@
-#' Baseline Removal using  Using Psalsa algorithm
+#' Data Smoothing using Savitzky-Golay Filters
 
 
 #' @param dir_in The input directory.
 #' @param dir_out The output directory.
 #' @param samples The set of samples to be processed.
-#' @param by_rows Logical. Direction to apply the function. If TRUE it by rows (retention time direction). If FALSE, applied by columns (that is the drift time direction).
+#' @param by_rows Logical. Direction to apply the function. If TRUE it by rows (drift time direction). If FALSE, applied by columns (that is the retention time direction).
 #' @param filter_length Numerical. Length of the filter.
 #' @param polynomial_order Numerical. Order of the polynomial.
 #' @return A filtered  gcims dataset.
+#' @family Smoothing functions
 #' @export
 #' @examples
 #' \dontrun{
@@ -20,33 +21,27 @@
 #' }
 
 
-
-
-rt_baseline <- function(dir_in, dir_out, samples, by_rows,lambda, p,k,order,niter){
-  # For each sample, the baseline will be removed in the drift time axis using psalsa (by Sergio Oller). The parametres are the define ones at the beginning of the programm:
+gcims_smoothing <- function (dir_in, dir_out, samples, by_rows, filter_length, polynomial_order){
 
   print(" ")
   print("  /////////////////////////")
-  print(" /    Baseline removal   /")
+  print(" /   Filtering the data /")
   print("/////////////////////////")
   print(" ")
 
   setwd(dir_in)
-  m = 0;
-  for (i in (samples)){
+  m = 0
+  for (i in samples){
     m = m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
-    aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
-    M <- NULL
-    setwd(wd)
+    aux_string <- paste0("M", i, ".mat")
+    aux <- readMat(aux_string)[[1]]
     if (by_rows == TRUE){
       dimension <- 1
     } else if (by_rows == FALSE){
       dimension <- 2
     }
-    M <- t(apply(aux, 2, function(x) psalsa(x, lambda, p, k)))
-    M <- aux - M
+    M <- t(apply(aux, dimension, function(x) sgolayfilt(x, p = polynomial_order, n = filter_length)))
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)

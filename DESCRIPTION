@@ -9,17 +9,18 @@ Authors@R: c(
             person("Sergio", "Oller",  email = "soller@ibecbarcelona.eu", role = "aut"))
 Maintainer: Luis Fernandez <lfernandez@ub.edut>
 Description: A consistent package easy to extend implementing common routines
-    for analyzing ion mobility spectrometry (IMS) measurements, as well as samples
-    from multicapillary columns coupled with IMS (MCC-IMS) and gas chromatography
-    coupled to ion mobility spectrometry (GC-IMS). The package provides a complete
-    workflow for the analysis, importing the data, preprocessing the spectra
-    as well as classification andregression techniques for the modelling of the spectra.
+            for analyzing ion mobility spectrometry (IMS) measurements, as well as samples
+            from multicapillary columns coupled with IMS (MCC-IMS) and gas chromatography
+            coupled to ion mobility spectrometry (GC-IMS). The package provides a complete
+            workflow for the analysis, importing the data, preprocessing the spectra
+            as well as classification andregression techniques for the modelling of the spectra.
 Depends: R(>= 3.6.0)
 License: All rights reserved. Do not distribute.
 Encoding: UTF-8
 LazyData: true
 Imports:
     signal(>= 0.7-6),
+    ptw (>= 1.9-10),
     R.matlab(>= 3.6.2)
 Suggests:
     testthat
