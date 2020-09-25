@@ -6,7 +6,7 @@
 #' @param filter_length Numerical. Length of the filter.
 #' @paramn polynomial_order Numerical. Order of the polynomial.
 #' @param samples The set of samples to be processed.
-#' @param by_rows Logical. Direction to apply the filter. TRUE by default. If FALSE, applied by columns.
+#' @param by_rows Logical. Direction to apply the filter. TRUE filters along the retention time direction by default. If FALSE, applied by columns (that is the drift time direction).
 #' @return A filtered  gcims dataset.
 #' @export
 #' @examples
@@ -20,7 +20,7 @@
 #' }
 
 
-gcims_smoothing <- function(dir_in, dir_out, filter_length, polynomial_order, by_rows = TRUE,samples){
+gcims_smoothing <- function(dir_in, dir_out, filter_length, polynomial_order, by_rows, samples){
 
   print(" ")
   print("  /////////////////////////")
