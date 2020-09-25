@@ -5,9 +5,11 @@
 #' @param dir_out The output directory.
 #' @param samples The set of samples to be processed.
 #' @param by_rows Logical. Direction to apply the function. If TRUE it by rows (retention time direction). If FALSE, applied by columns (that is the drift time direction).
-#' @param filter_length Numerical. Length of the filter.
-#' @param polynomial_order Numerical. Order of the polynomial.
-#' @return A filtered  gcims dataset.
+#' @param spectra  matrix with one spectrum per row
+#' @param lambda smoothing parameter (generally 1e5 - 1e8)
+#' @param p      asymmetry parameter
+#' @param k      peak height parameter (usually 5\% of maximum intensity)
+#' @return A baseline removed gcims dataset.
 #' @export
 #' @examples
 #' \dontrun{
@@ -22,8 +24,8 @@
 
 
 
-rt_baseline <- function(dir_in, dir_out, samples, by_rows,lambda, p,k,order,niter){
-  # For each sample, the baseline will be removed in the drift time axis using psalsa (by Sergio Oller). The parametres are the define ones at the beginning of the programm:
+gcims_baseline_removal <- function(dir_in, dir_out, samples, by_rows,lambda, p, k){
+
 
   print(" ")
   print("  /////////////////////////")
@@ -40,12 +42,13 @@ rt_baseline <- function(dir_in, dir_out, samples, by_rows,lambda, p,k,order,nite
     aux <- readRDS(aux_string)
     M <- NULL
     setwd(wd)
+    print(getwd())
     if (by_rows == TRUE){
       dimension <- 1
     } else if (by_rows == FALSE){
       dimension <- 2
     }
-    M <- t(apply(aux, 2, function(x) psalsa(x, lambda, p, k)))
+    M <- t(apply(aux, dimension, function(x) psalsa(x, lambda, p, k)))
     M <- aux - M
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))

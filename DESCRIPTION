@@ -3,18 +3,10 @@ Type: Package
 Title: Pre-processing for GC-IMS data
 Version: 0.1.0
 Date: 2020-09-25
-Authors@: person(given = "Celia",
-           family = "Mallafré", 
-           email = cmallafre@ibecbarcelona.eu",
-           role = c("aut", "cre")),
-          person(given = "Luis", 
-           family = "Fernandez", 
-           email = "lfernandez@ub.edu",
-           role = c("aut", "cre")),
-          person(given = "Sergio",
-           family = "Oller", 
-           email = "soller@ibecbarcelona.eu",
-           role = c("aut")),
+Authors@R: c(
+            person("Celia", "Mallafre",email = "cmallafre@ibecbarcelona.eu", role = "aut"),
+            person("Luis","Fernandez", email = "lfernandez@ub.edu", role = "cre"),
+            person("Sergio", "Oller",  email = "soller@ibecbarcelona.eu", role = "aut"))
 Maintainer: Luis Fernandez <lfernandez@ub.edut>
 Description: A consistent package easy to extend implementing common routines
     for analyzing ion mobility spectrometry (IMS) measurements, as well as samples

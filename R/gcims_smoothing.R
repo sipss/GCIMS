@@ -3,10 +3,10 @@
 
 #' @param dir_in The input directory.
 #' @param dir_out The output directory.
-#' @param filter_length Numerical. Length of the filter.
-#' @paramn polynomial_order Numerical. Order of the polynomial.
 #' @param samples The set of samples to be processed.
-#' @param by_rows Logical. Direction to apply the filter. TRUE filters along the retention time direction by default. If FALSE, applied by columns (that is the drift time direction).
+#' @param by_rows Logical. Direction to apply the function. If TRUE it by rows (retention time direction). If FALSE, applied by columns (that is the drift time direction).
+#' @param filter_length Numerical. Length of the filter.
+#' @param polynomial_order Numerical. Order of the polynomial.
 #' @return A filtered  gcims dataset.
 #' @export
 #' @examples
@@ -20,7 +20,7 @@
 #' }
 
 
-gcims_smoothing <- function(dir_in, dir_out, filter_length, polynomial_order, by_rows, samples){
+gcims_smoothing <- function (dir_in, dir_out, samples, by_rows, filter_length, polynomial_order){
 
   print(" ")
   print("  /////////////////////////")
@@ -42,7 +42,7 @@ gcims_smoothing <- function(dir_in, dir_out, filter_length, polynomial_order, by
     }
     M <- t(apply(aux, dimension, function(x) sgolayfilt(x, p = polynomial_order, n = filter_length)))
     setwd(dir_out)
-    saveRDS(M, file = paste0("M", m, ".rds"))
+    saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
   }
 }
