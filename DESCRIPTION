@@ -1,11 +1,36 @@
 Package: GCIMS
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Pre-processing for GC-IMS data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Date: 2020-09-25
+Authors@: person(given = "Celia",
+           family = "Mallafré", 
+           email = cmallafre@ibecbarcelona.eu",
+           role = c("aut", "cre")),
+          person(given = "Luis", 
+           family = "Fernandez", 
+           email = "lfernandez@ub.edu",
+           role = c("aut", "cre")),
+          person(given = "Sergio",
+           family = "Oller", 
+           email = "soller@ibecbarcelona.eu",
+           role = c("aut")),
+Maintainer: Luis Fernandez <lfernandez@ub.edut>
+Description: A consistent package easy to extend implementing common routines
+    for analyzing ion mobility spectrometry (IMS) measurements, as well as samples
+    from multicapillary columns coupled with IMS (MCC-IMS) and gas chromatography
+    coupled to ion mobility spectrometry (GC-IMS). The package provides a complete
+    workflow for the analysis, importing the data, preprocessing the spectra
+    as well as classification andregression techniques for the modelling of the spectra.
+Depends: R(>= 3.6.0)
+License: All rights reserved. Do not distribute.
 Encoding: UTF-8
 LazyData: true
+Imports:
+    signal(>= 0.7-6),
+    R.matlab(>= 3.6.2)
+Suggests:
+    testthat
+Encoding: UTF-8
+RoxygenNote: 5.0.1
+

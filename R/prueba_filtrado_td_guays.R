@@ -10,4 +10,4 @@ samples <- c(2)
 
 gcims_smoothing(dir_in, dir_out, filter_length, polynomial_order, by_rows = FALSE, samples)
 
-
+11
