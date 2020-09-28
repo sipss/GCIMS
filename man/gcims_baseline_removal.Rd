@@ -13,15 +13,14 @@ gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k)
 
 \item{samples}{The set of samples to be processed.}
 
-\item{by_rows}{Logical. Direction to apply the function. If TRUE it by rows (drift time direction). If FALSE, applied by columns (that is the retention time direction).}
+\item{by_rows}{Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
+If FALSE, applied by columns (that is the retention time direction).}
 
-\item{lambda}{smoothing parameter (generally 1e5 - 1e8)}
+\item{lambda}{Smoothing parameter (generally 1e5 - 1e8)}
 
-\item{p}{asymmetry parameter}
+\item{p}{Asymmetry parameter}
 
-\item{k}{peak height parameter (usually 5\% of maximum intensity)}
-
-\item{spectra}{matrix with one spectrum per row}
+\item{k}{Peak height parameter (usually 5\% of maximum intensity)}
 }
 \value{
 A baseline removed gcims dataset.

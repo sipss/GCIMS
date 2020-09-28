@@ -12,7 +12,7 @@
 #'                        for the X matrix, ranging from 1 to ncol(X). These indexes define the
 #'                        boundaries for each segment
 #' @param Slack           Maximum range or degree of warping in each segment.
-#' @family Aligment functions removal functions
+#' @family Alignment functions
 #' @export
 #' @examples
 #' \dontrun{
@@ -49,13 +49,13 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, Seg, Slack){
 
     X <- aux[1200:1300, 400:1600]
     print(dim(X))
-    T <- X[50,]
+    T <- X[5050,]
     print(length(T))
 
     aux2 <- cow(T, X, Seg, Slack)
     M <- aux2$XWarped
 
-    if (by_rows == FALSE){
+    if (by_rows == FALSE){i
       M = t(M)
     }
 
@@ -91,6 +91,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, Seg, Slack){
 #' @param debug           logical to determine if a table with the optimal values of loss function
 #'                        and predecessor should be returned too (memory consuming in large
 #'                        problems) (default=FALSE)
+#' @family Alignment functions
 #' @return a list with:
 #'     - Warping: list with two elements containing the interpolation segment starting points
 #'                (in X units)

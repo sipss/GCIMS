@@ -14,7 +14,8 @@ gcims_smoothing(dir_in, dir_out, samples, by_rows, filter_length,
 
 \item{samples}{The set of samples to be processed.}
 
-\item{by_rows}{Logical. Direction to apply the function. If TRUE it by rows (drift time direction). If FALSE, applied by columns (that is the retention time direction).}
+\item{by_rows}{Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
+If FALSE, applied by columns (that is the retention time direction).}
 
 \item{filter_length}{Numerical. Length of the filter.}
 

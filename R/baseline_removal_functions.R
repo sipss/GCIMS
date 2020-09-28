@@ -1,14 +1,14 @@
 #' Baseline Removal using Psalsa algorithm
 
 
-#' @param dir_in The input directory.
-#' @param dir_out The output directory.
-#' @param samples The set of samples to be processed.
-#' @param by_rows Logical. Direction to apply the function. If TRUE it by rows (drift time direction). If FALSE, applied by columns (that is the retention time direction).
-#' @param spectra  matrix with one spectrum per row
-#' @param lambda smoothing parameter (generally 1e5 - 1e8)
-#' @param p      asymmetry parameter
-#' @param k      peak height parameter (usually 5\% of maximum intensity)
+#' @param dir_in           The input directory.
+#' @param dir_out          The output directory.
+#' @param samples          The set of samples to be processed.
+#' @param by_rows          Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
+#'                         If FALSE, applied by columns (that is the retention time direction).
+#' @param lambda           Smoothing parameter (generally 1e5 - 1e8)
+#' @param p                Asymmetry parameter
+#' @param k                Peak height parameter (usually 5\% of maximum intensity)
 #' @return A baseline removed gcims dataset.
 #' @family Baseline removal functions
 #' @export

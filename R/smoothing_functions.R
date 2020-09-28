@@ -1,11 +1,12 @@
 #' Data Smoothing using Savitzky-Golay filters
 
 
-#' @param dir_in The input directory.
-#' @param dir_out The output directory.
-#' @param samples The set of samples to be processed.
-#' @param by_rows Logical. Direction to apply the function. If TRUE it by rows (drift time direction). If FALSE, applied by columns (that is the retention time direction).
-#' @param filter_length Numerical. Length of the filter.
+#' @param dir_in           The input directory.
+#' @param dir_out          The output directory.
+#' @param samples          The set of samples to be processed.
+#' @param by_rows          Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
+#'                         If FALSE, applied by columns (that is the retention time direction).
+#' @param filter_length    Numerical. Length of the filter.
 #' @param polynomial_order Numerical. Order of the polynomial.
 #' @return A filtered  gcims dataset.
 #' @family Smoothing functions
