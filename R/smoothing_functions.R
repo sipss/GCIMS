@@ -1,4 +1,4 @@
-#' Data Smoothing using Savitzky-Golay Filters
+#' Data Smoothing using Savitzky-Golay filters
 
 
 #' @param dir_in The input directory.

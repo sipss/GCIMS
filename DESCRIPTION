@@ -16,7 +16,6 @@ Description: A consistent package easy to extend implementing common routines
             as well as classification andregression techniques for the modelling of the spectra.
 Depends: R(>= 3.6.0)
 License: All rights reserved. Do not distribute.
-Encoding: UTF-8
 LazyData: true
 Imports:
     signal(>= 0.7-6),
@@ -25,5 +24,4 @@ Imports:
 Suggests:
     testthat
 Encoding: UTF-8
-RoxygenNote: 5.0.1
-
+RoxygenNote: 6.1.1

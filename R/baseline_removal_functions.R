@@ -1,4 +1,4 @@
-#' Baseline Removal using  Using Psalsa algorithm
+#' Baseline Removal using Psalsa algorithm
 
 
 #' @param dir_in The input directory.
