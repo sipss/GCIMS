@@ -18,8 +18,10 @@ Depends: R(>= 3.6.0)
 License: All rights reserved. Do not distribute.
 LazyData: true
 Imports:
-    signal(>= 0.7-6),
+    assertthat (>= 0.1),
+    pracma,
     ptw (>= 1.9-10),
+    signal(>= 0.7-6),
     R.matlab(>= 3.6.2)
 Suggests:
     testthat
