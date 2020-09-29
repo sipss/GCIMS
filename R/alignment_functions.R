@@ -6,12 +6,8 @@
 #' @param samples         The set of samples to be processed.
 #' @param by_rows         Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
 #'                        If FALSE, applied by columns (that is the retention time direction).
-#' @param Seg             The segment length. The number of segments is N = floor(ncol(X)/Seg)
-#'                        if Seg is a two row matrix, the first row contains indexes of the T
-#'                        array, ranging from 1 to length(T). The second row contains the indexes
-#'                        for the X matrix, ranging from 1 to ncol(X). These indexes define the
-#'                        boundaries for each segment
-#' @param Slack           Maximum range or degree of warping in each segment.
+#' @param seg_vector      Vector of segment lengths.
+#' @param slack_vetor           Vector of slacks.
 #' @family Alignment functions
 #' @export
 #' @examples
@@ -27,7 +23,7 @@
 
 
 
-gcims_alignment <- function(dir_in, dir_out, samples, by_rows, Seg, Slack){
+gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector){
 
 
   print(" ")
@@ -37,34 +33,75 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, Seg, Slack){
   print(" ")
 
   setwd(dir_in)
-  m = 0;
-  for (i in (samples)){
-    m = m + 1
+  aux_string <- paste0("M", samples[1], ".rds")
+  aux <- readRDS(aux_string)
+  if (by_rows == FALSE){
+    aux <- t(aux)
+  }
+  curves <- matrix(0, dim(aux)[2], length(samples))
+
+  m <-0
+  for (i in (c(0,samples))){
+    m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux <- readRDS(aux_string)
     if (by_rows == FALSE){
       aux <- t(aux)
     }
+    curves[,m] <- colSums(aux)
+  }
+    ref_curve <- curves[, 1]
+    curves <- curves[ , 2:dim(curves)[2]]
 
-    X <- aux[1200:1300, 400:1600]
-    print(dim(X))
-    T <- X[5050,]
-    print(length(T))
+    corr_data <- matrix(0,length(seg_vector), length(slack_vector))
 
-    aux2 <- cow(T, X, Seg, Slack)
-    M <- aux2$XWarped
+    n <- 0
+    diff_seg <- diff(seg_vector)
+    step_y <- diff_seg[1]
 
-    if (by_rows == FALSE){i
-      M = t(M)
+    for (Z in (seg_vector)){
+      n <- n + 1
+      m <- 0
+      for (Y in (seq(from = 1, to = Z - 4, by = step_y))){
+        m <- m + 1
+        aux2 <- cow(ref_curve, t(curves), Z, Y)
+        align_curves <- t(aux2$XWarped)
+        sum_corr <- 0
+        for (X in (1:dim(align_curves)[2])){
+          sum_corr < sum_corr + cor(ref_curve, align_curves[, X])
+        }
+        corr_data[n, m] <- sum_corr / dim(align_curves)[2]
+      }
+
     }
 
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    opt_indexes <- which(mm == max(corr_data), arr.ind = TRUE)
+
+    seg <- seg_vector[opt_indexes[1]]
+    slack <-s_vector[opt_indexes[2]]
+
+    aux3 <- cow(ref_curve, t(curves), seg, slack)
+    Warping <- aux3$Warping
+
+    # X <- aux[1200:1300, 400:1600]
+    # print(dim(X))
+    # T <- X[5050,]
+    # print(length(T))
+    #
+    # aux2 <- cow(T, X, Seg, Slack)
+    # M <- aux2$XWarped
+    #
+    # if (by_rows == FALSE){i
+    #   M = t(M)
+    # }
+    #
+    # setwd(dir_out)
+    # saveRDS(M, file = paste0("M", i, ".rds"))
+    # setwd(dir_in)
 
   }
-}
+
 
 
 
@@ -350,9 +387,9 @@ cow <- function(T, X, Seg, Slack,
       x = indX - Warping[i_sam, i_seg,1] + 1
       y = X[i_sam,indX]
       xi <- (0:lenT)/lenT * lenX + 1
-      print(xi)
-      print(x)
-      print(y)
+      #print(xi)
+      #print(x)
+      #print(y)
       XWarped[i_sam, indT] = t(signal::interp1(x, y, xi))
     }
   }
