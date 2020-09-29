@@ -54,7 +54,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
     ref_curve <- curves[, 1]
     curves <- curves[ , 2:dim(curves)[2]]
 
-    corr_data <- matrix(0,length(seg_vector), length(slack_vector))
+    corr_data <- matrix(0,length(seg_vector), length(slack_vector))  #ESTO ESTÁ MAL: ARREGLAR
 
     n <- 0
     diff_seg <- diff(seg_vector)
@@ -76,10 +76,10 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
 
     }
 
-    opt_indexes <- which(mm == max(corr_data), arr.ind = TRUE)
+    opt_indexes <- which(corr_data == max(corr_data), arr.ind = TRUE)
 
     seg <- seg_vector[opt_indexes[1]]
-    slack <-s_vector[opt_indexes[2]]
+    slack <-slack_vector[opt_indexes[2]]
 
     aux3 <- cow(ref_curve, t(curves), seg, slack)
     Warping <- aux3$Warping

@@ -4,7 +4,8 @@
 \alias{gcims_alignment}
 \title{Peak alignment using  Correlation Optimized Warping (COW)}
 \usage{
-gcims_alignment(dir_in, dir_out, samples, by_rows, Seg, Slack)
+gcims_alignment(dir_in, dir_out, samples, by_rows, seg_vector,
+  slack_vector)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -16,13 +17,9 @@ gcims_alignment(dir_in, dir_out, samples, by_rows, Seg, Slack)
 \item{by_rows}{Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
 If FALSE, applied by columns (that is the retention time direction).}
 
-\item{Seg}{The segment length. The number of segments is N = floor(ncol(X)/Seg)
-if Seg is a two row matrix, the first row contains indexes of the T
-array, ranging from 1 to length(T). The second row contains the indexes
-for the X matrix, ranging from 1 to ncol(X). These indexes define the
-boundaries for each segment}
+\item{seg_vector}{Vector of segment lengths.}
 
-\item{Slack}{Maximum range or degree of warping in each segment.}
+\item{slack_vetor}{Vector of slacks.}
 }
 \description{
 Peak alignment using  Correlation Optimized Warping (COW)
