@@ -32,18 +32,66 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
   print("/////////////////////////")
   print(" ")
 
+
   setwd(dir_in)
+  Warping <- optimize_cow(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector)
+
+  m <- -1
+  for (i in c(0,samples)){
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux <- readRDS(aux_string)
+
+    if (i != 0){
+      if (by_rows == FALSE){
+        aux <- t(aux)
+      }
+      M <- apply_cow(aux, Warping[m, , ])
+      if (by_rows == FALSE){
+        M <- t(M)
+      }
+    }else {
+      M <- aux
+    }
+
+    setwd(dir_out)
+    saveRDS(M, file = paste0("M", i, ".rds"))
+    setwd(dir_in)
+
+  }
+
+  }
+
+
+optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector){
+
+
+
+  setwd(dir_in)
+
+  # Load a sample to know its length in the
+  # direction of alignment (transpose if needed).
+  # Create a matrix for storing the samples to
+  # be aligned (curves).
+  print(" ")
+  print("Optimizing COW parameters, please wait")
+  print(" ")
   aux_string <- paste0("M", samples[1], ".rds")
   aux <- readRDS(aux_string)
+
   if (by_rows == FALSE){
     aux <- t(aux)
   }
-  curves <- matrix(0, dim(aux)[2], length(samples))
+  curves <- matrix(0, dim(aux)[2], length(samples) + 1)
+
+  # Load the samples (transpose if needed) and
+  # compress them (just an addition) in the direction
+  # of aligment. Store them in the variable curves
 
   m <-0
-  for (i in (c(0,samples))){
+  for (i in (c(0, samples))){
     m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux <- readRDS(aux_string)
     if (by_rows == FALSE){
@@ -51,59 +99,60 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
     }
     curves[,m] <- colSums(aux)
   }
-    ref_curve <- curves[, 1]
-    curves <- curves[ , 2:dim(curves)[2]]
+  rm(m, aux, aux_string)
 
-    corr_data <- matrix(0,length(seg_vector), length(slack_vector))  #ESTO ESTÁ MAL: ARREGLAR
+  # Separate the reference curve from the rest.
+  # The reference curce must be the first one.
 
-    n <- 0
-    diff_seg <- diff(seg_vector)
-    step_y <- diff_seg[1]
+  ref_curve <- curves[, 1]
+  curves <- curves[ , 2:dim(curves)[2]]
 
-    for (Z in (seg_vector)){
-      n <- n + 1
-      m <- 0
-      for (Y in (seq(from = 1, to = Z - 4, by = step_y))){
-        m <- m + 1
-        aux2 <- cow(ref_curve, t(curves), Z, Y)
-        align_curves <- t(aux2$XWarped)
-        sum_corr <- 0
-        for (X in (1:dim(align_curves)[2])){
-          sum_corr < sum_corr + cor(ref_curve, align_curves[, X])
-        }
-        corr_data[n, m] <- sum_corr / dim(align_curves)[2]
+  # Define the correlation matrix.
+  corr_data <- matrix(0,length(seg_vector),
+                      length(slack_vector)) #ESTO ESTÁ MAL: ARREGLAR
+
+  # Fill the correlation Matrix. For each seg and slack compute
+  # the correlation between the reference curve and the rest of
+  # of the curves. Them compute the mean value of correlation.
+
+  n <- 0
+  diff_seg <- diff(seg_vector)  #ESTO ES MEJORABLE: PENSARLO MEJOR
+  step_y <- diff_seg[1]
+
+  for (Z in (seg_vector)){
+    n <- n + 1
+    m <- 0
+    for (Y in (seq(from = 1, to = (Z - 4), by = step_y))){
+      m <- m + 1
+      cow_results <- cow(ref_curve, t(curves), Z, Y)
+      align_curves <- t(cow_results$XWarped)
+      sum_corr <- 0
+      for (X in (1:dim(align_curves)[2])){
+        sum_corr <- sum_corr + cor(ref_curve, align_curves[, X])
       }
-
+      corr_data[n, m] <- sum_corr / dim(align_curves)[2]
+      #print(corr_data)
     }
 
-    opt_indexes <- which(corr_data == max(corr_data), arr.ind = TRUE)
-
-    seg <- seg_vector[opt_indexes[1]]
-    slack <-slack_vector[opt_indexes[2]]
-
-    aux3 <- cow(ref_curve, t(curves), seg, slack)
-    Warping <- aux3$Warping
-
-    # X <- aux[1200:1300, 400:1600]
-    # print(dim(X))
-    # T <- X[5050,]
-    # print(length(T))
-    #
-    # aux2 <- cow(T, X, Seg, Slack)
-    # M <- aux2$XWarped
-    #
-    # if (by_rows == FALSE){i
-    #   M = t(M)
-    # }
-    #
-    # setwd(dir_out)
-    # saveRDS(M, file = paste0("M", i, ".rds"))
-    # setwd(dir_in)
-
   }
+  rm(cow_results, diff_seg, step_y, n, m, Z, X, Y)
+
+  # Find the indexes for the maximal value of the average correlation.
+  # The find the best seg and slack.
+
+  opt_indexes <- which(corr_data == max(corr_data), arr.ind = TRUE)
+  seg <- seg_vector[opt_indexes[1]]
+  slack <-slack_vector[opt_indexes[2]]
+
+  # Use cow to obtain the best Warping
+
+  cow_results <- cow(ref_curve, t(curves), seg, slack)
+  rm(seg_vector, slack_vector, opt_indexes, seg, slack)
+  Warping <- cow_results$Warping
 
 
-
+  return(Warping)
+}
 
 
 
@@ -434,6 +483,38 @@ cow <- function(T, X, Seg, Slack,
   # end
   return(output)
 }
+
+
+
+apply_cow <- function(X, Wrp) {
+
+  nX <- dim(X)[1]
+  pX <- dim(X)[2]
+
+  Xw <- matrix(0, nrow=nX, ncol=pX)
+  pW <-dim(Wrp)[1] # dim(Warping)[2]
+
+  for (i_seg in 1:(pW-1)) {
+
+    indT <- Wrp[i_seg, 2]: Wrp[i_seg + 1, 2]
+    lenT <- Wrp[i_seg + 1, 2]- Wrp[i_seg, 2]
+
+    for (i_sam in 1:nX) {
+
+      indX = Wrp[i_seg, 1]: Wrp[i_seg + 1, 1]
+      lenX = Wrp[i_seg + 1, 1] - Wrp[i_seg, 1]
+      x = indX - Wrp[i_seg,1 ] + 1
+      y = X[i_sam, indX]
+      xi <- (0:lenT)/lenT * lenX + 1
+      Xw[i_sam, indT] = t(signal::interp1(x, y, xi))
+
+    }
+
+  }
+  return(Xw)
+
+}
+
 
 #' Function to calculate coefficients for interpolation
 #'
