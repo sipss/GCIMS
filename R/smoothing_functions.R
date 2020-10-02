@@ -22,7 +22,8 @@
 #' }
 
 
-gcims_smoothing <- function (dir_in, dir_out, samples, by_rows, filter_length, polynomial_order){
+gcims_smoothing <- function (dir_in, dir_out, samples, by_rows,
+                             filter_length, polynomial_order){
 
   print(" ")
   print("  /////////////////////////")

@@ -1,14 +1,15 @@
-#' Baseline Removal using Psalsa algorithm
-
-
-#' @param dir_in           The input directory.
-#' @param dir_out          The output directory.
-#' @param samples          The set of samples to be processed.
-#' @param by_rows          Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
-#'                         If FALSE, applied by columns (that is the retention time direction).
-#' @param lambda           Smoothing parameter (generally 1e5 - 1e8)
-#' @param p                Asymmetry parameter
-#' @param k                Peak height parameter (usually 5\% of maximum intensity)
+#' Remove baseline of a dataset using psalsa
+#'
+#' @param dir_in          The input directory.
+#' @param dir_out         The output directory.
+#' @param samples         The set of samples to be processed.
+#' @param by_rows         Logical. Direction to apply the function.
+#'                        If TRUE it by rows (drift time direction).
+#'                        If FALSE, applied by columns (that is the retention
+#'                        time direction).
+#' @param lambda          Smoothing parameter (generally 1e5 - 1e8)
+#' @param p               Asymmetry parameter
+#' @param k               Peak height parameter (usually 5\% of maximum intensity)
 #' @return A baseline removed gcims dataset.
 #' @family Baseline removal functions
 #' @export
@@ -21,12 +22,9 @@
 #'
 #' print(dataset_pos)
 #' }
-
-
-
-
-gcims_baseline_removal <- function(dir_in, dir_out, samples, by_rows,lambda, p, k){
-
+#'
+gcims_baseline_removal <- function(dir_in, dir_out, samples,
+                                   by_rows,lambda, p, k){
 
   print(" ")
   print("  /////////////////////////")
@@ -44,8 +42,8 @@ gcims_baseline_removal <- function(dir_in, dir_out, samples, by_rows,lambda, p, 
     if (by_rows == FALSE){
       aux <- t(aux)
     }
-    aux2 <- psalsa(aux,lambda, p, k)
-    M <- aux2$corrected
+    psalsa_results <- psalsa(aux,lambda, p, k)
+    M <- psalsa_results$corrected
 
     if (by_rows == FALSE){
       M = t(M)
@@ -60,30 +58,86 @@ gcims_baseline_removal <- function(dir_in, dir_out, samples, by_rows,lambda, p, 
 
 
 
-#' Estimate spectra baseline using psalsa
+
+
+
+#' Estimate the baseline for all rows in a matrix using psalsa
 #'
-#' @param spectra  matrix with one spectrum per row
-#' @param lambda smoothing parameter (generally 1e5 - 1e8)
-#' @param p      asymmetry parameter
-#' @param k      peak height parameter (usually 5\% of maximum intensity)
-#' @param maxit  max number of iterations
-#' @family Baseline removal functions
+#' @param data            Matrix with one spectrum (or chromatogram) per row.
+#' @param lambda          Smoothing parameter (generally 1e5 - 1e8).
+#' @param p               Asymmetry parameter.
+#' @param k               Peak height parameter (usually 5\% of maximum
+#'                        intensity).
+#' @param maxit           Max number of iterations.
+#' @return a list with:
+#'     - baseline:  A matrix with all the estimated baselines.
+#'     - corrected: A matrix of corrected data.
+#'
+#' @family Baseline removal functions.
 #' @export
-psalsa <- function(spectra, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
-  if (is.matrix(spectra)) {
-    estbaseline <- 0*spectra
-    for (i in 1:nrow(spectra)) {
+#'
+#' @references {
+#'
+#' Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S. (2014, February).
+#' Adaptive Asymmetric Least Squares baseline estimation for analytical instruments.
+#' In 2014 IEEE 11th International Multi-Conference on Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
+#'
+#'  }
+#'
+#' @author Sergio Oller-Moreno,  \email{soller@@.ibecbarcelona.eu}
+#'
+#'
+#' Institute for Bioengieering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
+#'
+psalsa <- function(data, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
+  if (is.matrix(data)) {
+    estbaseline <- 0*data
+    for (i in 1:nrow(data)) {
       #estbaseline[i, ] <- psalsa(spectra[i,], lambda, p, k, maxit)
-      estbaseline[i, ] <- psalsa_one(spectra[i,], lambda, p, k, maxit)
+      estbaseline[i, ] <- psalsa_one(data[i,], lambda, p, k, maxit)
     }
   } else {
-    estbaseline <- psalsa_one(spectra, lambda, p, k, maxit)
+    estbaseline <- psalsa_one(data, lambda, p, k, maxit)
   }
-  return (list(baseline = estbaseline, corrected = spectra - estbaseline))
+  return (list(baseline = estbaseline, corrected = data - estbaseline))
+
 }
 
 
+
+
+
+
+
+
+#' Estimate baseline of a curve using psalsa
+#'
+#' @param y               Either a chromatogram or a spectrum
+#' @param lambda          Smoothing parameter (generally 1e5 - 1e8)
+#' @param p               Asymmetry parameter
+#' @param k               Peak height parameter (usually 5\% of maximum
+#'                        intensity)
+#' @param maxit           Max number of iterations
+#' @return The estimated baseline
+#' @family Baseline removal functions
+#' @export
+#'
+#' @references {
+#'
+#' Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S. (2014, February).
+#' Adaptive Asymmetric Least Squares baseline estimation for analytical instruments.
+#' In 2014 IEEE 11th International Multi-Conference on Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
+#'
+#'  }
+#'
+#' @author Sergio Oller-Moreno,  \email{soller@@.ibecbarcelona.eu}
+#'
+#'
+#' Institute for Bioengieering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
+#'
+#'
 psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
+
   z <- 0 * y
   w <- z + 1
   if (k == -1) {

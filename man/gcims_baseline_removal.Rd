@@ -2,7 +2,7 @@
 % Please edit documentation in R/baseline_removal_functions.R
 \name{gcims_baseline_removal}
 \alias{gcims_baseline_removal}
-\title{Baseline Removal using Psalsa algorithm}
+\title{Remove baseline of a dataset using psalsa}
 \usage{
 gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k)
 }
@@ -13,8 +13,10 @@ gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k)
 
 \item{samples}{The set of samples to be processed.}
 
-\item{by_rows}{Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
-If FALSE, applied by columns (that is the retention time direction).}
+\item{by_rows}{Logical. Direction to apply the function.
+If TRUE it by rows (drift time direction).
+If FALSE, applied by columns (that is the retention
+time direction).}
 
 \item{lambda}{Smoothing parameter (generally 1e5 - 1e8)}
 
@@ -26,7 +28,7 @@ If FALSE, applied by columns (that is the retention time direction).}
 A baseline removed gcims dataset.
 }
 \description{
-Baseline Removal using Psalsa algorithm
+Remove baseline of a dataset using psalsa
 }
 \examples{
 \dontrun{
@@ -37,8 +39,9 @@ dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
 
 print(dataset_pos)
 }
+
 }
 \seealso{
-Other Baseline removal functions: \code{\link{psalsa}}
+Other Baseline removal functions: \code{\link{psalsa_one}}
 }
 \concept{Baseline removal functions}

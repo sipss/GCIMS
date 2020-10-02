@@ -1,13 +1,16 @@
-#' Peak alignment using  Correlation Optimized Warping (COW)
+#' Peak alignment using Correlation Optimized Warping (COW)
 
 
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
-#' @param by_rows         Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
-#'                        If FALSE, applied by columns (that is the retention time direction).
+#' @param by_rows         Logical. Direction to apply the function. If TRUE it
+#'                        is applied by rows (drift time direction).
+#'                        If FALSE, applied by columns
+#'                        (that is the retention time direction).
 #' @param seg_vector      Vector of segment lengths.
-#' @param slack_vetor           Vector of slacks.
+#' @param slack_vetor     Vector of slacks.
+#' @return An aligned gcims dataset.
 #' @family Alignment functions
 #' @export
 #' @examples
@@ -20,15 +23,12 @@
 #' print(dataset_pos)
 #' }
 
-
-
-
 gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector){
 
 
   print(" ")
   print("  /////////////////////////")
-  print(" /      Peak Alignment    /")
+  print(" /      Peak Alignment   /")
   print("/////////////////////////")
   print(" ")
 
@@ -64,10 +64,34 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
   }
 
 
+
+
+#' Obtain the optimum warping for (COW)
+
+
+#' @param dir_in          The input directory.
+#' @param dir_out         The output directory.
+#' @param samples         The set of samples to be processed.
+#' @param by_rows         Logical. Direction to apply the function. If TRUE it
+#'                        is applied by rows (drift time direction).
+#'                        If FALSE, applied by columns
+#'                        (that is the retention time direction).
+#' @param seg_vector      Vector of segment lengths.
+#' @param slack_vetor     Vector of slacks.
+#' @return                A matrix with the optimum warping.
+#' @family Alignment functions
+#' @export
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
 optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector){
-
-
-
   setwd(dir_in)
 
   # Load a sample to know its length in the
@@ -177,7 +201,6 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
 #' @param debug           logical to determine if a table with the optimal values of loss function
 #'                        and predecessor should be returned too (memory consuming in large
 #'                        problems) (default=FALSE)
-#' @family Alignment functions
 #' @return a list with:
 #'     - Warping: list with two elements containing the interpolation segment starting points
 #'                (in X units)
@@ -190,7 +213,7 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
 #'                index in target ("xt", "warping" is shift compared to this) and sample ("xP"),
 #'                search range in "xP", computation time (note: diagnostics are only saved for
 #'                one - the last - signal in "xP")
-#'
+#' @family Alignment functions
 #' @references {
 #'  Niels-Peter Vest Nielsen, Jens Micheal Carstensen and Jørn Smedegaard 'Aligning of singel and multiple
 #'           wavelength chromatographic profiles for chemometric data analysis using correlation optimised warping'
@@ -484,6 +507,36 @@ cow <- function(T, X, Seg, Slack,
   return(output)
 }
 
+
+
+#' Apply Correlation Optimized Warping path on a data matrix
+#'
+#' @param X               X (mP x nP) matrix with data for mP row vectors of
+#'                        length nP to be warped / corrected.
+#' @param Warping         Warping (1 x N x 2) or (mP x nP) interpolation
+#'                        segment starting points (in "nP" units) after warping
+#'                        (first slab) and before warping (second slab).
+#' @return                Xw (mP x nP) warped/corrected data matrix.
+#' @family Alignment functions
+#' @references {
+#'  Niels-Peter Vest Nielsen, Jens Micheal Carstensen and Jørn Smedegaard 'Aligning of singel and multiple
+#'           wavelength chromatographic profiles for chemometric data analysis using correlation optimised warping'
+#'           J. Chrom. A 805(1998)17-35
+#'
+#'  Correlation optimized warping and dynamic time warping as preprocessing methods for chromatographic Data
+#'            Giorgio Tomasi, Frans van den Berg and Claus Andersson, Journal of Chemometrics 18(2004)231-241
+#'  }
+#'
+#' @author Luis Fernandez,  \email{lfernandez@@.ub.edu}
+#'
+#' Inspired on the work by:
+#'
+#' @author Giorgio Tomasi, \email{gt@@kvl.dk}
+#' @author Frans van den Berg 070821 (GT) \email{fb@@kvl.dk}
+#'
+#' Royal Agricultural and Veterinary University - Department of Food Science
+#' Quality and Technology - Spectroscopy and Chemometrics group - Denmark
+#' www.models.kvl.dk
 
 
 apply_cow <- function(X, Wrp) {
