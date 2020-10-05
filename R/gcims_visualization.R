@@ -27,5 +27,9 @@ gcims_visualization <- function(dir_in, samples){
     colnames(moltaux) <- c("Dirft Time", "Retention Time", "Value")
     ggplot(moltaux, aes(x = `Dirft Time`, y = `Retention Time`, z = Value)) +
       geom_contour_fill()
+    ggplot(moltaux, aes(x = `Dirft Time`, y = Value)) +
+      geom_line()
+    ggplot(moltaux, aes(x = `Retention Time`, y = Value)) +
+      geom_line()
   }
 }
