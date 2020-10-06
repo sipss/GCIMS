@@ -4,8 +4,17 @@
 \alias{cow}
 \title{Correlation Optimized Warping with linear interpolation}
 \usage{
-cow(T, X, Seg, Slack, plot = FALSE, corrpow = 1,
-  equal_lengths = FALSE, max_correction = NA, debug = FALSE)
+cow(
+  T,
+  X,
+  Seg,
+  Slack,
+  plot = FALSE,
+  corrpow = 1,
+  equal_lengths = FALSE,
+  max_correction = NA,
+  debug = FALSE
+)
 }
 \arguments{
 \item{T}{array with the target spectra to use as reference}
@@ -64,10 +73,12 @@ Correlation Optimized Warping with linear interpolation
  }
 }
 \seealso{
-Other Alignment functions: \code{\link{apply_cow}},
-  \code{\link{cut_samples}}, \code{\link{gcims_alignment}},
-  \code{\link{gcims_cut_samples}},
-  \code{\link{optimize_cow}}
+Other Alignment functions: 
+\code{\link{apply_cow}()},
+\code{\link{cut_samples}()},
+\code{\link{gcims_alignment}()},
+\code{\link{gcims_cut_samples}()},
+\code{\link{optimize_cow}()}
 }
 \author{
 Sergio Oller-Moreno,  \email{soller@ibecbarcelona.eu}

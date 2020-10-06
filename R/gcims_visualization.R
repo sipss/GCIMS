@@ -2,7 +2,8 @@
 
 
 #' @param dir_in          The input directory.
-#' @param samples         The set of samples to be visualized.
+#' @param sample_num      The number corresponding to the sample
+#'                        to be visualized.
 
 #' @return A set of plots of the samples: full espectra, Intensity VS Retention Time
 #' and Intensity VS Drift Time.
@@ -18,34 +19,30 @@
 #' print(dataset_pos)
 #' }
 
-gcims_visualization <- function(dir_in, samples){
+gcims_visualization <- function(dir_in, sample_num){
 
   print(" ")
   print("  /////////////////////////////////////")
-  print(" /   Samples Spectra Visualization   /")
+  print(" /    Sample Matrix Visualization    /")
   print("/////////////////////////////////////")
   print(" ")
 
-  library(ggplot2)
-  library(metR)
-  library(reshape2)
-
   setwd(dir_in)
-  m = 0;
-  for (i in (samples)){
-    m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
-    aux_string <- paste0("M", i, ".rds")
+    print(paste0("Visualizing sample ", sample_num))
+    aux_string <- paste0("M", sample_num, ".rds")
     aux <- readRDS(aux_string)
     retentiontime <- c(0:(dim(aux)[1]-1))
     rownames(aux) <- retentiontime
     moltaux <- melt(t(aux))
-    colnames(moltaux) <- c("Dirft Time", "Retention Time", "Value")
-    ggplot(moltaux, aes(x = `Dirft Time`, y = `Retention Time`, z = Value)) +
+    colnames(moltaux) <- c("Drift Time", "Retention Time", "Value")
+
+    rm(aux, aux_string)
+
+    p <- ggplot(moltaux, aes(x = `Drift Time`, y = `Retention Time`, z = Value)) +
       geom_contour_fill()
-    ggplot(moltaux, aes(x = `Dirft Time`, y = Value)) +
+    ggplot(moltaux, aes(x = `Drift Time`, y = Value)) +
       geom_line()
     ggplot(moltaux, aes(x = `Retention Time`, y = Value)) +
       geom_line()
-  }
+    print(p)
 }

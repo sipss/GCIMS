@@ -4,8 +4,14 @@
 \alias{gcims_smoothing}
 \title{Data Smoothing using Savitzky-Golay filters}
 \usage{
-gcims_smoothing(dir_in, dir_out, samples, by_rows, filter_length,
-  polynomial_order)
+gcims_smoothing(
+  dir_in,
+  dir_out,
+  samples,
+  by_rows,
+  filter_length,
+  polynomial_order
+)
 }
 \arguments{
 \item{dir_in}{The input directory.}

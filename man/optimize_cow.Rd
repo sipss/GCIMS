@@ -39,9 +39,11 @@ print(dataset_pos)
 }
 }
 \seealso{
-Other Alignment functions: \code{\link{apply_cow}},
-  \code{\link{cow}}, \code{\link{cut_samples}},
-  \code{\link{gcims_alignment}},
-  \code{\link{gcims_cut_samples}}
+Other Alignment functions: 
+\code{\link{apply_cow}()},
+\code{\link{cow}()},
+\code{\link{cut_samples}()},
+\code{\link{gcims_alignment}()},
+\code{\link{gcims_cut_samples}()}
 }
 \concept{Alignment functions}

@@ -34,7 +34,8 @@ In 2014 IEEE 11th International Multi-Conference on Systems, Signals & Devices (
  }
 }
 \seealso{
-Other Baseline removal functions: \code{\link{gcims_baseline_removal}}
+Other Baseline removal functions: 
+\code{\link{gcims_baseline_removal}()}
 }
 \author{
 Sergio Oller-Moreno,  \email{soller@.ibecbarcelona.eu}

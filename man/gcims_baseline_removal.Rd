@@ -42,6 +42,7 @@ print(dataset_pos)
 
 }
 \seealso{
-Other Baseline removal functions: \code{\link{psalsa_one}}
+Other Baseline removal functions: 
+\code{\link{psalsa_one}()}
 }
 \concept{Baseline removal functions}
