@@ -19,10 +19,13 @@ License: All rights reserved. Do not distribute.
 LazyData: true
 Imports:
     assertthat (>= 0.1),
+    ggplot2,
+    metR,
     pracma,
     ptw (>= 1.9-10),
-    signal(>= 0.7-6),
-    R.matlab(>= 3.6.2)
+    reshape2,
+    R.matlab(>= 3.6.2),
+    signal(>= 0.7-6)
 Suggests:
     testthat
 Encoding: UTF-8

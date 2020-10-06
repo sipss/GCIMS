@@ -1,6 +1,23 @@
 #' SAmples Visualization
 
 
+#' @param dir_in          The input directory.
+#' @param samples         The set of samples to be visualized.
+
+#' @return A set of plots of the samples: full espectra, Intensity VS Retention Time
+#' and Intensity VS Drift Time.
+#' @family Visualization functions
+#' @export
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
 gcims_visualization <- function(dir_in, samples){
 
   print(" ")
@@ -12,7 +29,6 @@ gcims_visualization <- function(dir_in, samples){
   library(ggplot2)
   library(metR)
   library(reshape2)
-  library(tidyverse)
 
   setwd(dir_in)
   m = 0;
