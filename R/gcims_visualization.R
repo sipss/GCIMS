@@ -38,11 +38,14 @@ gcims_visualization <- function(dir_in, sample_num){
 
     rm(aux, aux_string)
 
-    p <- ggplot(moltaux, aes(x = `Drift Time`, y = `Retention Time`, z = Value)) +
-      geom_contour_fill()
-    ggplot(moltaux, aes(x = `Drift Time`, y = Value)) +
-      geom_line()
-    ggplot(moltaux, aes(x = `Retention Time`, y = Value)) +
-      geom_line()
-    print(p)
+    p1 <- ggplot(moltaux, aes(x = `Drift Time`, y = `Retention Time`, z = Value)) +
+          geom_contour_filled()
+
+    # p2 <-  ggplot(moltaux, aes(x = `Drift Time`, y = Value)) +
+    #   geom_line()
+    # p3 <- ggplot(moltaux, aes(x = `Retention Time`, y = Value)) +
+    #   geom_line()
+    print(p1)
+    # print(p2)
+    # print(p3)
 }
