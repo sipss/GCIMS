@@ -17,13 +17,13 @@ Description: A consistent package easy to extend implementing common routines
 Depends: R(>= 3.6.0)
 License: All rights reserved. Do not distribute.
 LazyData: true
-Imports:
+Imports: 
     assertthat (>= 0.1),
-    ggplot2,
-    metR,
+    ggplot2 (>= 3.3.2),
+    metR (>= 0.7),
     pracma,
     ptw (>= 1.9-10),
-    reshape2,
+    reshape2 (>= 1.1.4),
     R.matlab(>= 3.6.2),
     signal(>= 0.7-6)
 Suggests:
