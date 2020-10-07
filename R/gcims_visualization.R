@@ -37,15 +37,14 @@ gcims_visualization <- function(dir_in, sample_num){
     colnames(moltaux) <- c("Drift Time", "Retention Time", "Value")
 
     rm(aux, aux_string)
+    p <- ggplot(moltaux, aes(x = `Drift Time`, y = `Retention Time`, fill = Value)) +
+          geom_raster() +
+          scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
+          labs(x="Drift Time (a.u.)",
+               y="Retention Time (a.u.)",
+               title = "Sample Image",
+               fill = "Intensity") +
+          theme_minimal()
 
-    p1 <- ggplot(moltaux, aes(x = `Drift Time`, y = `Retention Time`, z = Value)) +
-          geom_contour_filled()
-
-    # p2 <-  ggplot(moltaux, aes(x = `Drift Time`, y = Value)) +
-    #   geom_line()
-    # p3 <- ggplot(moltaux, aes(x = `Retention Time`, y = Value)) +
-    #   geom_line()
-    print(p1)
-    # print(p2)
-    # print(p3)
+    print(p)
 }

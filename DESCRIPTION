@@ -25,7 +25,8 @@ Imports:
     ptw (>= 1.9-10),
     reshape2 (>= 1.1.4),
     R.matlab(>= 3.6.2),
-    signal(>= 0.7-6)
+    signal(>= 0.7-6),
+    viridis(>= 0.5.1)
 Suggests:
     testthat
 Encoding: UTF-8
