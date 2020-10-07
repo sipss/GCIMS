@@ -12,7 +12,7 @@ cut_samples(loaded_sample, ret_cut = NULL, drift_cut = NULL)
 \item{loaded_sample}{Current sample to be cut.}
 
 \item{ret_cut}{A  vector of two components. Beginning and end
-of the retencion time cut.}
+of the retention time cut.}
 
 \item{drift_cut}{A  vector of two components. Beginning and end
 of the drift time cut.}

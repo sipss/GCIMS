@@ -4,7 +4,7 @@
 \alias{gcims_cut_samples}
 \title{Cut samples in a retention time - drift time rectangle}
 \usage{
-gcims_cut_samples(dir_in, dir_out, samples, ret_cut, dritf_cut)
+gcims_cut_samples(dir_in, dir_out, samples, ret_cut, drift_cut)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -14,7 +14,7 @@ gcims_cut_samples(dir_in, dir_out, samples, ret_cut, dritf_cut)
 \item{samples}{The set of samples to be processed.}
 
 \item{ret_cut}{A  vector of two components. Beginning and end
-of the retencion time cut.}
+of the retention time cut.}
 
 \item{drift_cut}{A  vector of two components. Beginning and end
 of the drift time cut.}

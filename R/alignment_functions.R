@@ -9,7 +9,7 @@
 #'                        If FALSE, applied by columns
 #'                        (that is the retention time direction).
 #' @param seg_vector      Vector of segment lengths.
-#' @param slack_vetor     Vector of slacks.
+#' @param slack_vector    Vector of slacks.
 #' @return An aligned gcims dataset.
 #' @family Alignment functions
 #' @export
@@ -77,7 +77,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
 #'                        If FALSE, applied by columns
 #'                        (that is the retention time direction).
 #' @param seg_vector      Vector of segment lengths.
-#' @param slack_vetor     Vector of slacks.
+#' @param slack_vector    Vector of slacks.
 #' @return                A matrix with the optimum warping.
 #' @family Alignment functions
 #' @export
@@ -111,7 +111,7 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
 
   # Load the samples (transpose if needed) and
   # compress them (just an addition) in the direction
-  # of aligment. Store them in the variable curves
+  # of alignment. Store them in the variable curves
 
   m <-0
   for (i in (c(0, samples))){
@@ -513,10 +513,11 @@ cow <- function(T, X, Seg, Slack,
 #'
 #' @param X               X (mP x nP) matrix with data for mP row vectors of
 #'                        length nP to be warped / corrected.
-#' @param Warping         Warping (1 x N x 2) or (mP x nP) interpolation
+#' @param Wrp             Wrp (N x 2) interpolation
 #'                        segment starting points (in "nP" units) after warping
 #'                        (first slab) and before warping (second slab).
 #' @return                Xw (mP x nP) warped/corrected data matrix.
+#' @importFrom stats cor
 #' @family Alignment functions
 #' @references {
 #'  Niels-Peter Vest Nielsen, Jens Micheal Carstensen and Jørn Smedegaard 'Aligning of singel and multiple

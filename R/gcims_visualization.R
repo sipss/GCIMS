@@ -9,6 +9,9 @@
 #' and Intensity VS Drift Time.
 #' @family Visualization functions
 #' @export
+#' @importFrom reshape2 melt
+#' @importFrom ggplot2 ggplot aes labs theme_minimal geom_raster
+#' @importFrom viridis scale_fill_viridis
 #' @examples
 #' \dontrun{
 #' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",

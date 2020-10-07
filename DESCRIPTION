@@ -15,7 +15,7 @@ Description: A consistent package easy to extend implementing common routines
             workflow for the analysis, importing the data, preprocessing the spectra
             as well as classification andregression techniques for the modelling of the spectra.
 Depends: R(>= 3.6.0)
-License: All rights reserved. Do not distribute.
+License: GPL-2
 LazyData: true
 Imports: 
     assertthat (>= 0.1),

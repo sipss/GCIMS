@@ -20,7 +20,7 @@ If FALSE, applied by columns
 
 \item{seg_vector}{Vector of segment lengths.}
 
-\item{slack_vetor}{Vector of slacks.}
+\item{slack_vector}{Vector of slacks.}
 }
 \value{
 An aligned gcims dataset.

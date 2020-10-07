@@ -11,6 +11,8 @@
 #' @return A filtered  gcims dataset.
 #' @family Smoothing functions
 #' @export
+#' @importFrom signal sgolayfilt
+#' @importFrom R.matlab readMat
 #' @examples
 #' \dontrun{
 #' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",

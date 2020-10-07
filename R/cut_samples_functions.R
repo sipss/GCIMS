@@ -6,7 +6,7 @@
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
 #' @param ret_cut         A  vector of two components. Beginning and end
-#'                        of the retencion time cut.
+#'                        of the retention time cut.
 #' @param drift_cut       A  vector of two components. Beginning and end
 #'                        of the drift time cut.
 #' @return An cut gcims dataset.
@@ -22,7 +22,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_cut_samples <- function(dir_in, dir_out, samples, ret_cut, dritf_cut){
+gcims_cut_samples <- function(dir_in, dir_out, samples, ret_cut, drift_cut){
 
 
   print(" ")
@@ -54,7 +54,7 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, ret_cut, dritf_cut){
 #'
 #' @param loaded_sample   Current sample to be cut.
 #' @param ret_cut         A  vector of two components. Beginning and end
-#'                        of the retencion time cut.
+#'                        of the retention time cut.
 #' @param drift_cut       A  vector of two components. Beginning and end
 #'                        of the drift time cut.
 #' @return An cut matrix.

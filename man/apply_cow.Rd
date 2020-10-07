@@ -10,7 +10,7 @@ apply_cow(X, Wrp)
 \item{X}{X (mP x nP) matrix with data for mP row vectors of
 length nP to be warped / corrected.}
 
-\item{Warping}{Warping (1 x N x 2) or (mP x nP) interpolation
+\item{Wrp}{Wrp (N x 2) interpolation
 segment starting points (in "nP" units) after warping
 (first slab) and before warping (second slab).}
 }
