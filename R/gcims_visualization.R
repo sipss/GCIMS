@@ -45,6 +45,5 @@ gcims_visualization <- function(dir_in, sample_num){
                title = "Sample Image",
                fill = "Intensity") +
           theme_minimal()
-
     print(p)
 }
