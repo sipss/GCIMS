@@ -23,6 +23,8 @@
 
 gcims_visualization <- function(dir_in, sample_num){
 
+  Retention_Time <- Drift_Time <- Value <- NULL
+
   print(" ")
   print("  /////////////////////////////////////")
   print(" /    Sample Matrix Visualization    /")
@@ -77,6 +79,9 @@ gcims_visualization <- function(dir_in, sample_num){
 #' }
 
 gcims_plot_tics <- function(dir_in, samples){
+
+  Retention_Time <- Index <- Value <- Sample <- NULL
+
   print(" ")
   print("  //////////////////////")
   print(" /     Plottig TICs   /")
@@ -147,6 +152,9 @@ gcims_plot_tics <- function(dir_in, samples){
 #' }
 
 gcims_plot_tisa <- function(dir_in, samples){
+
+  Drift_Time <- Index <- Value <- Sample <- NULL
+
   print(" ")
   print("  //////////////////////")
   print(" /     Plottig TICs   /")

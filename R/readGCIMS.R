@@ -2,9 +2,6 @@
 
 
 #' @param x               Name of the sample
-#' @param sample_num      The number corresponding to the sample
-#'                        to be visualized.
-
 #' @return An R object that contains the matrix and the retention times
 #' @family Reading functions
 #' @export
@@ -22,6 +19,7 @@
 #' }
 
 readGCIMS <- function(x) {
+  metadata <- NULL
   if (str_contains(x, ".csv")){ ## I ask if my file (x) contains ".csv in the name. It it is a csv, I read the file.
     file <- read_csv(x, skip = 130)
     data <- file[-1, -c(1:2)]
