@@ -126,6 +126,84 @@ gcims_plot_tics <- function(dir_in, samples){
 }
 
 
+#' Plot Sample Extracted Ion Chromatrogram
+
+
+#' @param dir_in          The input directory.
+#' @param samples         The number corresponding to the sample
+#'                        to be visualized.
+#' @param td_ind          Drift time Index (to be modified in future)
+#' @return An extracted ion chromatogram
+
+#' @return An Extracted Ion Chromatogram,
+#' @family Visualization functions
+#' @export
+#' @importFrom dplyr mutate
+#' @importFrom magrittr '%>%'
+#' @importFrom reshape2 melt
+#' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
+gcims_plot_eics <- function(dir_in, samples, td_ind){
+
+  Retention_Time <- Index <- Value <- Sample <- NULL
+
+  print(" ")
+  print("  //////////////////////")
+  print(" /     Plottig EICs   /")
+  print("//////////////////////")
+  print(" ")
+
+  setwd(dir_in)
+  aux_string <- paste0("M", samples[1], ".rds")
+  aux <- readRDS(aux_string)
+  num_of_rows <- dim(aux)[1]
+  rm(aux_string, aux)
+
+  m <- 0
+  eics <- matrix(0, nrow = num_of_rows, ncol = length(samples))
+  print(dim(eics))
+  for (i in samples){
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux <- readRDS(aux_string)
+    print(dim(aux))
+    eics[, m] <- aux[, td_ind]
+    rm(aux_string, aux)
+  }
+  rm(m)
+
+  retentiontime <- c(0:(dim(eics)[1]-1))
+  rownames(eics) <- retentiontime
+  molteics <- melt(eics)
+  colnames(molteics) <- c( "Retention_Time", "Index", "Value")
+
+  molteics <- molteics %>%
+    mutate (Sample = as.factor(samples[Index]))
+
+
+  p <- ggplot(molteics, aes(x = Retention_Time, y = Value, color = Sample)) +
+    geom_line() +
+    labs(x="Retention Time (a.u.)",
+         y="Intensity (a.u.)",
+         color = "Samples",
+         title = "Extracted Ion Chromatograms") +
+    theme_minimal()
+  print(p)
+}
+
+
+
+
 
 #' Total Ion Spectrum visualization
 
@@ -157,7 +235,7 @@ gcims_plot_tisa <- function(dir_in, samples){
 
   print(" ")
   print("  //////////////////////")
-  print(" /     Plottig TICs   /")
+  print(" /     Plottig TISa   /")
   print("//////////////////////")
   print(" ")
 
@@ -197,5 +275,80 @@ gcims_plot_tisa <- function(dir_in, samples){
     theme_minimal()
   print(p)
 }
+
+
+#' Plot Sample Spectra
+
+
+#' @param dir_in          The input directory.
+#' @param samples         The set of samples to be
+#'                        to be visualized.
+#' @param tr_ind          Retention time Index (to be modified in future)
+
+#' @return A plot of the Sample Spectra.
+#' @family Visualization functions
+#' @export
+#' @importFrom dplyr mutate
+#' @importFrom magrittr '%>%'
+#' @importFrom reshape2 melt
+#' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
+gcims_plot_spec <- function(dir_in, samples, tr_ind){
+
+  Drift_Time <- Index <- Value <- Sample <- NULL
+
+  print(" ")
+  print("  /////////////////////////")
+  print(" /     Plottig Spectra   /")
+  print("/////////////////////////")
+  print(" ")
+
+  setwd(dir_in)
+  aux_string <- paste0("M", samples[1], ".rds")
+  aux <- readRDS(aux_string)
+  num_of_rows <- dim(aux)[2]
+  rm(aux_string, aux)
+
+  m <- 0
+  spec <- matrix(0, nrow = num_of_rows, ncol = length(samples))
+  for (i in samples){
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux <- readRDS(aux_string)
+    spec[, m] <- aux[tr_ind,]
+    rm(aux_string, aux)
+  }
+  rm(m)
+
+  driftime <- c(0:(dim(spec)[1]-1))
+  rownames(spec) <-  driftime
+  moltspec <- melt(spec)
+  colnames(moltspec) <- c( "Drift_Time", "Index", "Value")
+
+  moltspec <- moltspec %>%
+    mutate (Sample = as.factor(samples[Index]))
+
+
+  p <- ggplot(moltspec, aes(x = Drift_Time, y = Value, color = Sample)) +
+    geom_line() +
+    labs(x="Drift Time (a.u.)",
+         y="Intensity (a.u.)",
+         color = "Samples",
+         title = "Spectra") +
+    theme_minimal()
+  print(p)
+}
+
+
 
 
