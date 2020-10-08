@@ -30,6 +30,7 @@ print(dataset_pos)
 }
 \seealso{
 Other Visualization functions: 
+\code{\link{gcims_plot_tisa}()},
 \code{\link{gcims_visualization}()}
 }
 \concept{Visualization functions}

@@ -122,4 +122,72 @@ gcims_plot_tics <- function(dir_in, samples){
 
 
 
+#' Total Ion Spectrum visualization
+
+
+#' @param dir_in          The input directory.
+#' @param samples         The set of samples to be
+#'                        to be visualized.
+
+#' @return A plot of the Total Ion Spectra.
+#' @family Visualization functions
+#' @export
+#' @importFrom dplyr mutate
+#' @importFrom magrittr '%>%'
+#' @importFrom reshape2 melt
+#' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
+gcims_plot_tisa <- function(dir_in, samples){
+  print(" ")
+  print("  //////////////////////")
+  print(" /     Plottig TICs   /")
+  print("//////////////////////")
+  print(" ")
+
+  setwd(dir_in)
+  aux_string <- paste0("M", samples[1], ".rds")
+  aux <- readRDS(aux_string)
+  num_of_rows <- dim(aux)[2]
+  rm(aux_string, aux)
+
+  m <- 0
+  tisa <- matrix(0, nrow = num_of_rows, ncol = length(samples))
+  for (i in samples){
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux <- readRDS(aux_string)
+    tisa[, m] <- colSums(aux)
+    rm(aux_string, aux)
+  }
+  rm(m)
+
+  driftime <- c(0:(dim(tisa)[1]-1))
+  rownames(tisa) <-  driftime
+  moltisa <- melt(tisa)
+  colnames(moltisa) <- c( "Drift_Time", "Index", "Value")
+
+  moltisa <- moltisa %>%
+    mutate (Sample = as.factor(samples[Index]))
+
+
+  p <- ggplot(moltisa, aes(x = Drift_Time, y = Value, color = Sample)) +
+    geom_line() +
+    labs(x="Drift Time (a.u.)",
+         y="Intensity (a.u.)",
+         color = "Samples",
+         title = "Total Ion Spectra") +
+    theme_minimal()
+  print(p)
+}
+
 
