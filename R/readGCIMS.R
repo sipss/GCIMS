@@ -1,7 +1,7 @@
 #' GC-IMS Samples Reading
 
 
-#' @param x          Name of the sample
+#' @param x               Name of the sample
 #' @param sample_num      The number corresponding to the sample
 #'                        to be visualized.
 
@@ -23,10 +23,10 @@
 
 readGCIMS <- function(x) {
   if (str_contains(x, ".csv")){ ## I ask if my file (x) contains ".csv in the name. It it is a csv, I read the file.
-    file <- readr::read_csv(x, skip = 130)
+    file <- read_csv(x, skip = 130)
     data <- file[-1, -c(1:2)]
-  }else if (sjmisc::str_contains(x, ".mat")) {
-    data <- R.matlab::readMat(x)[[1]]
+  }else if (str_contains(x, ".mat")) {
+    data <- readMat(x)[[1]]
   }else { ## If my file i is not a csv, I show the warning
     warning("This fild is not a .csv or a .mat file")
   }
