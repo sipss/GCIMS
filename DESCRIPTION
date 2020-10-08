@@ -19,7 +19,9 @@ License: GPL-2
 LazyData: true
 Imports: 
     assertthat (>= 0.1),
+    dplyr(>= 1.0.2),
     ggplot2 (>= 3.3.2),
+    magrittr(>= 1.5),
     metR (>= 0.7),
     pracma,
     ptw (>= 1.9-10),
