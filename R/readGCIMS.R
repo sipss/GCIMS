@@ -1,17 +1,34 @@
+#' GC-IMS Samples Reading
+
+
+#' @param x          Name of the sample
+#' @param sample_num      The number corresponding to the sample
+#'                        to be visualized.
+
+#' @return An R object that contains the matrix and the retention times
+#' @family Reading functions
+#' @export
+#' @importFrom readr read_csv
+#' @importFrom sjmisc str_contains
+#' @importFrom R.matlab readMat
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
 
 readGCIMS <- function(x) {
-  library(readr)
-  library(sjmisc)
   if (str_contains(x, ".csv")){ ## I ask if my file (x) contains ".csv in the name. It it is a csv, I read the file.
-    file <- read_delim(x, ";", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
-    metadata <- file[1:3, ]
-    data <- file[-(1:3), ]
-    colnames(data) <- data[1, ]
-    data <- data[-1, ]
-  } else { ## If my file i is not a csv, I show the warning
-   warning("This fild is not a .csv file")
+    file <- readr::read_csv(x, skip = 130)
+    data <- file[-1, -c(1:2)]
+  }else if (sjmisc::str_contains(x, ".mat")) {
+    data <- R.matlab::readMat(x)[[1]]
+  }else { ## If my file i is not a csv, I show the warning
+    warning("This fild is not a .csv or a .mat file")
   }
   data <- list(metadata, data)
 }
-
-
