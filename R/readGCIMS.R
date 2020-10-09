@@ -28,7 +28,7 @@ readGCIMS <- function(dir_in, dir_out) {
       dd <- file[-1, -c(1:2)]
       dd <- list(metadata, dd)
       setwd(dir_out)
-      saveRDS(data, file = paste0("M", i, ".rds"))
+      saveRDS(dd, file = paste0("M", i, ".rds"))
       setwd(dir_in)
     }else if (sjmisc::str_contains(x, ".mat")) {
       dd <- R.matlab::readMat(x)[[1]]
