@@ -18,7 +18,7 @@ to be visualized.}
 default.}
 }
 \value{
-A plot of the Total Ion Chromatograms.
+A set of Chromatograms.
 }
 \description{
 Plots TICs or EICs.
@@ -36,7 +36,6 @@ print(dataset_pos)
 \seealso{
 Other Visualization functions: 
 \code{\link{gcims_plot_spec}()},
-\code{\link{gcims_plot_tisa}()},
 \code{\link{gcims_visualization}()}
 }
 \concept{Visualization functions}

@@ -2,9 +2,9 @@
 % Please edit documentation in R/gcims_visualization.R
 \name{gcims_plot_spec}
 \alias{gcims_plot_spec}
-\title{Plot Sample Spectra}
+\title{Plots TISa or spectra}
 \usage{
-gcims_plot_spec(dir_in, samples, tr_ind)
+gcims_plot_spec(dir_in, samples, tr_ind = NULL, dt_range = NULL)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -12,13 +12,16 @@ gcims_plot_spec(dir_in, samples, tr_ind)
 \item{samples}{The set of samples to be
 to be visualized.}
 
-\item{tr_ind}{Retention time Index (to be modified in future)}
+\item{tr_ind}{Selected retention time value. NULL by default.}
+
+\item{dt_range}{Min a Max drift time values. NULL by
+default.}
 }
 \value{
-A plot of the Sample Spectra.
+A set of spectra.
 }
 \description{
-Plot Sample Spectra
+Plots TISa or spectra
 }
 \examples{
 \dontrun{
@@ -33,7 +36,6 @@ print(dataset_pos)
 \seealso{
 Other Visualization functions: 
 \code{\link{gcims_plot_chrom}()},
-\code{\link{gcims_plot_tisa}()},
 \code{\link{gcims_visualization}()}
 }
 \concept{Visualization functions}

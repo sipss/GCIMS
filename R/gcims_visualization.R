@@ -62,7 +62,7 @@ gcims_visualization <- function(dir_in, sample_num){
 #' @param rt_range        Min a Max retention time values. NULL by
 #'                        default.
 #' @param td_ind          Selected drift time value. NULL by default.
-#' @return A plot of the Total Ion Chromatograms.
+#' @return A set of Chromatograms.
 #' @family Visualization functions
 #' @export
 #' @importFrom dplyr mutate
@@ -111,7 +111,7 @@ gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
   } else if((class(rt_range[1]: rt_range[2]) == "integer") & (rt_range[2] > rt_range[1])){
     if((rt_range[1] >= 1) & (rt_range[2] <= dim(aux)[1])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
       num_of_rows <- length(rt_range[1]: rt_range[2])
-      sel_index <- 1:num_of_rows
+      sel_index <- rt_range[1]: rt_range[2]
       } else {
         stop("Index out of bounds")
         }
@@ -123,26 +123,25 @@ gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
   rm(aux_string, aux)
 
   m <- 0
-  tics <- matrix(0, nrow = num_of_rows, ncol = length(samples))
+  chroms <- matrix(0, nrow = num_of_rows, ncol = length(samples))
   for (i in samples){
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux <- readRDS(aux_string)
     if (is.null(td_ind)){
-      tics[, m] <- rowSums(aux[sel_index, ])
+      chroms[, m] <- rowSums(aux[sel_index, ])
     } else {
-      tics[, m] <- aux[sel_index, td_ind]
+      chroms[, m] <- aux[sel_index, td_ind]
     }
-    #tics[, m] <- rowSums(aux[sel_index, ])
     rm(aux_string, aux)
   }
   rm(m)
 
-  retentiontime <- c(0:(dim(tics)[1]-1))
-  rownames(tics) <- retentiontime
-  moltics <- melt(tics)
-  colnames(moltics) <- c( "Retention_Time", "Index", "Value")
+  retentiontime <- c(0:(dim(chroms)[1]-1))
+  rownames(chroms) <- retentiontime
+  moltchroms <- melt(chroms)
+  colnames(moltchroms) <- c( "Retention_Time", "Index", "Value")
 
   if (is.null(td_ind)){
     plot_title <- "Total Ion Chromatogram"
@@ -150,11 +149,11 @@ gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
     plot_title <- "Extracted Ion Chromatogram"
   }
 
-  moltics <- moltics %>%
+  moltchroms <- moltchroms %>%
                 mutate (Sample = as.factor(samples[Index]))
 
 
-  p <- ggplot(moltics, aes(x = Retention_Time, y = Value, color = Sample)) +
+  p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Sample)) +
     geom_line() +
     labs(x="Retention Time (a.u.)",
          y="Intensity (a.u.)",
@@ -165,14 +164,16 @@ gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
 }
 
 
-#' Total Ion Spectrum visualization
 
+#' Plots TISa or spectra
 
 #' @param dir_in          The input directory.
 #' @param samples         The set of samples to be
 #'                        to be visualized.
-
-#' @return A plot of the Total Ion Spectra.
+#' @param dt_range        Min a Max drift time values. NULL by
+#'                        default.
+#' @param tr_ind          Selected retention time value. NULL by default.
+#' @return A set of spectra.
 #' @family Visualization functions
 #' @export
 #' @importFrom dplyr mutate
@@ -189,126 +190,87 @@ gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
 #' print(dataset_pos)
 #' }
 
-gcims_plot_tisa <- function(dir_in, samples){
+gcims_plot_spec <- function(dir_in, samples, tr_ind = NULL, dt_range = NULL){
 
   Drift_Time <- Index <- Value <- Sample <- NULL
 
   print(" ")
-  print("  //////////////////////")
-  print(" /     Plottig TISa   /")
-  print("//////////////////////")
+  print("  ///////////////////////////")
+  print(" /     Plotting Spectra    /")
+  print("///////////////////////////")
   print(" ")
+
+  if(is.null(tr_ind)){
+    #it's OK if it's null
+  } else if((is.numeric(tr_ind)) & (length(tr_ind) == 1)){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
+    if(tr_ind > 0){
+      #numeric, positive and scalar it's: OK
+    } else{
+      stop ("The variable tr_ind can't be negative")
+    }
+  } else{
+    stop ("Incorrect input values for tr_ind: It must be either NULL or a positive scalar integer")
+  }
 
   setwd(dir_in)
   aux_string <- paste0("M", samples[1], ".rds")
   aux <- readRDS(aux_string)
-  num_of_rows <- dim(aux)[2]
+
+  if(is.null(dt_range)){
+    num_of_rows <- dim(aux)[2]
+    sel_index <- 1:num_of_rows
+  } else if((class(dt_range[1]: dt_range[2]) == "integer") & (dt_range[2] > dt_range[1])){
+    if((dt_range[1] >= 1) & (dt_range[2] <= dim(aux)[1])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
+      num_of_rows <- length(dt_range[1]: dt_range[2])
+      sel_index <- dt_range[1]: dt_range[2]
+    } else {
+      stop("Index out of bounds")
+    }
+  } else {
+    stop("Possible errors: 1) dt_range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
+
+  }
+
   rm(aux_string, aux)
 
   m <- 0
-  tisa <- matrix(0, nrow = num_of_rows, ncol = length(samples))
+  specs <- matrix(0, nrow = num_of_rows, ncol = length(samples))
   for (i in samples){
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux <- readRDS(aux_string)
-    tisa[, m] <- colSums(aux)
+    if (is.null(tr_ind)){
+      specs[, m] <- colSums(aux[, sel_index])
+    } else {
+      specs[, m] <- aux[tr_ind, sel_index]
+    }
     rm(aux_string, aux)
   }
   rm(m)
 
-  driftime <- c(0:(dim(tisa)[1]-1))
-  rownames(tisa) <-  driftime
-  moltisa <- melt(tisa)
-  colnames(moltisa) <- c( "Drift_Time", "Index", "Value")
+  driftime <- c(0:(dim(specs)[1]-1))
+  rownames(specs) <- driftime
+  moltspecs <- melt(specs)
+  colnames(moltspecs) <- c("Drift_Time", "Index", "Value")
 
-  moltisa <- moltisa %>%
-    mutate (Sample = as.factor(samples[Index]))
-
-
-  p <- ggplot(moltisa, aes(x = Drift_Time, y = Value, color = Sample)) +
-    geom_line() +
-    labs(x="Drift Time (a.u.)",
-         y="Intensity (a.u.)",
-         color = "Samples",
-         title = "Total Ion Spectra") +
-    theme_minimal()
-  print(p)
-}
-
-
-#' Plot Sample Spectra
-
-
-#' @param dir_in          The input directory.
-#' @param samples         The set of samples to be
-#'                        to be visualized.
-#' @param tr_ind          Retention time Index (to be modified in future)
-
-#' @return A plot of the Sample Spectra.
-#' @family Visualization functions
-#' @export
-#' @importFrom dplyr mutate
-#' @importFrom magrittr '%>%'
-#' @importFrom reshape2 melt
-#' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
-#' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-#'
-#' print(dataset_pos)
-#' }
-
-gcims_plot_spec <- function(dir_in, samples, tr_ind){
-
-  Drift_Time <- Index <- Value <- Sample <- NULL
-
-  print(" ")
-  print("  /////////////////////////")
-  print(" /     Plottig Spectra   /")
-  print("/////////////////////////")
-  print(" ")
-
-  setwd(dir_in)
-  aux_string <- paste0("M", samples[1], ".rds")
-  aux <- readRDS(aux_string)
-  num_of_rows <- dim(aux)[2]
-  rm(aux_string, aux)
-
-  m <- 0
-  spec <- matrix(0, nrow = num_of_rows, ncol = length(samples))
-  for (i in samples){
-    m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
-    aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
-    spec[, m] <- aux[tr_ind,]
-    rm(aux_string, aux)
+  if (is.null(tr_ind)){
+    plot_title <- "Total Ion Spectrum"
+  } else{
+    plot_title <- "Spectrum"
   }
-  rm(m)
 
-  driftime <- c(0:(dim(spec)[1]-1))
-  rownames(spec) <-  driftime
-  moltspec <- melt(spec)
-  colnames(moltspec) <- c( "Drift_Time", "Index", "Value")
-
-  moltspec <- moltspec %>%
+  moltspecs <- moltspecs %>%
     mutate (Sample = as.factor(samples[Index]))
 
 
-  p <- ggplot(moltspec, aes(x = Drift_Time, y = Value, color = Sample)) +
+  p <- ggplot(moltspecs, aes(x = Drift_Time, y = Value, color = Sample)) +
     geom_line() +
-    labs(x="Drift Time (a.u.)",
+    labs(x="Retention Time (a.u.)",
          y="Intensity (a.u.)",
-         color = "Samples",
-         title = "Spectra") +
+         color = "Sample",
+         title = plot_title) +
     theme_minimal()
   print(p)
 }
-
-
-
 

@@ -4,7 +4,7 @@
 \alias{readGCIMS}
 \title{GC-IMS Samples Reading}
 \usage{
-readGCIMS(x)
+readGCIMS(dir_in, dir_out)
 }
 \arguments{
 \item{x}{Name of the sample}
