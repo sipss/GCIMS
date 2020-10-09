@@ -7,7 +7,9 @@
 readGCIMS(dir_in, dir_out)
 }
 \arguments{
-\item{x}{Name of the sample}
+\item{dir_in}{The input directory.}
+
+\item{dir_out}{The output directory.}
 }
 \value{
 An R object that contains the matrix and the retention times

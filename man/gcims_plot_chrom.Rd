@@ -36,6 +36,6 @@ print(dataset_pos)
 \seealso{
 Other Visualization functions: 
 \code{\link{gcims_plot_spec}()},
-\code{\link{gcims_visualization}()}
+\code{\link{gcims_view_sample}()}
 }
 \concept{Visualization functions}

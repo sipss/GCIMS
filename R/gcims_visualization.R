@@ -4,6 +4,10 @@
 #' @param dir_in          The input directory.
 #' @param sample_num      The number corresponding to the sample
 #'                        to be visualized.
+#' @param rt_range        Min a Max retention time values. NULL by
+#'                        default.
+#' @param dt_range        Min a Max drift time values. NULL by
+#'                        default.
 #' @return An image of the sample matrix.
 
 #' @family Visualization functions
@@ -21,7 +25,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_visualization <- function(dir_in, sample_num){
+gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL){
 
   Retention_Time <- Drift_Time <- Value <- NULL
 
@@ -32,24 +36,64 @@ gcims_visualization <- function(dir_in, sample_num){
   print(" ")
 
   setwd(dir_in)
-    print(paste0("Visualizing sample ", sample_num))
-    aux_string <- paste0("M", sample_num, ".rds")
-    aux <- readRDS(aux_string)
-    retentiontime <- c(0:(dim(aux)[1]-1))
-    rownames(aux) <- retentiontime
-    moltaux <- melt(t(aux))
-    colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
+  print(paste0("Visualizing sample ", sample_num))
+  aux_string <- paste0("M", sample_num, ".rds")
+  aux <- readRDS(aux_string)
 
-    rm(aux, aux_string)
-    p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
-          geom_raster() +
-          scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
-          labs(x="Drift Time (a.u.)",
-               y="Retention Time (a.u.)",
-               title = "Sample Matrix Image",
-               fill = "Intensity") +
-          theme_minimal()
-    print(p)
+#SOME CHECKS
+  if(is.null(rt_range)){
+  } else if((class(rt_range[1]: rt_range[2]) == "integer") & (rt_range[2] > rt_range[1])){
+    if((rt_range[1] >= 1) & (rt_range[2] <= dim(aux)[1])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
+    } else {
+      stop("Index out of bounds")
+    }
+  } else {
+    stop("Possible errors: 1) rt_range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
+  }
+
+  if(is.null(dt_range)){
+  } else if((class(dt_range[1]: dt_range[2]) == "integer") & (dt_range[2] > dt_range[1])){
+    if((dt_range[1] >= 1) & (dt_range[2] <= dim(aux)[2])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
+    } else {
+      stop("Index out of bounds")
+    }
+  } else {
+    stop("Possible errors: 1) dt_range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
+  }
+
+  #END CHECKS
+
+  if (is.null(rt_range)){#New
+    sel_index_rt <- 1:dim(aux)[1]#New
+    retentiontime <- c(0:(dim(aux)[1] - 1))#New
+  } else{#New
+    sel_index_rt <- rt_range[1]: rt_range[2]#New
+    retentiontime <- c((rt_range[1] - 1):(rt_range[2] - 1))#New (OJOOOO: que despues seran tiempos, no indices)
+  }#New
+
+
+  if (is.null(dt_range)){#New
+    sel_index_dt <- 1:dim(aux)[2]#New
+  } else{#New
+    sel_index_dt <- dt_range[1]: dt_range[2]#New
+  }#New
+
+  aux <- aux[sel_index_rt, sel_index_dt]#New
+  rownames(aux) <- retentiontime #New
+
+  moltaux <- melt(t(aux))
+  colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
+
+  rm(aux, aux_string)
+  p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
+    geom_raster() +
+    scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
+    labs(x="Drift Time (a.u.)",
+         y="Retention Time (a.u.)",
+         title = "Sample Matrix Image",
+         fill = "Intensity") +
+    theme_minimal()
+  print(p)
 }
 
 
