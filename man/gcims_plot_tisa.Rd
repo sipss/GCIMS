@@ -30,9 +30,8 @@ print(dataset_pos)
 }
 \seealso{
 Other Visualization functions: 
-\code{\link{gcims_plot_eics}()},
+\code{\link{gcims_plot_chrom}()},
 \code{\link{gcims_plot_spec}()},
-\code{\link{gcims_plot_tics}()},
 \code{\link{gcims_visualization}()}
 }
 \concept{Visualization functions}
