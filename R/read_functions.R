@@ -7,7 +7,7 @@
 #' @return An R object that contains the matrix and the retention times
 #' @family Reading functions
 #' @export
-#' @importFrom readr read_csv
+#' @importFrom readr read_csv cols
 #' @examples
 #' \dontrun{
 #' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
@@ -26,7 +26,10 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
   print("/////////////////////////")
   print(" ")
 
-  metadata <- NULL
+  metadata <- list(condition = NULL, experiment = NULL, group = NULL,
+                   index = NULL, raw_path = NULL, replicate = NULL)
+  data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
+
   files <- list.files(pattern = ".csv")
   if (length(files) == 0){
     stop("This folder does not contains any .csv file")
@@ -37,12 +40,14 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
-    file <- read_csv(files[i], skip = skip,
-                     progress = FALSE, col_names = FALSE)
-    dd <- file[-1, -c(1:2)]
-    dd <- list(metadata = metadata, data = dd)
+    single_file <- read_csv(files[i], skip = skip,
+                     progress = FALSE, col_names = FALSE,
+                     col_types = cols(.default = "d"))
+    dd <- single_file[-1, -c(1:2)]
+    data$data_df = dd
+    dd_list <- list(metadata = metadata, data = data)
     setwd(dir_out)
-    saveRDS(dd, file = paste0("M", i, ".rds"))
+    saveRDS(dd_list, file = paste0("M", i, ".rds"))
     setwd(dir_in)
   }
 }
