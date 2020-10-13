@@ -20,7 +20,6 @@
 
 gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
   setwd(dir_in)
-
   print(" ")
   print("  /////////////////////////")
   print(" /    Reading Samples    /")
@@ -38,9 +37,10 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
-    file <- read_csv(files[i], skip = skip)
+    file <- read_csv(files[i], skip = skip,
+                     progress = FALSE, col_names = FALSE)
     dd <- file[-1, -c(1:2)]
-    dd <- list(metadata, dd)
+    dd <- list(metadata = metadata, data = dd)
     setwd(dir_out)
     saveRDS(dd, file = paste0("M", i, ".rds"))
     setwd(dir_in)
@@ -86,7 +86,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
     print(paste0("Sample ", m, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
     dd <- readMat(files[i])[[1]]
-    dd <- list(metadata, dd)
+    dd <- list(metadata = metadata, data = dd)
     setwd(dir_out)
     saveRDS(dd, file = paste0("M", i, ".rds"))
     setwd(dir_in)
