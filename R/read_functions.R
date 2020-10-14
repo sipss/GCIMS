@@ -47,9 +47,9 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
     # DATA
     single_file <- read_csv(files[i], skip = skip,
                      progress = FALSE, col_names = FALSE,
-                     col_types = cols(.default = "c")) #"d"
+                     col_types = cols(.default = "c"))
     dd <- single_file[-c(1:2), -c(1:2)]                                                     # Depende del tipo de instrumento OJO
-    data$data_df = type_convert(dd, col_types = cols(.default = "d"))
+    data$data_df = - type_convert(dd, col_types = cols(.default = "d"))                     # Signo Menos solo para gasdormund programa nuevo
     data$retention_time <- as.numeric(single_file[1, -c(1:2)])                              # Depende del tipo de instrumento OJO
     data$drift_time <- type_convert(dd, col_types = cols(.default = "d"))[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
     data$drift_time <-  data$drift_time[[1]]                                                # Depende del tipo de instrumento OJO

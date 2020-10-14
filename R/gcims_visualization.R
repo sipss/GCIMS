@@ -38,7 +38,9 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
   setwd(dir_in)
   print(paste0("Visualizing sample ", sample_num))
   aux_string <- paste0("M", sample_num, ".rds")
-  aux <- readRDS(aux_string)
+  #aux <- readRDS(aux_string) #OLD
+  aux_list <- readRDS(aux_string) #new
+  aux <- t(as.matrix(aux_list$data$data_df)) #new
 
 #SOME CHECKS
   if(is.null(rt_range)){
