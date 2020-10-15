@@ -38,18 +38,25 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
   setwd(dir_in)
   print(paste0("Visualizing sample ", sample_num))
   aux_string <- paste0("M", sample_num, ".rds")
-  #aux <- readRDS(aux_string) #OLD
   aux_list <- readRDS(aux_string) #new
   aux <- t(as.matrix(aux_list$data$data_df)) #new
 
 #SOME CHECKS
   retention_time <- aux_list$data$retention_time
   drift_time <- aux_list$data$drift_time
+  cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
+  cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
+  cond_1_dt <-(dt_range[1] - drift_time[1]) < 0
+  cond_2_dt <-(dt_range[2] - drift_time[length(drift_time)]) > 0
+
 
   if(is.null(rt_range)){# old
     rt_ind <- c(1, dim(aux)[1]) #New
 
   } else{
+    if(cond_1_rt | cond_2_rt){
+      stop("Retention time range out of bounds.")
+    }
     rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2]))) #New
   }
 
@@ -58,11 +65,28 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
   if(is.null(dt_range)){# old
     dt_ind <- c(1, dim(aux)[2]) #New
   } else{
+   if(cond_1_dt | cond_2_dt){
+      stop("Drift time range out of bounds.")
+    }
     dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2]))) #New
   }
 
-  sel_index_rt <- rt_ind[1]: rt_ind[2]#old
-  sel_index_dt <- dt_ind[1]: dt_ind[2]#old
+  sel_index_rt <- rt_ind[1]: rt_ind[2]
+  sel_index_dt <- dt_ind[1]: dt_ind[2]
+
+  if(is.null(rt_range)){
+
+  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+  } else {
+    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
+  }
+
+  if(is.null(dt_range)){
+
+  } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+  } else {
+    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
+  }
 
   retention_time <- retention_time[sel_index_rt]
   drift_time <- drift_time[sel_index_dt]
@@ -77,9 +101,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #We do this in order to plot the data using geom_raster that is faster than geom_tile
 #perhaps a previous interpolation is needed to avoid this patch:
   rep_dt_index <- rep(seq(from = 1, to = dim(aux)[2], by = 1), times = dim(aux)[1])
-  #rep_dt_index <- rep(sel_index_dt, times = dim(aux)[1])
   drift_time_period <- mean(diff(drift_time))
-  #corr_drift_time <- seq(from = sel_index_dt[1], by = drift_time_period, length.out = length(drift_time))
   corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
   moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
 
@@ -93,69 +115,6 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
          fill = "Intensity") +
     theme_minimal()
   print(p)
-
-
-  # else if((class(rt_ind[1]: rt_ind[2]) == "integer") & (rt_ind[2] > rt_ind[1])){
-  #   #else if((class(rt_range[1]: rt_range[2]) == "integer") & (rt_range[2] > rt_range[1])){ # old
-  #   if((rt_ind[1] >= 1) & (rt_ind[2] <= dim(aux)[1])){ # NEw
-  #   #if((rt_range[1] >= 1) & (rt_range[2] <= dim(aux)[1])){ OLD
-  #   } else {
-  #     stop("Index out of bounds")
-  #   }
-  # } else {
-  #   stop("Possible errors: 1) rt_range is not a valid (numeric) vector, 2) or rt_range[2] <= rt_range[1])")
-  # }
-  #
-  # if(is.null(dt_range)){ #old
-  # } else if((class(dt_ind[1]: dt_ind[2]) == "integer") & (dt_ind[2] > dt_ind[1])){
-  #   #else if((class(dt_range[1]: dt_range[2]) == "integer") & (dt_range[2] > dt_range[1])){ #OLD
-  #   if((dt_ind[1] >= 1) & (dt_ind[2] <= dim(aux)[2])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
-  #   #if((dt_range[1] >= 1) & (dt_range[2] <= dim(aux)[2])){ OLD
-  #   } else {
-  #     stop("Index out of bounds")
-  #   }
-  # } else {
-  #   stop("Possible errors: 1) dt_range is not a valid (numeric) vector, 2) or dt_range[2] <= dt_range[1])")
-  # }
-
-  #END CHECKS
-
-  # if (is.null(rt_range)){#old
-  #   sel_index_rt <- 1:dim(aux)[1]#old
-  #   #retention_time <- c(0:(dim(aux)[1] - 1))#old
-  # } else{#New
-  #   sel_index_rt <- rt_ind[1]: rt_ind[2]
-  #   #sel_index_rt <- rt_range[1]: rt_range[2]#old
-  #   #retention_time <- c((rt_range[1] - 1):(rt_range[2] - 1)) # old#New (OJOOOO: que despues seran tiempos, no indices)
-  #   retention_time <- retention_time[sel_index_rt]   #New
-  # }#New
-  #
-  #
-  # if (is.null(dt_range)){#old
-  #   sel_index_dt <- 1:dim(aux)[2]#old
-  # } else{#New
-  #   sel_index_dt <- dt_ind[1]: dt_ind[2] #New
-  #   drift_time <- drift_time[sel_index_dt] #New
-  #   #New
-  #   #sel_index_dt <- dt_range[1]: dt_range[2]#old
-  # }#New
-
-  # aux <- aux[sel_index_rt, sel_index_dt]#old
-  # rownames(aux) <- retention_time #old
-  #
-  # moltaux <- melt(t(aux))
-  # colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
-  #
-  # rm(aux, aux_string)
-  # p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
-  #   geom_raster() +
-  #   scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
-  #   labs(x="Drift Time (ms)",
-  #        y="Retention Time (s)",
-  #        title = "Sample Matrix Image",
-  #        fill = "Intensity") +
-  #   theme_minimal()
-  # print(p)
 }
 
 
@@ -205,7 +164,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
       stop ("The variable dt_value can't be negative")
     }
   } else{
-    stop ("Incorrect input values for dt_valu: It must be either NULL or a non-negative scalar integer")
+    stop ("Incorrect input values for dt_value: It must be either NULL or a non-negative scalar numeric")
   }
 
   setwd(dir_in)
@@ -216,11 +175,18 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
 
   retention_time <- aux_list$data$retention_time
   drift_time <- aux_list$data$drift_time
+  cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
+  cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
+
+
 
   if(is.null(rt_range)){# old
     rt_ind <- c(1, dim(aux)[1]) #New
 
   } else{
+    if(cond_1_rt | cond_2_rt){
+      stop("Retention time range out of bounds.")
+    }
     rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2]))) #New
   }
 
@@ -237,15 +203,8 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
   if(is.null(rt_range)){
 
   } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
-    if((sel_index_rt[1] >= 1) & (sel_index_rt[2] <= dim(aux)[1])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
-      #num_of_rows <- length(rt_range[1]: rt_range[2])
-      #sel_index <- rt_range[1]: rt_range[2]
-      } else {
-        stop("Index out of bounds")
-        }
   } else {
         stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
-
   }
 
   rm(aux_string, aux_list, aux)
