@@ -4,7 +4,7 @@
 \alias{gcims_plot_chrom}
 \title{Plots TICs or EICs.}
 \usage{
-gcims_plot_chrom(dir_in, samples, td_ind = NULL, rt_range = NULL)
+gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -12,7 +12,7 @@ gcims_plot_chrom(dir_in, samples, td_ind = NULL, rt_range = NULL)
 \item{samples}{The set of samples to be
 to be visualized.}
 
-\item{td_ind}{Selected drift time value. NULL by default.}
+\item{dt_value}{Selected drift time value. NULL by default.}
 
 \item{rt_range}{Min a Max retention time values. NULL by
 default.}

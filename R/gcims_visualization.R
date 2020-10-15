@@ -167,7 +167,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #'                        to be visualized.
 #' @param rt_range        Min a Max retention time values. NULL by
 #'                        default.
-#' @param td_ind          Selected drift time value. NULL by default.
+#' @param dt_value        Selected drift time value. NULL by default.
 #' @return A set of Chromatograms.
 #' @family Visualization functions
 #' @export
@@ -185,7 +185,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' print(dataset_pos)
 #' }
 
-gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
+gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
 
   Retention_Time <- Index <- Value <- Sample <- NULL
 
@@ -195,61 +195,84 @@ gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
   print("///////////////////////////////")
   print(" ")
 
-  if(is.null(td_ind)){
+
+  if(is.null(dt_value)){
     #it's OK if it's null
-  } else if((is.numeric(td_ind)) & (length(td_ind) == 1)){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
-    if(td_ind > 0){
-    #numeric, positive and scalar it's: OK
+  } else if((is.numeric(dt_value)) & (length(dt_value) == 1)){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
+    if(dt_value >= 0){
+    #numeric, positive or zero and scalar it's: OK
     } else{
-      stop ("The variable td_ind can't be negative")
+      stop ("The variable dt_value can't be negative")
     }
   } else{
-    stop ("Incorrect input values for td_ind: It must be either NULL or a positive scalar integer")
+    stop ("Incorrect input values for dt_valu: It must be either NULL or a non-negative scalar integer")
   }
 
   setwd(dir_in)
   aux_string <- paste0("M", samples[1], ".rds")
-  aux <- readRDS(aux_string)
+  #aux <- readRDS(aux_string)
+  aux_list <- readRDS(aux_string) #new
+  aux <- t(as.matrix(aux_list$data$data_df)) #new
+
+  retention_time <- aux_list$data$retention_time
+  drift_time <- aux_list$data$drift_time
+
+  if(is.null(rt_range)){# old
+    rt_ind <- c(1, dim(aux)[1]) #New
+
+  } else{
+    rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2]))) #New
+  }
+
+  sel_index_rt <- rt_ind[1]: rt_ind[2]#old
+
+  if(is.null(dt_value)){# old
+    dt_ind <- c(1, dim(aux)[2])
+    sel_index_dt <- dt_ind[1]: dt_ind[2]#New
+  } else{
+    dt_ind  <- which.min(abs(drift_time - dt_value)) #New
+    sel_index_dt <- dt_ind
+  }
 
   if(is.null(rt_range)){
-    num_of_rows <- dim(aux)[1]
-    sel_index <- 1:num_of_rows
-  } else if((class(rt_range[1]: rt_range[2]) == "integer") & (rt_range[2] > rt_range[1])){
-    if((rt_range[1] >= 1) & (rt_range[2] <= dim(aux)[1])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
-      num_of_rows <- length(rt_range[1]: rt_range[2])
-      sel_index <- rt_range[1]: rt_range[2]
+
+  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+    if((sel_index_rt[1] >= 1) & (sel_index_rt[2] <= dim(aux)[1])){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
+      #num_of_rows <- length(rt_range[1]: rt_range[2])
+      #sel_index <- rt_range[1]: rt_range[2]
       } else {
         stop("Index out of bounds")
         }
   } else {
-        stop("Possible errors: 1) rt_range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
+        stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
 
   }
 
-  rm(aux_string, aux)
+  rm(aux_string, aux_list, aux)
 
   m <- 0
-  chroms <- matrix(0, nrow = num_of_rows, ncol = length(samples))
+  chroms <- matrix(0, nrow =  length(sel_index_rt), ncol = length(samples))
   for (i in samples){
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
-    if (is.null(td_ind)){
-      chroms[, m] <- rowSums(aux[sel_index, ])
+    aux_list <- readRDS(aux_string) #new
+    aux <- t(as.matrix(aux_list$data$data_df)) #new
+    if (is.null(dt_value)){
+      chroms[, m] <- rowSums(aux[sel_index_rt, sel_index_dt])#new
     } else {
-      chroms[, m] <- aux[sel_index, td_ind]
+      chroms[, m] <- aux[ sel_index_rt,  sel_index_dt]
     }
     rm(aux_string, aux)
   }
   rm(m)
 
-  retentiontime <- c(0:(dim(chroms)[1]-1))
-  rownames(chroms) <- retentiontime
+  #retentiontime <- c(0:(dim(chroms)[1]-1))
+  rownames(chroms) <- retention_time[sel_index_rt]
   moltchroms <- melt(chroms)
   colnames(moltchroms) <- c( "Retention_Time", "Index", "Value")
 
-  if (is.null(td_ind)){
+  if (is.null(dt_value)){
     plot_title <- "Total Ion Chromatogram"
   } else{
     plot_title <- "Extracted Ion Chromatogram"
@@ -261,7 +284,7 @@ gcims_plot_chrom <- function(dir_in, samples, td_ind = NULL, rt_range = NULL){
 
   p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Sample)) +
     geom_line() +
-    labs(x="Retention Time (a.u.)",
+    labs(x="Retention Time (s)",
          y="Intensity (a.u.)",
          color = "Sample",
          title = plot_title) +
