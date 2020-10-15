@@ -4,7 +4,7 @@
 \alias{gcims_plot_spec}
 \title{Plots TISa or spectra}
 \usage{
-gcims_plot_spec(dir_in, samples, tr_ind = NULL, dt_range = NULL)
+gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -12,7 +12,7 @@ gcims_plot_spec(dir_in, samples, tr_ind = NULL, dt_range = NULL)
 \item{samples}{The set of samples to be
 to be visualized.}
 
-\item{tr_ind}{Selected retention time value. NULL by default.}
+\item{rt_value}{Selected retention time value. NULL by default.}
 
 \item{dt_range}{Min a Max drift time values. NULL by
 default.}
