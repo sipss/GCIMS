@@ -75,9 +75,7 @@ Correlation Optimized Warping with linear interpolation
 \seealso{
 Other Alignment functions: 
 \code{\link{apply_cow}()},
-\code{\link{cut_samples}()},
 \code{\link{gcims_alignment}()},
-\code{\link{gcims_cut_samples}()},
 \code{\link{optimize_cow}()}
 }
 \author{

@@ -5,12 +5,12 @@
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
-#' @param ret_cut         A  vector of two components. Beginning and end
+#' @param rt_range        A  vector of two components. Beginning and end
 #'                        of the retention time cut.
-#' @param drift_cut       A  vector of two components. Beginning and end
+#' @param dt_range        A  vector of two components. Beginning and end
 #'                        of the drift time cut.
 #' @return An cut gcims dataset.
-#' @family Alignment functions
+#' @family Cutting functions
 #' @export
 #' @examples
 #' \dontrun{
@@ -22,7 +22,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_cut_samples <- function(dir_in, dir_out, samples, ret_cut, drift_cut){
+gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
 
   print(" ")
@@ -33,13 +33,13 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, ret_cut, drift_cut){
 
 
   setwd(dir_in)
-  m <- -1
-  for (i in c(0,samples)){
+  m <- 0
+  for (i in samples){ #c(0,samples)
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
-    M <- cut_samples(aux, ret_cut, drift_cut)
+    aux_list <- readRDS(aux_string) #new
+    M <- cut_samples(aux_list, rt_range, dt_range)
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
@@ -53,12 +53,12 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, ret_cut, drift_cut){
 #' Cuts retention time and drift time
 #'
 #' @param loaded_sample   Current sample to be cut.
-#' @param ret_cut         A  vector of two components. Beginning and end
+#' @param rt_range        A  vector of two components. Beginning and end
 #'                        of the retention time cut.
-#' @param drift_cut       A  vector of two components. Beginning and end
+#' @param dt_range        A  vector of two components. Beginning and end
 #'                        of the drift time cut.
 #' @return An cut matrix.
-#' @family Alignment functions
+#' @family Cutting functions
 #' @export
 #' @examples
 #' \dontrun{
@@ -71,17 +71,67 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, ret_cut, drift_cut){
 #' }
 #'
 #'
-cut_samples <- function(loaded_sample, ret_cut = NULL, drift_cut = NULL) {
-  loaded_sample_cut <- loaded_sample
-  if (is.null(drift_cut)) {
-    drift_cut <- 1:dim(loaded_sample)[2]
+cut_samples <- function(loaded_sample, rt_range = NULL, dt_range = NULL) {
+
+  aux_list <- loaded_sample
+  aux <- t(as.matrix(aux_list$data$data_df))
+
+  #SOME CHECKS
+  retention_time <- aux_list$data$retention_time
+  drift_time <- aux_list$data$drift_time
+  cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
+  cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
+  cond_1_dt <-(dt_range[1] - drift_time[1]) < 0
+  cond_2_dt <-(dt_range[2] - drift_time[length(drift_time)]) > 0
+
+
+  if(is.null(rt_range)){# old
+    rt_ind <- c(1, dim(aux)[1])
+
+  } else{
+    if(cond_1_rt | cond_2_rt){
+      stop("Retention time range out of bounds.")
+    }
+    rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2])))
+    if( rt_ind[1] == rt_ind[2]){
+      stop("Initial and Final retention time values can't be equal in the variable rt_range.")
+    }
   }
-  if (is.null(ret_cut)) {
-    ret_cut <- 1:dim(loaded_sample)[1]
+
+
+
+  if(is.null(dt_range)){# old
+    dt_ind <- c(1, dim(aux)[2])
+  } else{
+    if(cond_1_dt | cond_2_dt){
+      stop("Drift time range out of bounds.")
+    }
+    dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2])))
+    if( dt_ind[1] == dt_ind[2]){
+      stop("Initial and Final drift time values can't be equal in the variable dt_range.")
+    }
   }
-  loaded_samples_cut <- loaded_sample_cut[ret_cut, drift_cut]
-  #loaded_samples_cut$data <- loaded_sample_cut$data[ret_cut, drift_cut]
-  # loaded_samples_cut$drift_time <- loaded_samples_cut$drift_time[drift_cut]
-  # loaded_samples_cut$ret_time <- loaded_samples_cut$ret_time[ret_cut]
-  return(loaded_samples_cut)
+
+  sel_index_rt <- rt_ind[1]: rt_ind[2]
+  sel_index_dt <- dt_ind[1]: dt_ind[2]
+
+  if(is.null(rt_range)){
+
+  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+  } else {
+    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
+  }
+
+  if(is.null(dt_range)){
+
+  } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+  } else {
+    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
+  }
+
+  aux_list$data$retention_time <- retention_time[sel_index_rt]
+  aux_list$data$drift_time  <- drift_time[sel_index_dt]
+  aux_list$data$data_df <- aux_list$data$data_df[sel_index_dt, sel_index_rt] #transposed when matrix!
+
+  return(aux_list)
 }

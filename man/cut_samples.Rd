@@ -4,15 +4,15 @@
 \alias{cut_samples}
 \title{Cuts retention time and drift time}
 \usage{
-cut_samples(loaded_sample, ret_cut = NULL, drift_cut = NULL)
+cut_samples(loaded_sample, rt_range = NULL, dt_range = NULL)
 }
 \arguments{
 \item{loaded_sample}{Current sample to be cut.}
 
-\item{ret_cut}{A  vector of two components. Beginning and end
+\item{rt_range}{A  vector of two components. Beginning and end
 of the retention time cut.}
 
-\item{drift_cut}{A  vector of two components. Beginning and end
+\item{dt_range}{A  vector of two components. Beginning and end
 of the drift time cut.}
 }
 \value{
@@ -34,11 +34,7 @@ print(dataset_pos)
 
 }
 \seealso{
-Other Alignment functions: 
-\code{\link{apply_cow}()},
-\code{\link{cow}()},
-\code{\link{gcims_alignment}()},
-\code{\link{gcims_cut_samples}()},
-\code{\link{optimize_cow}()}
+Other Cutting functions: 
+\code{\link{gcims_cut_samples}()}
 }
-\concept{Alignment functions}
+\concept{Cutting functions}

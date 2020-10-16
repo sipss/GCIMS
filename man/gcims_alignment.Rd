@@ -42,8 +42,6 @@ print(dataset_pos)
 Other Alignment functions: 
 \code{\link{apply_cow}()},
 \code{\link{cow}()},
-\code{\link{cut_samples}()},
-\code{\link{gcims_cut_samples}()},
 \code{\link{optimize_cow}()}
 }
 \concept{Alignment functions}

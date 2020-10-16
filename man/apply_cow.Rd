@@ -33,9 +33,7 @@ Apply Correlation Optimized Warping path on a data matrix
 \seealso{
 Other Alignment functions: 
 \code{\link{cow}()},
-\code{\link{cut_samples}()},
 \code{\link{gcims_alignment}()},
-\code{\link{gcims_cut_samples}()},
 \code{\link{optimize_cow}()}
 }
 \author{

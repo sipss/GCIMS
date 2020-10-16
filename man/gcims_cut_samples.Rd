@@ -4,7 +4,7 @@
 \alias{gcims_cut_samples}
 \title{Cut samples in a retention time - drift time rectangle}
 \usage{
-gcims_cut_samples(dir_in, dir_out, samples, ret_cut, drift_cut)
+gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -13,10 +13,10 @@ gcims_cut_samples(dir_in, dir_out, samples, ret_cut, drift_cut)
 
 \item{samples}{The set of samples to be processed.}
 
-\item{ret_cut}{A  vector of two components. Beginning and end
+\item{rt_range}{A  vector of two components. Beginning and end
 of the retention time cut.}
 
-\item{drift_cut}{A  vector of two components. Beginning and end
+\item{dt_range}{A  vector of two components. Beginning and end
 of the drift time cut.}
 }
 \value{
@@ -36,11 +36,7 @@ print(dataset_pos)
 }
 }
 \seealso{
-Other Alignment functions: 
-\code{\link{apply_cow}()},
-\code{\link{cow}()},
-\code{\link{cut_samples}()},
-\code{\link{gcims_alignment}()},
-\code{\link{optimize_cow}()}
+Other Cutting functions: 
+\code{\link{cut_samples}()}
 }
-\concept{Alignment functions}
+\concept{Cutting functions}
