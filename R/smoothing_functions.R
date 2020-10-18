@@ -12,7 +12,6 @@
 #' @family Smoothing functions
 #' @export
 #' @importFrom signal sgolayfilt
-#' @importFrom R.matlab readMat
 #' @examples
 #' \dontrun{
 #' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
@@ -38,14 +37,29 @@ gcims_smoothing <- function (dir_in, dir_out, samples, by_rows,
   for (i in samples){
     m = m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
-    aux_string <- paste0("M", i, ".mat")
-    aux <- readMat(aux_string)[[1]]
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- as.matrix(aux_list$data$data_df)
+
     if (by_rows == TRUE){
-      dimension <- 1
+      aux <- t(aux)
     } else if (by_rows == FALSE){
-      dimension <- 2
     }
-    M <- t(apply(aux, dimension, function(x) sgolayfilt(x, p = polynomial_order, n = filter_length)))
+
+    n <- dim(aux)[1]
+
+    for (j in (1:n)){
+      aux[j, ] <- sgolayfilt(aux[j, ], p = polynomial_order, n = filter_length)
+    }
+
+    if (by_rows == TRUE){
+      aux <- t(aux)
+    } else if (by_rows == FALSE){
+    }
+
+    aux_list$data$data_df <- aux
+    #M <- t(apply(aux, dimension, function(x) sgolayfilt(x, p = polynomial_order, n = filter_length)))
+    M <- aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
