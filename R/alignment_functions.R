@@ -41,19 +41,42 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
+    aux_list <- readRDS(aux_string) #new
+
+
+    aux <- as.matrix(aux_list$data$data_df)
 
     if (i != 0){
-      if (by_rows == FALSE){
+      if (by_rows == TRUE){
         aux <- t(aux)
+      } else if (by_rows == FALSE){
       }
-      M <- apply_cow(aux, Warping[m, , ])
-      if (by_rows == FALSE){
-        M <- t(M)
-      }
-    }else {
-      M <- aux
+
+      aux <- apply_cow(aux, Warping[m, , ])
+    } else {
     }
+
+    if (i != 0){
+      if (by_rows == TRUE){
+        aux <- t(aux)
+      } else if (by_rows == FALSE){
+      }
+    }
+    aux_list$data$data_df <- aux
+    M <- aux_list
+
+ #   aux  <- psalsa_results$corrected
+    # if (i != 0){
+    #   if (by_rows == FALSE){
+    #     aux <- t(aux)
+    #   }
+    #   M <- apply_cow(aux, Warping[m, , ])
+    #   if (by_rows == FALSE){
+    #     M <- t(M)
+    #   }
+    # }else {
+    #   M <- aux
+    # }
 
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
@@ -101,25 +124,48 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
   print(" ")
   print("Optimizing COW parameters, please wait")
   print(" ")
-  aux_string <- paste0("M", samples[1], ".rds")
-  aux <- readRDS(aux_string)
 
-  if (by_rows == FALSE){
+
+  aux_string <- paste0("M", samples[1], ".rds")
+  aux_list <- readRDS(aux_string) #new
+  aux <- as.matrix(aux_list$data$data_df)
+
+  #print(dim(aux))
+
+
+  if (by_rows == TRUE){
     aux <- t(aux)
+  } else if (by_rows == FALSE){
   }
+
+  #print(dim(aux))
+  # aux_string <- paste0("M", samples[1], ".rds")
+  # aux <- readRDS(aux_string)
+
+  # if (by_rows == FALSE){
+  #   aux <- t(aux)
+  # }
   curves <- matrix(0, dim(aux)[2], length(samples) + 1)
+
+  #print(dim(curves))
 
   # Load the samples (transpose if needed) and
   # compress them (just an addition) in the direction
   # of alignment. Store them in the variable curves
 
-  m <-0
-  for (i in (c(0, samples))){
+  m <- 0
+  for (i in c(0, samples)){
     m <- m + 1
     aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
-    if (by_rows == FALSE){
+    aux_list <- readRDS(aux_string) #new
+    aux <- as.matrix(aux_list$data$data_df)
+
+    # if (by_rows == FALSE){
+    #   aux <- t(aux)
+    # }
+    if (by_rows == TRUE){
       aux <- t(aux)
+    } else if (by_rows == FALSE){
     }
     curves[,m] <- colSums(aux)
   }
@@ -129,7 +175,11 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
   # The reference curce must be the first one.
 
   ref_curve <- curves[, 1]
+
+
+
   curves <- curves[ , 2:dim(curves)[2]]
+  #print(matplot(curves))
 
   # Define the correlation matrix.
   corr_data <- matrix(0,length(seg_vector),
@@ -149,7 +199,12 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
     for (Y in (seq(from = 1, to = (Z - 4), by = step_y))){
       m <- m + 1
       cow_results <- cow(ref_curve, t(curves), Z, Y)
+
+      #print(str(cow_results))
+
       align_curves <- t(cow_results$XWarped)
+
+      #print(align_curves)
       sum_corr <- 0
       for (X in (1:dim(align_curves)[2])){
         sum_corr <- sum_corr + cor(ref_curve, align_curves[, X])
