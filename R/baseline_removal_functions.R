@@ -38,17 +38,24 @@ gcims_baseline_removal <- function(dir_in, dir_out, samples,
     m = m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
-    if (by_rows == FALSE){
+    aux_list <- readRDS(aux_string) #new
+    aux <- as.matrix(aux_list$data$data_df)
+
+    if (by_rows == TRUE){
       aux <- t(aux)
+    } else if (by_rows == FALSE){
     }
+
     psalsa_results <- psalsa(aux,lambda, p, k)
-    M <- psalsa_results$corrected
+    aux  <- psalsa_results$corrected
 
-    if (by_rows == FALSE){
-      M = t(M)
+    if (by_rows == TRUE){
+      aux <- t(aux)
+    } else if (by_rows == FALSE){
     }
 
+    aux_list$data$data_df <- aux
+    M <- aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
