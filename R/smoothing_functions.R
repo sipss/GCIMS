@@ -58,7 +58,6 @@ gcims_smoothing <- function (dir_in, dir_out, samples, by_rows,
     }
 
     aux_list$data$data_df <- aux
-    #M <- t(apply(aux, dimension, function(x) sgolayfilt(x, p = polynomial_order, n = filter_length)))
     M <- aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
