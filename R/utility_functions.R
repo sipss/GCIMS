@@ -65,9 +65,9 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 
 gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
   print(" ")
-  print("  /////////////////////////")
-  print(" /   Filtering the data /")
-  print("/////////////////////////")
+  print("  ////////////////////////")
+  print(" /   Interpolating data /")
+  print("////////////////////////")
   print(" ")
 
   setwd(dir_in)

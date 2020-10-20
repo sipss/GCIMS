@@ -106,10 +106,11 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
   #We do this in order to plot the data using geom_raster that is faster than geom_tile
   #perhaps a previous interpolation is needed to avoid this patch:
-  rep_dt_index <- rep(seq(from = 1, to = dim(aux)[2], by = 1), times = dim(aux)[1])
-  drift_time_period <- mean(diff(drift_time))
-  corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
-  moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
+   rep_dt_index <- rep(seq(from = 1, to = dim(aux)[2], by = 1), times = dim(aux)[1])
+  # drift_time_period <- mean(diff(drift_time))
+  # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
+  # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
+  moltaux$Drift_Time <- drift_time[rep_dt_index]
 
   rm(aux, aux_string)
   p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
