@@ -116,3 +116,51 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
 
 
 }
+
+
+#' Removes RIP from all samples
+
+
+#' @param dir_in          The input directory.
+#' @param dir_out         The output directory.
+#' @param samples         The set of samples to be processed.
+#' @param rip_range        A vector with the times for the beginning and the end of the RIP.
+#'                        If NULL this range is auto-selected.
+#'
+#' @return A RIP removed dataset
+#' @family Utility functions
+#' @export
+#' @importFrom pracma findpeaks
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#'}
+gcims_remove_rip <- function(dir_in, dir_out, samples, rip_range = NULL){
+  print(" ")
+  print("  ////////////////////////")
+  print(" /   Interpolating data /")
+  print("////////////////////////")
+  print(" ")
+
+  setwd(dir_in)
+  m = 0
+  for (i in samples){
+    m = m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- t(as.matrix(aux_list$data$data_df))
+
+    aux_2 <- colSums(aux)
+    rip_pos <- which.max(aux_2)
+    aux_2 <- -aux_2
+    peaks_info <- findpeaks(aux_2)
+    pepi <- list(aux_2 = -aux_2, rip_pos = rip_pos, peaks_info = peaks_info)
+  }
+  return(pepi)
+
+}
