@@ -82,13 +82,15 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
     if (by_rows == TRUE){
       aux <- t(aux)
       x <- aux_list$data$drift_time
+      step_x <- (x[length(x)]- x[1]) / (length(x) - 1)
       xi <- seq(from = x[1],
-                by = mean(diff(x)),
+                by = step_x,
                 length.out = length(x))
     } else if (by_rows == FALSE){
       x <- aux_list$data$retention_time
+      step_x <- (x[length(x)]- x[1]) / (length(x) - 1)
       xi <- seq(from = x[1],
-                by = mean(diff(x)),
+                by = step_x,
                 length.out = length(x))
     }
 
