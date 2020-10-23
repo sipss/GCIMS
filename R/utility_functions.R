@@ -124,9 +124,6 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
-#' @param rip_range        A vector with the times for the beginning and the end of the RIP.
-#'                        If NULL this range is auto-selected.
-#'
 #' @return A RIP removed dataset
 #' @family Utility functions
 #' @export
@@ -139,10 +136,10 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
 #' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
 #'
 #'}
-gcims_remove_rip <- function(dir_in, dir_out, samples, rip_range = NULL){
+gcims_remove_rip <- function(dir_in, dir_out, samples){
   print(" ")
   print("  ////////////////////////")
-  print(" /   Interpolating data /")
+  print(" /    Removing the RIP  /")
   print("////////////////////////")
   print(" ")
 
@@ -155,12 +152,40 @@ gcims_remove_rip <- function(dir_in, dir_out, samples, rip_range = NULL){
     aux_list <- readRDS(aux_string) #new
     aux <- t(as.matrix(aux_list$data$data_df))
 
+    # Compute the total ion spectra
     aux_2 <- colSums(aux)
-    rip_pos <- which.max(aux_2)
-    aux_2 <- -aux_2
     peaks_info <- findpeaks(aux_2)
-    pepi <- list(aux_2 = -aux_2, rip_pos = rip_pos, peaks_info = peaks_info)
+
+    # Look for rip position
+    rip_pos_ind <- which.max(peaks_info[ , 1])
+    rip_pos <- peaks_info[rip_pos_ind, 2]
+
+    # Look for the beginning and ending of the RIP (searching the closest minima to it)
+    valleys_info <- findpeaks(-aux_2)
+    valleys_pos <- valleys_info[ , 2]
+    closest_valley_ind <- which.min(abs(valleys_pos - rip_pos))
+
+    # Select the RIP region
+    if(valleys_pos[closest_valley_ind] < rip_pos){
+      rip_bounds <- valleys_pos[c(closest_valley_ind,closest_valley_ind + 1)]
+    } else if (valleys_pos[closest_valley_ind] > rip_pos){
+      rip_bounds <- valleys_pos[c(closest_valley_ind - 1,closest_valley_ind)]
+    }
+
+    # Erase the peak (with style...)
+    for (j in (1:dim(aux)[1])){
+      aux[j, rip_bounds[1]: rip_bounds[2]] <- seq(from = aux[j, rip_bounds[1]],
+                                                  to = aux[j, rip_bounds[2]],
+                                                  length.out = length(rip_bounds[1]: rip_bounds[2]))
+    }
+
+    aux_list$data$data_df <- t(aux)
+    M <- aux_list
+    setwd(dir_out)
+    saveRDS(M, file = paste0("M", i, ".rds"))
+    setwd(dir_in)
   }
-  return(pepi)
+
+
 
 }

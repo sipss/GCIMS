@@ -4,7 +4,7 @@
 \alias{gcims_remove_rip}
 \title{Removes RIP from all samples}
 \usage{
-gcims_remove_rip(dir_in, dir_out, samples, rip_range = NULL)
+gcims_remove_rip(dir_in, dir_out, samples)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -12,9 +12,6 @@ gcims_remove_rip(dir_in, dir_out, samples, rip_range = NULL)
 \item{dir_out}{The output directory.}
 
 \item{samples}{The set of samples to be processed.}
-
-\item{rip_range}{A vector with the times for the beginning and the end of the RIP.
-If NULL this range is auto-selected.}
 }
 \value{
 A RIP removed dataset
