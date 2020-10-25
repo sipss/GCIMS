@@ -71,8 +71,8 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
   print(" ")
 
   setwd(dir_in)
-  m = 0
-  for (i in samples){
+  m = -1
+  for (i in c(0, samples)){
     m = m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
@@ -144,8 +144,8 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
   print(" ")
 
   setwd(dir_in)
-  m = 0
-  for (i in samples){
+  m = -1
+  for (i in c(0, samples)){
     m = m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")

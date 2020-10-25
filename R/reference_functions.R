@@ -75,7 +75,7 @@ gcims_create_reference <- function(dir_in, dir_out, samples, ref_number){
       rm(aux_string, aux)
 
       m <- 0
-      for (i in c(samples)){
+      for (i in samples){
         m <- m + 1
         aux_string <- paste0("M", i, ".rds")
         aux_list <- readRDS(aux_string) #new
@@ -84,7 +84,6 @@ gcims_create_reference <- function(dir_in, dir_out, samples, ref_number){
       }
 
       aux_list$data$data_df <- t(acc_sample / length(samples))
-      #M <- acc_sample / length(samples)
       M <- aux_list
 
     setwd(dir_out)
