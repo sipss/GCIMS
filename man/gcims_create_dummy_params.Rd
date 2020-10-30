@@ -14,14 +14,8 @@ and their corresponding labels.
 Create sample params and labels for two different sample classes
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+params <- gcims_create_dummy_params()
 
-print(dataset_pos)
-}
 }
 \seealso{
 Other Dummy data functions: 

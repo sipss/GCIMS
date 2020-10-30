@@ -16,14 +16,8 @@ A dummy sample formally equal to the samples readed from an gc-ims
 Create a dummy sample taking into account non-idealities in sampling process
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-
-print(dataset_pos)
-}
+params <- gcims_create_dummy_params()
+M1 <- gcims_create_dummy_sample(params$params_class1)
 }
 \seealso{
 Other Dummy data functions: 

@@ -227,15 +227,8 @@ force_interpolation <- function (sampling_period, constant_sampling, axis_length
 #' @export
 #' @family Dummy data functions
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' params <- gcims_create_dummy_params()
 #'
-#' print(dataset_pos)
-#' }
-
 gcims_create_dummy_params <- function(){
 
   #EXAMPLE OF PARAMETER CHOICE:
@@ -303,15 +296,8 @@ gcims_create_dummy_params <- function(){
 #' @export
 #' @family Dummy data functions
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-#'
-#' print(dataset_pos)
-#' }
-
+#' params <- gcims_create_dummy_params()
+#' M1 <- gcims_create_dummy_sample(params$params_class1)
 
 gcims_create_dummy_sample <- function(params){
 
@@ -488,15 +474,18 @@ gcims_create_dummy_sample <- function(params){
 #' @export
 #' @family Dummy data functions
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' wd <- getwd()
+#' dir_in <- tempdir()
+#' dir_out <-  file.path(dir_in,"dummy")
+#' list.files(path = dir_out, pattern = NULL, all.files = FALSE, full.names = FALSE)
+#' dir.create (dir_out)
+#' samples_per_class <- 10
+#' params <- gcims_create_dummy_params()
+#' gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
+#' list.files(path = dir_out, pattern = NULL, all.files = FALSE, full.names = FALSE)
+#' unlink(dir_out, recursive = TRUE)
+#' setwd(wd)
 #'
-#' print(dataset_pos)
-#' }
-
 
 gcims_create_dummy_set <- function(dir_in, dir_out, samples_per_class, params){
   labels <- params$labels
