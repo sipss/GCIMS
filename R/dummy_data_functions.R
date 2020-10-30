@@ -477,7 +477,7 @@ gcims_create_dummy_sample <- function(params){
 
 
 
-#' Create a dummy sample taking into account non-idealities in sampling process
+#' Create a dummy dataset
 #'
 #' @param dir_in            The input directory.
 #' @param dir_out           The output directory.

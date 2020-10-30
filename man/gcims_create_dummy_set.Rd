@@ -2,7 +2,7 @@
 % Please edit documentation in R/dummy_data_functions.R
 \name{gcims_create_dummy_set}
 \alias{gcims_create_dummy_set}
-\title{Create a dummy sample taking into account non-idealities in sampling process}
+\title{Create a dummy dataset}
 \usage{
 gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
 }
@@ -20,7 +20,7 @@ sample characteristics (one per sample class)}
 A dummy dataset to be stored in dir_out
 }
 \description{
-Create a dummy sample taking into account non-idealities in sampling process
+Create a dummy dataset
 }
 \examples{
 \dontrun{
