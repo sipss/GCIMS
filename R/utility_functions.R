@@ -97,7 +97,7 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
     n <- dim(aux)[1]
 
     for (j in (1:n)){
-      aux[j, ] <- interp1(x, aux[j, ], xi, method = "linear")
+      aux[j, ] <- interp1(x, aux[j, ], xi, method = "linear", extrap = TRUE)
     }
 
     if (by_rows == TRUE){
