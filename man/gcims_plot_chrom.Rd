@@ -24,14 +24,18 @@ A set of Chromatograms.
 Plots TICs or EICs.
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-
-print(dataset_pos)
-}
+wd <- getwd()
+dir_in <- tempdir()
+dir_out <-  file.path(dir_in,"dummy")
+dir.create (dir_out, FALSE)
+samples_per_class <- 2
+params <- gcims_create_dummy_params()
+gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
+samples <- 1
+dt_value <- 8
+gcims_plot_chrom(dir_out, samples, dt_value)
+unlink(dir_out, recursive = TRUE)
+setwd(wd)
 }
 \seealso{
 Other Visualization functions: 

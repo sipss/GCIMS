@@ -25,14 +25,16 @@ An image of the sample matrix.
 Sample matrix visualization
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-
-print(dataset_pos)
-}
+wd <- getwd()
+dir_in <- tempdir()
+dir_out <-  file.path(dir_in,"dummy")
+dir.create (dir_out, FALSE)
+samples_per_class <- 1
+params <- gcims_create_dummy_params()
+gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
+gcims_view_sample(dir_out, 1)
+unlink(dir_out, recursive = TRUE)
+setwd(wd)
 }
 \seealso{
 Other Visualization functions: 

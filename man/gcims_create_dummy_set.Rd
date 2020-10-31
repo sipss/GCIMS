@@ -27,7 +27,7 @@ wd <- getwd()
 dir_in <- tempdir()
 dir_out <-  file.path(dir_in,"dummy")
 list.files(path = dir_out, pattern = NULL, all.files = FALSE, full.names = FALSE)
-dir.create (dir_out)
+dir.create (dir_out, FALSE)
 samples_per_class <- 10
 params <- gcims_create_dummy_params()
 gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)

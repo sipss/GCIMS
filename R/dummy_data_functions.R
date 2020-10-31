@@ -241,7 +241,7 @@ gcims_create_dummy_params <- function(){
                          drift_time = list(pd1 = 50, pd2 = 90, pd3 = 130))
 
   # peak height parameters
-  peak_heights <- list(hp2 = 1, hp3 = 0.7)#hp2 = 0.7
+  peak_heights <- list(hp2 = 1, hp3 = 0.7)
 
   # peak asymmetry parameters
   peak_asym <- list(ret_time = list(rise_time = 7, fall_time = 10), drift_time = list(sigma_left = 2, sigma_right = 2.2))
@@ -255,7 +255,7 @@ gcims_create_dummy_params <- function(){
                          ret_time_tail = list(max_a = 0.03, max_b = 0.05, max_c = 0.5), # tailing parameters
                          shift = list(ret_time = list(min_shift = -3, max_shift = 3),   # time shifting parameters
                                       drift_time =list(min_shift = -5, max_shift = 5)),
-                         constant_sampling = list(ret_time = TRUE, drift_time = FALSE)  # Sampling shifting parameters
+                         constant_sampling = list(ret_time = TRUE, drift_time = TRUE)  # Sampling shifting parameters
   )
 
 
@@ -478,7 +478,7 @@ gcims_create_dummy_sample <- function(params){
 #' dir_in <- tempdir()
 #' dir_out <-  file.path(dir_in,"dummy")
 #' list.files(path = dir_out, pattern = NULL, all.files = FALSE, full.names = FALSE)
-#' dir.create (dir_out)
+#' dir.create (dir_out, FALSE)
 #' samples_per_class <- 10
 #' params <- gcims_create_dummy_params()
 #' gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
