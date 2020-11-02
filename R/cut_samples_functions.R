@@ -36,6 +36,7 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
   m <- 1
   for (i in c(1, samples)){ #c(0,samples)
     print(paste0("Sample ", i, " of ", length(samples)))
+    reshape_samples(dir_in, dir_out, samples)
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
     M <- cut_samples(aux_list, rt_range, dt_range)
@@ -134,3 +135,59 @@ cut_samples <- function(loaded_sample, rt_range = NULL, dt_range = NULL) {
 
   return(aux_list)
 }
+
+
+#' Reshape samples
+#'
+#' @param dir_in          The input directory.
+#' @param dir_out         The output directory.
+#' @param samples         The set of samples to be processed.
+#' @return An cut matrix.
+#' @family Cutting functions
+#' @export
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+#'
+#'
+reshape_samples <- function(dir_in, dir_out, samples) {
+  dataframes <- list(NULL)
+  for (i in samples){
+    setwd(dir_in)
+    aux_string <- paste0("M", samples[i], ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- t(as.matrix(aux_list$data$data_df)) #new
+    dataframes[[i]] <- aux
+  }
+
+  rts <- NULL
+  dts <- NULL
+  for (i in samples){
+    dimensions <- lapply(dataframes, dim)
+    rts <- c(rts, dimensions[[i]][1])
+    dts <- c(dts, dimensions[[i]][2])
+  }
+  rts <- min(rts)
+  dts <- min(dts)
+
+  for (i in samples){
+    aux_string <- paste0("M", samples[i], ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- t(as.matrix(aux_list$data$data_df))
+    aux <- aux[1:rts, 1:dts]
+    aux_list$data$data_df <- aux
+    aux_list$data$retention_time <- aux_list$data$retention_time[1:rts]
+    aux_list$data$drift_time <- aux_list$data$drift_time[1:dts]
+    M <- aux_list
+    setwd(dir_out)
+    saveRDS(M, file = paste0("M", m, ".rds"))
+    setwd(dir_in)
+  }
+}
+
