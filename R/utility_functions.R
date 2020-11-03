@@ -20,7 +20,7 @@
 gcims_unfold <- function(dir_in, dir_out, samples){
   print(" ")
   print("  //////////////////////////////////")
-  print("  / Creation of the Features Vector/")
+  print("  / Creation of the Feature Vector /")
   print("  //////////////////////////////////")
   print(" ")
 

@@ -7,6 +7,7 @@
 #' @param sigma1         Numeric. Standard deviation of the left Gaussian.
 #' @param sigma2         Numeric. Standard deviation of the right Gaussian.
 #' @return A vector of intensities of the modified Gaussian.
+#' @export
 #' @family Dummy data functions
 #' @examples
 #' \dontrun{
@@ -238,7 +239,7 @@ gcims_create_dummy_params <- function(){
 
   # peak position parameters
   peak_positions <- list(ret_time = list(pr2 = 13, pr3 = 35),
-                         drift_time = list(pd1 = 50, pd2 = 90, pd3 = 130))
+                          drift_time = list(pd1 = 50, pd2 = 90, pd3 = 130))
 
   # peak height parameters
   peak_heights <- list(hp2 = 1, hp3 = 0.7)
