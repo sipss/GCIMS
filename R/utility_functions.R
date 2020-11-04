@@ -209,7 +209,15 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' }
 #'
 #'
+
 reshape_samples <- function(dir_in, dir_out, samples) {
+
+  print(" ")
+  print("  ///////////////////////////////")
+  print(" /    Sample Matrix Reshape    /")
+  print("///////////////////////////////")
+  print(" ")
+
   dataframes <- list(NULL)
   for (i in samples){
     setwd(dir_in)
@@ -230,10 +238,11 @@ reshape_samples <- function(dir_in, dir_out, samples) {
   dts <- min(dts)
 
   for (i in samples){
+    print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- t(as.matrix(aux_list$data$data_df))
-    aux <- aux[1:rts, 1:dts]
+    aux <- aux[1:dts, 1:rts]
     aux_list$data$data_df <- aux
     aux_list$data$retention_time <- aux_list$data$retention_time[1:rts]
     aux_list$data$drift_time <- aux_list$data$drift_time[1:dts]
