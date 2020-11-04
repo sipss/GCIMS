@@ -35,7 +35,6 @@ print(dataset_pos)
 }
 \seealso{
 Other Cutting functions: 
-\code{\link{gcims_cut_samples}()},
-\code{\link{reshape_samples}()}
+\code{\link{gcims_cut_samples}()}
 }
 \concept{Cutting functions}

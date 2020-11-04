@@ -97,3 +97,80 @@ gcims_compute_snr <- function(dir_in, samples){
 
 
 }
+
+
+#' Compute the number of peaks in samples
+#'
+#' @param dir_in            The input directory.
+#' @param samples           Samples to which the SNR is computed
+#'                          sample characteristics (one per sample class)
+
+#' @return A dummy dataset to be stored in dir_out
+#' @export
+#' @importFrom pracma findpeaks
+#' @family Figure of merit functions
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
+gcims_compute_numpeaks <- function(dir_in, samples){
+
+
+  print(" ")
+  print("  /////////////////////////////////////")
+  print(" /   Computing the Number of Peaks   /")
+  print("/////////////////////////////////////")
+
+  #@importFrom raster raster extend xyFromCell
+  #@param nxn_window        Size of the nxn window
+  setwd(dir_in)
+  #m <- 0
+  #for (i in samples){
+  # m <- m + 1
+  m <-1
+  print(paste0("Computing the peaknum of sample ", samples[m]))
+  aux_string <- paste0("M", samples[m], ".rds")
+  aux_list <- readRDS(aux_string) #new
+  aux <- t(as.matrix(aux_list$data$data_df))
+
+  #by_rows
+  desired_length <-50
+  peak_list_td <- vector(mode = "list", length = desired_length)
+  limite <- 0.0153
+
+  for (j in 1:50){
+  peak_list_td[[j]] <- list(index_tr = j, peak_info = findpeaks(as.vector(aux[, j]))[,c(1,2)])
+  }
+
+
+  #by_cols
+  desired_length <- 200
+  peak_list_tr <- vector(mode = "list", length = desired_length)
+  limite <- 0.0153
+  for (j in 1:200){
+    peak_list_tr[[j]] <- list(index_td = j, peak_info = findpeaks(as.vector(t(aux[j, ])))[,c(1,2)])
+  }
+
+  # r <- raster(aux)
+  # extent(r) <- extent(c(0, dim(aux)[1], 0, dim(aux)[2]) + 0.5)
+  #
+  # ## Find the maximum value within the 9-cell neighborhood of each cell
+  # f <- function(X) max(X, na.rm=TRUE)
+  # ww <- matrix(1, nrow= nxn_window, ncol = nxn_window) ## Weight matrix for cells in moving window
+  # localmax <- focal(r, fun=f, w=ww, pad=TRUE, padValue=NA)
+  #
+  # ## Does each cell have the maximum value in its neighborhood?
+  # r2 <- r==localmax
+  #
+  # ## Get x-y coordinates of those cells that are local maxima
+  # maxXY <- xyFromCell(r2, Which(r2==1, cells=TRUE))
+  # return(maxXY)
+
+
+}

@@ -37,7 +37,6 @@ print(dataset_pos)
 }
 \seealso{
 Other Cutting functions: 
-\code{\link{cut_samples}()},
-\code{\link{reshape_samples}()}
+\code{\link{cut_samples}()}
 }
 \concept{Cutting functions}

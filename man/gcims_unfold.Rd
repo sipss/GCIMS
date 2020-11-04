@@ -32,6 +32,7 @@ print(dataset_pos)
 \seealso{
 Other Utility functions: 
 \code{\link{gcims_interpolate}()},
-\code{\link{gcims_remove_rip}()}
+\code{\link{gcims_remove_rip}()},
+\code{\link{reshape_samples}()}
 }
 \concept{Utility functions}
