@@ -138,39 +138,89 @@ gcims_compute_numpeaks <- function(dir_in, samples){
   aux_string <- paste0("M", samples[m], ".rds")
   aux_list <- readRDS(aux_string) #new
   aux <- t(as.matrix(aux_list$data$data_df))
+ # image(1:200, 1:50, t(aux))
 
   #by_rows
-  desired_length <-50
-  peak_list_td <- vector(mode = "list", length = desired_length)
-  limite <- 0.0153
-
-  for (j in 1:50){
-  peak_list_td[[j]] <- list(index_tr = j, peak_info = findpeaks(as.vector(aux[, j]))[,c(1,2)])
-  }
-
-
-  #by_cols
-  desired_length <- 200
+  desired_length <- 50
   peak_list_tr <- vector(mode = "list", length = desired_length)
   limite <- 0.0153
-  for (j in 1:200){
-    peak_list_tr[[j]] <- list(index_td = j, peak_info = findpeaks(as.vector(t(aux[j, ])))[,c(1,2)])
+  aux[aux <= limite] <- 0
+
+  tr_index <- 1:50
+  for (j in 1:50){
+  #peak_list_td[[j]] <- findpeaks(as.vector(aux[, j]))[,2]
+  peak_list_tr[[j]] <- findpeaks(as.vector(t(aux[j, ])))[, 2]
   }
 
-  # r <- raster(aux)
-  # extent(r) <- extent(c(0, dim(aux)[1], 0, dim(aux)[2]) + 0.5)
-  #
-  # ## Find the maximum value within the 9-cell neighborhood of each cell
-  # f <- function(X) max(X, na.rm=TRUE)
-  # ww <- matrix(1, nrow= nxn_window, ncol = nxn_window) ## Weight matrix for cells in moving window
-  # localmax <- focal(r, fun=f, w=ww, pad=TRUE, padValue=NA)
-  #
-  # ## Does each cell have the maximum value in its neighborhood?
-  # r2 <- r==localmax
-  #
-  # ## Get x-y coordinates of those cells that are local maxima
-  # maxXY <- xyFromCell(r2, Which(r2==1, cells=TRUE))
-  # return(maxXY)
+  possible_peaks <- unique(unlist(peak_list_tr))
+  grouped_possible_peaks <- vector(mode = "list", length = length(possible_peaks))
+
+  foo1 <- function(x){
+    index <- match(possible_peaks[k],x,nomatch = 0) > 0
+    index
+  }
+
+  for(k in 1:length(possible_peaks)){
+    grouped_possible_peaks[[k]] <- which(sapply(peak_list_tr, foo1))
+    #grouped_possible_peaks[[k]] <- which(sapply(peak_list_tr, function(x) match(possible_peaks[k],x,nomatch = 0) > 0))
+  }
+
+  # foo2 <- function(x){
+  #   index <- split(x,cumsum(c(1, diff(x) != 1)))
+  #   flags <- lapply(index, function(x) length(x) > 1)
+  #   if(any(unlist(flags)) == TRUE){
+  #   index <- index[which(unlist(flags))]
+  #   }else{
+  #   index <- NULL
+  #   }
+  #   index
+  # }
+
+  foo2 <- function(x){
+    index <- split(x,cumsum(c(1, diff(x) != 1)))
+    flags <- lapply(index, function(x) length(x) > 1)
+    if(any(unlist(flags)) == TRUE){
+      index <- index[which(unlist(flags))]
+    }else{
+      index <- NULL
+    }
+    index
+  }
+
+  #lappla
+  #consecutive_grouped_possible_peaks <- vector(mode = "list", length = length(grouped_possible_peaks))
+
+  #for(k in 1:length(grouped_possible_peaks)){
+  consecutive_grouped_possible_peaks <- sapply(grouped_possible_peaks, foo2)
+
+  rep_peaks_tr <- vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
+  for (k in 1:length(consecutive_grouped_possible_peaks)){
+    print(length(consecutive_grouped_possible_peaks[[k]]))
+    condition <- length(consecutive_grouped_possible_peaks[[k]]) == 0
+    if (condition == TRUE){
+      rep_peaks_tr[[k]] <- NULL
+    } else {
+      rep_peaks_tr[[k]] <- as.list(rep(possible_peaks[[k]], length(consecutive_grouped_possible_peaks[[k]])))
+    }
+
+  }
+
+  consecutive_grouped_possible_peaks[sapply(consecutive_grouped_possible_peaks, is.null)] <- NULL
+  rep_peaks_tr[sapply(rep_peaks_tr, is.null)] <- NULL
+    #consecutive_grouped_possible_peaks <- sapply(grouped_possible_peaks, function(x) split(x,cumsum(c(1, diff(x) != 1))))
+  #}
+
+  # hola_tontico <- vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
+  # for(k in 1:length(consecutive_grouped_possible_peaks)){
+  #   hola_tontico[[k]] <- consecutive_grouped_peak_list[unlist(lapply(consecutive_grouped_peak_list[[k]], function(x)  length(x) > 1))]
+  # }
+
+  #new_peak_list <-peak_list[!unlist(lapply(peak_list, is.null))]
+  #unique(unlist(peak_list))
+
+
+
+   return(consecutive_grouped_possible_peaks)
 
 
 }
