@@ -195,7 +195,7 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
   rep_peaks_tr <- vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
   for (k in 1:length(consecutive_grouped_possible_peaks)){
-    print(length(consecutive_grouped_possible_peaks[[k]]))
+    #print(length(consecutive_grouped_possible_peaks[[k]]))
     condition <- length(consecutive_grouped_possible_peaks[[k]]) == 0
     if (condition == TRUE){
       rep_peaks_tr[[k]] <- NULL
@@ -207,6 +207,31 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
   consecutive_grouped_possible_peaks[sapply(consecutive_grouped_possible_peaks, is.null)] <- NULL
   rep_peaks_tr[sapply(rep_peaks_tr, is.null)] <- NULL
+
+  peak_length <-  vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
+  for (k in 1:length(consecutive_grouped_possible_peaks)){
+    peak_length[[k]] <- lapply(consecutive_grouped_possible_peaks[[k]], length)
+  }
+
+  peak_max_value <- peak_max_pos_abs <- peak_max_pos_rel <-  vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
+
+  for (k in 1:length(consecutive_grouped_possible_peaks)){
+    length_list <- length(consecutive_grouped_possible_peaks[[k]])
+    for (l in 1: length_list){
+      peak_max_pos_rel[[k]][[l]] <- which.max(aux[consecutive_grouped_possible_peaks[[k]][[l]], rep_peaks_tr[[k]][[l]]])
+      peak_max_pos_abs[[k]][[l]] <- consecutive_grouped_possible_peaks[[k]][[l]][peak_max_pos_rel[[k]][[l]]]
+      peak_max_value[[k]][[l]]   <- aux[peak_max_pos_abs[[k]][[l]], rep_peaks_tr[[k]][[l]]]
+
+    }
+   # peak_max[[k]] <- apply(aux[consecutive_grouped_possible_peaks[[k]], rep_peaks_tr[[k]]], which.max)
+  }
+
+
+
+
+
+  final_peak_list <- list(peak_table_td = consecutive_grouped_possible_peaks,
+                          peak_table_tr = rep_peaks_tr)
     #consecutive_grouped_possible_peaks <- sapply(grouped_possible_peaks, function(x) split(x,cumsum(c(1, diff(x) != 1))))
   #}
 
@@ -220,7 +245,7 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
 
 
-   return(consecutive_grouped_possible_peaks)
+   return(peak_max_value)
 
 
 }
