@@ -245,13 +245,13 @@ gcims_create_dummy_params <- function(){
   peak_heights <- list(hp2 = 1, hp3 = 0.7)
 
   # peak asymmetry parameters
-  peak_asym <- list(ret_time = list(rise_time = 7, fall_time = 10), drift_time = list(sigma_left = 2, sigma_right = 2.2))
+  peak_asym <- list(ret_time = list(rise_time = 7, fall_time = 15), drift_time = list(sigma_left = 2, sigma_right = 2.2)) #list(rise_time = 10, fall_time = 7)
 
   # peak asymmetry parameters
   axes_limits <- list(ret_time = list(sampling_period = 0.21, offset = 3.36),
                       drift_time = list(sampling_period = 0.0065, offset = 7.6557))
 
-  non_idealities <- list(max_noise = 0.002, # noise parameter
+  non_idealities <- list(max_noise = 0.001, # noise parameter
                          baseline = 0.02,   # baseline parameter
                          ret_time_tail = list(max_a = 0.03, max_b = 0.05, max_c = 0.5), # tailing parameters
                          shift = list(ret_time = list(min_shift = -3, max_shift = 3),   # time shifting parameters
