@@ -245,7 +245,7 @@ gcims_create_dummy_params <- function(){
   peak_heights <- list(hp2 = 1, hp3 = 0.7)
 
   # peak asymmetry parameters
-  peak_asym <- list(ret_time = list(rise_time = 7, fall_time = 15), drift_time = list(sigma_left = 2, sigma_right = 2.2)) #list(rise_time = 10, fall_time = 7)
+  peak_asym <- list(ret_time = list(rise_time = 7, fall_time = 15), drift_time = list(sigma_left = 2, sigma_right = 4)) #list(sigma_left = 2, sigma_right = 2.2))
 
   # peak asymmetry parameters
   axes_limits <- list(ret_time = list(sampling_period = 0.21, offset = 3.36),

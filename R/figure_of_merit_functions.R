@@ -165,16 +165,6 @@ gcims_compute_numpeaks <- function(dir_in, samples){
     #grouped_possible_peaks[[k]] <- which(sapply(peak_list_tr, function(x) match(possible_peaks[k],x,nomatch = 0) > 0))
   }
 
-  # foo2 <- function(x){
-  #   index <- split(x,cumsum(c(1, diff(x) != 1)))
-  #   flags <- lapply(index, function(x) length(x) > 1)
-  #   if(any(unlist(flags)) == TRUE){
-  #   index <- index[which(unlist(flags))]
-  #   }else{
-  #   index <- NULL
-  #   }
-  #   index
-  # }
 
   foo2 <- function(x){
     index <- split(x,cumsum(c(1, diff(x) != 1)))
@@ -223,14 +213,37 @@ gcims_compute_numpeaks <- function(dir_in, samples){
       peak_max_value[[k]][[l]]   <- aux[peak_max_pos_abs[[k]][[l]], rep_peaks_tr[[k]][[l]]]
       left_peak_side <- abs(min(consecutive_grouped_possible_peaks[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
       right_peak_side <- abs(max(consecutive_grouped_possible_peaks[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
-      peak_asymmetry[[k]][[l]] <- (left_peak_side / right_peak_side)
+      peak_asymmetry[[k]][[l]] <- (right_peak_side / left_peak_side )
 
     }
    # peak_max[[k]] <- apply(aux[consecutive_grouped_possible_peaks[[k]], rep_peaks_tr[[k]]], which.max)
   }
 
-
-
+  # foo3<- function(x){
+  #   index <- split(x,cumsum(c(1, diff(x) != 1)))
+  #   flags <- lapply(index, function(x) length(x) > 1)
+  #   if(any(unlist(flags)) == TRUE){
+  #     index <- index[which(unlist(flags))]
+  #   }else{
+  #     index <- NULL
+  #   }
+  #   index
+  # }
+length_td <- asymm_td <-vector(mode = "list", length = length(peak_max_pos_abs))
+  for (k in 1:length(peak_max_pos_abs)){
+    length_list <- length(peak_max_pos_abs[[k]])
+    for (l in 1: length_list){
+      zero_indexes <- which(aux[peak_max_pos_abs[[k]][[l]], ] == 0)
+      left_cond <- which(zero_indexes < rep_peaks_tr[[k]][[l]])
+      left_peak_side_td <- abs((max(zero_indexes[left_cond]) + 1) - rep_peaks_tr[[k]][[l]])
+      right_cond <- which(zero_indexes > rep_peaks_tr[[k]][[l]])
+      right_peak_side_td  <- abs((min(zero_indexes[right_cond]) - 1) - rep_peaks_tr[[k]][[l]])
+      length_td[[k]][[l]] <-  right_peak_side_td  + left_peak_side_td
+      asymm_td[[k]][[l]] <-   right_peak_side_td / left_peak_side_td
+    }
+  }
+  print(dim(aux))
+     # peak_length[[k]] <- lapply(consecutive_grouped_possible_peaks[[k]], length)
 
 
   final_peak_list <- list(peak_table_td = consecutive_grouped_possible_peaks,
@@ -248,7 +261,7 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
 
 
-   return(peak_asymmetry)
+   return(asymm_td)
 
 
 }
