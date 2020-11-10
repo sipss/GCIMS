@@ -244,10 +244,38 @@ length_td <- asymm_td <-vector(mode = "list", length = length(peak_max_pos_abs))
   }
   print(dim(aux))
      # peak_length[[k]] <- lapply(consecutive_grouped_possible_peaks[[k]], length)
+  m <- 0
+  final_peak_list <-vector(mode = "list", length = length(unlist(peak_max_pos_abs, recursive = FALSE)))
+  for (k in 1:length(peak_max_pos_abs)){
+    length_list <- length(peak_max_pos_abs[[k]])
+    for (l in 1: length_list){
+      m <- m + 1
+      final_peak_list[[m]] <- c(rep_peaks_tr[[k]][[l]],
+                                      peak_max_pos_abs[[k]][[l]],
+                                      peak_max_value[[k]][[l]],
+                                      peak_length[[k]][[l]],
+                                      length_td[[k]][[l]],
+                                      peak_asymmetry[[k]][[l]],
+                                      asymm_td[[k]][[l]])
 
+    }
+  }
 
-  final_peak_list <- list(peak_table_td = consecutive_grouped_possible_peaks,
-                          peak_table_tr = rep_peaks_tr)
+  final_peak_list <- matrix(unlist(final_peak_list), nrow = length(unlist(peak_max_pos_abs, recursive = FALSE)),
+                            ncol = length(unlist(final_peak_list))/length(unlist(peak_max_pos_abs, recursive = FALSE)),
+                            byrow = TRUE)
+  colnames(final_peak_list)<-c("rt_ind", "dt_ind", "value", "rt_length","dt_legth", "rt_asymm", "dt_asymm")
+
+  final_peak_list <- as.data.frame(final_peak_list)
+  # foo3 <- function(x){
+  #   largo <- length(x)
+  #   ancho <- length(x[[1]])
+  #   length(x) <- NULL
+  #   dim(x) <- c(largo, ancho)
+  # }d
+  # pepe <- sapply (final_peak_list, foo3)
+ #final_peak_list <- list(peak_table_td = consecutive_grouped_possible_peaks,
+  #                        peak_table_tr = rep_peaks_tr)
     #consecutive_grouped_possible_peaks <- sapply(grouped_possible_peaks, function(x) split(x,cumsum(c(1, diff(x) != 1))))
   #}
 
@@ -261,7 +289,7 @@ length_td <- asymm_td <-vector(mode = "list", length = length(peak_max_pos_abs))
 
 
 
-   return(asymm_td)
+   return(final_peak_list)
 
 
 }
