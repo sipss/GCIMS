@@ -141,7 +141,7 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
 
   #m <- m + 1
-  print(paste0("Computing SNR of sample ", samples[m]))
+  #print(paste0("Computing SNR of sample ", samples[m]))
   # aux_string <- paste0("M", i, ".rds")
   # aux_list <- readRDS(aux_string) #new
 
@@ -152,9 +152,19 @@ gcims_compute_numpeaks <- function(dir_in, samples){
   mu = mean(aux, trim = 0.2)
   sigma = sd_trim(aux_vector, const = TRUE)
 
-  y_limit <- mu + (3 * sigma)
+  threshold <- mu + (3 * sigma)
 
-  x_limit <- which.min(abs(aux_vector - y_limit))
+  compute_power <- function (x){
+    pow <- sum(x * x) / length(x)
+    pow
+  }
+
+  noise_power <- compute_power(aux_vector[aux_vector <= threshold])
+  #noise_power <- sum(aux_vector[aux_vector <= threshold] * aux_vector[aux_vector <= threshold]) /
+
+   # (2 * length(aux_vector[aux_vector <= threshold]) + 1)
+
+  #x_limit <- which.min(abs(aux_vector - y_limit))
 
   #aux_vector_signal <- aux_vector[aux_vector > y_limit]
   #aux__vector_noise <- aux_vector[aux_vector <= y_limit]
@@ -164,7 +174,7 @@ gcims_compute_numpeaks <- function(dir_in, samples){
   #noise_characterization[[1]][m, 1:2] <- c(snr, snr_db)
   #noise_characterization[[2]][m, 1:2] <- c(mu, sigma)
 
-  threshold <- mu + 3 * sigma
+  #threshold <- mu + 3 * sigma
 
 
  # image(1:200, 1:50, t(aux))
@@ -172,8 +182,8 @@ gcims_compute_numpeaks <- function(dir_in, samples){
   #by_rows
   desired_length <- 50
   peak_list_tr <- vector(mode = "list", length = desired_length)
-  limite <- threshold #0.0153
-  aux[aux <= limite] <- 0
+  #limite <- threshold #0.0153
+  aux[aux <= threshold] <- 0
 
   tr_index <- 1:50
   for (j in 1:50){
@@ -318,7 +328,7 @@ length_td <- asymm_td <-vector(mode = "list", length = length(peak_max_pos_abs))
 
 
 
-   return(final_peak_list)
+   return(noise_power)
 
 
 }
