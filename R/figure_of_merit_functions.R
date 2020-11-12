@@ -127,8 +127,7 @@ gcims_compute_numpeaks <- function(dir_in, samples){
   print(" /   Computing the Number of Peaks   /")
   print("/////////////////////////////////////")
 
-  #@importFrom raster raster extend xyFromCell
-  #@param nxn_window        Size of the nxn window
+
   setwd(dir_in)
   #m <- 0
   #for (i in samples){
@@ -139,163 +138,150 @@ gcims_compute_numpeaks <- function(dir_in, samples){
   aux_list <- readRDS(aux_string) #new
   aux <- t(as.matrix(aux_list$data$data_df))
 
-
-  #m <- m + 1
-  #print(paste0("Computing SNR of sample ", samples[m]))
-  # aux_string <- paste0("M", i, ".rds")
-  # aux_list <- readRDS(aux_string) #new
-
-
+  # Unfold aux
   aux_vector <- sort(as.vector(aux_list$data$data_df), decreasing = TRUE) #new
 
-  #ROBUST ESTIMATION OF NOISE
+  # Compute robust estimation of noise present in a sample
   mu = mean(aux, trim = 0.2)
   sigma = sd_trim(aux_vector, const = TRUE)
-
   threshold <- mu + (3 * sigma)
 
+
+  # Function to compute the power of a signal
   compute_power <- function (x){
     pow <- sum(x * x) / length(x)
     pow
   }
 
+  # Compute noise power
   noise_power <- compute_power(aux_vector[aux_vector <= threshold])
-  #noise_power <- sum(aux_vector[aux_vector <= threshold] * aux_vector[aux_vector <= threshold]) /
+  rm(aux_vector)
 
-   # (2 * length(aux_vector[aux_vector <= threshold]) + 1)
+  # Compute a list of tentative peaks.
 
-  #x_limit <- which.min(abs(aux_vector - y_limit))
+  # For each retention time index,
+  # detect the peaks of the corresponding spectrum.
 
-  #aux_vector_signal <- aux_vector[aux_vector > y_limit]
-  #aux__vector_noise <- aux_vector[aux_vector <= y_limit]
+  # Create the list to contain the peaks
+  rt_index_length <- dim(aux)[1]
+  peak_list_td <- vector(mode = "list", length = rt_index_length)
 
-  #snr <- (sum(aux_signal * aux_signal) / sum(aux_noise * aux_noise))
-  #snr_db <- 10*log10(snr)
-  #noise_characterization[[1]][m, 1:2] <- c(snr, snr_db)
-  #noise_characterization[[2]][m, 1:2] <- c(mu, sigma)
-
-  #threshold <- mu + 3 * sigma
-
-
- # image(1:200, 1:50, t(aux))
-
-  #by_rows
-  desired_length <- 50
-  peak_list_tr <- vector(mode = "list", length = desired_length)
-  #limite <- threshold #0.0153
+  # Set to zero matrix values that are below the noise threshold
   aux[aux <= threshold] <- 0
 
-  tr_index <- 1:50
-  for (j in 1:50){
-  #peak_list_td[[j]] <- findpeaks(as.vector(aux[, j]))[,2]
-  peak_list_tr[[j]] <- findpeaks(as.vector(t(aux[j, ])))[, 2]
+  tr_index <- 1:rt_index_length
+  for (j in tr_index){
+    peak_list_td[[j]] <- findpeaks(as.vector(t(aux[j, ])))[, 2]
   }
 
-  possible_peaks <- unique(unlist(peak_list_tr))
-  grouped_possible_peaks <- vector(mode = "list", length = length(possible_peaks))
+  # Obtain all peaks once, that is without repetitions
+  unique_peaks_td <- unique(unlist(peak_list_td)) #possible_peaks
 
-  foo1 <- function(x){
-    index <- match(possible_peaks[k],x,nomatch = 0) > 0
-    index
+  # Create a empty list to contain the peaks
+  # (the indexes in retention time that correspond to each peak).
+  grouped_peak_list_tr <- vector(mode = "list", length = length(unique_peaks_td)) #grouped_possible_peaks
+
+  # Function to know in which retention time indexes (logical) a peak in drift time is present
+  find_match <- function(x, y){
+    indexes <- match(y, x, nomatch = 0) > 0
+    indexes
   }
+  # Fill the list of peaks applying 'find_match' to all elements in the list
+  for(k in 1:length(unique_peaks_td)){
+    grouped_peak_list_tr[[k]] <- which(sapply(peak_list_td, find_match, y = unique_peaks_td[k]))
 
-  for(k in 1:length(possible_peaks)){
-    grouped_possible_peaks[[k]] <- which(sapply(peak_list_tr, foo1))
-    #grouped_possible_peaks[[k]] <- which(sapply(peak_list_tr, function(x) match(possible_peaks[k],x,nomatch = 0) > 0))
   }
+  # Since you can find more than one peak per retention
+  # time index, it'll be necessary to split this list
 
+  # Function to split the peak list according to which retention time indexes
+  # are consecutive (they belong to a peak). Additionally, this function
+  # discard peaks of peak length 0, in retention time (Note that a peak signal
+  # of length 1 has only is equivalent to a pick of length 0.
 
-  foo2 <- function(x){
-    index <- split(x,cumsum(c(1, diff(x) != 1)))
-    flags <- lapply(index, function(x) length(x) > 1)
+  split_peaks <- function(x){
+    indexes <- split(x,cumsum(c(1, diff(x) != 1)))
+    flags <- lapply(indexes, function(x) length(x) > 1)
     if(any(unlist(flags)) == TRUE){
-      index <- index[which(unlist(flags))]
-    }else{
-      index <- NULL
+      indexes <- indexes[which(unlist(flags))]
+    } else{
+      indexes <- NULL
     }
-    index
+    indexes
   }
 
-  #lappla
-  #consecutive_grouped_possible_peaks <- vector(mode = "list", length = length(grouped_possible_peaks))
+  # Split the peak list (in retention time) applying split_peaks
+  consecutive_grouped_peak_list_tr <- sapply(grouped_peak_list_tr, split_peaks)
 
-  #for(k in 1:length(grouped_possible_peaks)){
-  consecutive_grouped_possible_peaks <- sapply(grouped_possible_peaks, foo2)
 
-  rep_peaks_tr <- vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
-  for (k in 1:length(consecutive_grouped_possible_peaks)){
-    #print(length(consecutive_grouped_possible_peaks[[k]]))
-    condition <- length(consecutive_grouped_possible_peaks[[k]]) == 0
+#
+  grouped_peak_list_td <- vector(mode = "list", length = length(consecutive_grouped_peak_list_tr))
+  for (k in 1:length(consecutive_grouped_peak_list_tr)){
+    condition <- length(consecutive_grouped_peak_list_tr[[k]]) == 0
     if (condition == TRUE){
-      rep_peaks_tr[[k]] <- NULL
+      grouped_peak_list_td[[k]] <- NULL
     } else {
-      rep_peaks_tr[[k]] <- as.list(rep(possible_peaks[[k]], length(consecutive_grouped_possible_peaks[[k]])))
+      grouped_peak_list_td[[k]] <- as.list(rep(unique_peaks_td[[k]], length(consecutive_grouped_peak_list_tr[[k]])))
     }
 
   }
 
-  consecutive_grouped_possible_peaks[sapply(consecutive_grouped_possible_peaks, is.null)] <- NULL
-  rep_peaks_tr[sapply(rep_peaks_tr, is.null)] <- NULL
 
-  peak_length <-  vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
-  for (k in 1:length(consecutive_grouped_possible_peaks)){
-    peak_length[[k]] <- lapply(consecutive_grouped_possible_peaks[[k]], length)
+  consecutive_grouped_peak_list_tr[sapply(consecutive_grouped_peak_list_tr, is.null)] <- NULL
+  grouped_peak_list_td[sapply(grouped_peak_list_td, is.null)] <- NULL
+
+
+  peak_length_tr <-  vector(mode = "list", length = length(consecutive_grouped_peak_list_tr))
+  for (k in 1:length(consecutive_grouped_peak_list_tr)){
+    peak_length_tr[[k]] <- lapply(consecutive_grouped_peak_list_tr[[k]], function(x) length(x) - 1)
   }
 
-  peak_max_value <- peak_max_pos_abs <- peak_max_pos_rel <- peak_asymmetry <- vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
 
-  for (k in 1:length(consecutive_grouped_possible_peaks)){
-    length_list <- length(consecutive_grouped_possible_peaks[[k]])
+
+  peak_max_value <- peak_max_pos_abs <- peak_max_pos_rel <- peak_asymm_tr <- vector(mode = "list", length = length(consecutive_grouped_peak_list_tr))
+
+  for (k in 1:length(consecutive_grouped_peak_list_tr)){
+    length_list <- length(consecutive_grouped_peak_list_tr[[k]])
     for (l in 1: length_list){
-      peak_max_pos_rel[[k]][[l]] <- which.max(aux[consecutive_grouped_possible_peaks[[k]][[l]], rep_peaks_tr[[k]][[l]]])
-      peak_max_pos_abs[[k]][[l]] <- consecutive_grouped_possible_peaks[[k]][[l]][peak_max_pos_rel[[k]][[l]]]
-      peak_max_value[[k]][[l]]   <- aux[peak_max_pos_abs[[k]][[l]], rep_peaks_tr[[k]][[l]]]
-      left_peak_side <- abs(min(consecutive_grouped_possible_peaks[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
-      right_peak_side <- abs(max(consecutive_grouped_possible_peaks[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
-      peak_asymmetry[[k]][[l]] <- (right_peak_side / left_peak_side )
+      peak_max_pos_rel[[k]][[l]] <- which.max(aux[consecutive_grouped_peak_list_tr[[k]][[l]], grouped_peak_list_td[[k]][[l]]])
+      peak_max_pos_abs[[k]][[l]] <- consecutive_grouped_peak_list_tr[[k]][[l]][peak_max_pos_rel[[k]][[l]]]
+      peak_max_value[[k]][[l]]   <- aux[peak_max_pos_abs[[k]][[l]], grouped_peak_list_td [[k]][[l]]]
+      left_peak_side <- abs(min(consecutive_grouped_peak_list_tr[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
+      right_peak_side <- abs(max(consecutive_grouped_peak_list_tr[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
+      peak_asymm_tr[[k]][[l]] <- (right_peak_side / left_peak_side )
 
     }
-   # peak_max[[k]] <- apply(aux[consecutive_grouped_possible_peaks[[k]], rep_peaks_tr[[k]]], which.max)
   }
 
-  # foo3<- function(x){
-  #   index <- split(x,cumsum(c(1, diff(x) != 1)))
-  #   flags <- lapply(index, function(x) length(x) > 1)
-  #   if(any(unlist(flags)) == TRUE){
-  #     index <- index[which(unlist(flags))]
-  #   }else{
-  #     index <- NULL
-  #   }
-  #   index
-  # }
-length_td <- asymm_td <-vector(mode = "list", length = length(peak_max_pos_abs))
+
+
+peak_length_td <- peak_asymm_td <- vector(mode = "list", length = length(peak_max_pos_abs))
   for (k in 1:length(peak_max_pos_abs)){
     length_list <- length(peak_max_pos_abs[[k]])
     for (l in 1: length_list){
       zero_indexes <- which(aux[peak_max_pos_abs[[k]][[l]], ] == 0)
-      left_cond <- which(zero_indexes < rep_peaks_tr[[k]][[l]])
-      left_peak_side_td <- abs((max(zero_indexes[left_cond]) + 1) - rep_peaks_tr[[k]][[l]])
-      right_cond <- which(zero_indexes > rep_peaks_tr[[k]][[l]])
-      right_peak_side_td  <- abs((min(zero_indexes[right_cond]) - 1) - rep_peaks_tr[[k]][[l]])
-      length_td[[k]][[l]] <-  right_peak_side_td  + left_peak_side_td
-      asymm_td[[k]][[l]] <-   right_peak_side_td / left_peak_side_td
+      left_cond <- which(zero_indexes < grouped_peak_list_td[[k]][[l]])
+      left_peak_side_td <- abs((max(zero_indexes[left_cond]) + 1) - grouped_peak_list_td[[k]][[l]])
+      right_cond <- which(zero_indexes > grouped_peak_list_td[[k]][[l]])
+      right_peak_side_td  <- abs((min(zero_indexes[right_cond]) - 1) - grouped_peak_list_td[[k]][[l]])
+      peak_length_td[[k]][[l]] <-  right_peak_side_td  + left_peak_side_td
+      peak_asymm_td[[k]][[l]] <-   right_peak_side_td / left_peak_side_td
     }
   }
-  print(dim(aux))
-     # peak_length[[k]] <- lapply(consecutive_grouped_possible_peaks[[k]], length)
+
   m <- 0
   final_peak_list <-vector(mode = "list", length = length(unlist(peak_max_pos_abs, recursive = FALSE)))
   for (k in 1:length(peak_max_pos_abs)){
     length_list <- length(peak_max_pos_abs[[k]])
     for (l in 1: length_list){
       m <- m + 1
-      final_peak_list[[m]] <- c(rep_peaks_tr[[k]][[l]],
+      final_peak_list[[m]] <- c(grouped_peak_list_td[[k]][[l]],
                                       peak_max_pos_abs[[k]][[l]],
                                       peak_max_value[[k]][[l]],
-                                      peak_length[[k]][[l]],
-                                      length_td[[k]][[l]],
-                                      peak_asymmetry[[k]][[l]],
-                                      asymm_td[[k]][[l]])
+                                      peak_length_tr[[k]][[l]],
+                                      peak_length_tr[[k]][[l]],
+                                      peak_asymm_tr[[k]][[l]],
+                                      peak_asymm_td[[k]][[l]])
 
     }
   }
@@ -306,29 +292,10 @@ length_td <- asymm_td <-vector(mode = "list", length = length(peak_max_pos_abs))
   colnames(final_peak_list)<-c("rt_ind", "dt_ind", "value", "rt_length","dt_legth", "rt_asymm", "dt_asymm")
 
   final_peak_list <- as.data.frame(final_peak_list)
-  # foo3 <- function(x){
-  #   largo <- length(x)
-  #   ancho <- length(x[[1]])
-  #   length(x) <- NULL
-  #   dim(x) <- c(largo, ancho)
-  # }d
-  # pepe <- sapply (final_peak_list, foo3)
- #final_peak_list <- list(peak_table_td = consecutive_grouped_possible_peaks,
-  #                        peak_table_tr = rep_peaks_tr)
-    #consecutive_grouped_possible_peaks <- sapply(grouped_possible_peaks, function(x) split(x,cumsum(c(1, diff(x) != 1))))
-  #}
-
-  # hola_tontico <- vector(mode = "list", length = length(consecutive_grouped_possible_peaks))
-  # for(k in 1:length(consecutive_grouped_possible_peaks)){
-  #   hola_tontico[[k]] <- consecutive_grouped_peak_list[unlist(lapply(consecutive_grouped_peak_list[[k]], function(x)  length(x) > 1))]
-  # }
-
-  #new_peak_list <-peak_list[!unlist(lapply(peak_list, is.null))]
-  #unique(unlist(peak_list))
 
 
 
-   return(noise_power)
+   return(final_peak_list)
 
 
 }
