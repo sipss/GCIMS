@@ -201,20 +201,22 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
   split_peaks <- function(x){
     indexes <- split(x,cumsum(c(1, diff(x) != 1)))
-    flags <- lapply(indexes, function(x) length(x) > 1)
-    if(any(unlist(flags)) == TRUE){
-      indexes <- indexes[which(unlist(flags))]
-    } else{
-      indexes <- NULL
-    }
-    indexes
+    #flags <- lapply(indexes, function(x) length(x) > 1)
+    #if(any(unlist(flags)) == TRUE){
+     # indexes <- indexes[which(unlist(flags))]
+    #} else{
+    #  indexes <- NULL
+    #}
+    #indexes
   }
 
   # Split the peak list (in retention time) applying split_peaks
   consecutive_grouped_peak_list_tr <- sapply(grouped_peak_list_tr, split_peaks)
 
 
-#
+  # Create a list with the position of the peaks' maxima (in drift_time indexes).
+  # The empty sublists are removed from the outer list. Also done in retention time just below the loop
+
   grouped_peak_list_td <- vector(mode = "list", length = length(consecutive_grouped_peak_list_tr))
   for (k in 1:length(consecutive_grouped_peak_list_tr)){
     condition <- length(consecutive_grouped_peak_list_tr[[k]]) == 0
@@ -225,77 +227,151 @@ gcims_compute_numpeaks <- function(dir_in, samples){
     }
 
   }
-
-
   consecutive_grouped_peak_list_tr[sapply(consecutive_grouped_peak_list_tr, is.null)] <- NULL
   grouped_peak_list_td[sapply(grouped_peak_list_td, is.null)] <- NULL
 
 
-  peak_length_tr <-  vector(mode = "list", length = length(consecutive_grouped_peak_list_tr))
-  for (k in 1:length(consecutive_grouped_peak_list_tr)){
-    peak_length_tr[[k]] <- lapply(consecutive_grouped_peak_list_tr[[k]], function(x) length(x) - 1)
-  }
+  # Function used to compute the parameter values
+  # and some of the figures of merit typical
+  # of the retention time axis.
+  # Compute (in retention time): Peak length, Peak height,
+  # Peak position (index), Peak asymmetry
 
+  compute_rt_params <- function (var1, var2){
 
+    # Initialize list used in the next loop
+    peak_length <- max_value <- absolute_position <- relative_position <- asymm <- vector(mode = "list", length = length(var1))
 
-  peak_max_value <- peak_max_pos_abs <- peak_max_pos_rel <- peak_asymm_tr <- vector(mode = "list", length = length(consecutive_grouped_peak_list_tr))
-
-  for (k in 1:length(consecutive_grouped_peak_list_tr)){
-    length_list <- length(consecutive_grouped_peak_list_tr[[k]])
-    for (l in 1: length_list){
-      peak_max_pos_rel[[k]][[l]] <- which.max(aux[consecutive_grouped_peak_list_tr[[k]][[l]], grouped_peak_list_td[[k]][[l]]])
-      peak_max_pos_abs[[k]][[l]] <- consecutive_grouped_peak_list_tr[[k]][[l]][peak_max_pos_rel[[k]][[l]]]
-      peak_max_value[[k]][[l]]   <- aux[peak_max_pos_abs[[k]][[l]], grouped_peak_list_td [[k]][[l]]]
-      left_peak_side <- abs(min(consecutive_grouped_peak_list_tr[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
-      right_peak_side <- abs(max(consecutive_grouped_peak_list_tr[[k]][[l]]) - peak_max_pos_abs[[k]][[l]])
-      peak_asymm_tr[[k]][[l]] <- (right_peak_side / left_peak_side )
-
+    # Compute params:
+    for (k in 1:length(var1)){
+      peak_length[[k]] <- lapply(var1[[k]], function(x) length(x) - 1)
+      length_list <- length(var1[[k]])
+      for (l in 1: length_list){
+        relative_position[[k]][[l]] <- which.max(aux[var1[[k]][[l]], var2[[k]][[l]]])
+        absolute_position[[k]][[l]] <- var1[[k]][[l]][relative_position[[k]][[l]]]
+        max_value[[k]][[l]]   <- aux[absolute_position[[k]][[l]], var2[[k]][[l]]]
+        left_peak_side <- abs(min(var1[[k]][[l]]) - absolute_position[[k]][[l]])
+        right_peak_side <- abs(max(var1[[k]][[l]]) - absolute_position[[k]][[l]])
+        asymm[[k]][[l]] <- (right_peak_side / left_peak_side)
+      }
     }
+    rt_list <- list(peak_length_tr = peak_length,
+                    peak_max_pos_abs_tr = absolute_position,
+                    peak_max_value = max_value,
+                    peak_asymm_tr = asymm)
+    return(rt_list)
   }
 
+  rt_list <- compute_rt_params(consecutive_grouped_peak_list_tr, grouped_peak_list_td)
 
 
-peak_length_td <- peak_asymm_td <- vector(mode = "list", length = length(peak_max_pos_abs))
-  for (k in 1:length(peak_max_pos_abs)){
-    length_list <- length(peak_max_pos_abs[[k]])
-    for (l in 1: length_list){
-      zero_indexes <- which(aux[peak_max_pos_abs[[k]][[l]], ] == 0)
-      left_cond <- which(zero_indexes < grouped_peak_list_td[[k]][[l]])
-      left_peak_side_td <- abs((max(zero_indexes[left_cond]) + 1) - grouped_peak_list_td[[k]][[l]])
-      right_cond <- which(zero_indexes > grouped_peak_list_td[[k]][[l]])
-      right_peak_side_td  <- abs((min(zero_indexes[right_cond]) - 1) - grouped_peak_list_td[[k]][[l]])
-      peak_length_td[[k]][[l]] <-  right_peak_side_td  + left_peak_side_td
-      peak_asymm_td[[k]][[l]] <-   right_peak_side_td / left_peak_side_td
+  # Function used to compute the parameter values
+  # and some of the figures of merit typical
+  # of the drift time axis.
+  # Compute (in retention time): Peak length,
+  # Peak position (index), Peak asymmetry
+
+
+
+  compute_dt_params <- function (var1, var2){
+
+    # Initialize list used in the next loop
+    peak_length <- asymm <- vector(mode = "list", length = length(var1))
+    k_app <- NULL
+    l_app <- NULL
+     # Compute params
+      for (k in 1:length(var1)){
+        length_list <- length(var1[[k]])
+        for (l in 1: length_list){
+          zero_indexes <- which(aux[var1[[k]][[l]], ] == 0)
+          left_cond <- which(zero_indexes < var2[[k]][[l]])
+          left_peak_side_td <- abs((max(zero_indexes[left_cond]) + 1) - var2[[k]][[l]])
+          right_cond <- which(zero_indexes > var2[[k]][[l]])
+          right_peak_side_td  <- abs((min(zero_indexes[right_cond]) - 1) - var2[[k]][[l]])
+          p_length <- right_peak_side_td  + left_peak_side_td
+          #if (p_length == 0){
+          #  k_app <- append(k_app, k)
+          #  l_app <- append(l_app, l)
+          #}
+            peak_length[[k]][[l]] <-  right_peak_side_td  + left_peak_side_td
+            asymm[[k]][[l]] <-   right_peak_side_td / left_peak_side_td
+        }
+      }
+
+    dt_list <- list(peak_length_td = peak_length,
+                    peak_asymm_td = asymm)
+    #rm_ind_list <- list(k_app = k_app, l_app = l_app)
+
+    #output_list <- list(dt_list = dt_list, rm_ind_list = rm_ind_list)
+
+    return(dt_list)
     }
-  }
 
-  m <- 0
-  final_peak_list <-vector(mode = "list", length = length(unlist(peak_max_pos_abs, recursive = FALSE)))
-  for (k in 1:length(peak_max_pos_abs)){
-    length_list <- length(peak_max_pos_abs[[k]])
-    for (l in 1: length_list){
-      m <- m + 1
-      final_peak_list[[m]] <- c(grouped_peak_list_td[[k]][[l]],
-                                      peak_max_pos_abs[[k]][[l]],
-                                      peak_max_value[[k]][[l]],
-                                      peak_length_tr[[k]][[l]],
-                                      peak_length_tr[[k]][[l]],
-                                      peak_asymm_tr[[k]][[l]],
-                                      peak_asymm_td[[k]][[l]])
+  dt_list <- compute_dt_params(rt_list$peak_max_pos_abs_tr, grouped_peak_list_td)
+  #dt_list <- dt_info$dt_list
+  #rm_ind_list <- dt_info$rm_ind_list
 
+  # k_app <- rm_ind_list$k_app
+  # l_app <- rm_ind_list$l_app
+  #
+  # remove_peaks_1 <- function(x, k_app, l_app){
+  #   for (h in 1:length(x)){
+  #     m <- 0
+  #     for(k in k_app){
+  #       m <- m + 1
+  #       x[[h]][[k]][[l_app[m]]] <- NULL
+  #     }
+  #   }
+  #   return(x)
+  # }
+  #
+  # remove_peaks_2 <- function(x, k_app, l_app){
+  #   m <- 0
+  #   for(k in k_app){
+  #     m <- m + 1
+  #     x[[k]][[l_app[m]]] <- NULL
+  #   }
+  #   return(x)
+  # }
+  #
+  # dt_list <- remove_peaks_1(dt_list, k_app, l_app)
+  # rt_list <- remove_peaks_1(rt_list, k_app, l_app)
+  # grouped_peak_list_td <- remove_peaks_2(grouped_peak_list_td, k_app, l_app)
+
+
+  #return(rt_list)
+  # Join now all the data in a single data frame
+  # To do it use function: create_peak_df
+
+  create_peak_df <- function(var1, var2, var3){
+    m <- 0
+    final_peak_list <-vector(mode = "list", length = length(unlist(var1$peak_max_pos_abs_tr, recursive = FALSE)))
+    for (k in 1:length(var1$peak_max_pos_abs_tr)){
+      length_list <- length(var1$peak_max_pos_abs_tr[[k]])
+      for (l in 1:length_list){
+        m <- m + 1
+        final_peak_list[[m]] <- c(var3[[k]][[l]],
+                                  var1$peak_max_pos_abs_tr[[k]][[l]],
+                                  var1$peak_max_value[[k]][[l]],
+                                  var1$peak_length_tr[[k]][[l]],
+                                  var2$peak_length_td[[k]][[l]],
+                                  var1$peak_asymm_tr[[k]][[l]],
+                                  var2$peak_asymm_td[[k]][[l]])
+      }
     }
+
+
+
+    final_peak_list <- matrix(unlist(final_peak_list), nrow = length(unlist(var1$peak_max_pos_abs_tr, recursive = FALSE)),
+                              ncol = length(unlist(final_peak_list))/length(unlist(var1$peak_max_pos_abs_tr, recursive = FALSE)),
+                              byrow = TRUE)
+    colnames(final_peak_list) <- c("rt_ind", "dt_ind", "value", "rt_length","dt_legth", "rt_asymm", "dt_asymm")
+
+    final_peak_df <- as.data.frame(final_peak_list)
+
+    return(final_peak_df)
   }
-
-  final_peak_list <- matrix(unlist(final_peak_list), nrow = length(unlist(peak_max_pos_abs, recursive = FALSE)),
-                            ncol = length(unlist(final_peak_list))/length(unlist(peak_max_pos_abs, recursive = FALSE)),
-                            byrow = TRUE)
-  colnames(final_peak_list)<-c("rt_ind", "dt_ind", "value", "rt_length","dt_legth", "rt_asymm", "dt_asymm")
-
-  final_peak_list <- as.data.frame(final_peak_list)
-
-
-
-   return(final_peak_list)
-
+  final_peak_df <- create_peak_df(rt_list, dt_list, grouped_peak_list_td)
+  return(final_peak_df)
 
 }
