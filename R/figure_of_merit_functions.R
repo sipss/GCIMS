@@ -302,14 +302,24 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
 
 
+  #noise_power <- compute_power(aux[aux_vector <= threshold])
+  snr_db <- snr <- vector(mode = "list", length = length(consecutive_grouped_peak_list_td))
+
+  for (k in 1:length(grouped_peak_list_td)){
+    length_list <- length(grouped_peak_list_td[[k]])
+    for (l in 1:length_list){
+      peak_region <- aux[consecutive_grouped_peak_list_tr[[k]][[l]], consecutive_grouped_peak_list_td[[k]][[l]]]
+      peak_power <- compute_power(as.vector(peak_region))
+      snr[[k]][[l]] <- (peak_power - noise_power) / noise_power
+      snr_db[[k]][[l]] <- 10*log10(snr[[k]][[l]])
+    }
+  }
+
+  snr <- list(linear = snr, dB = snr_db )
 
 
 
-
-
-
-
-  create_peak_df <- function(var1, var2, var3){
+  create_peak_df <- function(var1, var2, var3, var4){
     m <- 0
     final_peak_list <-vector(mode = "list", length = length(unlist(var1$peak_max_pos_abs_tr, recursive = FALSE)))
     for (k in 1:length(var1$peak_max_pos_abs_tr)){
@@ -322,7 +332,9 @@ gcims_compute_numpeaks <- function(dir_in, samples){
                                   var1$peak_length_tr[[k]][[l]],
                                   var2$peak_length_td[[k]][[l]],
                                   var1$peak_asymm_tr[[k]][[l]],
-                                  var2$peak_asymm_td[[k]][[l]])
+                                  var2$peak_asymm_td[[k]][[l]],
+                                  var4$linear[[k]][[l]],
+                                  var4$dB[[k]][[l]])
       }
     }
 
@@ -331,13 +343,13 @@ gcims_compute_numpeaks <- function(dir_in, samples){
     final_peak_list <- matrix(unlist(final_peak_list), nrow = length(unlist(var1$peak_max_pos_abs_tr, recursive = FALSE)),
                               ncol = length(unlist(final_peak_list))/length(unlist(var1$peak_max_pos_abs_tr, recursive = FALSE)),
                               byrow = TRUE)
-    colnames(final_peak_list) <- c("rt_ind", "dt_ind", "value", "rt_length","dt_legth", "rt_asymm", "dt_asymm")
+    colnames(final_peak_list) <- c("rt_ind", "dt_ind", "value", "rt_length","dt_legth", "rt_asymm", "dt_asymm", "snr", "snr_dB")
 
     final_peak_df <- as.data.frame(final_peak_list)
 
     return(final_peak_df)
   }
-  final_peak_df <- create_peak_df(rt_list, dt_list, grouped_peak_list_td)
+  final_peak_df <- create_peak_df(rt_list, dt_list, grouped_peak_list_td, snr)
   return(final_peak_df)
 
 }
