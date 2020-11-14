@@ -201,13 +201,6 @@ gcims_compute_numpeaks <- function(dir_in, samples){
 
   split_peaks <- function(x){
     indexes <- split(x,cumsum(c(1, diff(x) != 1)))
-    #flags <- lapply(indexes, function(x) length(x) > 1)
-    #if(any(unlist(flags)) == TRUE){
-     # indexes <- indexes[which(unlist(flags))]
-    #} else{
-    #  indexes <- NULL
-    #}
-    #indexes
   }
 
   # Split the peak list (in retention time) applying split_peaks
@@ -276,25 +269,21 @@ gcims_compute_numpeaks <- function(dir_in, samples){
   compute_dt_params <- function (var1, var2){
 
     # Initialize list used in the next loop
-    peak_length <- asymm <- vector(mode = "list", length = length(var1))
-    k_app <- NULL
-    l_app <- NULL
+   consecutive_grouped_peak_list_td <- peak_length <- asymm <- vector(mode = "list", length = length(var1))
      # Compute params
       for (k in 1:length(var1)){
         length_list <- length(var1[[k]])
         for (l in 1: length_list){
           zero_indexes <- which(aux[var1[[k]][[l]], ] == 0)
           left_cond <- which(zero_indexes < var2[[k]][[l]])
-          left_peak_side_td <- abs((max(zero_indexes[left_cond]) + 1) - var2[[k]][[l]])
+          first_left_index <- (max(zero_indexes[left_cond]) + 1)
           right_cond <- which(zero_indexes > var2[[k]][[l]])
-          right_peak_side_td  <- abs((min(zero_indexes[right_cond]) - 1) - var2[[k]][[l]])
-          p_length <- right_peak_side_td  + left_peak_side_td
-          #if (p_length == 0){
-          #  k_app <- append(k_app, k)
-          #  l_app <- append(l_app, l)
-          #}
-            peak_length[[k]][[l]] <-  right_peak_side_td  + left_peak_side_td
-            asymm[[k]][[l]] <-   right_peak_side_td / left_peak_side_td
+          last_right_index <-(min(zero_indexes[right_cond]) - 1)
+          consecutive_grouped_peak_list_td[[k]][[l]] <- first_left_index: last_right_index
+          left_peak_side_td <- abs(first_left_index  - var2[[k]][[l]])
+          right_peak_side_td  <- abs(last_right_index - var2[[k]][[l]])
+          peak_length[[k]][[l]] <-  right_peak_side_td  + left_peak_side_td
+          asymm[[k]][[l]] <-   right_peak_side_td / left_peak_side_td
         }
       }
 
@@ -302,46 +291,23 @@ gcims_compute_numpeaks <- function(dir_in, samples){
                     peak_asymm_td = asymm)
     #rm_ind_list <- list(k_app = k_app, l_app = l_app)
 
-    #output_list <- list(dt_list = dt_list, rm_ind_list = rm_ind_list)
+    output_list <- list(dt_list = dt_list, consecutive_grouped_peak_list_td = consecutive_grouped_peak_list_td)
 
-    return(dt_list)
+    return(output_list)
     }
 
-  dt_list <- compute_dt_params(rt_list$peak_max_pos_abs_tr, grouped_peak_list_td)
-  #dt_list <- dt_info$dt_list
-  #rm_ind_list <- dt_info$rm_ind_list
-
-  # k_app <- rm_ind_list$k_app
-  # l_app <- rm_ind_list$l_app
-  #
-  # remove_peaks_1 <- function(x, k_app, l_app){
-  #   for (h in 1:length(x)){
-  #     m <- 0
-  #     for(k in k_app){
-  #       m <- m + 1
-  #       x[[h]][[k]][[l_app[m]]] <- NULL
-  #     }
-  #   }
-  #   return(x)
-  # }
-  #
-  # remove_peaks_2 <- function(x, k_app, l_app){
-  #   m <- 0
-  #   for(k in k_app){
-  #     m <- m + 1
-  #     x[[k]][[l_app[m]]] <- NULL
-  #   }
-  #   return(x)
-  # }
-  #
-  # dt_list <- remove_peaks_1(dt_list, k_app, l_app)
-  # rt_list <- remove_peaks_1(rt_list, k_app, l_app)
-  # grouped_peak_list_td <- remove_peaks_2(grouped_peak_list_td, k_app, l_app)
+  info_list <- compute_dt_params(rt_list$peak_max_pos_abs_tr, grouped_peak_list_td)
+  dt_list <- info_list$dt_list
+  consecutive_grouped_peak_list_td <- info_list$consecutive_grouped_peak_list_td
 
 
-  #return(rt_list)
-  # Join now all the data in a single data frame
-  # To do it use function: create_peak_df
+
+
+
+
+
+
+
 
   create_peak_df <- function(var1, var2, var3){
     m <- 0
