@@ -1,0 +1,21 @@
+on: [push, pull_request]
+
+name: R-CMD-check
+
+jobs:
+  R-CMD-check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: r-lib/actions/setup-r@master
+        with:
+            r-version: '3.6.3'
+      - uses: r-lib/actions/setup-pandoc@master
+      - name: Install dependencies
+        run: |
+          Rscript -e 'install.packages(c("remotes", "rcmdcheck", "BiocManager", "covr", "devtools"))' \
+                  -e "BiocManager::install()" \
+                  -e 'remotes::install_deps(dependencies = TRUE)' \
+                  -e 'remotes::install_github("jimhester/pkgdown@github-actions-deploy")'
+      - name: Check pkg
+        run: Rscript -e "rcmdcheck::rcmdcheck(args = '--no-manual', error_on = 'error')"
