@@ -1,5 +1,7 @@
 ---
 title: "vignette"
+author: "Institute for Bioengineering of Catalonia"
+date: "`r Sys.Date()`"
 output: html_document
 ---
 
@@ -8,7 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-First of all, the directory where my samples are located is setted. After this, the folders where the samples will be stored after each preprocessing step, are created.
+```{r}
+library(GCIMS)
+```
+
+First of all, the directory where my samples are located is set. After this, the folders where the samples will be stored after each preprocessing step, are created.
 
 ```{r}
 setwd("C:/Users/Celia Mallafré/OneDrive - IBEC/GCIMS Work Group/Aceites/Aceites4Variedades/12.11.2020/Samples")
@@ -138,7 +144,7 @@ gcims_view_sample(dir_in, sample_num, rt_range, dt_range)
 ```
 
 
-A Savitzky-Golay filter is applied for smoothing the signal. This function is teh same for retention time and for dirft time, with the difference of the by_rows parameter. When tby_rows = TRUE, the pre-processing is applied in the dirft time and by_rows = FALSE is applied in the retention time. 
+A Savitzky-Golay filter is applied for smoothing the signal. This function is the same for retention time and for drift time, with the difference of the by_rows parameter. When tby_rows = TRUE, the pre-processing is applied in the drift time and by_rows = FALSE is applied in the retention time. 
 
 ```{r}
 # DRIFT TIME DIGITAL FILTERING
