@@ -63,7 +63,7 @@ samples <- 5
 gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
 gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL)
 gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL)
-```` 
+```
 
 
 This function reshape all the samples in order to have the same dimensions. It can happen that one smaple has ine more point for retention time, so this function avoid this.
