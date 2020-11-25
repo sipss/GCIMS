@@ -231,8 +231,8 @@ reshape_samples <- function(dir_in, dir_out, samples) {
   dts <- NULL
   for (i in samples){
     dimensions <- lapply(dataframes, dim)
-    dts <- c(dts, dimensions[[i]][1])
-    rts <- c(rts, dimensions[[i]][2])
+    rts <- c(dts, dimensions[[i]][1])
+    dts <- c(rts, dimensions[[i]][2])
   }
   rts <- min(rts)
   dts <- min(dts)
