@@ -218,21 +218,20 @@ reshape_samples <- function(dir_in, dir_out, samples) {
   print("///////////////////////////////")
   print(" ")
 
-  dataframes <- list(NULL)
+  dimensions <- list(NULL)
   for (i in samples){
     setwd(dir_in)
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- t(as.matrix(aux_list$data$data_df)) #new
-    dataframes[[i]] <- aux
+    dimensions[[i]] <- dim(aux)
   }
 
   rts <- NULL
   dts <- NULL
   for (i in samples){
-    dimensions <- lapply(dataframes, dim)
-    rts <- c(dts, dimensions[[i]][1])
-    dts <- c(rts, dimensions[[i]][2])
+    dts <- c(dts, dimensions[[i]][1])
+    rts <- c(rts, dimensions[[i]][2])
   }
   rts <- min(rts)
   dts <- min(dts)
@@ -242,7 +241,7 @@ reshape_samples <- function(dir_in, dir_out, samples) {
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- t(as.matrix(aux_list$data$data_df))
-    aux <- aux[1:rts, 1:dts]
+    aux <- aux[1:dts, 1:rts]
     aux_list$data$data_df <- aux
     aux_list$data$retention_time <- aux_list$data$retention_time[1:rts]
     aux_list$data$drift_time <- aux_list$data$drift_time[1:dts]
