@@ -17,7 +17,7 @@ library(GCIMS)
 First of all, the directory where my samples are located is set. After this, the folders where the samples will be stored after each preprocessing step, are created.
 
 ```{r}
-setwd("C:/Users/Celia Mallafré/OneDrive - IBEC/GCIMS Work Group/Aceites/Aceites4Variedades/12.11.2020/Samples")
+setwd("C:/Users/cmallafre/OneDrive - IBEC/GCIMS Work Group/Aceites/Aceites4Variedades/12.11.2020/Samples")
 
 # CREATE FOLDERS (TO DO)
 wd <- getwd()
