@@ -48,7 +48,7 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
       #metadata$experiment <- files[i]
       #metadata$raw_path
       # DATA
-      single_file <- read_csv(files[i], skip = skip,
+      single_file <- read_csv(files[i],
                               progress = FALSE, col_names = FALSE,
                               col_types = cols(.default = "c"))
 
