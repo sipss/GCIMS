@@ -150,6 +150,8 @@ fill_concentration <- function(C,column, max_pos, max_value, rise_time, fall_tim
 
   peak_rt_left_pos <- (max_pos - (rise_time - 1) + rt_shift): (max_pos + rt_shift) #(max_pos - (rise_time - 1) + rt_shift[1, 1]): (max_pos + rt_shift[1, 1])
   peak_rt_right_pos <- (max_pos + 1 + rt_shift): (max_pos + fall_time + rt_shift) #(max_pos + 1 + rt_shift[1, 1]): (max_pos + fall_time + rt_shift[1, 1])
+  #peak_rt_left_value <- seq(from = 0, to = max_value, length.out = rise_time)
+  #peak_rt_right_value <- seq(from = (max_value - round(max_value / fall_time)), to = 0, length.out = fall_time)
   peak_rt_left_value <- seq(from = 0, to = max_value, length.out = rise_time)
   peak_rt_right_value <- seq(from = max_value, to = 0, length.out = fall_time)
 
@@ -235,14 +237,14 @@ gcims_create_dummy_params <- function(){
   #EXAMPLE OF PARAMETER CHOICE:
 
   # matrix parameters
-  matrix_params <- list(npoints = 200, nscans = 50)
+  matrix_params <- list(npoints = 200, nscans = 60)
 
   # peak position parameters
-  peak_positions <- list(ret_time = list(pr2 = 13, pr3 = 35),
-                          drift_time = list(pd1 = 50, pd2 = 90, pd3 = 130))
+  peak_positions <- list(ret_time = list(pr2 = 20, pr3 = 35),#,list(pr2 = 12, pr3 = 35)
+                          drift_time = list(pd1 = 50, pd2 = 90, pd3 = 90))#drift_time = list(pd1 = 50, pd2 = 90, pd3 = 130))
 
   # peak height parameters
-  peak_heights <- list(hp2 = 1, hp3 = 0.7)
+  peak_heights <- list(hp2 = 0.5, hp3 = 0.5) #list(hp2 = 1, hp3 = 0.7)
 
   # peak asymmetry parameters
   peak_asym <- list(ret_time = list(rise_time = 7, fall_time = 15), drift_time = list(sigma_left = 2, sigma_right = 4)) #list(sigma_left = 2, sigma_right = 2.2))

@@ -8,6 +8,7 @@
 #' @family Reading functions
 #' @export
 #' @importFrom readr read_csv cols type_convert
+#' @importFrom utils menu
 #' @examples
 #' \dontrun{
 #' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
