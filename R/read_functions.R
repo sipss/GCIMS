@@ -3,6 +3,7 @@
 
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
+#' @param file           Name of the metadata file.
 #' @param skip           Number of lines to skip before reading gcims data.
 #' @return An R object that contains the matrix and the retention times
 #' @family Reading functions
@@ -18,7 +19,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
+gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
   setwd(dir_in)
   print(" ")
   print("  /////////////////////////")
@@ -26,8 +27,7 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
   print("/////////////////////////")
   print(" ")
 
-  metadata <- list(condition = NULL, experiment = NULL, group = NULL,
-                   index = NULL, raw_path = NULL, replicate = NULL)
+  metadata <- list(NULL)
   data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
 
   sftwr <- menu(c("Yes", "No"), title="Were your samples converter to .csv using the VOCal software?")
@@ -43,10 +43,10 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
       m <- m + 1
       print(paste0("Sample ", m, " of ", length(files)))
       aux_string <- paste0("M", i, ".rds")
-
       # METADATA
-      #metadata$experiment <- files[i]
-      #metadata$raw_path
+      name <- read_csv(files[i], progress = FALSE, col_names = FALSE, col_types = cols(.default = "c"))[14, 3]
+      Metadatafile <- read_excel(file)
+      metadata <- Metadatafile[which(Metadatafile$Name == name),]
       # DATA
       single_file <- read_csv(files[i],
                               progress = FALSE, col_names = FALSE,
@@ -81,8 +81,9 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
       aux_string <- paste0("M", i, ".rds")
 
       # METADATA
-      #metadata$experiment <- files[i]
-      #metadata$raw_path
+      name <- read_csv(files[i], progress = FALSE, col_names = FALSE, col_types = cols(.default = "c"))[14, 3]
+      Metadatafile <- read_excel(file)
+      metadata <- Metadatafile[which(Metadatafile$Name == name),]
       # DATA
       single_file <- read_csv(files[i], skip = skip,
                               progress = FALSE, col_names = FALSE,
@@ -90,7 +91,7 @@ gcims_read_samples <- function(dir_in, dir_out, skip = 0) {
 
       dd <- as.data.frame(t(single_file[-c(1:2), -c(1:2)]))
       # Depende del tipo de instrumento OJO
-      data$data_df = - type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
+      data$data_df = type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
       data$retention_time <- as.numeric(single_file[1, -c(1:2)])
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
@@ -151,3 +152,6 @@ gcims_read_mat <- function(dir_in, dir_out) {
     setwd(dir_in)
   }
 }
+
+
+
