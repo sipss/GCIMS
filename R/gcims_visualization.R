@@ -136,6 +136,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @param rt_range        Min a Max retention time values. NULL by
 #'                        default.
 #' @param dt_value        Selected drift time value. NULL by default.
+#' @param colorby         Metadata parameter used for color the samples.
 #' @return A set of Chromatograms.
 #' @family Visualization functions
 #' @export
@@ -156,7 +157,8 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' gcims_plot_chrom(dir_out, samples, dt_value)
 #' unlink(dir_out, recursive = TRUE)
 #' setwd(wd)
-gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
+
+gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby){
 
   Retention_Time <- Index <- Value <- Sample <- NULL
 
@@ -229,6 +231,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
   rm(aux_string, aux_list, aux)
 
   m <- 0
+  colorp <- NULL
   chroms <- matrix(0, nrow =  length(sel_index_rt), ncol = length(samples))
   for (i in samples){
     m <- m + 1
@@ -241,6 +244,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
     } else {
       chroms[, m] <- aux[sel_index_rt,  sel_index_dt]
     }
+    colorp <- c(colorp, as.character(aux_list$metadata[,colorby]))
     rm(aux_string, aux)
   }
   rm(m)
@@ -256,15 +260,16 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
     plot_title <- "Extracted Ion Chromatogram"
   }
 
+  colorp <- as.vector(as.factor(colorp))
   moltchroms <- moltchroms %>%
-    mutate (Sample = as.factor(samples[Index]))
+    mutate (Sample = as.factor(samples[Index])) %>%
+    mutate (Class = as.factor(colorp[Index]))
 
-
-  p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Sample)) +
+  p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Class)) +
     geom_line() +
     labs(x="Retention Time (s)",
          y="Intensity (a.u.)",
-         color = "Sample",
+         color = "Class",
          title = plot_title) +
     theme_minimal()
   print(p)
@@ -280,6 +285,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
 #' @param dt_range        Min a Max drift time values. NULL by
 #'                        default.
 #' @param rt_value        Selected retention time value. NULL by default.
+#' @param colorby         Metadata parameter used for color the samples.
 #' @return A set of spectra.
 #' @family Visualization functions
 #' @export
@@ -299,7 +305,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL){
 #' gcims_plot_spec(dir_out, samples)
 #' unlink(dir_out, recursive = TRUE)
 #' setwd(wd)
-gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL){
+gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby){
 
   Drift_Time <- Index <- Value <- Sample <- NULL
 
@@ -373,6 +379,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL){
 
 
   m <- 0
+  colorp <- NULL
   specs <- matrix(0, nrow = length(sel_index_dt), ncol = length(samples))
   for (i in samples){
     m <- m + 1
@@ -386,6 +393,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL){
     } else {
       specs[, m] <- aux[sel_index_rt, sel_index_dt]
     }
+    colorp <- c(colorp, as.character(aux_list$metadata[,colorby]))
     rm(aux_string, aux)
   }
   rm(m)
@@ -400,14 +408,16 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL){
     plot_title <- "Spectrum"
   }
 
+  colorp <- as.vector(as.factor(colorp))
   moltspecs <- moltspecs %>%
-    mutate (Sample = as.factor(samples[Index]))
+    mutate (Sample = as.factor(samples[Index])) %>%
+    mutate (Class = as.factor(colorp[Index]))
 
-  p <- ggplot(moltspecs, aes(x = Drift_Time, y = Value, color = Sample)) +
+  p <- ggplot(moltspecs, aes(x = Drift_Time, y = Value, color = Class)) +
     geom_line() +
     labs(x="Drift Time (ms)",
          y="Intensity (a.u.)",
-         color = "Sample",
+         color = "Class",
          title = plot_title) +
     theme_minimal()
   print(p)

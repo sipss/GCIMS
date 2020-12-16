@@ -84,7 +84,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
       # METADATA
       name <- read_csv(files[i], progress = FALSE, col_names = FALSE, col_types = cols(.default = "c"))[14, 3]
       Metadatafile <- read_excel(file)
-      metadata <- Metadatafile[which(Metadatafile$Name == name),]
+      metadata <- Metadatafile[which(Metadatafile$Name == as.character(name)),]
       # DATA
       single_file <- read_csv(files[i], skip = skip,
                               progress = FALSE, col_names = FALSE,
