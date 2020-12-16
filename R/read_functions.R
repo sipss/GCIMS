@@ -53,7 +53,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
                               progress = FALSE, col_names = FALSE,
                               col_types = cols(.default = "c"))
 
-      dd <- single_file[-c(1:2), -c(1:2)]
+      dd <- as.data.frame(t(single_file[-c(1:2), -c(1:2)]))
       # Depende del tipo de instrumento OJO
       data$data_df = - type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
       data$retention_time <- as.numeric(single_file[1, -c(1:2)])
@@ -90,7 +90,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
                               progress = FALSE, col_names = FALSE,
                               col_types = cols(.default = "c"))
 
-      dd <- as.data.frame(t(single_file[-c(1:2), -c(1:2)]))
+      dd <- single_file[-c(1:2), -c(1:2)]
       # Depende del tipo de instrumento OJO
       data$data_df = type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
       data$retention_time <- as.numeric(single_file[1, -c(1:2)])
