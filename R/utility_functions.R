@@ -223,7 +223,7 @@ reshape_samples <- function(dir_in, dir_out, samples) {
     setwd(dir_in)
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(aux_string) #new
-    aux <- t(as.matrix(aux_list$data$data_df)) #new
+    aux <- (as.matrix(aux_list$data$data_df)) #new
     dimensions[[i]] <- dim(aux)
   }
 
@@ -240,7 +240,7 @@ reshape_samples <- function(dir_in, dir_out, samples) {
     print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(aux_string) #new
-    aux <- t(as.matrix(aux_list$data$data_df))
+    aux <- (as.matrix(aux_list$data$data_df))
     aux <- aux[1:dts, 1:rts]
     aux_list$data$data_df <- aux
     aux_list$data$retention_time <- aux_list$data$retention_time[1:rts]
