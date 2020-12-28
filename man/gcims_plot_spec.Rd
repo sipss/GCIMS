@@ -4,7 +4,7 @@
 \alias{gcims_plot_spec}
 \title{Plots TISa or spectra}
 \usage{
-gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL)
+gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -16,6 +16,8 @@ to be visualized.}
 
 \item{dt_range}{Min a Max drift time values. NULL by
 default.}
+
+\item{colorby}{Metadata parameter used for color the samples.}
 }
 \value{
 A set of spectra.

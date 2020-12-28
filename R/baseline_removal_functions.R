@@ -145,6 +145,7 @@ psalsa <- function(data, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
 #'
 psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
 
+
   z <- 0 * y
   w <- z + 1
   if (k == -1) {
@@ -162,16 +163,21 @@ psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
   d <- 0*numeric(num_points) - 1
 
   for (it in 1:maxit) {
-    z <- ptw::whit2(y, lambda, w)
 
-    d_geq_old = (d >= 0)
-    d <- y - z
-    w[d >= 0] = p*exp(-d[d >= 0]/k)
-    w[d < 0]  = 1 - p;
-    if (all((d >= 0) == d_geq_old)) {
-      break
-    }
+      z <- ptw::whit2(y, lambda, w)
 
+      d_geq_old = (d >= 0)
+      d <- y - z
+      w[d >= 0] = p*exp(-d[d >= 0]/k)
+      w[d < 0]  = 1 - p;
+      if (any(is.nan(w))) {
+        break
+      }
+      if (any((d >= 0) == d_geq_old)) {
+        break
+      }
+
+   # }
   }
   return(z)
 }

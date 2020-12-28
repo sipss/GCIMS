@@ -4,12 +4,14 @@
 \alias{gcims_read_samples}
 \title{Read GC-IMS Samples from .csv files}
 \usage{
-gcims_read_samples(dir_in, dir_out, skip = 0)
+gcims_read_samples(dir_in, dir_out, file, skip = 0)
 }
 \arguments{
 \item{dir_in}{The input directory.}
 
 \item{dir_out}{The output directory.}
+
+\item{file}{Name of the metadata file.}
 
 \item{skip}{Number of lines to skip before reading gcims data.}
 }
