@@ -4,7 +4,7 @@
 \alias{gcims_plot_chrom}
 \title{Plots TICs or EICs.}
 \usage{
-gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL)
+gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -16,6 +16,8 @@ to be visualized.}
 
 \item{rt_range}{Min a Max retention time values. NULL by
 default.}
+
+\item{colorby}{Metadata parameter used for color the samples.}
 }
 \value{
 A set of Chromatograms.

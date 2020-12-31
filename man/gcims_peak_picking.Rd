@@ -9,9 +9,9 @@ gcims_peak_picking(
   dir_out,
   samples,
   rem_baseline = TRUE,
-  min_length_tr = 10,
+  min_length_tr = 50,
   min_length_td = 10,
-  cor_threshold = 0.6
+  preprocess = TRUE
 )
 }
 \arguments{
@@ -28,7 +28,7 @@ axes. TRUE by default.}
 
 \item{min_length_td}{Minimum peak length in drift time (now indexes).}
 
-\item{cor_threshold}{Correlation threshold for selecting ROIs.}
+\item{preprocess}{Preprocess the samples?. TRUE or FALSE}
 }
 \value{
 A peak table per sample.

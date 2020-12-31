@@ -8,12 +8,15 @@
 #'                        axes. TRUE by default.
 #' @param min_length_tr   Minimum peak length in retention time (now indexes).
 #' @param min_length_td   Minimum peak length in drift time (now indexes).
-#' @param cor_threshold   Correlation threshold for selecting ROIs.
+#' @param preprocess      Preprocess the samples?. TRUE or FALSE
 #' @return A peak table per sample.
 #' @family Peak Peaking functions
 #' @export
 #' @importFrom stats sd
-#' @importFrom pracma meshgrid
+#' @importFrom dbscan dbscan kNNdist
+#' @importFrom pracma meshgrid findpeaks gaussLegendre
+#' @importFrom purrr transpose
+#'
 #' @importFrom chemometrics sd_trim
 #' @examples
 #' \dontrun{
@@ -28,10 +31,12 @@
 
 
 gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
-                               min_length_tr = 10, min_length_td = 10, cor_threshold = 0.6) {
+                               min_length_tr = 50, min_length_td = 10, preprocess = TRUE) {
 
 
-  # Set of functions needed to run gcims_peak_picking:
+  #---------------#
+  #   FUNCTIONS   #
+  #---------------#
 
   #--------------#
   # find_peaks2d #
@@ -55,86 +60,18 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     for (i in 1: (N-R+1)){
       for(j in 1: (M-S+1)){
         segment <- z[i: (i + R - 1), j: (j + S - 1)]
+        condition <- sum(segment)
+        if (condition == 0){
+          cross_corr[i + round(R/2) - 1, j + round(S/2) - 1] <- 0
+        } else{
         cross_corr[i + round(R/2) - 1, j + round(S/2) - 1] = (sum((pattern-mean(pattern))*(segment - mean(segment)))/((R-1)*(S-1)))/(sd(pattern)*sd(segment))
+        }
       }
     }
     cross_corr[cross_corr < cor_threshold] <- 0
     return(cross_corr)
   }
 
-  #----------------#
-  # find.contigous #
-  #----------------#
-
-  find.contiguous <- function(img, x, bg) {
-    ## we need to deal with a single (row,col) matrix index
-    ## versus a collection of them in a two column matrix separately.
-    if (length(x) > 2) {
-      lbl <- img[x][1]
-      img[x] <- bg
-      xc <- x[,1]
-      yc <- x[,2]
-    } else {
-      lbl <- img[x[1],x[2]]
-      img[x[1],x[2]] <- bg
-      xc <- x[1]
-      yc <- x[2]
-    }
-    ## find all neighbors of x
-    xmin <- ifelse((xc-1) < 1, 1, (xc-1))
-    xmax <- ifelse((xc+1) > nrow(img), nrow(img), (xc+1))
-    ymin <- ifelse((yc-1) < 1, 1, (yc-1))
-    ymax <- ifelse((yc+1) > ncol(img), ncol(img), (yc+1))
-    ## find all neighbors of x
-    x <- rbind(cbind(xmin, ymin),
-               cbind(xc  , ymin),
-               cbind(xmax, ymin),
-               cbind(xmin, yc),
-               cbind(xmax, yc),
-               cbind(xmin, ymax),
-               cbind(xc  , ymax),
-               cbind(xmax, ymax))
-    ## that have the same label as the original x
-    x <- x[img[x] == lbl,]
-    ## if there is none, we stop and return the updated image
-    if (length(x)==0) return(img);
-    ## otherwise, we call this function recursively
-    find.contiguous(img,x,bg)
-  }
-
-  #-------------------------#
-  # extract_contiguous_ones #
-  #-------------------------#
-
-  extract_contiguous_ones <- function(img){
-    ## as matrices of 1's are extracted by the process
-    img <- corr_2d
-    ## get all pixel coordinates that are objects
-    x <- which(img==1, arr.ind=TRUE)
-    ## loop until there are no more pixels that are objects
-    ##the output is in the list out
-    count <- 0
-    out <- list()
-    while (length(x) > 0) {
-      ## choose a single (e.g., first) pixel location. This belongs to the current
-      ## object that we will grow and remove from the image using find.contiguous
-      if (length(x) > 2) {
-        x1 <- x[1,]
-      }
-      ## make the call to remove the object from img
-      img <- find.contiguous(img, x1, 0)
-      ## find the remaining pixel locations belonging to objects
-      xnew <- which(img==1, arr.ind=TRUE)
-      count <- count + 1
-      ## extract the indices for the 1's found by diffing new with x
-      out.ind <- x[!(x[,1] %in% xnew[,1] & x[,2] %in% xnew[,2]),]
-      ## set it as a matrix in the output
-      out[[count]]  <- list(X = min(out.ind[, 1]):max(out.ind[, 1]), Y = min(out.ind[, 2]):max(out.ind[, 2]))
-      x <- xnew
-    }
-    return(out)
-
-  }
 
   #---------#
   # ind2sub #
@@ -145,6 +82,18 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     c <- floor((ind-1) / n) + 1
     sub <- list(X = r, Y = c)
     return(sub)
+  }
+
+
+  #---------#
+  # sub2ind #
+  #---------#
+
+  sub2ind <- function(sub, n){
+    r <- sub[1]
+    c <- sub[2]
+    ind = ((c-1) * n) + r
+    return(ind)
   }
 
   #--------------------#
@@ -171,286 +120,382 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
   }
 
   #---------------#
-  # is_overlapped #
+  #    cmenger    #
   #---------------#
 
-  is_overlapped <- function(l1x, l1y, r1x, r1y, l2x, l2y,  r2x, r2y){
+  cmenger <- function(x1,y1,x2,y2,x3,y3){
+    sqrt(abs(4*((x1-x2)^2+(y1-y2)^2)*((x2-x3)^2+(y2-y3)^2)-
+               ((x1-x2)^2+(y1-y2)^2+(x2-x3)^2+(y2-y3)^2-(-x3+x1)^2-
+                  (-y3+y1)^2)^2))/(sqrt((x1-x2)^2+(y1-y2)^2)*
+                                     sqrt((x2-x3)^2+(y2-y3)^2)*sqrt((x3-x1)^2+(y3-y1)^2));
+  }
 
-    # If one rectangle is on left side of other
-    if((l1x >= r2x) | (l2x >= r1x)){
-      return(FALSE)
+  #---------------#
+  #    findknee   #
+  #---------------#
+
+  findknee <- function(x,y){
+    n <- length(x)
+    c <- rep(0,n-2)
+    for (j in (1:(n-2)))
+    {
+      c[j] <- cmenger(x[j],y[j],x[j+1],y[j+1],x[j+2],y[j+2])
+    }
+    jm  <-which.max(c);cm=max(c)
+    ikn <- jm+1
+    xkn <-x[ikn]
+    c(cm, ikn, x[ikn])
+  }
+
+
+
+  #-------------------------#
+  #   compute_inner_border  #
+  #-------------------------#
+
+  compute_inner_border <- function(x, indexes){
+    border <- c(max(x[indexes, 2]), max(x[indexes, 1]), min(x[indexes, 2]), min(x[indexes, 1]))
+    return(border)
+
+  }
+
+
+  #-------------------------#
+  #   compute_outer_border  #
+  #-------------------------#
+
+  compute_outer_border <- function(x, rectangle){
+    all_col <- 1:dim(x)[2]
+    all_row <- 1:dim(x)[1]
+    left <- c(rectangle[2], round((rectangle[3] + rectangle[5])/2))
+    bottom <- c(round((rectangle[2] + rectangle[4])/2), rectangle[3])
+    right <- c(rectangle[4], round((rectangle[3] + rectangle[5])/2))
+    top <- c(round((rectangle[2] + rectangle[4])/2), rectangle[5])
+
+    if(any(x[left[2], (all_col > left[1])] == 0)){
+      valleys <- findpeaks(- x[left[2], (all_col > left[1])])[, 2] + left[1]
+      zero <- min(which(x[left[2], (all_col > left[1])] == 0)) + left[1]
+      if(length(valleys) == 0){
+        a <- zero
+      } else {
+        a <- min(c(zero, valleys[1]))
+      }
+    } else {
+      a <- all_col[length(all_col)]
+    }
+    if(any(x[(all_row > bottom[2]), bottom[1]] == 0)){
+      valleys <- findpeaks(- x[(all_row > bottom[2]), bottom[1]])[, 2] + bottom[2]
+      zero <- min(which(x[(all_row > bottom[2]), bottom[1]] == 0)) + bottom[2]
+      if(length(valleys) == 0){
+        b <- zero
+      } else {
+        b <- min(c(zero, valleys[1]))
+      }
+    } else {
+      b <- all_row[length(all_row)]
     }
 
-    # If one rectangle is above other
-    if((l1y <= r2y) | (l2y <= r1y)){
-      return(FALSE)
+    if(any(x[right[2], (all_col < right[1])] == 0)){
+      valleys <- findpeaks(- x[right[2], (all_col < right[1])])[, 2]
+      zero <- max(which(x[right[2], (all_col < right[1])] == 0))
+      if(length(valleys) == 0){
+        c <- zero
+      } else {
+        c <- max(c(zero, valleys[length(valleys)]))
+      }
+    } else {
+      c <- 1
     }
-    return(TRUE)
+
+    if(any(x[(all_row < top[2]), top[1]] == 0)){
+      valleys <- findpeaks(-x[(all_row < top[2]), top[1]])[, 2]
+      zero <- max(which(x[(all_row < top[2]), top[1]] == 0))
+      if(length(valleys) == 0){
+        d <- zero
+      } else {
+        d <- max(c(zero, valleys[length(valleys)]))
+      }
+    }
+    else {
+      d <- 1
+    }
+    border <- c(rectangle[1], a, b, c, d)
+    return(border)
   }
 
-  #------------------#
-  # merge_rectangles #
-  #------------------#
+  #----------------#
+  #  find_indexes  #
+  #----------------#
 
-  merge_rectangles <-function(x, subset){
-
-    # Set of rectangles' diagonal vertex coordinates L,R
-
-    lx <- x[subset,]$roi_lx
-    ly <- x[subset,]$roi_ly
-    rx <- x[subset,]$roi_rx
-    ry <- x[subset,]$roi_ry
-
-    # Diagonal vertex coordinates of the merged rectangle
-    # Replace them in the original data
-
-    x[subset,]$roi_lx <- min(lx)
-    x[subset,]$roi_ly <- max(ly)
-    x[subset,]$roi_rx <- max(rx)
-    x[subset,]$roi_ry <- min(ry)
-
-    return(x)
+  find_indexes <- function(z){
+    indy <- z[4]:z[2]
+    indx <- z[5]:z[3]
+    my_grid <- meshgrid(indx , indy )
+    ind_list <- list(X = my_grid$X, Y = my_grid$Y)
+    return(ind_list)
   }
 
 
+  #-------------------------#
+  #     compute_integral2   #
+  #-------------------------#
 
-setwd(dir_in)
+  compute_integral2 <- function(data){
 
-#m <- 0
-#for (i in samples){
-# m <- m + 1
+    # Set up dimensions and integral limits
+    n <- dim(data)[1]
+    m <- dim(data)[2]
+    xa <- 1
+    xb <- n
+    ya <- 1
+    yb <- m
 
-m <-1
-print(paste0("Performing Peak Picking in sample ", samples[m]))
+    # Set up Gauss-Legendre Method
+    cx <- gaussLegendre(n, xa, xb)
+    x <- cx$x
+    wx <- cx$w
+    cy <- gaussLegendre(m, ya, yb)
+    y <- cy$x
+    wy <- cy$w
 
-# Read current data
-
-aux_string <- paste0("M", samples[m], ".rds")
-aux_list <- readRDS(aux_string) #new
-aux <- t(as.matrix(aux_list$data$data_df))
-
-# Remove baseline in drift time
-
-if (rem_baseline == TRUE){
-  aux <- psalsa(data = aux, lambda = 1E7, p = 0.001, k = -1, maxit = 25)$corrected
-  # Remove baseline in retention time
-  aux <- t(psalsa(data = t(aux), lambda = 1E7, p = 0.001, k = -1, maxit = 25)$corrected)
-}
-
-# Find Peaks in 2D
-
-corr_2d <- find_peaks2d(aux, min_length_tr, min_length_td, cor_threshold)
-
-# Select regions with the highest
-# correlations and set them to one
-
-corr_2d[corr_2d > 0] <- 1
-
-# Create submatrices within a list
-# with the contiguous ones (rois)
-
-out <- extract_contiguous_ones(img = corr_2d) #aichao overflow
-
-# Unfold aux
-
-aux_vector <- sort(as.vector(aux), decreasing = TRUE) #new
-
-# Compute robust estimation
-# of noise present in a sample
-
-threshold <- estimate_threshold(aux_vector)
-
-# Compute noise power
-
-noise_power <- compute_power(aux_vector[aux_vector <= threshold])
-rm(aux_vector)
-
-#########################
-# PEAK TABLE GENERATION #
-#########################
-
-# Set to zero matrix values that are below the noise threshold.
-# This is done to better locate the limits of the roi
-aux[aux <= threshold] <- 0
-
-# Compute a list of tentative peaks.
-peak_position_list <- vector(mode = "list", length = length(out))
-
-# Loop for searching peak each peak position
-# Data is stored in the intermediate variable peak_position_list
-
-for (k in 1: length(out)){
-  max_region <- as.matrix(aux[out[[k]]$X, out[[k]]$Y])
-  max_ind <- which.max(max_region)
-  relative_peak_position_list <- ind2sub(n = dim(max_region)[1], ind = max_ind)
-  peak_position_list[[k]] <- list(X = out[[k]]$X[relative_peak_position_list$X],
-                                  Y = out[[k]]$Y[relative_peak_position_list$Y])
-  }
-rm(relative_peak_position_list, max_region, max_ind)
-
-# Generate an empty peak table
-# with 16 colnames (sample, roi and
-# peak parameters and figures of merit )
-
-peak_table <- matrix(0, ncol = 16 , nrow = length(out))
-colnames(peak_table) <- c("sample_id", "roi_id",
-                          "roi_ly", "roi_lx",
-                          "roi_ry", "roi_rx",
-                          "peak_id",
-                          "peak_max", "peak_rt_ind","peak_dt_ind",
-                          "peak_sat", "peak_snrdB",
-                          "peak_rt_length","peak_dt_length",
-                           "peak_rt_assym", "peak_dt_assym")
-
-# Check if the tentative peak comes from the sequence :
-# (- -> +) and  (+ -> -) in terms of slope
-# If TRUE it's a peak
-# else do not selec as a peak
-# Apart from that create a first version of the peak_table:
-
-for (k in 1: length(out)){
-
-  # Is this a peak?
-  zeros_Y <- which(aux[, peak_position_list[[k]]$Y] == 0)
-  left_Y_zeros <- zeros_Y[zeros_Y < peak_position_list[[k]]$X]
-  right_Y_zeros <- zeros_Y[zeros_Y > peak_position_list[[k]]$X]
-
-  zeros_X <- which(aux[peak_position_list[[k]]$X, ] == 0)
-  left_X_zeros <- zeros_X[zeros_X < peak_position_list[[k]]$Y]
-  right_X_zeros <- zeros_X[zeros_X > peak_position_list[[k]]$Y]
-
-  #If there is not any zero the left or right sides of the maximum this is not a peak
-  if((length(left_Y_zeros) == 0) | (length(right_Y_zeros) == 0) | (length(left_X_zeros) == 0) | (length(right_X_zeros) == 0)){
-    # do nothing
-  } else {
-    # retention time params
-    left_Y_border <- max(left_Y_zeros)
-    right_Y_border <- min(right_Y_zeros)
-
-    # drift time params
-    left_X_border <- max(left_X_zeros)
-    right_X_border <- min(right_X_zeros)
-
-    # rectangle params
-    lx <-left_X_border
-    ly <- right_Y_border
-    rx <- right_X_border
-    ry <- left_Y_border
-
-    # create peak table
-    peak_table[k, 1] <- samples[m]
-    peak_table[k, 3] <- ly
-    peak_table[k, 4] <- lx
-    peak_table[k, 5] <- ry
-    peak_table[k, 6] <- rx
-    peak_table[k, 8] <- aux[peak_position_list[[k]]$X, peak_position_list[[k]]$Y]
-    peak_table[k, 9] <- peak_position_list[[k]]$X
-    peak_table[k, 10] <- peak_position_list[[k]]$Y
-
-  }
-}
-
-# Remove false peaks from the table
-peak_table <- peak_table[rowSums(peak_table) != 0, ]
-peak_table <- as.data.frame(peak_table)
-
-# Set roi and peak ID (defaults)
-peak_table$roi_id <- 1:dim(peak_table)[1]
-peak_table$peak_id <- 1:dim(peak_table)[1]
-
-
-#Create and empty list for all possible peaks
-overlapped_peaks_list <- vector(mode = "list", length = dim(peak_table)[1])
-
-#check which rectangles are overlapped and group them
-peak_id <- 1:dim(peak_table)[1]
-
-remaining_peaks <- peak_id
-k <- 0
-while(length(remaining_peaks) > 0){
-  k <- k + 1
-  current_peak_id <- remaining_peaks[1]
-  test_result <- as.vector(matrix(FALSE, nrow = 1, ncol = length(remaining_peaks)))
-  h <- 0
-  for (tested_peak_id in remaining_peaks){
-    h <- h + 1
-    #params for the rectangle of the current peak
-    l1x <- peak_table[current_peak_id,]$roi_lx
-    l1y <- peak_table[current_peak_id,]$roi_ly
-    r1x <- peak_table[current_peak_id,]$roi_rx
-    r1y <- peak_table[current_peak_id,]$roi_ry
-
-    #params for the rectangle of the peak that has to be
-    #tested against the current peak
-    l2x <- peak_table[tested_peak_id,]$roi_lx
-    l2y <- peak_table[tested_peak_id,]$roi_ly
-    r2x <- peak_table[tested_peak_id,]$roi_rx
-    r2y <- peak_table[tested_peak_id,]$roi_ry
-
-    test_result[h] <- is_overlapped(l1x, l1y, r1x, r1y, l2x, l2y,  r2x, r2y)
+    # Compute the integral
+    I <- 0
+    for (i in 1:n) {
+      for (j in 1:m) {
+        I <- I + wx[i] * wy[j] * data[x[i], y[j]]
+      }
+    }
+    return(I)
   }
 
-  overlapped_peaks_list[[k]] <- remaining_peaks[test_result]
-  remaining_peaks  <- remaining_peaks [!test_result]
-}
+ #-----------------------------------------------------------#
 
-overlapped_peaks_list <-overlapped_peaks_list[lengths(overlapped_peaks_list) != 0]
+ #---------------#
+ #   CONSTANSTS  #
+ #---------------#
 
-# Merge the interesting regions and
-# upgrade roi coordinates and roi_id
+  # digital smothing:
 
-l <- 0
-for (h in (1:length(overlapped_peaks_list))){
-  l <- l + 1
-  peak_table <- merge_rectangles(peak_table, overlapped_peaks_list[[h]])
-  peak_table[overlapped_peaks_list[[h]], ]$roi_id <- l
-
-}
-
-# Compute figures of merit for the isolated peaks,
-# otherwise set them to NA
-
-for (k in unique(peak_table$roi_id)){
-   peaks_per_roi <- length(which(peak_table$roi_id == k))
-   if (peaks_per_roi == 1){
-
-      # retention time params
-       peak_table[k, ]$peak_rt_length <- peak_table[k, ]$roi_ly - peak_table[k, ]$roi_ry
-       srx <-  peak_table[k, ]$peak_rt_ind - peak_table[k, ]$roi_ry
-       slx <-  peak_table[k, ]$roi_ly - peak_table[k, ]$peak_rt_ind
-       peak_table[k, ]$peak_rt_assym <- srx / slx
-
-      # drift time params
-       peak_table[k, ]$peak_dt_length <- peak_table[k, ]$roi_rx - peak_table[k, ]$roi_lx
-       sry <-   peak_table[k, ]$roi_rx - peak_table[k, ]$peak_dt_ind
-       sly <-  peak_table[k, ]$peak_dt_ind - peak_table[k, ]$roi_lx
-       peak_table[k, ]$peak_dt_assym <- sry / sly
-
-      # signal to noise ration in dB
-       peak_table[k, ]$peak_snrdB <- 10 * log10((compute_power(aux[peak_table[k, ]$roi_ly: peak_table[k, ]$roi_ry,
-                                peak_table[k, ]$roi_rx: peak_table[k, ]$roi_lx]) - noise_power)/ noise_power)
-
-   } else {
-     peak_table[peak_table$roi_id == k, 12:16] <- NA
-
-   }
-   # saturation
-   peak_table[k, ]$peak_sat <- as.logical(peak_table[k, ]$peak_max >= 0.9 * (max(aux)))
-}
-return(peak_table)
-# image(1:200, 1:60, t(aux), xlab = "Drift time index", ylab ="Retention time index", main = "Peak Picking Example")
-# points(peak_table$dt_ind, peak_table$rt_ind, pch = 4, lw = 2, col= "blue")
-# points(peak_table$roi_lx, peak_table$roi_ly, pch = 4, lw = 2, col= "red")
-# points(peak_table$roi_lx, peak_table$roi_ry, pch = 4, lw = 2, col= "red")
-# points(peak_table$roi_rx, peak_table$roi_ry,pch = 4, lw = 2, col= "red")
-# points(peak_table$roi_rx, peak_table$roi_ly,pch = 4, lw = 2, col= "red")
+  filter_length <- 19
+  polynomial_order <- 2
 
 
+  # baseline removal:
 
-# setwd(dir_out)
-# saveRDS(aux_list, file = paste0("M", i, ".rds"))
-# setwd(dir_in)
+  lambda <- 1E7
+  p <-  0.001
+  k <- -1
 
+  # peak picking:
+
+  cor_threshold <- 0.5
+
+  # peak clustering:
+
+  neighbors <- 4
+
+
+  #-----------------------------------------------------------#
+
+
+  #-------------#
+  #     MAIN    #
+  #-------------#
+
+  # 1)   read data
+  # 2)   a. search RIP position
+  #      b. search saturation regions
+  # 3)   remove baseline
+  # 4)   a. compute intensity threshold
+  #      b. compute noise power
+  # 5)   digital smoothing
+  # 6)   a. remove data below threshold
+  #      b. remove data before the RIP
+  # 7)   find peaks in 2D (ROIs if convoluted)
+  # 8)   cluster data in ROIs
+  # 9)   remove data out of the ROIs
+  # 10)  generate ROI table
+  # 11)  save results
+
+  setwd(dir_in)
+  m <- 0
+  for (i in samples){
+    m <- m + 1
+    print(paste0("Performing Peak Picking in sample ", samples[m]))
+
+    # 1)   read data
+    aux_string <- paste0("M", samples[m], ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- t(as.matrix(aux_list$data$data_df))
+
+    # 2)   a. search RIP position
+    if (preprocess  == TRUE){
+      total_ion_spectrum <- colSums(aux)
+      rip_position <- which.max(total_ion_spectrum)
+      minima <- as.vector(findpeaks(-total_ion_spectrum)[, 2])
+      rip_end_index <- minima[min(which((minima - rip_position) > 0))]
+      rip_start_index <- minima[max(which((rip_position - minima) > 0))]
+    }
+    # 2)   b. search saturation regions
+    rip_chrom <- rowSums(aux[, rip_start_index: rip_end_index]) / length(rip_start_index: rip_end_index)
+    max_rip_chrom <- max(rip_chrom)
+    saturation_threshold <- 0.1 * max_rip_chrom
+    saturation_regions <- which(rip_chrom <= saturation_threshold)
+    if (length(saturation_regions) == 0){
+      saturation_minima <- NULL
+    } else {
+    saturation_list <- split(saturation_regions, cumsum(c(1, diff(saturation_regions)) != 1))
+    saturation_minima <- matrix(0, length(saturation_list), 2)
+    for (k in 1:length(saturation_list)){
+      saturation_minima[k, ] <- c(min(saturation_list[[k]]), max(saturation_list[[k]]))
+    }
+    }
+
+    # 3)   remove baseline
+    if (preprocess  == TRUE){
+      aux <- psalsa(data = aux, lambda = lambda, p = p, k = k, maxit = 25)$corrected
+      # Remove baseline in retention time
+      aux <- t(psalsa(data = t(aux), lambda = lambda, p = p, k = k, maxit = 25)$corrected)
+    }
+    aux_vector <- sort(as.vector(aux), decreasing = TRUE) #new
+
+    # 4)   a. compute intensity threshold
+    threshold <- estimate_threshold(aux_vector)
+    # 4)  b. compute noise power
+    noise_power <- compute_power(aux_vector[aux_vector <= threshold])
+    rm(aux_vector)
+
+    # 5)   digital smoothing
+    if (preprocess == TRUE){
+      aux <- t(aux)
+      n <- dim(aux)[1]
+      for (j in (1:n)){
+        aux[j, ] <- sgolayfilt(aux[j, ], p = polynomial_order, n = filter_length)
+      }
+      aux <- t(aux)
+      n <- dim(aux)[1]
+      for (j in (1:n)){
+        aux[j, ] <- sgolayfilt(aux[j, ], p = polynomial_order, n = filter_length)
+      }
+    }
+
+    # 6)   a. remove data below threshold
+    aux[aux <= threshold] <- 0
+    # 6)   b. remove data before the RIP
+    if (preprocess  == TRUE){
+    aux[, 1:rip_end_index] <- 0
+    }
+
+    # 7)   find peaks in 2D (ROIs if convoluted)
+    corr_2d <- find_peaks2d(aux, min_length_tr, min_length_td, cor_threshold)
+    coord_linear <- which(corr_2d > 0)
+    coord_mat <- matrix(0, nrow = length(coord_linear), ncol = 2)
+    coord_row_max <- dim(coord_mat)[1]
+    aux_row_max <- dim(aux)[1]
+    for (t in (1:coord_row_max)){
+      coord_mat[t, ]  <- unlist(ind2sub(aux_row_max, coord_linear[t]))
+    }
+    rm(corr_2d)
+
+    # 8)   cluster data in ROIs
+    sorted_distances <-sort(kNNdist(coord_mat, k = neighbors))
+    eps <- sorted_distances[findknee(1:length(sorted_distances), sorted_distances)[3]]
+    out <- dbscan(coord_mat, eps, neighbors)$cluster
+    clust_ind <- unique(out)
+    inner_rectangles <- matrix(0, nrow = length(clust_ind), ncol = 4)
+    h <- 0
+    for (k in clust_ind){
+      h <- h + 1
+      indexes <- which(out == k)
+      inner_rectangles[h, ] <- compute_inner_border(coord_mat[indexes,])
+    }
+    inner_rectangles <- cbind(clust_ind, inner_rectangles)
+    inner_rectangles <- inner_rectangles[inner_rectangles[,1] != 0, ]
+    outer_rectangles <- matrix(0, nrow = dim(inner_rectangles)[1], ncol = dim(inner_rectangles)[2])
+    h <- 0
+    for (k in inner_rectangles[, 1]){
+      h <- h + 1
+      indexes <- which(inner_rectangles[, 1] == k)
+      outer_rectangles[h, ] <- compute_outer_border(aux, inner_rectangles[indexes,])
+    }
+    roi_coord_list <- transpose(lapply(split(outer_rectangles, row(outer_rectangles)), find_indexes))
+    roi_coord_sub <- cbind(unlist(roi_coord_list$X), unlist(roi_coord_list$Y))
+    n <- dim(aux)[1]
+    roi_coord_ind <- apply(roi_coord_sub, sub2ind, n, MARGIN = 1)
+
+    # 9)   remove data out of the ROIs
+    aux[!roi_coord_ind] <- 0
+
+    # 10)  generate ROI table
+    roi_table <- matrix(0, ncol = 16 , nrow = dim(outer_rectangles)[1])
+    colnames(roi_table) <- c("sample_id", "roi_id",
+                             "max_rt", "min_dt",
+                             "min_rt", "max_dt",
+                             "rt_length","dt_length",
+                             "area", "volume",
+                             "rt_mc","dt_mc",
+                             "rt_asym", "dt_asym",
+                             "saturation", "snr")
+
+    for (k in outer_rectangles[, 1]){
+      roi_table[k, 1] <- samples[m]
+      roi_table[k, 2] <- k
+      roi_table[k, 3] <- outer_rectangles[k, 3]
+      roi_table[k, 4] <- outer_rectangles[k, 4]
+      roi_table[k, 5] <- outer_rectangles[k, 5]
+      roi_table[k, 6] <-outer_rectangles[k, 2]
+      # current roi
+      roi <- aux[outer_rectangles[k, 5]:outer_rectangles[k, 3],
+                 outer_rectangles[k, 4]:outer_rectangles[k, 2]]
+      # roi lengths
+      len_x <-  outer_rectangles[k, 3] - outer_rectangles[k, 5]
+      len_y <- outer_rectangles[k, 2] - outer_rectangles[k, 4]
+      roi_table[k, 7] <- len_x
+      roi_table[k, 8] <- len_y
+      # roi area
+      area <- len_x * len_y
+      roi_table[k, 9] <- area
+      # roi volume
+      volume <- compute_integral2(roi)
+      roi_table[k, 10] <- volume
+      # roi center of mass
+      x_cm <- round(compute_integral2(roi * (1:dim(roi)[1])) / volume)
+      y_cm <- round(compute_integral2(t(roi) * (1:dim(roi)[2])) / volume)
+      roi_table[k, 11] <- outer_rectangles[k, 5] + x_cm - 1
+      roi_table[k, 12] <- outer_rectangles[k, 4] + y_cm - 1
+      # roi asymmetries
+      half_down_area  <- length(1:x_cm) * len_y
+      half_up_area    <- length(x_cm:len_x) * len_y
+      half_left_area  <- len_x * length(1:y_cm)
+      half_right_area <- len_x * length(y_cm:len_y)
+      roi_table[k, 13]<- round(((half_up_area - half_down_area) / (area)), 2)
+      roi_table[k, 14] <- round(((half_right_area - half_left_area) / (area)), 2)
+      # roi saturation
+      if (length(saturation_minima) == 0){
+        # No saturation. Do nothing
+      } else {
+        for (l in (1:dim(saturation_minima)[1])){
+          if ((saturation_minima[l, 1] < roi_table[k, 11])
+              & (saturation_minima[l, 2] > roi_table[k, 11])) {
+            roi_table[k, 15] <- 1
+            break
+          }
+        }
+      }
+      # roi signal to noise ratio
+      roi_table[k, 16]  <- compute_power(roi)/ noise_power
+    }
+
+    roi_table <- as.data.frame(roi_table)
+    aux_list$data$data_df <- aux
+    aux_list$data$roi_df <- roi_table
+    M <- aux_list
+
+    # 11)  save results
+    setwd(dir_out)
+    saveRDS(M, file = paste0("M", i, ".rds"))
+    setwd(dir_in)
+  }
 }
 
 

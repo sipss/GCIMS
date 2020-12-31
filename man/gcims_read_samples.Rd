@@ -11,6 +11,8 @@ gcims_read_samples(dir_in, dir_out, file, skip = 0)
 
 \item{dir_out}{The output directory.}
 
+\item{file}{Name of the metadata file.}
+
 \item{skip}{Number of lines to skip before reading gcims data.}
 
 \item{file}{Name of teh metadata file. An xlxs file containing the metadata information}
