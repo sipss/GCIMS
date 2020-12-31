@@ -41,7 +41,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
   print(paste0("Visualizing sample ", sample_num))
   aux_string <- paste0("M", sample_num, ".rds")
   aux_list <- readRDS(aux_string) #new
-  aux <- t(as.matrix(aux_list$data$data_df)) #new
+  aux <- (as.matrix(aux_list$data$data_df)) #new
 
   #SOME CHECKS
   retention_time <- aux_list$data$retention_time
@@ -102,7 +102,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
   aux <- aux[sel_index_rt, sel_index_dt]#old
   rownames(aux) <- retention_time #old
 
-  moltaux <- melt(t(aux))
+  moltaux <- melt((aux))
   colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
 
 
@@ -184,7 +184,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
   setwd(dir_in)
   aux_string <- paste0("M", samples[1], ".rds")
   aux_list <- readRDS(aux_string) #new
-  aux <- t(as.matrix(aux_list$data$data_df)) #new
+  aux <- (as.matrix(aux_list$data$data_df)) #new
 
   retention_time <- aux_list$data$retention_time
   drift_time <- aux_list$data$drift_time
@@ -196,7 +196,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
 
   if(is.null(rt_range)){# old
-    rt_ind <- c(1, dim(aux)[1]) #New
+    rt_ind <- c(1, dim(aux)[2]) #New
 
   } else{
     if(cond_1_rt | cond_2_rt){
@@ -211,7 +211,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
   sel_index_rt <- rt_ind[1]: rt_ind[2]#old
 
   if(is.null(dt_value)){# old
-    dt_ind <- c(1, dim(aux)[2])
+    dt_ind <- c(1, dim(aux)[1])
     sel_index_dt <- dt_ind[1]: dt_ind[2]#New
   } else{
     if(cond_1_dt | cond_2_dt){
@@ -232,17 +232,17 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
   m <- 0
   colorp <- NULL
-  chroms <- matrix(0, nrow =  length(sel_index_rt), ncol = length(samples))
+  chroms <- matrix(0, nrow = length(sel_index_rt), ncol = length(samples))
   for (i in samples){
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
-    aux <- t(as.matrix(aux_list$data$data_df)) #new
+    aux <- (as.matrix(aux_list$data$data_df)) #new
     if (is.null(dt_value)){
-      chroms[, m] <- rowSums(aux[sel_index_rt, sel_index_dt])#new
+      chroms[, m] <- colSums(aux[sel_index_dt, sel_index_rt])#new
     } else {
-      chroms[, m] <- aux[sel_index_rt,  sel_index_dt]
+      chroms[, m] <- aux[sel_index_dt,  sel_index_rt]
     }
     colorp <- c(colorp, as.character(aux_list$metadata[,colorby]))
     rm(aux_string, aux)
@@ -331,7 +331,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
   setwd(dir_in)
   aux_string <- paste0("M", samples[1], ".rds")
   aux_list <- readRDS(aux_string) #new
-  aux <- t(as.matrix(aux_list$data$data_df)) #new
+  aux <- (as.matrix(aux_list$data$data_df)) #new
 
 
   retention_time <- aux_list$data$retention_time
@@ -343,7 +343,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
 
 
   if(is.null(dt_range)){# old
-    dt_ind <- c(1, dim(aux)[2]) #New
+    dt_ind <- c(1, dim(aux)[1]) #New
 
   } else{
     if(cond_1_dt | cond_2_dt){
@@ -358,7 +358,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
   sel_index_dt <- dt_ind[1]: dt_ind[2]#old
 
   if(is.null(rt_value)){# old
-    rt_ind <- c(1, dim(aux)[1])
+    rt_ind <- c(1, dim(aux)[2])
     sel_index_rt <- rt_ind[1]: rt_ind[2]#New
   } else{
     if(cond_1_rt | cond_2_rt){
@@ -386,12 +386,12 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
-    aux <- t(as.matrix(aux_list$data$data_df)) #new
+    aux <- (as.matrix(aux_list$data$data_df)) #new
 
     if (is.null(rt_value)){
-      specs[, m] <- colSums(aux[sel_index_rt, sel_index_dt])
+      specs[, m] <- rowSums(aux[sel_index_dt, sel_index_rt])
     } else {
-      specs[, m] <- aux[sel_index_rt, sel_index_dt]
+      specs[, m] <- aux[sel_index_dt, sel_index_rt]
     }
     colorp <- c(colorp, as.character(aux_list$metadata[,colorby]))
     rm(aux_string, aux)

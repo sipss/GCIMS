@@ -4,8 +4,10 @@
 #' @param dir_in           The input directory.
 #' @param dir_out          The output directory.
 #' @param samples          The set of samples to be processed.
-#' @param by_rows          Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
-#'                         If FALSE, applied by columns (that is the retention time direction).
+#' @param time             It indicates if the correction is going to be in the
+#'                         drift time or in the retention time. It should be
+#'                         introduce "Retention" for correcting the retention
+#'                         time; or "Drift" for the drift time.
 #' @param filter_length    Numerical. Length of the filter.
 #' @param polynomial_order Numerical. Order of the polynomial.
 #' @return A filtered  gcims dataset.
@@ -23,7 +25,7 @@
 #' }
 
 
-gcims_smoothing <- function (dir_in, dir_out, samples, by_rows,
+gcims_smoothing <- function (dir_in, dir_out, samples, time,
                              filter_length, polynomial_order){
 
   print(" ")
@@ -41,9 +43,9 @@ gcims_smoothing <- function (dir_in, dir_out, samples, by_rows,
     aux_list <- readRDS(aux_string) #new
     aux <- as.matrix(aux_list$data$data_df)
 
-    if (by_rows == TRUE){
+    if (time == "Drift"){
       aux <- t(aux)
-    } else if (by_rows == FALSE){
+    } else if (time == "Retention"){
     }
 
     n <- dim(aux)[1]
@@ -52,9 +54,9 @@ gcims_smoothing <- function (dir_in, dir_out, samples, by_rows,
       aux[j, ] <- sgolayfilt(aux[j, ], p = polynomial_order, n = filter_length)
     }
 
-    if (by_rows == TRUE){
+    if (time == "Drift"){
       aux <- t(aux)
-    } else if (by_rows == FALSE){
+    } else if (time == "Retention"){
     }
 
     aux_list$data$data_df <- aux
@@ -64,3 +66,5 @@ gcims_smoothing <- function (dir_in, dir_out, samples, by_rows,
     setwd(dir_in)
   }
 }
+
+

@@ -73,7 +73,7 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 cut_samples <- function(loaded_sample, rt_range = NULL, dt_range = NULL) {
 
   aux_list <- loaded_sample
-  aux <- t(as.matrix(aux_list$data$data_df))
+  aux <- (as.matrix(aux_list$data$data_df))
 
   #SOME CHECKS
   retention_time <- aux_list$data$retention_time
@@ -85,7 +85,7 @@ cut_samples <- function(loaded_sample, rt_range = NULL, dt_range = NULL) {
 
 
   if(is.null(rt_range)){# old
-    rt_ind <- c(1, dim(aux)[1])
+    rt_ind <- c(1, dim(aux)[2])
 
   } else{
     if(cond_1_rt | cond_2_rt){
@@ -100,7 +100,7 @@ cut_samples <- function(loaded_sample, rt_range = NULL, dt_range = NULL) {
 
 
   if(is.null(dt_range)){# old
-    dt_ind <- c(1, dim(aux)[2])
+    dt_ind <- c(1, dim(aux)[1])
   } else{
     if(cond_1_dt | cond_2_dt){
       stop("Drift time range out of bounds.")
@@ -134,7 +134,3 @@ cut_samples <- function(loaded_sample, rt_range = NULL, dt_range = NULL) {
 
   return(aux_list)
 }
-
-
-
-

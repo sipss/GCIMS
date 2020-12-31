@@ -4,7 +4,7 @@
 \alias{gcims_interpolate}
 \title{Interpolates data according to retention and drift time sampling frequencies}
 \usage{
-gcims_interpolate(dir_in, dir_out, samples, by_rows)
+gcims_interpolate(dir_in, dir_out, samples, time)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -13,11 +13,10 @@ gcims_interpolate(dir_in, dir_out, samples, by_rows)
 
 \item{samples}{The set of samples to be processed.}
 
-\item{by_rows}{Logical. Direction to apply the function. If TRUE it
-is applied by rows (drift time direction).
-If FALSE, applied by columns
-(that is the retention time direction).}
-}
+\item{time}{It indicates if the correction is going to be in the drift time or
+in the retention time. It should be introduce "Retention" for correcting
+the retention time; or "Drift" for the drift time}
+
 \value{
 An interpolated dataset
 }
@@ -35,7 +34,7 @@ print(dataset_pos)
 }
 }
 \seealso{
-Other Utility functions: 
+Other Utility functions:
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_unfold}()},
 \code{\link{reshape_samples}()}

@@ -44,11 +44,10 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
-#' @param by_rows         Logical. Direction to apply the function. If TRUE it
-#'                        is applied by rows (drift time direction).
-#'                        If FALSE, applied by columns
-#'                        (that is the retention time direction).
-#'
+#' @param time            It indicates if the correction is going to be in the
+#'                        drift time or in the retention time. It should be
+#'                        introduce "Retention" for correcting the retention
+#'                        time; or "Drift" for the drift time.
 #' @return An interpolated dataset
 #' @family Utility functions
 #' @export
@@ -63,7 +62,7 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #' print(dataset_pos)
 #' }
 
-gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
+gcims_interpolate <- function(dir_in, dir_out, samples, time){
   print(" ")
   print("  ////////////////////////")
   print(" /   Interpolating data /")
@@ -79,15 +78,15 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
     aux_list <- readRDS(aux_string) #new
     aux <- as.matrix(aux_list$data$data_df)
 
-    if (by_rows == TRUE){
-      aux <- t(aux)
-      x <- aux_list$data$drift_time
+    if (time == "Retention"){
+      x <- aux_list$data$retention_time
       step_x <- (x[length(x)]- x[1]) / (length(x) - 1)
       xi <- seq(from = x[1],
                 by = step_x,
                 length.out = length(x))
-    } else if (by_rows == FALSE){
-      x <- aux_list$data$retention_time
+    } else if (time == "Drift"){
+      aux <- t(aux)
+      x <- aux_list$data$drift_time
       step_x <- (x[length(x)]- x[1]) / (length(x) - 1)
       xi <- seq(from = x[1],
                 by = step_x,
@@ -100,11 +99,11 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
       aux[j, ] <- interp1(x, aux[j, ], xi, method = "linear", extrap = TRUE)
     }
 
-    if (by_rows == TRUE){
+    if (time == "Retention"){
+      aux_list$data$retention_time <- xi
+    } else if (time == "Drift"){
       aux <- t(aux)
       aux_list$data$drift_time <- xi
-    } else if (by_rows == FALSE){
-      aux_list$data$retention_time <- xi
     }
 
     aux_list$data$data_df <- aux
@@ -113,8 +112,6 @@ gcims_interpolate <- function(dir_in, dir_out, samples, by_rows){
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
   }
-
-
 }
 
 
@@ -185,9 +182,6 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
   }
-
-
-
 }
 
 #' Reshape samples

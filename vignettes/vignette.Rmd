@@ -17,7 +17,7 @@ library(GCIMS)
 First of all, the directory where my samples are located is set. After this, the folders where the samples will be stored after each preprocessing step, are created.
 
 ```{r}
-setwd("C:/Users/cmallafre/OneDrive - IBEC/GCIMS Work Group/Aceites/Aceites4Variedades/12.11.2020/Samples")
+setwd("C:/Users/cmallafre/OneDrive - IBEC/GCIMS Work Group/Aceites/Aceites4Variedades/Samples")
 
 # CREATE FOLDERS (TO DO)
 wd <- getwd()
@@ -28,6 +28,7 @@ cut <- paste0(wd,'/cut')
 filtd <- paste0(wd,'/filtd')
 bslnd <- paste0(wd,'/bslnd')
 alignd <- paste0(wd,'/alignd')
+interpr <- paste0(wd,'/interpr')
 filtr <- paste0(wd,'/filtr')
 bslnr <- paste0(wd,'/bslnr')
 rip <- paste0(wd,'/rip')
@@ -41,6 +42,7 @@ dir.create(interpd)
 dir.create(filtd)
 dir.create(bslnd)
 dir.create(alignd)
+dir.create(interpr)
 dir.create(filtr)
 dir.create(bslnr)
 dir.create(rip)
@@ -55,7 +57,8 @@ The first step is reading the samples, this function can read .csv fies exported
 # READING SAMPLES
 dir_in <- getwd()
 dir_out <- data
-gcims_read_samples(dir_in, dir_out, skip = 130)
+file <- "Metadata.xlsx"
+gcims_read_samples(dir_in, dir_out, skip = 130, file)
 ```
 
 
@@ -66,9 +69,10 @@ There are 3 visuaazalition fucntions: one for all the sample, another for the ch
 dir_in <- data
 sample_num <- 5
 samples <- 5
+colorby <- "Class"
 gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
-gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL)
-gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL)
+gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby)
+gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby)
 ```
 
 
@@ -118,22 +122,24 @@ An interpolation in the samples is done with this function.
 dir_in <- cut
 dir_out <- interpd
 samples <- 1:5
-by_rows <- TRUE
-gcims_interpolate(dir_in, dir_out, samples, by_rows)
+time <- "Drift"
+gcims_interpolate(dir_in, dir_out, samples, time)
 
-# PLOT SAMPLE IMAGE
+# PLOT SPECTRAS
 sample_num <- 1:5
 tr_ind <- NULL
 dt_range <- c(5,15)#NULL
 dir_in <- interpd
-gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range)
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
 
 # PLOT CHROMATOGRAMS
 sample_num <- 1:5
 dir_in <- interpd
 td_ind <- NULL
 rt_range <- c(100, 500)
-gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
 
 # PLOT SAMPLE IMAGE
 sample_num <- 5
@@ -150,18 +156,19 @@ A Savitzky-Golay filter is applied for smoothing the signal. This function is th
 # DRIFT TIME DIGITAL FILTERING
 dir_in <-  interpd
 dir_out <- filtd
-by_rows <- TRUE
+time <- "Drift"
 samples <- 1:5
 filter_length <- 19
 polynomial_order <- 2
-gcims_smoothing(dir_in, dir_out, samples, by_rows, filter_length, polynomial_order)
+gcims_smoothing(dir_in, dir_out, samples, by_rows, filter_length, polynomial_order, time)
 
 # PLOT SPECTRA
 sample_num <- 1:5
 tr_ind <- NULL
 dt_range <- c(5,15)#NULL
 dir_in <- filtd
-gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range)
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
 ```
 
 
@@ -172,18 +179,19 @@ The baseline  is removed using the spalsa algorithym. This function is teh same 
 dir_in <- filtd
 dir_out <- bslnd
 samples <- 1:5
-by_rows <- TRUE
+time <- "Drift"
 lambda <- 1E4
 p <- 5E-3
 k <- 200
-gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k)
+gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k, time)
 
 # PLOT SPECTRA
 sample_num <- 1:5
 tr_ind <- NULL
 dt_range <- c(5,15)#NULL
 dir_in <- bslnd
-gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range)
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
 ```
 
 
@@ -193,7 +201,7 @@ The samples are aligned using the COW algorithym. This function is teh same for 
 # DRIFT TIME PEAK ALIGNMENT
 dir_in <- bslnd
 dir_out <- alignd
-by_rows <- TRUE
+time <- "Drift"
 samples <- 1:5
 seg_vector <- seq(from = 10, to = 30, by = 5)
 slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
@@ -204,26 +212,35 @@ sample_num <- 1:5
 tr_ind <- NULL
 dt_range <- c(5,15)#NULL
 dir_in <- alignd
-gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range)
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
 ```
 
 
 ```{r}
+# INTERPOLATING DRIFT TIME
+dir_in <- alignd
+dir_out <- interpr
+samples <- 1:5
+time <- "Retention"
+gcims_interpolate(dir_in, dir_out, samples, time)
+
 # RETENTION TIME DIGITAL FILTERING
-dir_in <-  alignd
+dir_in <-  interpr
 dir_out <- filtr
-by_rows <- FALSE
+time <- "Retention"
 samples <- 1:5
 filter_length <- 19
 polynomial_order <- 2
-gcims_smoothing(dir_in, dir_out, samples, by_rows, filter_length, polynomial_order)
+gcims_smoothing(dir_in, dir_out, samples, time, filter_length, polynomial_order)
 
 # PLOT CHROMATOGRAM
 sample_num <- 1:5
 dir_in <- filtr
 td_ind <- NULL
 rt_range <- c(100, 500)
-gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
 ```
 
 
@@ -232,18 +249,19 @@ gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range)
 dir_in <- filtr
 dir_out <- bslnr
 samples <- 1:5
-by_rows <- FALSE
+by_rows <- FALSEtime <- "Retention"
 lambda <- 1E4
 p <- 5E-3
 k <- 200
-gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k)
+gcims_baseline_removal(dir_in, dir_out, samples, time, lambda, p, k)
 
 # PLOT CHROMATOGRAM
 sample_num <- 1:5
 dir_in <- bslnr
 td_ind <- NULL
 rt_range <- c(100, 500)
-gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
 ```
 
 
@@ -269,18 +287,19 @@ gcims_view_sample(dir_in, sample_num, rt_range, dt_range)
 # RETENTION TIME PEAK ALIGNMENT
 dir_in <- rip
 dir_out <- alignr
-by_rows <- FALSE
+time <- "Retention"
 samples <- 1:5
 seg_vector <- seq(from = 10, to = 30, by = 5)
 slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
-gcims_alignment(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector)
+gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
 
 # PLOT CHROMATOGRAM
 sample_num <- 1:5
 dir_in <-alignr
 td_ind <- NULL
 rt_range <- c(100, 500)
-gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
 ```
 
 

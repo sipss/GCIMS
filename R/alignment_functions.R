@@ -4,10 +4,10 @@
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
-#' @param by_rows         Logical. Direction to apply the function. If TRUE it
-#'                        is applied by rows (drift time direction).
-#'                        If FALSE, applied by columns
-#'                        (that is the retention time direction).
+#' @param time            It indicates if the correction is going to be in the
+#'                        drift time or in the retention time. It should be
+#'                        introduce "Retention" for correcting the retention
+#'                        time; or "Drift" for the drift time.
 #' @param seg_vector      Vector of segment lengths.
 #' @param slack_vector    Vector of slacks.
 #' @return An aligned gcims dataset.
@@ -47,9 +47,9 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
     aux <- as.matrix(aux_list$data$data_df)
 
     if (i != 0){
-      if (by_rows == TRUE){
+      if (time == "Drift"){
         aux <- t(aux)
-      } else if (by_rows == FALSE){
+      } else if (time == "Retention"){
       }
 
       aux <- apply_cow(aux, Warping[m, , ])
@@ -57,9 +57,9 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
     }
 
     if (i != 0){
-      if (by_rows == TRUE){
+      if (time == "Drift"){
         aux <- t(aux)
-      } else if (by_rows == FALSE){
+      } else if (time == "Retention"){
       }
     }
     aux_list$data$data_df <- aux
@@ -83,10 +83,10 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
-#' @param by_rows         Logical. Direction to apply the function. If TRUE it
-#'                        is applied by rows (drift time direction).
-#'                        If FALSE, applied by columns
-#'                        (that is the retention time direction).
+#' @param time             It indicates if the correction is going to be in the
+#'                         drift time or in the retention time. It should be
+#'                         introduce "Retention" for correcting the retention
+#'                         time; or "Drift" for the drift time.
 #' @param seg_vector      Vector of segment lengths.
 #' @param slack_vector    Vector of slacks.
 #' @return                A matrix with the optimum warping.
@@ -119,9 +119,9 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
   aux <- as.matrix(aux_list$data$data_df)
 
 
-  if (by_rows == TRUE){
+  if (time == "Drift"){
     aux <- t(aux)
-  } else if (by_rows == FALSE){
+  } else if (time == "Retention"){
   }
 
   curves <- matrix(0, dim(aux)[2], length(samples) + 1)
@@ -139,9 +139,9 @@ optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_ve
     aux <- as.matrix(aux_list$data$data_df)
 
 
-    if (by_rows == TRUE){
+    if (time == "Drift"){
       aux <- t(aux)
-    } else if (by_rows == FALSE){
+    } else if (time == "Retention"){
     }
     curves[,m] <- colSums(aux)
   }

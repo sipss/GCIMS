@@ -3,10 +3,10 @@
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param samples         The set of samples to be processed.
-#' @param by_rows         Logical. Direction to apply the function.
-#'                        If TRUE it by rows (drift time direction).
-#'                        If FALSE, applied by columns (that is the retention
-#'                        time direction).
+#' @param time            It indicates if the correction is going to be in the
+#'                        drift time or in the retention time. It should be
+#'                        introduce "Retention" for correcting the retention
+#'                        time; or "Drift" for the drift time.
 #' @param lambda          Smoothing parameter (generally 1e5 - 1e8)
 #' @param p               Asymmetry parameter
 #' @param k               Peak height parameter (usually 5\% of maximum intensity)
@@ -41,17 +41,17 @@ gcims_baseline_removal <- function(dir_in, dir_out, samples,
     aux_list <- readRDS(aux_string) #new
     aux <- as.matrix(aux_list$data$data_df)
 
-    if (by_rows == TRUE){
+    if (time == "Drift"){
       aux <- t(aux)
-    } else if (by_rows == FALSE){
+    } else if (time == "Retention"){
     }
 
     psalsa_results <- psalsa(aux,lambda, p, k)
     aux  <- psalsa_results$corrected
 
-    if (by_rows == TRUE){
+    if (time == "Drift"){
       aux <- t(aux)
-    } else if (by_rows == FALSE){
+    } else if (time == "Retention"){
     }
 
     aux_list$data$data_df <- aux

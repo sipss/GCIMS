@@ -8,7 +8,7 @@ gcims_smoothing(
   dir_in,
   dir_out,
   samples,
-  by_rows,
+  time,
   filter_length,
   polynomial_order
 )
@@ -20,8 +20,9 @@ gcims_smoothing(
 
 \item{samples}{The set of samples to be processed.}
 
-\item{by_rows}{Logical. Direction to apply the function. If TRUE it by rows (drift time direction).
-If FALSE, applied by columns (that is the retention time direction).}
+\item{time}{It indicates if the correction is going to be in the drift time or
+in the retention time. It should be introduce "Retention" for correcting
+the retention time; or "Drift" for the drift time}
 
 \item{filter_length}{Numerical. Length of the filter.}
 

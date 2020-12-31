@@ -9,6 +9,7 @@
 #' @family Reading functions
 #' @export
 #' @importFrom readr read_csv cols type_convert
+#' @importFrom readxl read_excel
 #' @importFrom utils menu
 #' @examples
 #' \dontrun{
