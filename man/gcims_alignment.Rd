@@ -4,7 +4,7 @@
 \alias{gcims_alignment}
 \title{Peak alignment using Correlation Optimized Warping (COW)}
 \usage{
-gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+gcims_alignment(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -13,13 +13,14 @@ gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
 
 \item{samples}{The set of samples to be processed.}
 
-\item{time}{It indicates if the correction is going to be in the drift time or
-in the retention time. It should be introduce "Retention" for correcting
-the retention time; or "Drift" for the drift time}
-
 \item{seg_vector}{Vector of segment lengths.}
 
 \item{slack_vector}{Vector of slacks.}
+
+\item{time}{It indicates if the correction is going to be in the
+drift time or in the retention time. It should be
+introduce "Retention" for correcting the retention
+time; or "Drift" for the drift time.}
 }
 \value{
 An aligned gcims dataset.
@@ -38,7 +39,7 @@ print(dataset_pos)
 }
 }
 \seealso{
-Other Alignment functions:
+Other Alignment functions: 
 \code{\link{apply_cow}()},
 \code{\link{cow}()},
 \code{\link{optimize_cow}()}
