@@ -326,11 +326,11 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     # 1)   read data
     aux_string <- paste0("M", samples[m], ".rds")
     aux_list <- readRDS(aux_string) #new
-    aux <- t(as.matrix(aux_list$data$data_df))
+    aux <- (as.matrix(aux_list$data$data_df))
 
     # 2)   a. search RIP position
     if (preprocess  == TRUE){
-      total_ion_spectrum <- colSums(aux)
+      total_ion_spectrum <- rowSums(aux)
       rip_position <- which.max(total_ion_spectrum)
       minima <- as.vector(findpeaks(-total_ion_spectrum)[, 2])
       rip_end_index <- minima[min(which((minima - rip_position) > 0))]
@@ -383,7 +383,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     aux[aux <= threshold] <- 0
     # 6)   b. remove data before the RIP
     if (preprocess  == TRUE){
-    aux[, 1:rip_end_index] <- 0
+    aux[1:rip_end_index,] <- 0
     }
 
     # 7)   find peaks in 2D (ROIs if convoluted)
