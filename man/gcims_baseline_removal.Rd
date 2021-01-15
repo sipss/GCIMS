@@ -4,7 +4,7 @@
 \alias{gcims_baseline_removal}
 \title{Remove baseline of a dataset using psalsa}
 \usage{
-gcims_baseline_removal(dir_in, dir_out, samples, time, lambda, p, k)
+gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -13,15 +13,16 @@ gcims_baseline_removal(dir_in, dir_out, samples, time, lambda, p, k)
 
 \item{samples}{The set of samples to be processed.}
 
-\item{time}{It indicates if the correction is going to be in the drift time
-or in the retention time. It should be introduce "Retention" for
-correcting the retention time; or "Drift" for the drift time}
-
 \item{lambda}{Smoothing parameter (generally 1e5 - 1e8)}
 
 \item{p}{Asymmetry parameter}
 
 \item{k}{Peak height parameter (usually 5\% of maximum intensity)}
+
+\item{time}{It indicates if the correction is going to be in the
+drift time or in the retention time. It should be
+introduce "Retention" for correcting the retention
+time; or "Drift" for the drift time.}
 }
 \value{
 A baseline removed gcims dataset.
@@ -41,7 +42,7 @@ print(dataset_pos)
 
 }
 \seealso{
-Other Baseline removal functions:
+Other Baseline removal functions: 
 \code{\link{psalsa_one}()}
 }
 \concept{Baseline removal functions}

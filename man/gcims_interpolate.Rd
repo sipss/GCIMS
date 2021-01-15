@@ -13,10 +13,11 @@ gcims_interpolate(dir_in, dir_out, samples, time)
 
 \item{samples}{The set of samples to be processed.}
 
-\item{time}{It indicates if the correction is going to be in the drift time or
-in the retention time. It should be introduce "Retention" for correcting
-the retention time; or "Drift" for the drift time}
-
+\item{time}{It indicates if the correction is going to be in the
+drift time or in the retention time. It should be
+introduce "Retention" for correcting the retention
+time; or "Drift" for the drift time.}
+}
 \value{
 An interpolated dataset
 }
@@ -34,7 +35,7 @@ print(dataset_pos)
 }
 }
 \seealso{
-Other Utility functions:
+Other Utility functions: 
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_unfold}()},
 \code{\link{reshape_samples}()}

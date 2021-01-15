@@ -20,9 +20,10 @@ gcims_smoothing(
 
 \item{samples}{The set of samples to be processed.}
 
-\item{time}{It indicates if the correction is going to be in the drift time or
-in the retention time. It should be introduce "Retention" for correcting
-the retention time; or "Drift" for the drift time}
+\item{time}{It indicates if the correction is going to be in the
+drift time or in the retention time. It should be
+introduce "Retention" for correcting the retention
+time; or "Drift" for the drift time.}
 
 \item{filter_length}{Numerical. Length of the filter.}
 
@@ -43,5 +44,9 @@ dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
 
 print(dataset_pos)
 }
+}
+\seealso{
+Other Smoothing functions: 
+\code{\link{gcims_decimate}()}
 }
 \concept{Smoothing functions}
