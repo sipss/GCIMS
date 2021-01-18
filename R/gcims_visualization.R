@@ -53,7 +53,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
 
   if(is.null(rt_range)){# old
-    rt_ind <- c(1, dim(aux)[1]) #New
+    rt_ind <- c(1, dim(aux)[2]) #New
 
   } else{
     if(cond_1_rt | cond_2_rt){
@@ -68,7 +68,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
 
   if(is.null(dt_range)){# old
-    dt_ind <- c(1, dim(aux)[2]) #New
+    dt_ind <- c(1, dim(aux)[1]) #New
   } else{
     if(cond_1_dt | cond_2_dt){
       stop("Drift time range out of bounds.")
@@ -99,8 +99,8 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
   retention_time <- retention_time[sel_index_rt]
   drift_time <- drift_time[sel_index_dt]
 
-  aux <- aux[sel_index_rt, sel_index_dt]#old
-  rownames(aux) <- retention_time #old
+  aux <- aux[sel_index_dt, sel_index_rt]#old
+  rownames(aux) <- drift_time #old
 
   moltaux <- melt((aux))
   colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
@@ -108,7 +108,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
   #We do this in order to plot the data using geom_raster that is faster than geom_tile
   #perhaps a previous interpolation is needed to avoid this patch:
-   rep_dt_index <- rep(seq(from = 1, to = dim(aux)[2], by = 1), times = dim(aux)[1])
+   rep_dt_index <- rep(seq(from = 1, to = dim(aux)[1], by = 1), times = dim(aux)[2])
   # drift_time_period <- mean(diff(drift_time))
   # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
   # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]

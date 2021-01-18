@@ -30,8 +30,11 @@ gcims_unfold <- function(dir_in, dir_out, samples){
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux <- readRDS(aux_string)
-    M <- as.vector(t(aux))
+    aux_list <- readRDS(aux_string)
+    aux <- aux_list$data$data_df
+    aux <- as.vector(aux)
+    aux_list$data$data_df <- aux
+    M <-aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
@@ -147,10 +150,10 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
-    aux <- t(as.matrix(aux_list$data$data_df))
+    aux <- (as.matrix(aux_list$data$data_df))
 
     # Compute the total ion spectra
-    aux_2 <- colSums(aux)
+    aux_2 <- rowSums(aux)
     peaks_info <- findpeaks(aux_2)
 
     # Look for rip position
@@ -170,13 +173,13 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
     }
 
     # Erase the peak (with style...)
-    for (j in (1:dim(aux)[1])){
-      aux[j, rip_bounds[1]: rip_bounds[2]] <- seq(from = aux[j, rip_bounds[1]],
-                                                  to = aux[j, rip_bounds[2]],
+    for (j in (1:dim(aux)[2])){
+      aux[rip_bounds[1]: rip_bounds[2], j] <- seq(from = aux[rip_bounds[1], j],
+                                                  to = aux[rip_bounds[2], j],
                                                   length.out = length(rip_bounds[1]: rip_bounds[2]))
     }
 
-    aux_list$data$data_df <- t(aux)
+    aux_list$data$data_df <- (aux)
     M <- aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
@@ -245,4 +248,57 @@ reshape_samples <- function(dir_in, dir_out, samples) {
     setwd(dir_in)
   }
 }
+
+#' Data Dimentions Reduction to the Decimation
+
+#' @param dir_in           The input directory.
+#' @param dir_out          The output directory.
+#' @param samples          The set of samples to be processed..
+#' @return A reduced  gcims dataset.
+#' @family Utility functions
+#' @export
+#' @importFrom signal resample
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
+
+gcims_decimate <- function(dir_in, dir_out, samples){
+  print(" ")
+  print("  ///////////////////////")
+  print("  / Samples Decimation /")
+  print("  //////////////////////")
+  print(" ")
+
+  setwd(dir_in)
+  # bin_ratiort <- 5
+  # bin_ratiodt <- 2
+  m = 0
+  for (i in samples){
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(aux_string)
+    aux <- aux_list$data$data_df
+    dtreduced <- apply(t(aux), 1, function(x) resample(x, p = 6, q = 32))
+    resampleddt <- resample(aux_list$data$drift_time, p = 6, q = 32)
+    rtreduced <- apply(t(dtreduced), 2, function(x) resample(x, p = 6, q = 32))
+    resampledrt <- resample(aux_list$data$retention_time, p = 6, q = 32)
+    aux_list$data$data_df <- t(rtreduced)
+    aux_list$data$drift_time <- resampleddt
+    aux_list$data$retention_time <- resampledrt
+    M <- aux_list
+    setwd(dir_out)
+    saveRDS(M, file = paste0("M", i, ".rds"))
+    setwd(dir_in)
+  }
+}
+
+
 

@@ -12,6 +12,8 @@
 #' @return A peak table per sample.
 #' @family Peak Peaking functions
 #' @export
+#' @importFrom chemometrics sd_trim
+#' @importFrom data.table tranpose
 #' @importFrom stats sd
 #' @importFrom dbscan dbscan kNNdist
 #' @importFrom pracma meshgrid findpeaks gaussLegendre

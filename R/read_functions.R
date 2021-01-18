@@ -9,7 +9,6 @@
 #' @family Reading functions
 #' @export
 #' @importFrom readr read_csv cols type_convert
-#' @importFrom readxl read_excel
 #' @importFrom utils menu
 #' @examples
 #' \dontrun{
@@ -46,9 +45,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
       print(paste0("Sample ", m, " of ", length(files)))
       aux_string <- paste0("M", i, ".rds")
       # METADATA
-      name <- read_csv(files[i], progress = FALSE, col_names = FALSE, col_types = cols(.default = "c"))[14, 3]
-      Metadatafile <- read_excel(file)
-      metadata <- Metadatafile[which(Metadatafile$Name == name),]
+      metadata <- i
       # DATA
       single_file <- read_csv(files[i],
                               progress = FALSE, col_names = FALSE,
@@ -56,7 +53,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
 
       dd <- as.data.frame(t(single_file[-c(1:2), -c(1:2)]))
       # Depende del tipo de instrumento OJO
-      data$data_df = - type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
+      data$data_df = type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
       data$retention_time <- as.numeric(single_file[1, -c(1:2)])
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
@@ -83,9 +80,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
       aux_string <- paste0("M", i, ".rds")
 
       # METADATA
-      name <- read_csv(files[i], progress = FALSE, col_names = FALSE, col_types = cols(.default = "c"))[14, 3]
-      Metadatafile <- read_excel(file)
-      metadata <- Metadatafile[which(Metadatafile$Name == as.character(name)),]
+      metadata <- i
       # DATA
       single_file <- read_csv(files[i], skip = skip,
                               progress = FALSE, col_names = FALSE,
@@ -93,7 +88,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
 
       dd <- single_file[-c(1:2), -c(1:2)]
       # Depende del tipo de instrumento OJO
-      data$data_df = type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
+      data$data_df = - type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
       data$retention_time <- as.numeric(single_file[1, -c(1:2)])
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
@@ -156,4 +151,46 @@ gcims_read_mat <- function(dir_in, dir_out) {
 }
 
 
+#' Read metadata form a csv
+
+#' @param dir_in          The input directory.
+#' @param file            Name of the file that contains the metadata. It must be an excel file
+#' @return An R object that contains the metadata information
+#' @family Reading functions
+#' @export
+#' @importFrom readxl read_excel
+#' @examples
+#' \dontrun{
+#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
+#'                                                      "dataset_metadata.rds",
+#'                                                      package = "NIHSlcms"))
+#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#'
+#' print(dataset_pos)
+#' }
+
+gcims_read_metadata <- function(dir_in, file) {
+  setwd(dir_in)
+
+  print(" ")
+  print("  //////////////////////////")
+  print(" /    Reading Metadata    /")
+  print("//////////////////////////")
+  print(" ")
+
+  Metadatafile <- read_excel(file)
+  metadata <- NULL
+  m <- 0
+  for (i in 1:length(samples)){
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(files)))
+    aux_string <- paste0("M", i, ".rds")
+    alux_list <- readRDS(aux_string)
+    metadata <- Metadatafile[which(Metadatafile$Name == aux_list$metadata),]
+    aux_list$metadata <- metadata
+    saveRDS(aux_list, file = paste0("M", i, ".rds"))
+    setwd(dir_in)
+
+  }
+}
 

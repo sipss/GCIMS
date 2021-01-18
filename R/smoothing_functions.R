@@ -26,7 +26,7 @@
 
 
 gcims_smoothing <- function (dir_in, dir_out, samples, time,
-                             filter_length, polynomial_order){
+                             filter_length = 19, polynomial_order = 2){
 
   print(" ")
   print("  /////////////////////////")
