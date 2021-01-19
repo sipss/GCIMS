@@ -4,6 +4,8 @@
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @param file           Name of the metadata file.
+#' @param sftwr          Use 1 if the software that has converted the original files into
+#' csv format is the new one. Use 2 if the software is the old one.
 #' @param skip           Number of lines to skip before reading gcims data.
 #' @return An R object that contains the matrix and the retention times
 #' @family Reading functions
@@ -20,7 +22,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
+gcims_read_samples <- function(dir_in, dir_out, file, sftwr, skip = 0) {
   setwd(dir_in)
   print(" ")
   print("  /////////////////////////")
@@ -30,8 +32,6 @@ gcims_read_samples <- function(dir_in, dir_out, file, skip = 0) {
 
   metadata <- list(NULL)
   data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
-
-  sftwr <- menu(c("Yes", "No"), title="Were your samples converter to .csv using the VOCal software?")
 
   if (sftwr == 1){
     files <- list.files(pattern = ".csv")
@@ -154,6 +154,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' Read metadata form a csv
 
 #' @param dir_in          The input directory.
+#' @param samples         The set of samples to be processed.
 #' @param file            Name of the file that contains the metadata. It must be an excel file
 #' @return An R object that contains the metadata information
 #' @family Reading functions
@@ -169,7 +170,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' print(dataset_pos)
 #' }
 
-gcims_read_metadata <- function(dir_in, file) {
+gcims_read_metadata <- function(dir_in, samples, file) {
   setwd(dir_in)
 
   print(" ")
@@ -183,9 +184,9 @@ gcims_read_metadata <- function(dir_in, file) {
   m <- 0
   for (i in 1:length(samples)){
     m <- m + 1
-    print(paste0("Sample ", m, " of ", length(files)))
+    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    alux_list <- readRDS(aux_string)
+    aux_list <- readRDS(aux_string)
     metadata <- Metadatafile[which(Metadatafile$Name == aux_list$metadata),]
     aux_list$metadata <- metadata
     saveRDS(aux_list, file = paste0("M", i, ".rds"))
