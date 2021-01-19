@@ -6,7 +6,6 @@
 #' @param file           Name of the metadata file.
 #' @param sftwr          Use 1 if the software that has converted the original files into
 #' csv format is the new one. Use 2 if the software is the old one.
-#' @param skip           Number of lines to skip before reading gcims data.
 #' @return An R object that contains the matrix and the retention times
 #' @family Reading functions
 #' @export
@@ -22,7 +21,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_read_samples <- function(dir_in, dir_out, file, sftwr, skip = 0) {
+gcims_read_samples <- function(dir_in, dir_out, file, sftwr) {
   setwd(dir_in)
   print(" ")
   print("  /////////////////////////")
@@ -48,16 +47,17 @@ gcims_read_samples <- function(dir_in, dir_out, file, sftwr, skip = 0) {
       metadata <- i
       # DATA
       single_file <- read_csv(files[i],
-                              progress = FALSE, col_names = FALSE,
+                              progress = FALSE, skip = 1, col_names = FALSE,
                               col_types = cols(.default = "c"))
 
-      dd <- as.data.frame(t(single_file[-c(1:2), -c(1:2)]))
+      dd <- as.data.frame(t(single_file[-1, -1]))
       # Depende del tipo de instrumento OJO
-      data$data_df = type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
-      data$retention_time <- as.numeric(single_file[1, -c(1:2)])
+      data$data_df <- type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa viejo
+      data$retention_time <- type_convert(single_file[-1, 1] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
+      data$retention_time <-  data$retention_time[[1]]
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
-      data$drift_time <-type_convert(single_file[-c(1:2), 2] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
+      data$drift_time <- type_convert(single_file[1, -1] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
       data$drift_time <-  data$drift_time[[1]]                                                # Depende del tipo de instrumento OJO
 
       # Join
@@ -82,7 +82,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, sftwr, skip = 0) {
       # METADATA
       metadata <- i
       # DATA
-      single_file <- read_csv(files[i], skip = skip,
+      single_file <- read_csv(files[i], skip = 130,
                               progress = FALSE, col_names = FALSE,
                               col_types = cols(.default = "c"))
 
@@ -92,7 +92,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, sftwr, skip = 0) {
       data$retention_time <- as.numeric(single_file[1, -c(1:2)])
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
-      data$drift_time <-type_convert(single_file[-c(1:2), 2] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
+      data$drift_time <- type_convert(single_file[-c(1:2), 2] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
       data$drift_time <-  data$drift_time[[1]]                                                # Depende del tipo de instrumento OJO
 
       # Join
