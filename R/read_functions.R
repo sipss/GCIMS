@@ -57,8 +57,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, sftwr) {
       data$retention_time <-  data$retention_time[[1]]
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
-      data$drift_time <- type_convert(single_file[1, -1] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
-      data$drift_time <-  data$drift_time[[1]]                                                # Depende del tipo de instrumento OJO
+      data$drift_time <- as.numeric(single_file[1, -(dim(single_file)[2])])#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
 
       # Join
       dd_list <- list(metadata = metadata, data = data)
