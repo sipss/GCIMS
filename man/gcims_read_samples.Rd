@@ -4,7 +4,7 @@
 \alias{gcims_read_samples}
 \title{Read GC-IMS Samples from .csv files}
 \usage{
-gcims_read_samples(dir_in, dir_out, file, skip = 0)
+gcims_read_samples(dir_in, dir_out, file, sftwr)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -13,7 +13,8 @@ gcims_read_samples(dir_in, dir_out, file, skip = 0)
 
 \item{file}{Name of the metadata file.}
 
-\item{skip}{Number of lines to skip before reading gcims data.}
+\item{sftwr}{Use 1 if the software that has converted the original files into
+csv format is the new one. Use 2 if the software is the old one.}
 }
 \value{
 An R object that contains the matrix and the retention times
@@ -33,6 +34,7 @@ print(dataset_pos)
 }
 \seealso{
 Other Reading functions: 
-\code{\link{gcims_read_mat}()}
+\code{\link{gcims_read_mat}()},
+\code{\link{gcims_read_metadata}()}
 }
 \concept{Reading functions}

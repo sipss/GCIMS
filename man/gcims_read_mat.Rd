@@ -29,6 +29,7 @@ print(dataset_pos)
 }
 \seealso{
 Other Reading functions: 
+\code{\link{gcims_read_metadata}()},
 \code{\link{gcims_read_samples}()}
 }
 \concept{Reading functions}

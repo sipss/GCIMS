@@ -22,6 +22,7 @@ Imports:
     chemometrics(>= 1.4.2),
     dbscan(>= 1.1-5),
     dplyr(>= 1.0.2),
+    factoextra(>= 1.0.7),
     ggplot2 (>= 3.3.2),
     magrittr(>= 1.5),
     metR (>= 0.7),

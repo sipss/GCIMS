@@ -4,7 +4,15 @@
 \alias{gcims_baseline_removal}
 \title{Remove baseline of a dataset using psalsa}
 \usage{
-gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k)
+gcims_baseline_removal(
+  dir_in,
+  dir_out,
+  samples,
+  by_rows,
+  lambda = 1e+07,
+  p = 0.001,
+  k = -1
+)
 }
 \arguments{
 \item{dir_in}{The input directory.}

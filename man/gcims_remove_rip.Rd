@@ -30,6 +30,7 @@ dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
 }
 \seealso{
 Other Utility functions: 
+\code{\link{gcims_decimate}()},
 \code{\link{gcims_interpolate}()},
 \code{\link{gcims_unfold}()},
 \code{\link{reshape_samples}()}

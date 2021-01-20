@@ -9,8 +9,8 @@ gcims_smoothing(
   dir_out,
   samples,
   time,
-  filter_length,
-  polynomial_order
+  filter_length = 19,
+  polynomial_order = 2
 )
 }
 \arguments{
@@ -44,9 +44,5 @@ dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
 
 print(dataset_pos)
 }
-}
-\seealso{
-Other Smoothing functions: 
-\code{\link{gcims_decimate}()}
 }
 \concept{Smoothing functions}
