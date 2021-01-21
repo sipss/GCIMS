@@ -65,7 +65,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
         if (condition == 0){
           cross_corr[i + round(R/2) - 1, j + round(S/2) - 1] <- 0
         } else{
-        cross_corr[i + round(R/2) - 1, j + round(S/2) - 1] = (sum((pattern-mean(pattern))*(segment - mean(segment)))/((R-1)*(S-1)))/(sd(pattern)*sd(segment))
+          cross_corr[i + round(R/2) - 1, j + round(S/2) - 1] = (sum((pattern-mean(pattern))*(segment - mean(segment)))/((R-1)*(S-1)))/(sd(pattern)*sd(segment))
         }
       }
     }
@@ -269,11 +269,11 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     return(I)
   }
 
- #-----------------------------------------------------------#
+  #-----------------------------------------------------------#
 
- #---------------#
- #   CONSTANSTS  #
- #---------------#
+  #---------------#
+  #   CONSTANSTS  #
+  #---------------#
 
   # digital smothing:
 
@@ -345,11 +345,11 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     if (length(saturation_regions) == 0){
       saturation_minima <- NULL
     } else {
-    saturation_list <- split(saturation_regions, cumsum(c(1, diff(saturation_regions)) != 1))
-    saturation_minima <- matrix(0, length(saturation_list), 2)
-    for (k in 1:length(saturation_list)){
-      saturation_minima[k, ] <- c(min(saturation_list[[k]]), max(saturation_list[[k]]))
-    }
+      saturation_list <- split(saturation_regions, cumsum(c(1, diff(saturation_regions)) != 1))
+      saturation_minima <- matrix(0, length(saturation_list), 2)
+      for (k in 1:length(saturation_list)){
+        saturation_minima[k, ] <- c(min(saturation_list[[k]]), max(saturation_list[[k]]))
+      }
     }
 
     # 3)   remove baseline
@@ -384,7 +384,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     aux[aux <= threshold] <- 0
     # 6)   b. remove data before the RIP
     if (preprocess  == TRUE){
-    aux[1:rip_end_index,] <- 0
+      aux[1:rip_end_index,] <- 0
     }
 
     # 7)   find peaks in 2D (ROIs if convoluted)
@@ -441,10 +441,10 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     for (k in outer_rectangles[, 1]){
       roi_table[k, 1] <- samples[m]
       roi_table[k, 2] <- k
-      roi_table[k, 3] <- outer_rectangles[k, 3]
-      roi_table[k, 4] <- outer_rectangles[k, 4]
-      roi_table[k, 5] <- outer_rectangles[k, 5]
-      roi_table[k, 6] <-outer_rectangles[k, 2]
+      roi_table[k, 3] <- outer_rectangles[k, 2]
+      roi_table[k, 4] <- outer_rectangles[k, 5]
+      roi_table[k, 5] <- outer_rectangles[k, 3]
+      roi_table[k, 6] <-outer_rectangles[k, 4]
       # current roi
       roi <- aux[outer_rectangles[k, 5]:outer_rectangles[k, 3],
                  outer_rectangles[k, 4]:outer_rectangles[k, 2]]
@@ -462,8 +462,8 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
       # roi center of mass
       x_cm <- round(compute_integral2(roi * (1:dim(roi)[1])) / volume)
       y_cm <- round(compute_integral2(t(roi) * (1:dim(roi)[2])) / volume)
-      roi_table[k, 11] <- outer_rectangles[k, 5] + x_cm - 1
-      roi_table[k, 12] <- outer_rectangles[k, 4] + y_cm - 1
+      roi_table[k, 11] <- outer_rectangles[k, 4] + x_cm - 1
+      roi_table[k, 12] <- outer_rectangles[k, 5] + y_cm - 1
       # roi asymmetries
       half_down_area  <- length(1:x_cm) * len_y
       half_up_area    <- length(x_cm:len_x) * len_y
@@ -498,5 +498,4 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     setwd(dir_in)
   }
 }
-
 
