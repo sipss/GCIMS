@@ -305,7 +305,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' gcims_plot_spec(dir_out, samples)
 #' unlink(dir_out, recursive = TRUE)
 #' setwd(wd)
-gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby){
+gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Name"){
 
   Drift_Time <- Index <- Value <- Sample <- NULL
 

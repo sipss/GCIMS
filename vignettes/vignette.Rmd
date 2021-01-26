@@ -33,6 +33,7 @@ filtr <- paste0(wd,'/filtr')
 bslnr <- paste0(wd,'/bslnr')
 rip <- paste0(wd,'/rip')
 alignr <- paste0(wd,'/alignr')
+diezm <- paste0(wd,'/diezm')
 unfold <- paste0(wd,'/unfold')
 
 dir.create(data)
@@ -47,7 +48,9 @@ dir.create(filtr)
 dir.create(bslnr)
 dir.create(rip)
 dir.create(alignr)
+dir.create(diezm)
 dir.create(unfold)
+
 ```
 
 
@@ -57,8 +60,13 @@ The first step is reading the samples, this function can read .csv fies exported
 # READING SAMPLES
 dir_in <- getwd()
 dir_out <- data
+gcims_read_samples(dir_in, dir_out, sftwr = 2)
+
+# READING METADATA
+dir_in <- data
+samples <- 1:5
 file <- "Metadata.xlsx"
-gcims_read_samples(dir_in, dir_out, skip = 130, file)
+gcims_read_metadata(dir_in, samples, file)
 ```
 
 
@@ -218,7 +226,7 @@ gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
 
 
 ```{r}
-# INTERPOLATING DRIFT TIME
+# INTERPOLATING RETENTION TIME
 dir_in <- alignd
 dir_out <- interpr
 samples <- 1:5
