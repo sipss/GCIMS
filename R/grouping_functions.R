@@ -117,7 +117,7 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
   # measure_fine_overlap #
   #----------------------#
 
-  measure_fine_overlap <- function(x, row_df){
+  measure_fine_overlap <- function(x, rows_df){
     ncluster  <- length(unique(x$roi_cluster))
     sample_0_indexes <- which(x$sample_id == 0)
     overlap_fine <- vector(mode = "list", length = ncluster)
@@ -224,7 +224,7 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
 
   # 6) Check (fine) overlapping between each roi
   #    in all samples and the rois of the reference sample
-    overlap_fine <- measure_fine_overlap(all_roi_df, row_df)
+    overlap_fine <- measure_fine_overlap(all_roi_df, rows_df)
 
   # 7) Perform a fine clustering
     all_roi_df <- fine_clustering(all_roi_df, overlap_fine)
