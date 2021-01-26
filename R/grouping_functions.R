@@ -3,15 +3,11 @@
 
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
-#' @param distance        A measure of dissimilarity of Samples. Either
-#' @aliases               "mahalanobis" or "overlapping"
 #' @param samples         Samples to which perform the peak picking.
 #' @return A peak table per sample.
 #' @family Peak Grouping functions
 #' @export
-#' @importFrom pracma meshgrid
-#' @importFrom cluster pam
-#' @importFrom StatMatch mahalanobis.dist
+#' @importFrom pracma meshgrid eye
 #' @examples
 #' \dontrun{
 #' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
@@ -23,8 +19,61 @@
 #' }
 
 
-gcims_peak_grouping <- function(dir_in, dir_out, samples, distance = "overlapping"){
-#pam
+gcims_peak_grouping <- function(dir_in, dir_out, samples){
+
+
+  #---------------#
+  #   FUNCTIONS   #
+  #---------------#
+
+
+  #----------------------#
+  # check_coarse_overlap #
+  #----------------------#
+
+  check_coarse_overlap <- function(x, i, j){
+    cond_1 <- (x$rt_mc[j] >= x$min_rt[i]) & (x$rt_mc[j] <= x$max_rt[i])
+    cond_2 <- (x$dt_mc[j] >= x$min_dt[i]) & (x$dt_mc[j] <= x$max_dt[i])
+    return(cond_1 & cond_2)
+  }
+
+  #------------------------#
+  # measure_coarse_overlap #
+  #------------------------#
+
+  measure_coarse_overlap <- function(x, ncluster_ref, n){
+    overlap_coarse <- cbind(eye(ncluster_ref), matrix(0, nrow = ncluster_ref, ncol = n - ncluster_ref + 1))
+    for (i in (1:ncluster_ref)){
+      for(j in ((ncluster_ref + 1): n)) {
+        cond_coarse_overlap <- check_coarse_overlap(x, i, j)
+        if(cond_coarse_overlap){
+          overlap_coarse[i, j] <- 1
+        }
+      }
+    }
+    return(overlap_coarse)
+  }
+
+  #-------------------#
+  # coarse_clustering #
+  #------------------ #
+
+  coarse_clustering <- function(x, y){
+    cl <- apply(x, MARGIN = 1, FUN = function(z) which(z == 1))
+    cl <- cl[sapply(cl, FUN = function(z) length(z) > 1)]
+    cl_index <- vector(mode = "list", length = length(cl))
+    for (i in seq_along(cl)){
+      cl_index[[i]] <- rep(i, length(cl[[i]]))
+    }
+    cl_index <- unlist(cl_index)
+    reliable_rois <- unlist(cl)
+    y <- y[reliable_rois, ]
+    cl_index <- as.data.frame(cl_index)
+    names(cl_index) <- "roi_cluster"
+    y <- cbind(cl_index, y)
+    return(y)
+  }
+
 
   #---------#
   # sub2ind #
@@ -37,10 +86,103 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples, distance = "overlappin
     return(ind)
   }
 
+  #----------#
+  # grid2ind #
+  #----------#
+
+  grid2ind <- function(x, index, rows_df){
+    seq_x_index <- x$min_rt[index]:x$max_rt[index]
+    seq_y_index <- x$min_dt[index]:x$max_dt[index]
+    grid_index_sub <- meshgrid(x = seq_x_index , y = seq_y_index)
+    dim(grid_index_sub$X) <- NULL
+    dim(grid_index_sub$Y) <- NULL
+    grid_index_sub <- cbind(grid_index_sub$X, grid_index_sub$Y)
+    grid_index_ind <- apply(grid_index_sub, sub2ind, rows_df, MARGIN = 1)
+    return(grid_index_ind)
+  }
+
+
+  #----------------------#
+  # compute_grid_overlap #
+  #----------------------#
+
+  compute_grid_overlap <- function(grid_x, grid_y){
+    grid_xy_union <- union(grid_x, grid_y)
+    grid_xy_intersect <- intersect(grid_x, grid_y)
+    return(length(grid_xy_intersect) / length(grid_xy_union))
+  }
+
+
+  #----------------------#
+  # measure_fine_overlap #
+  #----------------------#
+
+  measure_fine_overlap <- function(x, row_df){
+    ncluster  <- length(unique(x$roi_cluster))
+    sample_0_indexes <- which(x$sample_id == 0)
+    overlap_fine <- vector(mode = "list", length = ncluster)
+    for (i in (1:ncluster)){
+      current_ind <- sample_0_indexes[i]
+      grid_i_ind <- grid2ind(x, current_ind, rows_df)
+      tentative_rois <- which(x$roi_cluster == i)
+      sample_id <- x$sample_id[tentative_rois]
+      h <- 0
+      overlap_value <- vector(mode = "list", length = 1)
+      for (j in (tentative_rois)){
+        h <- h + 1
+        grid_j_ind <- grid2ind(x, j, rows_df)
+        overlap_value[[1]][[h]] <- compute_grid_overlap(grid_i_ind, grid_j_ind)
+      }
+      overlap_fine[[i]] <- as.data.frame(t(rbind(tentative_rois, sample_id, overlapping = unlist(overlap_value))))
+    }
+    return(overlap_fine)
+  }
+
+  #--------------------#
+  #  which_max_overlap #
+  #--------------------#
+
+  which_max_overlap <- function(x) {
+    samples_roi <- unique(x$sample_id)
+    y <- vector(mode = "list", length = 1)
+    h <- 0
+    for (k in samples_roi){
+      h <- h + 1
+      cond <- x$sample_id == samples_roi[h]
+      selected_rois <- x$tentative_rois[cond]
+      best_hit <- which.max(x$overlapping[cond])
+      y[[1]][[h]] <- selected_rois[best_hit]
+    }
+    x <- x[x$tentative_rois %in% unlist(y), ]
+    return(x)
+  }
+
+  #-----------------#
+  # fine_clustering #
+  #-----------------#
+
+  fine_clustering <- function(x, y) {
+    z <- do.call(rbind, lapply(y, which_max_overlap))
+    x <- x[z$tentative_rois, ]
+    return(x)
+  }
+
 
   #-------------#
   #     MAIN    #
   #-------------#
+
+  # 0) Look for the number of ROIS in the reference sample
+  # 1) Initilize roi_list
+  # 2) Loop for generating the roi_list
+  #    a. read data
+  #    b. update roi_list
+  # 3) Convert the roi_list to a dataframe
+  # 4) Check (coarse) overlapping
+  # 5) Perform a coarse clustering
+  # 6) Check (fine) overlapping
+  # 7) Perform a fine clustering
+  # 8) Save results
 
 
   setwd(dir_in)
@@ -51,13 +193,12 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples, distance = "overlappin
     aux_string <- paste0("M", 0, ".rds")
     aux_list <- readRDS(aux_string)
     aux_df <- aux_list$data$roi_df
-    ncluster <-length(aux_df$roi_id)
+    ncluster_0 <-length(aux_df$roi_id)
+    rows_df   <- nrow(aux_list$data$data_df)
     rm(aux_string, aux_list, aux_df)
 
-  # 1) Initilize roi_list (length equal the number of samples)
-  #    and row_list (number of rows or each sample)
+  # 1) Initilize roi_list
     roi_list <- vector(mode = "list", length = length(samples))
-    row_list <- vector(mode = "list", length = length(samples))
 
   # 2) Loop for generating the roi_list
     m <- 0
@@ -68,104 +209,30 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples, distance = "overlappin
       aux_list <- readRDS(aux_string)
       # 2.b) update roi_list
       roi_list[[m]]   <- aux_list$data$roi_df
-      row_list[[m]]   <-nrow(aux_list$data$data_df)
     }
 
   # 3) Convert the roi_list to a dataframe (all_roi_df)
     all_roi_df <- do.call(rbind, roi_list)
-    rows_df <- do.call(rbind, row_list)
+    n_dim  <- nrow(all_roi_df)
 
+  # 4) Check (coarse) overlapping between each roi
+  #    in all samples and the rois of the reference sample
+    overlap_coarse <- measure_coarse_overlap(all_roi_df, ncluster_0, n_dim)
 
-  #4) Select only the center of mass coordinates for clustering
-    to_be_clustered <- all_roi_df[c("rt_mc", "dt_mc", "max_rt", "min_dt", "min_rt", "max_dt")]
+  # 5) Perform a coarse clustering
+    all_roi_df <- coarse_clustering(overlap_coarse, all_roi_df)
 
-  if(distance == "mahalanobis"){
-    to_be_clustered_dist <- mahalanobis.dist(to_be_clustered[c("rt_mc", "dt_mc")])
-  } else if(distance == "overlapping"){
-    hola <-  to_be_clustered[c("max_rt", "min_dt", "min_rt", "max_dt")]
-  } else{
-    stop("Distance must be either mahalanobis or overlapping")
-  }
+  # 6) Check (fine) overlapping between each roi
+  #    in all samples and the rois of the reference sample
+    overlap_fine <- measure_fine_overlap(all_roi_df, row_df)
 
-  #overlapping.dist
-  n_dim <-  nrow(to_be_clustered) #  number of rows and columns (the matrix is square and symmetric)
-  print(n_dim)
-  overlap_dist <- matrix(0, nrow = n_dim, ncol = n_dim)
-  for (i in (1:n_dim)){
-    print(i)
-    seq_x_i <- hola$min_rt[i]:hola$max_rt[i]
-    seq_y_i <- hola$min_dt[i]:hola$max_dt[i]
-     grid_i_sub <- meshgrid(x = seq_x_i , y= seq_y_i)
-     dim(grid_i_sub$X) <- NULL
-     dim(grid_i_sub$Y) <- NULL
-     grid_i_sub <- cbind(grid_i_sub$X, grid_i_sub$Y)
-     print(grid_i_sub)
+  # 7) Perform a fine clustering
+    all_roi_df <- fine_clustering(all_roi_df, overlap_fine)
 
-     n <- rows_df[i]
-     print(n)
-     grid_i_ind <- apply(grid_i_sub, sub2ind, n, MARGIN = 1)
-     print(grid_i_ind)
-     #print(grid_i_ind)
-     #print(grid_i_ind)
-     for(j in (1: (n_dim - i + 1))){
-       seq_x_j <- hola$min_rt[j]:hola$max_rt[j]
-       seq_y_j <- hola$min_dt[j]:hola$max_dt[j]
-       grid_j_sub <- meshgrid(x = seq_x_j , y= seq_y_j)
-       dim(grid_j_sub$X) <- NULL
-       dim(grid_j_sub$Y) <- NULL
-       grid_j_sub <- cbind(grid_j_sub$X, grid_j_sub$Y)
-
-       n <- rows_df[j]
-
-       grid_j_ind <- apply(grid_j_sub, sub2ind, n, MARGIN = 1)
-       #print(j)
-       #print(grid_j_ind)
-
-       grid_ij_union <- union(grid_i_ind, grid_j_ind)
-       #print(grid_ij_union)
-       grid_ij_intersect <- intersect(grid_i_ind, grid_j_ind)
-       #print(grid_ij_intersect)
-       overlap_dist[i, j] <-  1 - (length(grid_ij_intersect) / length(grid_ij_union))
-       #print(1 - (length(grid_ij_intersect) / length(grid_ij_union)))
-       #overlap_dist[j, i] <- overlap_dist[i, j]
-     }
-
-
-
-    }
-
-  to_be_clustered_dist <- overlap_dist
-
-
-  #my_grid <- meshgrid(x, y)
-
-  # 5) cluster the samples according the initial 'seeds'
-  #   or centers obtained from the reference samples
-
-  #cl <- kmeans(to_be_clustered[(ncluster + 1): nrow(to_be_clustered), ], ncluster, centers = to_be_clustered[1:ncluster, ])
-  # plot(all_roi_df$dt_mc, all_roi_df$rt_mc, col = cl$cluster, pch =  cl$cluster)
-  #points(cl$centers[,2], cl$centers[, 1], col = "black", pch = 4)
-  color_sampled <- sample(colors(distinct = TRUE), length(colors(distinct = TRUE)))
-
-  cl <- pam(to_be_clustered_dist, k =  ncluster, medoids = 1:ncluster, do.swap = TRUE, diss = TRUE, cluster.only = TRUE, pamonce = 5)
-  plot(all_roi_df$dt_mc, all_roi_df$rt_mc, col = color_sampled[cl], pch =  cl)
-  # points(to_be_clustered[1:ncluster,2], to_be_clustered[1:ncluster, 1], col = "black", pch = 4)
-
-
-
-  # 6) Include results in the output dataframe
-  df_cl <- as.data.frame(cl)
-  names(df_cl) <- "roi_cluster"
-  all_roi_df <- cbind(df_cl, all_roi_df)
-
-  points(all_roi_df$dt_mc[1:ncluster], all_roi_df$rt_mc[1:ncluster], pch = 4, col ="black")
-
-  # 7)  save results
-  setwd(dir_out)
-  saveRDS(all_roi_df, file = paste0("all_roi_df", i, ".rds"))
-  setwd(dir_in)
-
-  return(all_roi_df)
+  # 8) Save results
+    setwd(dir_out)
+    saveRDS(all_roi_df, file = paste0("all_roi_df", i, ".rds"))
+    setwd(dir_in)
 }
 
 

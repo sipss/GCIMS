@@ -2,12 +2,9 @@
 % Please edit documentation in R/grouping_functions.R
 \name{gcims_peak_grouping}
 \alias{gcims_peak_grouping}
-\alias{"mahalanobis"}
-\alias{or}
-\alias{"overlapping"}
 \title{Two dimensional peak picking}
 \usage{
-gcims_peak_grouping(dir_in, dir_out, samples, distance = "overlapping")
+gcims_peak_grouping(dir_in, dir_out, samples)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -15,8 +12,6 @@ gcims_peak_grouping(dir_in, dir_out, samples, distance = "overlapping")
 \item{dir_out}{The output directory.}
 
 \item{samples}{Samples to which perform the peak picking.}
-
-\item{distance}{A measure of dissimilarity of Samples. Either}
 }
 \value{
 A peak table per sample.
