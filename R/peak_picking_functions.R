@@ -362,7 +362,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
 
     # 4)   a. compute intensity threshold
     threshold <- estimate_threshold(aux_vector)
-    # 4)  b. compute noise power
+    }# 4)  b. compute noise power
     noise_power <- compute_power(aux_vector[aux_vector <= threshold])
     rm(aux_vector)
 
@@ -443,14 +443,14 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
       roi_table[k, 2] <- k
       roi_table[k, 3] <- outer_rectangles[k, 2]
       roi_table[k, 4] <- outer_rectangles[k, 5]
-      roi_table[k, 5] <- outer_rectangles[k, 3]
-      roi_table[k, 6] <-outer_rectangles[k, 4]
+      roi_table[k, 5] <- outer_rectangles[k, 4]
+      roi_table[k, 6] <-outer_rectangles[k, 3]
       # current roi
       roi <- aux[outer_rectangles[k, 5]:outer_rectangles[k, 3],
                  outer_rectangles[k, 4]:outer_rectangles[k, 2]]
       # roi lengths
-      len_x <-  outer_rectangles[k, 3] - outer_rectangles[k, 5]
-      len_y <- outer_rectangles[k, 2] - outer_rectangles[k, 4]
+      len_x <-  outer_rectangles[k, 2] - outer_rectangles[k, 4]
+      len_y <- outer_rectangles[k, 3] - outer_rectangles[k, 5]
       roi_table[k, 7] <- len_x
       roi_table[k, 8] <- len_y
       # roi area
@@ -469,7 +469,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
       half_up_area    <- length(x_cm:len_x) * len_y
       half_left_area  <- len_x * length(1:y_cm)
       half_right_area <- len_x * length(y_cm:len_y)
-      roi_table[k, 13]<- round(((half_up_area - half_down_area) / (area)), 2)
+      roi_table[k, 13]<- round(((half_down_area - half_up_area) / (area)), 2)
       roi_table[k, 14] <- round(((half_right_area - half_left_area) / (area)), 2)
       # roi saturation
       if (length(saturation_minima) == 0){

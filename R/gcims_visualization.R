@@ -101,6 +101,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
   aux <- aux[sel_index_dt, sel_index_rt]#old
   rownames(aux) <- drift_time #old
+  colnames(aux) <- retention_time
 
   moltaux <- melt((aux))
   colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
