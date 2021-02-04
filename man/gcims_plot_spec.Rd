@@ -4,7 +4,13 @@
 \alias{gcims_plot_spec}
 \title{Plots TISa or spectra}
 \usage{
-gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby)
+gcims_plot_spec(
+  dir_in,
+  samples,
+  rt_value = NULL,
+  dt_range = NULL,
+  colorby = "Name"
+)
 }
 \arguments{
 \item{dir_in}{The input directory.}
