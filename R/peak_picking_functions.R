@@ -158,7 +158,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     border <- c(max(x[indexes, 2]), max(x[indexes, 1]), min(x[indexes, 2]), min(x[indexes, 1]))
     return(border)
 
-  }
+  } ### Chech error
 
 
   #-------------------------#
@@ -362,7 +362,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
 
     # 4)   a. compute intensity threshold
     threshold <- estimate_threshold(aux_vector)
-    }# 4)  b. compute noise power
+    # 4)  b. compute noise power
     noise_power <- compute_power(aux_vector[aux_vector <= threshold])
     rm(aux_vector)
 
