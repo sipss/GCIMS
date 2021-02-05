@@ -497,5 +497,6 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
   }
+}
 
 
