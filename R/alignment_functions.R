@@ -23,7 +23,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector){
+gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
 
 
   print(" ")
@@ -34,7 +34,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
 
 
   setwd(dir_in)
-  Warping <- optimize_cow(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector)
+  Warping <- optimize_cow(dir_in, dir_out, samples, time, seg_vector, slack_vector)
 
   m <- -1
   for (i in c(0,samples)){
@@ -102,7 +102,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack
 #' print(dataset_pos)
 #' }
 
-optimize_cow <- function(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector){
+optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
   setwd(dir_in)
 
   # Load a sample to know its length in the

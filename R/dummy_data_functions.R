@@ -230,7 +230,9 @@ force_interpolation <- function (sampling_period, constant_sampling, axis_length
 #' @export
 #' @family Dummy data functions
 #' @examples
+#' \dontrun{
 #' params <- gcims_create_dummy_params()
+#'}
 #'
 gcims_create_dummy_params <- function(){
 
@@ -299,9 +301,11 @@ gcims_create_dummy_params <- function(){
 #' @export
 #' @family Dummy data functions
 #' @examples
+#' \dontrun{
 #' params <- gcims_create_dummy_params()
 #' M1 <- gcims_create_dummy_sample(params$params_class1)
-
+#'}
+#'
 gcims_create_dummy_sample <- function(params){
 
   #Extract parameters from params:
@@ -477,6 +481,7 @@ gcims_create_dummy_sample <- function(params){
 #' @export
 #' @family Dummy data functions
 #' @examples
+#' \dontrun{
 #' wd <- getwd()
 #' dir_in <- tempdir()
 #' dir_out <-  file.path(dir_in,"dummy")
@@ -488,6 +493,7 @@ gcims_create_dummy_sample <- function(params){
 #' list.files(path = dir_out, pattern = NULL, all.files = FALSE, full.names = FALSE)
 #' unlink(dir_out, recursive = TRUE)
 #' setwd(wd)
+#' }
 #'
 
 gcims_create_dummy_set <- function(dir_in, dir_out, samples_per_class, params){

@@ -14,7 +14,9 @@ and their corresponding labels.
 Create sample params and labels for two different sample classes
 }
 \examples{
+\dontrun{
 params <- gcims_create_dummy_params()
+}
 
 }
 \seealso{

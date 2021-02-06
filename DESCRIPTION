@@ -2,6 +2,7 @@ Package: GCIMS
 Type: Package
 Title: Pre-processing for GC-IMS data
 Version: 0.1.0
+Encoding: UTF-8
 Date: 2020-09-25
 Authors@R: c(
             person("Celia", "Mallafre",email = "cmallafre@ibecbarcelona.eu", role = "aut"),
@@ -37,6 +38,8 @@ Imports:
     utils (>= 4.0.2),
     viridis(>= 0.5.1)
 Suggests:
-    testthat
-Encoding: UTF-8
+    testthat,
+    knitr
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr
+

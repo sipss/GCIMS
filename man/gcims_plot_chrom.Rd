@@ -26,6 +26,7 @@ A set of Chromatograms.
 Plots TICs or EICs.
 }
 \examples{
+\dontrun{
 wd <- getwd()
 dir_in <- tempdir()
 dir_out <-  file.path(dir_in,"dummy")
@@ -38,6 +39,7 @@ dt_value <- 8
 gcims_plot_chrom(dir_out, samples, dt_value)
 unlink(dir_out, recursive = TRUE)
 setwd(wd)
+}
 }
 \seealso{
 Other Visualization functions: 

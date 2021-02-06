@@ -16,8 +16,11 @@ A dummy sample formally equal to the samples readed from an gc-ims
 Create a dummy sample taking into account non-idealities in sampling process
 }
 \examples{
+\dontrun{
 params <- gcims_create_dummy_params()
 M1 <- gcims_create_dummy_sample(params$params_class1)
+}
+
 }
 \seealso{
 Other Dummy data functions: 

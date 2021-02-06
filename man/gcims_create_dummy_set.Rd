@@ -23,6 +23,7 @@ A dummy dataset to be stored in dir_out
 Create a dummy dataset
 }
 \examples{
+\dontrun{
 wd <- getwd()
 dir_in <- tempdir()
 dir_out <-  file.path(dir_in,"dummy")
@@ -34,6 +35,7 @@ gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
 list.files(path = dir_out, pattern = NULL, all.files = FALSE, full.names = FALSE)
 unlink(dir_out, recursive = TRUE)
 setwd(wd)
+}
 
 }
 \seealso{

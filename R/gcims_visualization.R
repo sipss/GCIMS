@@ -16,6 +16,7 @@
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_raster
 #' @importFrom viridis scale_fill_viridis
 #' @examples
+#' \dontrun{
 #' wd <- getwd()
 #' dir_in <- tempdir()
 #' dir_out <-  file.path(dir_in,"dummy")
@@ -26,6 +27,7 @@
 #' gcims_view_sample(dir_out, 1)
 #' unlink(dir_out, recursive = TRUE)
 #' setwd(wd)
+#' }
 
 gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL){
 
@@ -146,6 +148,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
+#' \dontrun{
 #' wd <- getwd()
 #' dir_in <- tempdir()
 #' dir_out <-  file.path(dir_in,"dummy")
@@ -158,10 +161,11 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' gcims_plot_chrom(dir_out, samples, dt_value)
 #' unlink(dir_out, recursive = TRUE)
 #' setwd(wd)
+#' }
 
 gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby){
 
-  Retention_Time <- Index <- Value <- Sample <- NULL
+  Retention_Time <- Index <- Value <- Sample <- Class <- NULL
 
   print(" ")
   print("  ///////////////////////////////")
@@ -295,6 +299,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
+#' \dontrun{
 #' wd <- getwd()
 #' dir_in <- tempdir()
 #' dir_out <-  file.path(dir_in,"dummy")
@@ -306,9 +311,10 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' gcims_plot_spec(dir_out, samples)
 #' unlink(dir_out, recursive = TRUE)
 #' setwd(wd)
+#' }
 gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Name"){
 
-  Drift_Time <- Index <- Value <- Sample <- NULL
+  Drift_Time <- Index <- Value <- Sample <- Class <- NULL
 
   print(" ")
   print("  ///////////////////////////")
