@@ -299,6 +299,3 @@ gcims_decimate <- function(dir_in, dir_out, samples){
     setwd(dir_in)
   }
 }
-
-
-

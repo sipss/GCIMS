@@ -29,7 +29,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, sftwr) {
   print("/////////////////////////")
   print(" ")
 
-  metadata <- list(NULL)
+  metadata <- list(Name = NULL)
   data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
 
   if (sftwr == 1){
@@ -44,7 +44,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, sftwr) {
       print(paste0("Sample ", m, " of ", length(files)))
       aux_string <- paste0("M", i, ".rds")
       # METADATA
-      metadata <- i
+      metadata$Name <- i
       # DATA
       single_file <- read_csv(files[i],
                               progress = FALSE, skip = 1, col_names = FALSE,
@@ -186,7 +186,7 @@ gcims_read_metadata <- function(dir_in, samples, file) {
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string)
-    metadata <- Metadatafile[which(Metadatafile$Name == aux_list$metadata),]
+    metadata <- Metadatafile[which(Metadatafile$Name == aux_list$metadata$Name),]
     aux_list$metadata <- metadata
     saveRDS(aux_list, file = paste0("M", i, ".rds"))
     setwd(dir_in)

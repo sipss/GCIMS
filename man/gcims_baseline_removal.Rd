@@ -8,7 +8,7 @@ gcims_baseline_removal(
   dir_in,
   dir_out,
   samples,
-  by_rows,
+  time,
   lambda = 1e+07,
   p = 0.001,
   k = -1
@@ -50,7 +50,7 @@ print(dataset_pos)
 
 }
 \seealso{
-Other Baseline removal functions: 
+Other Baseline removal functions:
 \code{\link{psalsa_one}()}
 }
 \concept{Baseline removal functions}

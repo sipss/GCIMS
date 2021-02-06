@@ -4,7 +4,7 @@
 \alias{gcims_alignment}
 \title{Peak alignment using Correlation Optimized Warping (COW)}
 \usage{
-gcims_alignment(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector)
+gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -39,7 +39,7 @@ print(dataset_pos)
 }
 }
 \seealso{
-Other Alignment functions: 
+Other Alignment functions:
 \code{\link{apply_cow}()},
 \code{\link{cow}()},
 \code{\link{optimize_cow}()}
