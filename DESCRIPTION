@@ -26,6 +26,7 @@ Imports:
     ggplot2 (>= 3.3.2),
     magrittr(>= 1.5),
     metR (>= 0.7),
+    missForest (>= 1.4),
     pracma(>= 2.2.9),
     ptw (>= 1.9-10),
     purrr(>= 0.3.4),
@@ -36,6 +37,7 @@ Imports:
     rmarkdown (>= 2.6),
     signal (>= 0.7-6),
     stats (>= 4.0.2),
+    tidyr(>= 1.1.2),
     utils (>= 4.0.2),
     viridis(>= 0.5.1)
 Suggests:

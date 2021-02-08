@@ -60,7 +60,7 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
 
   coarse_clustering <- function(x, y){
     cl <- apply(x, MARGIN = 1, FUN = function(z) which(z == 1))
-    cl <- cl[sapply(cl, FUN = function(z) length(z) > 1)]
+    cl <- cl[sapply(cl, FUN = function(z) length(z) > 1)] #1
     cl_index <- vector(mode = "list", length = length(cl))
     for (i in seq_along(cl)){
       cl_index[[i]] <- rep(i, length(cl[[i]]))
@@ -231,7 +231,7 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
 
   # 8) Save results
     setwd(dir_out)
-    saveRDS(all_roi_df, file = paste0("all_roi_df", i, ".rds"))
+    saveRDS(all_roi_df, file = "all_roi_df.rds")
     setwd(dir_in)
 }
 
