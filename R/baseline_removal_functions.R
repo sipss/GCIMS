@@ -24,7 +24,7 @@
 #' }
 #'
 gcims_baseline_removal <- function(dir_in, dir_out, samples,
-                                   by_rows,lambda = 1E7, p = 0.001, k = -1){
+                                   time,lambda = 1E7, p = 0.001, k = -1){
 
   print(" ")
   print("  /////////////////////////")

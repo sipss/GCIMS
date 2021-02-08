@@ -1,0 +1,327 @@
+---
+title: "vignette"
+author: "Institute for Bioengineering of Catalonia"
+date: "`r Sys.Date()`"
+rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Introduction to GCMIMS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(GCIMS)
+```
+
+First of all, the directory where my samples are located is set. After this, the folders where the samples will be stored after each preprocessing step, are created.
+
+```{r}
+setwd("C:/Users/cmallafre/OneDrive - IBEC/GCIMS Work Group/Aceites/Aceites4Variedades/Samples")
+
+# CREATE FOLDERS (TO DO)
+wd <- getwd()
+data <- paste0(wd,'/data')
+reshaped <- paste0(wd,'/reshaped')
+interpd <- paste0(wd,'/interpd')
+cut <- paste0(wd,'/cut')
+filtd <- paste0(wd,'/filtd')
+bslnd <- paste0(wd,'/bslnd')
+alignd <- paste0(wd,'/alignd')
+interpr <- paste0(wd,'/interpr')
+filtr <- paste0(wd,'/filtr')
+bslnr <- paste0(wd,'/bslnr')
+rip <- paste0(wd,'/rip')
+alignr <- paste0(wd,'/alignr')
+diezm <- paste0(wd,'/diezm')
+unfold <- paste0(wd,'/unfold')
+
+dir.create(data)
+dir.create(reshaped)
+dir.create(cut)
+dir.create(interpd)
+dir.create(filtd)
+dir.create(bslnd)
+dir.create(alignd)
+dir.create(interpr)
+dir.create(filtr)
+dir.create(bslnr)
+dir.create(rip)
+dir.create(alignr)
+dir.create(diezm)
+dir.create(unfold)
+
+```
+
+
+The first step is reading the samples, this function can read .csv fies exported from the old and the new sotware.
+
+```{r}
+# READING SAMPLES
+dir_in <- getwd()
+dir_out <- data
+gcims_read_samples(dir_in, dir_out, sftwr = 2)
+
+# READING METADATA
+dir_in <- data
+samples <- 1:5
+file <- "Metadata.xlsx"
+gcims_read_metadata(dir_in, samples, file)
+```
+
+
+There are 3 visuaazalition fucntions: one for all the sample, another for the chromatogram and the last for the spectra. These fuctions are applied as many times as you want after each pre-processing step.
+
+```{r}
+# SAMPLE MATRIX VISUALIZATION
+dir_in <- data
+sample_num <- 5
+samples <- 5
+colorby <- "Class"
+gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
+gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby)
+gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby)
+```
+
+
+This function reshape all the samples in order to have the same dimensions. It can happen that one smaple has ine more point for retention time, so this function avoid this.
+
+```{r}
+# RESHAPE SAMPLES
+dir_in <- data
+dir_out <- reshaped
+samples <- 1:5
+reshape_samples(dir_in, dir_out, samples)
+```
+
+
+This function creates a reference sample. You can indicate a sample you want to use as reference or the sample will alculate the average sample.
+
+```{r}
+# CREATE REFERENCE
+dir_in <- reshaped
+dir_out <- reshaped
+samples <- 1:5
+ref_number <- NULL
+gcims_create_reference (dir_in, dir_out, samples, ref_number)
+```
+
+
+The next fucntion cuts the smaplesin order to remove the partes of the samples that are not interesting.
+
+```{r}
+# CUT SAMPLES
+dir_in <- reshaped
+dir_out <- cut
+samples <- 1:5
+gcims_cut_samples(dir_in, dir_out, samples, rt_range = c(1,800), dt_range = c(5,20))
+
+dir_in <- cut
+sample_num <- 5
+samples <- 5
+gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
+```
+
+
+An interpolation in the samples is done with this function.
+
+```{r}
+# INTERPOLATING DRIFT TIME
+dir_in <- cut
+dir_out <- interpd
+samples <- 1:5
+time <- "Drift"
+gcims_interpolate(dir_in, dir_out, samples, time)
+
+# PLOT SPECTRAS
+sample_num <- 1:5
+tr_ind <- NULL
+dt_range <- c(5,15)#NULL
+dir_in <- interpd
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
+
+# PLOT CHROMATOGRAMS
+sample_num <- 1:5
+dir_in <- interpd
+td_ind <- NULL
+rt_range <- c(100, 500)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
+
+# PLOT SAMPLE IMAGE
+sample_num <- 5
+dir_in <- interpd
+rt_range <- NULL
+dt_range <-  NULL
+gcims_view_sample(dir_in, sample_num, rt_range, dt_range)
+```
+
+
+A Savitzky-Golay filter is applied for smoothing the signal. This function is the same for retention time and for drift time, with the difference of the by_rows parameter. When tby_rows = TRUE, the pre-processing is applied in the drift time and by_rows = FALSE is applied in the retention time. 
+
+```{r}
+# DRIFT TIME DIGITAL FILTERING
+dir_in <-  interpd
+dir_out <- filtd
+time <- "Drift"
+samples <- 1:5
+filter_length <- 19
+polynomial_order <- 2
+gcims_smoothing(dir_in, dir_out, samples, by_rows, filter_length, polynomial_order, time)
+
+# PLOT SPECTRA
+sample_num <- 1:5
+tr_ind <- NULL
+dt_range <- c(5,15)#NULL
+dir_in <- filtd
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
+```
+
+
+The baseline  is removed using the spalsa algorithym. This function is teh same for retention time and for dirft time, with the difference of the by_rows parameter. When tby_rows = TRUE, the pre-processing is applied in the dirft time and by_rows = FALSE is applied in the retention time. 
+
+```{r}
+# DRIFT TIME BASELINE REMOVAL
+dir_in <- filtd
+dir_out <- bslnd
+samples <- 1:5
+time <- "Drift"
+lambda <- 1E4
+p <- 5E-3
+k <- 200
+gcims_baseline_removal(dir_in, dir_out, samples, by_rows, lambda, p, k, time)
+
+# PLOT SPECTRA
+sample_num <- 1:5
+tr_ind <- NULL
+dt_range <- c(5,15)#NULL
+dir_in <- bslnd
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
+```
+
+
+The samples are aligned using the COW algorithym. This function is teh same for retention time and for dirft time, with the difference of the by_rows parameter. When tby_rows = TRUE, the pre-processing is applied in the dirft time and by_rows = FALSE is applied in the retention time. 
+
+```{r}
+# DRIFT TIME PEAK ALIGNMENT
+dir_in <- bslnd
+dir_out <- alignd
+time <- "Drift"
+samples <- 1:5
+seg_vector <- seq(from = 10, to = 30, by = 5)
+slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
+gcims_alignment(dir_in, dir_out, samples, by_rows, seg_vector, slack_vector)
+
+# PLOT SPECTRA
+sample_num <- 1:5
+tr_ind <- NULL
+dt_range <- c(5,15)#NULL
+dir_in <- alignd
+colorby <- "Class"
+gcims_plot_spec(dir_in, sample_num, tr_ind, dt_range, colorby)
+```
+
+
+```{r}
+# INTERPOLATING RETENTION TIME
+dir_in <- alignd
+dir_out <- interpr
+samples <- 1:5
+time <- "Retention"
+gcims_interpolate(dir_in, dir_out, samples, time)
+
+# RETENTION TIME DIGITAL FILTERING
+dir_in <-  interpr
+dir_out <- filtr
+time <- "Retention"
+samples <- 1:5
+filter_length <- 19
+polynomial_order <- 2
+gcims_smoothing(dir_in, dir_out, samples, time, filter_length, polynomial_order)
+
+# PLOT CHROMATOGRAM
+sample_num <- 1:5
+dir_in <- filtr
+td_ind <- NULL
+rt_range <- c(100, 500)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
+```
+
+
+```{r}
+# RETENTION TIME BASELINE REMOVAL
+dir_in <- filtr
+dir_out <- bslnr
+samples <- 1:5
+by_rows <- FALSEtime <- "Retention"
+lambda <- 1E4
+p <- 5E-3
+k <- 200
+gcims_baseline_removal(dir_in, dir_out, samples, time, lambda, p, k)
+
+# PLOT CHROMATOGRAM
+sample_num <- 1:5
+dir_in <- bslnr
+td_ind <- NULL
+rt_range <- c(100, 500)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
+```
+
+
+This function removes the RIP, The RIP is also saved for future analysis.
+
+```{r}
+# RIP REMOVAL
+dir_in <- bslnr
+dir_out <- rip
+samples <- 1:5
+gcims_remove_rip(dir_in, dir_out, samples)
+
+# PLOT SAMPLE IMAGE
+sample_num <- 5
+dir_in <- rip
+rt_range <- NULL
+dt_range <-  NULL
+gcims_view_sample(dir_in, sample_num, rt_range, dt_range)
+```
+
+
+```{r}
+# RETENTION TIME PEAK ALIGNMENT
+dir_in <- rip
+dir_out <- alignr
+time <- "Retention"
+samples <- 1:5
+seg_vector <- seq(from = 10, to = 30, by = 5)
+slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
+gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+
+# PLOT CHROMATOGRAM
+sample_num <- 1:5
+dir_in <-alignr
+td_ind <- NULL
+rt_range <- c(100, 500)
+colorby <- "Class"
+gcims_plot_chrom(dir_in, sample_num, td_ind, rt_range, colorby)
+```
+
+
+Each sample is unfolded as a feature vector. Having now one vector per matrix, our final dataset is one matrix where if sample is one row.
+
+```{r}
+# DATA MATRIX (NO PEAK TABLE)
+sample_num <- 1:5
+dir_in <- alignr
+dir_out <- unfold
+gcims_unfold(dir_in, dir_out, samples)
+```

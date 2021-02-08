@@ -32,6 +32,7 @@ A set of spectra.
 Plots TISa or spectra
 }
 \examples{
+\dontrun{
 wd <- getwd()
 dir_in <- tempdir()
 dir_out <-  file.path(dir_in,"dummy")
@@ -43,6 +44,7 @@ samples <- 1
 gcims_plot_spec(dir_out, samples)
 unlink(dir_out, recursive = TRUE)
 setwd(wd)
+}
 }
 \seealso{
 Other Visualization functions: 
