@@ -3,7 +3,6 @@
 
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
-#' @param file           Name of the metadata file.
 #' @param sftwr          Use 1 if the software that has converted the original files into
 #' csv format is the new one. Use 2 if the software is the old one.
 #' @return An R object that contains the matrix and the retention times
@@ -21,7 +20,7 @@
 #' print(dataset_pos)
 #' }
 
-gcims_read_samples <- function(dir_in, dir_out, file, sftwr) {
+gcims_read_samples <- function(dir_in, dir_out, sftwr) {
   setwd(dir_in)
   print(" ")
   print("  /////////////////////////")
@@ -79,7 +78,7 @@ gcims_read_samples <- function(dir_in, dir_out, file, sftwr) {
       aux_string <- paste0("M", i, ".rds")
 
       # METADATA
-      metadata <- i
+      metadata$Name <- i
       # DATA
       single_file <- read_csv(files[i], skip = 130,
                               progress = FALSE, col_names = FALSE,
