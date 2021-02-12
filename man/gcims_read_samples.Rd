@@ -4,14 +4,12 @@
 \alias{gcims_read_samples}
 \title{Read GC-IMS Samples from .csv files}
 \usage{
-gcims_read_samples(dir_in, dir_out, file, sftwr)
+gcims_read_samples(dir_in, dir_out, sftwr)
 }
 \arguments{
 \item{dir_in}{The input directory.}
 
 \item{dir_out}{The output directory.}
-
-\item{file}{Name of the metadata file.}
 
 \item{sftwr}{Use 1 if the software that has converted the original files into
 csv format is the new one. Use 2 if the software is the old one.}

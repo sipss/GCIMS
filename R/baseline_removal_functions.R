@@ -173,7 +173,7 @@ psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
       if (any(is.nan(w))) {
         break
       }
-      if (any((d >= 0) == d_geq_old)) {
+      if (all((d >= 0) == d_geq_old)) {#any
         break
       }
 
