@@ -25,18 +25,12 @@ An image of the sample matrix.
 Sample matrix visualization
 }
 \examples{
-\dontrun{
-wd <- getwd()
-dir_in <- tempdir()
-dir_out <-  file.path(dir_in,"dummy")
-dir.create (dir_out, FALSE)
-samples_per_class <- 1
-params <- gcims_create_dummy_params()
-gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
-gcims_view_sample(dir_out, 1)
-unlink(dir_out, recursive = TRUE)
-setwd(wd)
-}
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+sample_num <- 3
+gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
+setwd(current_dir)
+
 }
 \seealso{
 Other Visualization functions: 

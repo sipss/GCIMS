@@ -4,7 +4,13 @@
 \alias{gcims_plot_chrom}
 \title{Plots TICs or EICs.}
 \usage{
-gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby)
+gcims_plot_chrom(
+  dir_in,
+  samples,
+  dt_value = NULL,
+  rt_range = NULL,
+  colorby = "Name"
+)
 }
 \arguments{
 \item{dir_in}{The input directory.}
@@ -26,20 +32,12 @@ A set of Chromatograms.
 Plots TICs or EICs.
 }
 \examples{
-\dontrun{
-wd <- getwd()
-dir_in <- tempdir()
-dir_out <-  file.path(dir_in,"dummy")
-dir.create (dir_out, FALSE)
-samples_per_class <- 2
-params <- gcims_create_dummy_params()
-gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
-samples <- 1
-dt_value <- 8
-gcims_plot_chrom(dir_out, samples, dt_value)
-unlink(dir_out, recursive = TRUE)
-setwd(wd)
-}
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+samples <- c(3, 7 ,8, 14, 20, 21)
+gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
+setwd(current_dir)
+
 }
 \seealso{
 Other Visualization functions: 

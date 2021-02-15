@@ -32,19 +32,12 @@ A set of spectra.
 Plots TISa or spectra
 }
 \examples{
-\dontrun{
-wd <- getwd()
-dir_in <- tempdir()
-dir_out <-  file.path(dir_in,"dummy")
-dir.create (dir_out, FALSE)
-samples_per_class <- 2
-params <- gcims_create_dummy_params()
-gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
-samples <- 1
-gcims_plot_spec(dir_out, samples)
-unlink(dir_out, recursive = TRUE)
-setwd(wd)
-}
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+samples <- c(3, 7 ,8, 14, 20, 21)
+gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+setwd(current_dir)
+
 }
 \seealso{
 Other Visualization functions: 

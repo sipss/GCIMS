@@ -109,7 +109,7 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
       aux_list$data$drift_time <- xi
     }
 
-    aux_list$data$data_df <- aux
+    aux_list$data$data_df <- round(aux)
     M <- aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))

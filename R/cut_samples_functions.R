@@ -130,7 +130,7 @@ cut_samples <- function(loaded_sample, rt_range = NULL, dt_range = NULL) {
 
   aux_list$data$retention_time <- retention_time[sel_index_rt]
   aux_list$data$drift_time  <- drift_time[sel_index_dt]
-  aux_list$data$data_df <- aux_list$data$data_df[sel_index_dt, sel_index_rt] #transposed when matrix!
+  aux_list$data$data_df <- round(aux_list$data$data_df[sel_index_dt, sel_index_rt]) #transposed when matrix!
 
   return(aux_list)
 }

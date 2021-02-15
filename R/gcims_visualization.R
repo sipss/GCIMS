@@ -16,19 +16,12 @@
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_raster
 #' @importFrom viridis scale_fill_viridis
 #' @examples
-#' \dontrun{
-#' wd <- getwd()
-#' dir_in <- tempdir()
-#' dir_out <-  file.path(dir_in,"dummy")
-#' dir.create (dir_out, FALSE)
-#' samples_per_class <- 1
-#' params <- gcims_create_dummy_params()
-#' gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
-#' gcims_view_sample(dir_out, 1)
-#' unlink(dir_out, recursive = TRUE)
-#' setwd(wd)
-#' }
-
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' sample_num <- 3
+#' gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
+#' setwd(current_dir)
+#'
 gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL){
 
   Retention_Time <- Drift_Time <- Value <- NULL
@@ -148,22 +141,14 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
-#' \dontrun{
-#' wd <- getwd()
-#' dir_in <- tempdir()
-#' dir_out <-  file.path(dir_in,"dummy")
-#' dir.create (dir_out, FALSE)
-#' samples_per_class <- 2
-#' params <- gcims_create_dummy_params()
-#' gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
-#' samples <- 1
-#' dt_value <- 8
-#' gcims_plot_chrom(dir_out, samples, dt_value)
-#' unlink(dir_out, recursive = TRUE)
-#' setwd(wd)
-#' }
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' samples <- c(3, 7 ,8, 14, 20, 21)
+#' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
+#' setwd(current_dir)
+#'
 
-gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby){
+gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby = "Name"){
 
   Retention_Time <- Index <- Value <- Sample <- Class <- NULL
 
@@ -299,19 +284,12 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
-#' \dontrun{
-#' wd <- getwd()
-#' dir_in <- tempdir()
-#' dir_out <-  file.path(dir_in,"dummy")
-#' dir.create (dir_out, FALSE)
-#' samples_per_class <- 2
-#' params <- gcims_create_dummy_params()
-#' gcims_create_dummy_set(dir_in, dir_out, samples_per_class, params)
-#' samples <- 1
-#' gcims_plot_spec(dir_out, samples)
-#' unlink(dir_out, recursive = TRUE)
-#' setwd(wd)
-#' }
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' samples <- c(3, 7 ,8, 14, 20, 21)
+#' gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+#' setwd(current_dir)
+#'
 gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Name"){
 
   Drift_Time <- Index <- Value <- Sample <- Class <- NULL
