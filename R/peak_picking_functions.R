@@ -402,6 +402,9 @@ gcims_peak_picking <- function(dir_in, dir_out, samples, rem_baseline = TRUE,
     sorted_distances <-sort(kNNdist(coord_mat, k = neighbors))
     eps <- sorted_distances[findknee(1:length(sorted_distances), sorted_distances)[3]]
     out <- dbscan(coord_mat, eps, neighbors)$cluster
+    if(any(out == 0)){
+      out <- out[-which(out ==0)]
+    }
     clust_ind <- unique(out)
     inner_rectangles <- matrix(0, nrow = length(clust_ind), ncol = 4)
     h <- 0
