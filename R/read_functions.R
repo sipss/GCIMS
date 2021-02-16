@@ -159,15 +159,23 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' @export
 #' @importFrom readxl read_excel
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata","add_meta", package = "GCIMS")
+#' setwd(dir_in)
+#' M1 <- readRDS("M1.rds")
+#' samples <- 1
+#' print(M1$metadata)
+#' file <- "Metadata.xlsx"
+#' gcims_read_metadata(dir_in, samples, file)
+#' M1 <- readRDS("M1.rds")
+#' print(M1$metadata)
+#' M1$metadata$Class <- NULL
+#' M1$metadata$Bottle <- NULL
+#' M1$metadata$Brand <- NULL
+#' print(M1$metadata)
+#' saveRDS(M1, "M1.rds")
+#' setwd(current_dir)
 #'
-#' print(dataset_pos)
-#' }
-
 gcims_read_metadata <- function(dir_in, samples, file) {
   setwd(dir_in)
 
