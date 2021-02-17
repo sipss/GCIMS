@@ -15,16 +15,23 @@
 #' @export
 #' @importFrom signal sgolayfilt
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- 3
 #'
-#' print(dataset_pos)
-#' }
-
-
+#' # Example of Retention time smoothing:
+#' # Before:
+#' gcims_plot_chrom(dir_in, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
+#'
+#' # After:
+#' gcims_smoothing(dir_in, dir_out, samples, time = "Retention")
+#' gcims_plot_chrom(dir_out, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#'
 gcims_smoothing <- function (dir_in, dir_out, samples, time,
                              filter_length = 19, polynomial_order = 2){
 
@@ -38,7 +45,10 @@ gcims_smoothing <- function (dir_in, dir_out, samples, time,
   m = -1
   for (i in c(0, samples)){
     m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
+
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- as.matrix(aux_list$data$data_df)

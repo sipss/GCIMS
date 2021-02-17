@@ -36,13 +36,22 @@ A filtered  gcims dataset.
 Data Smoothing using Savitzky-Golay filters
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+dir_out <- tempdir()
+samples <- 3
 
-print(dataset_pos)
-}
+# Example of Retention time smoothing:
+# Before:
+gcims_plot_chrom(dir_in, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
+
+# After:
+gcims_smoothing(dir_in, dir_out, samples, time = "Retention")
+gcims_plot_chrom(dir_out, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
+
 }
 \concept{Smoothing functions}
