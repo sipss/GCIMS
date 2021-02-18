@@ -14,15 +14,26 @@
 #' @family Alignment functions
 #' @export
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- 3
 #'
-#' print(dataset_pos)
-#' }
-
+#' # Example of Drift time Alignment :
+#' # Before:
+#' gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+#'
+#' # After:
+#' time <- "Drift"
+#' seg_vector <- seq(from = 10, to = 30, by = 5)
+#' slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
+#' gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+#' gcims_plot_spec(dir_out, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#'
 gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
 
 
@@ -39,7 +50,10 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
   m <- -1
   for (i in c(0,samples)){
     m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
+
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
 
@@ -62,7 +76,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
       } else if (time == "Retention"){
       }
     }
-    aux_list$data$data_df <- aux
+    aux_list$data$data_df <- round(aux)
     M <- aux_list
 
 
