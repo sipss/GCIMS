@@ -39,14 +39,26 @@ A baseline removed gcims dataset.
 Remove baseline of a dataset using psalsa
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+dir_out <- tempdir()
+samples <- 3
 
-print(dataset_pos)
-}
+# Example of Drift time Baseline Removal:
+# Before:
+gcims_plot_spec(dir_in, samples, rt_value = 60, dt_range = NULL, colorby = "Class")
+
+# After:
+time <- "Drift"
+lambda <- 1E3
+p <- 0.001
+k <- -1
+gcims_baseline_removal(dir_in, dir_out, samples, time, lambda, p, k)
+gcims_plot_spec(dir_out, samples, rt_value = 60, dt_range = NULL, colorby = "Class")
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
 
 }
 \seealso{

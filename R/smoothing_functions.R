@@ -69,7 +69,7 @@ gcims_smoothing <- function (dir_in, dir_out, samples, time,
     } else if (time == "Retention"){
     }
 
-    aux_list$data$data_df <- aux
+    aux_list$data$data_df <- round(aux)
     M <- aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
