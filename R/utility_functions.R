@@ -56,15 +56,24 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #' @export
 #' @importFrom signal interp1
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- 3
 #'
-#' print(dataset_pos)
-#' }
-
+#' # Example of Drift time Interpolation
+#' # Before:
+#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#'
+#' # After:
+#' time <- "Drift"
+#' gcims_interpolate(dir_in, dir_out, samples, time)
+#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#'
 gcims_interpolate <- function(dir_in, dir_out, samples, time){
   print(" ")
   print("  ////////////////////////")
@@ -76,7 +85,9 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
   m = -1
   for (i in c(0, samples)){
     m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- as.matrix(aux_list$data$data_df)
