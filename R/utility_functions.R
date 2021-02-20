@@ -140,13 +140,23 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 #' @export
 #' @importFrom pracma findpeaks
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- 3
 #'
-#'}
+#' # Example of Drift time Interpolation
+#' # Before:
+#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#'
+#' # After:
+#' gcims_remove_rip(dir_in, dir_out, samples)
+#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#'
 gcims_remove_rip <- function(dir_in, dir_out, samples){
   print(" ")
   print("  ////////////////////////")
@@ -158,7 +168,9 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
   m = -1
   for (i in c(0, samples)){
     m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- (as.matrix(aux_list$data$data_df))
@@ -176,12 +188,19 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
     valleys_pos <- valleys_info[ , 2]
     closest_valley_ind <- which.min(abs(valleys_pos - rip_pos))
 
+
     # Select the RIP region
     if(valleys_pos[closest_valley_ind] < rip_pos){
       rip_bounds <- valleys_pos[c(closest_valley_ind,closest_valley_ind + 1)]
     } else if (valleys_pos[closest_valley_ind] > rip_pos){
-      rip_bounds <- valleys_pos[c(closest_valley_ind - 1,closest_valley_ind)]
+      if(closest_valley_ind > 1){
+        rip_bounds <- valleys_pos[c(closest_valley_ind - 1,closest_valley_ind)]
+      } else {
+        rip_bounds <- valleys_pos[c(1, closest_valley_ind)]
+      }
+
     }
+
 
     # Erase the peak (with style...)
     for (j in (1:dim(aux)[2])){
@@ -190,7 +209,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
                                                   length.out = length(rip_bounds[1]: rip_bounds[2]))
     }
 
-    aux_list$data$data_df <- (aux)
+    aux_list$data$data_df <- round(aux)
     M <- aux_list
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))

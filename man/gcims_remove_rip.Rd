@@ -20,13 +20,23 @@ A RIP removed dataset
 Removes RIP from all samples
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+dir_out <- tempdir()
+samples <- 3
 
-}
+# Example of Drift time Interpolation
+# Before:
+gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+
+# After:
+gcims_remove_rip(dir_in, dir_out, samples)
+gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
+
 }
 \seealso{
 Other Utility functions: 
