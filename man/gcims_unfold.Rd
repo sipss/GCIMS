@@ -20,14 +20,37 @@ A set of feature vectors
 Converts Sample Matrices to Feature Vectors
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
+dir_out <- tempdir()
+samples <- 3
 
-print(dataset_pos)
-}
+# Example of Sample Data unfolding
+# Before:
+setwd(dir_in)
+M3 <- readRDS("M3.rds")
+data <- M3$data$data_df
+data_dimensions <- dim(data)
+
+message("Before unfolding data has ", data_dimensions[1],
+" rows and ", data_dimensions[2], " columns.")
+
+# After:
+gcims_unfold(dir_in, dir_out, samples)
+setwd(dir_out)
+M3 <- readRDS("M3.rds")
+data <- M3$data$data_df
+data_length <- length(data)
+
+message("After unfolding data is a vector of length ", data_length,".
+This value corresponds to product of the number
+of columns by the number of rows of the original data.")
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
+
+
 }
 \seealso{
 Other Utility functions: 
