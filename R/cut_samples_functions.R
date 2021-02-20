@@ -13,15 +13,25 @@
 #' @family Cutting functions
 #' @export
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- 3
 #'
-#' print(dataset_pos)
-#' }
-
+#' # Example Sample data cutting:
+#' # Before:
+#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#'
+#' # After:
+#' rt_range <-c(70, 125)
+#' dt_range <- c(8, 9.25)
+#' gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
+#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#
 gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
 
@@ -33,9 +43,12 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
 
   setwd(dir_in)
-  m <- 0
-  for (i in c(0, samples)){ #c(0,samples)
-    print(paste0("Sample ", i, " of ", length(samples)))
+  m = -1;
+  for (i in c(0, samples)){
+    m = m + 1
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
     M <- cut_samples(aux_list, rt_range, dt_range)

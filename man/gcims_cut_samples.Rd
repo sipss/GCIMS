@@ -26,14 +26,24 @@ An cut gcims dataset.
 Cut samples in a retention time - drift time rectangle
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+dir_out <- tempdir()
+samples <- 3
 
-print(dataset_pos)
-}
+# Example Sample data cutting:
+# Before:
+gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+
+# After:
+rt_range <-c(70, 125)
+dt_range <- c(8, 9.25)
+gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
+gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
 }
 \seealso{
 Other Cutting functions: 
