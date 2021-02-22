@@ -2,32 +2,56 @@
 % Please edit documentation in R/utility_functions.R
 \name{gcims_decimate}
 \alias{gcims_decimate}
-\title{Data Dimentions Reduction to the Decimation}
+\title{Decimation}
 \usage{
-gcims_decimate(dir_in, dir_out, samples)
+gcims_decimate(dir_in, dir_out, samples, p_rt, q_rt, p_dt, q_dt)
 }
 \arguments{
 \item{dir_in}{The input directory.}
 
 \item{dir_out}{The output directory.}
 
-\item{samples}{The set of samples to be processed..}
+\item{samples}{The set of samples to be processed.}
+
+\item{p_rt}{The current number of averaged scans.}
+
+\item{q_rt}{The new number of averaged scans.}
+
+\item{p_dt}{The current number of averaged scans.}
+
+\item{q_dt}{The new number of averaged scans.}
 }
 \value{
 A reduced  gcims dataset.
 }
 \description{
-Data Dimentions Reduction to the Decimation
+Decimation
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+dir_out <- tempdir()
 
-print(dataset_pos)
-}
+# Before:
+setwd(dir_in)
+samples <- c(3, 7)
+gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
+gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
+
+# After:
+p_rt <- 1
+q_rt <- 5
+p_dt <- 1
+q_dt <- 2
+gcims_decimate(dir_in, dir_out, samples, p_rt, q_rt, p_dt, q_dt)
+setwd(dir_out)
+gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
+gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
+
 }
 \seealso{
 Other Utility functions: 

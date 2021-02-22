@@ -250,17 +250,47 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' @family Utility functions
 #' @export
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- c(3, 7, 8, 14, 20, 21, 22)
 #'
-#' print(dataset_pos)
+#' # Example of reshaping samples
+#' # (all samples must have the same
+#' # retention and drift time dimensions).
+#'
+#' # Before:
+#' nrow_before <- matrix(0, nrow = length(samples), ncol = 1)
+#' ncol_before <- matrix(0, nrow = length(samples), ncol = 1)
+#' setwd(dir_in)
+#' for (i in seq_along(samples)){
+#' aux_string <- paste0("M", samples[i], ".rds")
+#' aux_list <- readRDS(aux_string)
+#' nrow_before[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+#' ncol_before[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
 #' }
 #'
+#' # After:
+#' reshape_samples(dir_in, dir_out, samples)
+#' setwd(dir_out)
+#' nrow_after <- matrix(0, nrow = length(samples), ncol = 1)
+#' ncol_after <- matrix(0, nrow = length(samples), ncol = 1)
+#' for (i in seq_along(samples)){
+#' aux_string <- paste0("M", samples[i], ".rds")
+#' aux_list <- readRDS(aux_string)
+#' nrow_after[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+#' ncol_after[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
+#' }
 #'
-
+#' reshaping_info <- cbind(nrow_before, ncol_before, nrow_after, ncol_after)
+#' colnames(reshaping_info) <- c("rows_before", "columns_before", "rows_after", "columns_after")
+#' rownames(reshaping_info) <- c("M3", "M7", "M8", "M14", "M20", "M21", "M22")
+#'
+#' print(reshaping_info)
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
 reshape_samples <- function(dir_in, dir_out, samples) {
 
   print(" ")
@@ -268,11 +298,13 @@ reshape_samples <- function(dir_in, dir_out, samples) {
   print(" /    Sample Matrix Reshape    /")
   print("///////////////////////////////")
   print(" ")
-  m <- 0
+
   dimensions <- list(NULL)
+  setwd(dir_in)
+  m = 0
   for (i in samples){
-    m <- m + 1
-    setwd(dir_in)
+    m = m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", samples[m], ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new
@@ -287,8 +319,10 @@ reshape_samples <- function(dir_in, dir_out, samples) {
     dts <- c(dts, dimensions[[m]][1])
     rts <- c(rts, dimensions[[m]][2])
   }
+
   rts <- min(rts)
   dts <- min(dts)
+
 
   m <- 0
   for (i in samples){
@@ -308,27 +342,46 @@ reshape_samples <- function(dir_in, dir_out, samples) {
   }
 }
 
-#' Data Dimentions Reduction to the Decimation
+#' Decimation
 
 #' @param dir_in           The input directory.
 #' @param dir_out          The output directory.
-#' @param samples          The set of samples to be processed..
+#' @param samples          The set of samples to be processed.
+#' @param p_rt             The current number of averaged scans.
+#' @param q_rt             The new number of averaged scans.
+#' @param p_dt             The current number of averaged scans.
+#' @param q_dt             The new number of averaged scans.
 #' @return A reduced  gcims dataset.
 #' @family Utility functions
 #' @export
 #' @importFrom signal resample
 #' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
 #'
-#' print(dataset_pos)
-#' }
+#' # Before:
+#' setwd(dir_in)
+#' samples <- c(3, 7)
+#' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
+#' gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
+#'
+#' # After:
+#' p_rt <- 1
+#' q_rt <- 5
+#' p_dt <- 1
+#' q_dt <- 2
+#' gcims_decimate(dir_in, dir_out, samples, p_rt, q_rt, p_dt, q_dt)
+#' setwd(dir_out)
+#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
+#' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#'
 
-
-gcims_decimate <- function(dir_in, dir_out, samples){
+gcims_decimate <- function(dir_in, dir_out, samples, p_rt, q_rt, p_dt, q_dt){
   print(" ")
   print("  ///////////////////////")
   print("  / Samples Decimation /")
@@ -336,19 +389,19 @@ gcims_decimate <- function(dir_in, dir_out, samples){
   print(" ")
 
   setwd(dir_in)
-  # bin_ratiort <- 5
-  # bin_ratiodt <- 2
-  m = 0
-  for (i in samples){
-    m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
+  m = -1
+  for (i in c(0, samples)){
+    m = m + 1
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string)
     aux <- aux_list$data$data_df
-    dtreduced <- apply(t(aux), 1, function(x) resample(x, p = 6, q = 32))
-    resampleddt <- resample(aux_list$data$drift_time, p = 6, q = 32)
-    rtreduced <- apply(t(dtreduced), 2, function(x) resample(x, p = 6, q = 32))
-    resampledrt <- resample(aux_list$data$retention_time, p = 6, q = 32)
+    dtreduced <- apply(t(aux), 1, function(x) resample(x, p = p_dt, q = q_dt))
+    resampleddt <- resample(aux_list$data$drift_time, p = p_dt, q = q_dt)
+    rtreduced <- apply(t(dtreduced), 2, function(x) resample(x, p = p_rt, q = q_rt))
+    resampledrt <- resample(aux_list$data$retention_time, p = p_rt, q = q_rt)
     aux_list$data$data_df <- t(rtreduced)
     aux_list$data$drift_time <- resampleddt
     aux_list$data$retention_time <- resampledrt

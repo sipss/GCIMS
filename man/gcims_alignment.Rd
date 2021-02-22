@@ -32,7 +32,7 @@ Peak alignment using Correlation Optimized Warping (COW)
 current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
-samples <- 3
+samples <- c(3, 7, 8, 14, 20, 21)
 
 # Example of Drift time Alignment :
 # Before:

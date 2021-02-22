@@ -20,16 +20,47 @@ An cut matrix.
 Reshape samples
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+dir_out <- tempdir()
+samples <- c(3, 7, 8, 14, 20, 21, 22)
 
-print(dataset_pos)
+# Example of reshaping samples
+# (all samples must have the same
+# retention and drift time dimensions).
+
+# Before:
+nrow_before <- matrix(0, nrow = length(samples), ncol = 1)
+ncol_before <- matrix(0, nrow = length(samples), ncol = 1)
+setwd(dir_in)
+for (i in seq_along(samples)){
+aux_string <- paste0("M", samples[i], ".rds")
+aux_list <- readRDS(aux_string)
+nrow_before[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+ncol_before[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
 }
 
+# After:
+reshape_samples(dir_in, dir_out, samples)
+setwd(dir_out)
+nrow_after <- matrix(0, nrow = length(samples), ncol = 1)
+ncol_after <- matrix(0, nrow = length(samples), ncol = 1)
+for (i in seq_along(samples)){
+aux_string <- paste0("M", samples[i], ".rds")
+aux_list <- readRDS(aux_string)
+nrow_after[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+ncol_after[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
+}
 
+reshaping_info <- cbind(nrow_before, ncol_before, nrow_after, ncol_after)
+colnames(reshaping_info) <- c("rows_before", "columns_before", "rows_after", "columns_after")
+rownames(reshaping_info) <- c("M3", "M7", "M8", "M14", "M20", "M21", "M22")
+
+print(reshaping_info)
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
 }
 \seealso{
 Other Utility functions: 
