@@ -17,7 +17,7 @@
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
-#' samples <- c(3, 7, 8, 14, 20, 21)
+#' samples <- c(3, 7)
 #'
 #' # Example of Drift time Alignment :
 #' # Before:
