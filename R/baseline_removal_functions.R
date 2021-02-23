@@ -13,11 +13,25 @@
 #' @return A baseline removed gcims dataset.
 #' @family Baseline removal functions
 #' @export
+#' @importFrom ptw whit2
+#' @references {
+#'
+#' Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S. (2014, February).
+#' Adaptive Asymmetric Least Squares baseline estimation for analytical instruments.
+#' In 2014 IEEE 11th International Multi-Conference on Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
+#'
+#'  }
+#'
+#' @author Sergio Oller-Moreno,  \email{soller@@.ibecbarcelona.eu}
+#'
+#'
+#' Institute for Bioengieering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
+#'
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
-#' samples <- c(3, 7, 8, 14, 20, 21)
+#' samples <- c(3, 7)
 #'
 #' # Example of Drift time Baseline Removal:
 #' # Before:
@@ -37,6 +51,12 @@
 #'
 gcims_baseline_removal <- function(dir_in, dir_out, samples,
                                    time,lambda = 1E7, p = 0.001, k = -1){
+
+
+  #-------------#
+  #     MAIN    #
+  #-------------#
+
 
   print(" ")
   print("  /////////////////////////")
@@ -60,7 +80,7 @@ gcims_baseline_removal <- function(dir_in, dir_out, samples,
     } else if (time == "Retention"){
     }
 
-    psalsa_results <- psalsa(aux,lambda, p, k)
+    psalsa_results <- psalsa(aux, lambda, p, k)
     aux  <- psalsa_results$corrected
 
     if (time == "Drift"){
@@ -74,54 +94,7 @@ gcims_baseline_removal <- function(dir_in, dir_out, samples,
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
 
-}
-}
-
-
-
-
-
-
-#' Estimate the baseline for all rows in a matrix using psalsa
-#'
-#' @param data            Matrix with one spectrum (or chromatogram) per row.
-#' @param lambda          Smoothing parameter (generally 1e5 - 1e8).
-#' @param p               Asymmetry parameter.
-#' @param k               Peak height parameter (usually 5\% of maximum
-#'                        intensity).
-#' @param maxit           Max number of iterations.
-#' @return a list with:
-#'     - baseline:  A matrix with all the estimated baselines.
-#'     - corrected: A matrix of corrected data.
-#'
-#' @family Baseline removal functions.
-#' @export
-#'
-#' @references {
-#'
-#' Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S. (2014, February).
-#' Adaptive Asymmetric Least Squares baseline estimation for analytical instruments.
-#' In 2014 IEEE 11th International Multi-Conference on Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
-#'
-#'  }
-#'
-#' @author Sergio Oller-Moreno,  \email{soller@@.ibecbarcelona.eu}
-#'
-#'
-#' Institute for Bioengieering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
-#'
-psalsa <- function(data, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
-  if (is.matrix(data)) {
-    estbaseline <- 0*data
-    for (i in 1:nrow(data)) {
-      #estbaseline[i, ] <- psalsa(spectra[i,], lambda, p, k, maxit)
-      estbaseline[i, ] <- psalsa_one(data[i,], lambda, p, k, maxit)
-    }
-  } else {
-    estbaseline <- psalsa_one(data, lambda, p, k, maxit)
   }
-  return (list(baseline = estbaseline, corrected = data - estbaseline))
-
 }
 
 
@@ -129,36 +102,16 @@ psalsa <- function(data, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
 
 
 
+#---------------#
+#   FUNCTIONS   #
+#---------------#
 
 
-#' Estimate baseline of a curve using psalsa
-#'
-#' @param y               Either a chromatogram or a spectrum
-#' @param lambda          Smoothing parameter (generally 1e5 - 1e8)
-#' @param p               Asymmetry parameter
-#' @param k               Peak height parameter (usually 5\% of maximum
-#'                        intensity)
-#' @param maxit           Max number of iterations
-#' @return The estimated baseline
-#' @family Baseline removal functions
-#' @export
-#'
-#' @references {
-#'
-#' Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S. (2014, February).
-#' Adaptive Asymmetric Least Squares baseline estimation for analytical instruments.
-#' In 2014 IEEE 11th International Multi-Conference on Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
-#'
-#'  }
-#'
-#' @author Sergio Oller-Moreno,  \email{soller@@.ibecbarcelona.eu}
-#'
-#'
-#' Institute for Bioengieering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
-#'
-#'
+#---------------#
+#   psalsa_one  #
+#---------------#
+
 psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
-
 
   z <- 0 * y
   w <- z + 1
@@ -178,21 +131,44 @@ psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
 
   for (it in 1:maxit) {
 
-      z <- ptw::whit2(y, lambda, w)
+    z <- ptw::whit2(y, lambda, w)
 
-      d_geq_old = (d >= 0)
-      d <- y - z
-      w[d >= 0] = p*exp(-d[d >= 0]/k)
-      w[d < 0]  = 1 - p;
-      if (any(is.nan(w))) {
-        break
-      }
-      if (all((d >= 0) == d_geq_old)) {#any
-        break
-      }
+    d_geq_old = (d >= 0)
+    d <- y - z
+    w[d >= 0] = p*exp(-d[d >= 0]/k)
+    w[d < 0]  = 1 - p;
+    if (any(is.nan(w))) {
+      break
+    }
+    if (all((d >= 0) == d_geq_old)) {#any
+      break
+    }
 
-   # }
+    # }
   }
   return(z)
 }
+
+
+#------------#
+#   psalsa   #
+#------------#
+
+psalsa <- function(data, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
+  if (is.matrix(data)) {
+    estbaseline <- 0*data
+    for (i in 1:nrow(data)) {
+      estbaseline[i, ] <- psalsa_one(data[i,], lambda, p, k, maxit)
+    }
+  } else {
+    estbaseline <- psalsa_one(data, lambda, p, k, maxit)
+  }
+  return (list(baseline = estbaseline, corrected = data - estbaseline))
+
+}
+
+
+
+
+
 

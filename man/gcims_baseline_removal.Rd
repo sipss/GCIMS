@@ -42,7 +42,7 @@ Remove baseline of a dataset using psalsa
 current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
-samples <- c(3, 7, 8, 14, 20, 21)
+samples <- c(3, 7)
 
 # Example of Drift time Baseline Removal:
 # Before:
@@ -61,8 +61,19 @@ invisible(file.remove(files))
 setwd(current_dir)
 
 }
-\seealso{
-Other Baseline removal functions: 
-\code{\link{psalsa_one}()}
+\references{
+{
+
+Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S. (2014, February).
+Adaptive Asymmetric Least Squares baseline estimation for analytical instruments.
+In 2014 IEEE 11th International Multi-Conference on Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
+
+ }
+}
+\author{
+Sergio Oller-Moreno,  \email{soller@.ibecbarcelona.eu}
+
+
+Institute for Bioengieering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
 }
 \concept{Baseline removal functions}
