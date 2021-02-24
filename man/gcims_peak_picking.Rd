@@ -37,13 +37,20 @@ A peak table per sample.
 Two dimensional peak picking
 }
 \examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
+current_dir <- getwd()
+dir_in <- system.file("extdata", package = "GCIMS")
+dir_out <- tempdir()
+samples <- 3
+# Example of Retention Two-Dimensional Peak Picking
+  gcims_peak_picking(dir_in, dir_out, samples, rem_baseline = TRUE,
+  min_length_tr = 50, min_length_td = 10, preprocess = TRUE)
 
-print(dataset_pos)
-}
+setwd(dir_out)
+M3 <- readRDS("M3.rds")
+roi_df <- M3$data$roi_df
+head(roi_df)
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+setwd(current_dir)
 }
 \concept{Peak Peaking functions}
