@@ -58,6 +58,6 @@ Other Utility functions:
 \code{\link{gcims_decimate}()},
 \code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
-\code{\link{reshape_samples}()}
+\code{\link{gcims_reshape_samples}()}
 }
 \concept{Utility functions}

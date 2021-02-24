@@ -50,10 +50,27 @@ invisible(file.remove(files))
 setwd(current_dir)
 
 }
-\seealso{
-Other Alignment functions: 
-\code{\link{apply_cow}()},
-\code{\link{cow}()},
-\code{\link{optimize_cow}()}
+\references{
+{
+ Niels-Peter Vest Nielsen, Jens Micheal Carstensen and Jørn Smedegaard 'Aligning of singel and multiple
+          wavelength chromatographic profiles for chemometric data analysis using correlation optimised warping'
+          J. Chrom. A 805(1998)17-35
+
+ Correlation optimized warping and dynamic time warping as preprocessing methods for chromatographic Data
+           Giorgio Tomasi, Frans van den Berg and Claus Andersson, Journal of Chemometrics 18(2004)231-241
+ }
+}
+\author{
+Sergio Oller-Moreno,  \email{soller@ibecbarcelona.eu}
+
+Inspired on the work by:
+
+Giorgio Tomasi, \email{gt@kvl.dk}
+
+Frans van den Berg 070821 (GT) \email{fb@kvl.dk}
+
+Royal Agricultural and Veterinary University - Department of Food Science
+Quality and Technology - Spectroscopy and Chemometrics group - Denmark
+www.models.kvl.dk
 }
 \concept{Alignment functions}

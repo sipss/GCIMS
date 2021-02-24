@@ -13,6 +13,27 @@
 #' @return An aligned gcims dataset.
 #' @family Alignment functions
 #' @export
+#'
+#' @references {
+#'  Niels-Peter Vest Nielsen, Jens Micheal Carstensen and Jørn Smedegaard 'Aligning of singel and multiple
+#'           wavelength chromatographic profiles for chemometric data analysis using correlation optimised warping'
+#'           J. Chrom. A 805(1998)17-35
+#'
+#'  Correlation optimized warping and dynamic time warping as preprocessing methods for chromatographic Data
+#'            Giorgio Tomasi, Frans van den Berg and Claus Andersson, Journal of Chemometrics 18(2004)231-241
+#'  }
+#'
+#' @author Sergio Oller-Moreno,  \email{soller@@ibecbarcelona.eu}
+#'
+#' Inspired on the work by:
+#'
+#' @author Giorgio Tomasi, \email{gt@@kvl.dk}
+#' @author Frans van den Berg 070821 (GT) \email{fb@@kvl.dk}
+#'
+#' Royal Agricultural and Veterinary University - Department of Food Science
+#' Quality and Technology - Spectroscopy and Chemometrics group - Denmark
+#' www.models.kvl.dk
+#'
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -88,33 +109,6 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
 
   }
 
-
-
-
-#' Obtain the optimum warping for (COW)
-
-
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param samples         The set of samples to be processed.
-#' @param time             It indicates if the correction is going to be in the
-#'                         drift time or in the retention time. It should be
-#'                         introduce "Retention" for correcting the retention
-#'                         time; or "Drift" for the drift time.
-#' @param seg_vector      Vector of segment lengths.
-#' @param slack_vector    Vector of slacks.
-#' @return                A matrix with the optimum warping.
-#' @family Alignment functions
-#' @export
-#' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-#'
-#' print(dataset_pos)
-#' }
 
 optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
   setwd(dir_in)
@@ -195,7 +189,7 @@ optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vecto
 
       sum_corr <- 0
       for (X in (1:dim(align_curves)[2])){
-        sum_corr <- sum_corr + cor(ref_curve, align_curves[, X])
+        sum_corr <- sum_corr + stats::cor(ref_curve, align_curves[, X])
       }
       corr_data[n, m] <- sum_corr / dim(align_curves)[2]
     }
@@ -221,66 +215,6 @@ optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vecto
 }
 
 
-
-#' Correlation Optimized Warping with linear interpolation
-#'
-#' @param T               array with the target spectra to use as reference
-#' @param X               matrix with data to be warped, one spectra per row
-#' @param Seg             the segment length. The number of segments is N = floor(ncol(X)/Seg)
-#'                        if Seg is a two row matrix, the first row contains indexes of the T
-#'                        array, ranging from 1 to length(T). The second row contains the indexes
-#'                        for the X matrix, ranging from 1 to ncol(X). These indexes define the
-#'                        boundaries for each segment
-#' @param Slack           maximum range or degree of warping in each segment.
-#' @param plot            logical value (default=FALSE, no plots are made)
-#' @param corrpow         numerical value in [1,4] to determine the correlation power (default=1)
-#' @param equal_lengths   force equal segment lengths for the data and the reference, instead of
-#'                        filling up the reference with boundary points.
-#'                        (note that different number of boundaries in the reference and the data
-#'                        will generate an error) (default=FALSE)
-#' @param max_correction  the maximum correction will be of +- max_corrections points from
-#'                        the diagonal (default=NA, No maximum)
-#' @param debug           logical to determine if a table with the optimal values of loss function
-#'                        and predecessor should be returned too (memory consuming in large
-#'                        problems) (default=FALSE)
-#' @return a list with:
-#'     - Warping: list with two elements containing the interpolation segment starting points
-#'                (in X units)
-#'                  - after:  Starting points after warping
-#'                  - before: Starting points before warping
-#'                The difference after-before is the alignment by repositioning segment boundaries;
-#'                useful for comparing correction in different/new objects/samples
-#'     - XWarped: corrected data
-#'     - Diagnos  warping diagnostics: options, segment, slack,
-#'                index in target ("xt", "warping" is shift compared to this) and sample ("xP"),
-#'                search range in "xP", computation time (note: diagnostics are only saved for
-#'                one - the last - signal in "xP")
-#' @family Alignment functions
-#' @references {
-#'  Niels-Peter Vest Nielsen, Jens Micheal Carstensen and Jørn Smedegaard 'Aligning of singel and multiple
-#'           wavelength chromatographic profiles for chemometric data analysis using correlation optimised warping'
-#'           J. Chrom. A 805(1998)17-35
-#'
-#'  Correlation optimized warping and dynamic time warping as preprocessing methods for chromatographic Data
-#'            Giorgio Tomasi, Frans van den Berg and Claus Andersson, Journal of Chemometrics 18(2004)231-241
-#'  }
-#'
-#' @author Sergio Oller-Moreno,  \email{soller@@ibecbarcelona.eu}
-#'
-#' Inspired on the work by:
-#'
-#' @author Giorgio Tomasi, \email{gt@@kvl.dk}
-#' @author Frans van den Berg 070821 (GT) \email{fb@@kvl.dk}
-#'
-#' Royal Agricultural and Veterinary University - Department of Food Science
-#' Quality and Technology - Spectroscopy and Chemometrics group - Denmark
-#' www.models.kvl.dk
-#'
-#' @importFrom assertthat assert_that
-#' @importFrom pracma Reshape Norm
-#' @importFrom signal interp1
-#'
-#' @export
 cow <- function(T, X, Seg, Slack,
                 plot=FALSE, corrpow=1, equal_lengths=FALSE,
                 max_correction=NA, debug=FALSE) {
@@ -551,36 +485,6 @@ cow <- function(T, X, Seg, Slack,
 
 
 
-#' Apply Correlation Optimized Warping path on a data matrix
-#'
-#' @param X               X (mP x nP) matrix with data for mP row vectors of
-#'                        length nP to be warped / corrected.
-#' @param Wrp             Wrp (N x 2) interpolation
-#'                        segment starting points (in "nP" units) after warping
-#'                        (first slab) and before warping (second slab).
-#' @return                Xw (mP x nP) warped/corrected data matrix.
-#' @importFrom stats cor
-#' @family Alignment functions
-#' @references {
-#'  Niels-Peter Vest Nielsen, Jens Micheal Carstensen and Jørn Smedegaard 'Aligning of singel and multiple
-#'           wavelength chromatographic profiles for chemometric data analysis using correlation optimised warping'
-#'           J. Chrom. A 805(1998)17-35
-#'
-#'  Correlation optimized warping and dynamic time warping as preprocessing methods for chromatographic Data
-#'            Giorgio Tomasi, Frans van den Berg and Claus Andersson, Journal of Chemometrics 18(2004)231-241
-#'  }
-#'
-#' @author Luis Fernandez,  \email{lfernandez@@.ub.edu}
-#'
-#' Inspired on the work by:
-#'
-#' @author Giorgio Tomasi, \email{gt@@kvl.dk}
-#' @author Frans van den Berg 070821 (GT) \email{fb@@kvl.dk}
-#'
-#' Royal Agricultural and Veterinary University - Department of Food Science
-#' Quality and Technology - Spectroscopy and Chemometrics group - Denmark
-#' www.models.kvl.dk
-
 
 apply_cow <- function(X, Wrp) {
 
@@ -612,16 +516,6 @@ apply_cow <- function(X, Wrp) {
 }
 
 
-#' Function to calculate coefficients for interpolation
-#'
-#' @importFrom pracma histc
-#'
-#' @param n       number of coefficients
-#' @param nprime  ??
-#' @param offs    ??
-#'
-#' @return a list with Coeff and Index
-#'
 InterpCoeff <- function(n,nprime,offs) {
   p     = length(nprime)
   q     = n - 1

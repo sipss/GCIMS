@@ -271,7 +271,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' }
 #'
 #' # After:
-#' reshape_samples(dir_in, dir_out, samples)
+#' gcims_reshape_samples(dir_in, dir_out, samples)
 #' setwd(dir_out)
 #' nrow_after <- matrix(0, nrow = length(samples), ncol = 1)
 #' ncol_after <- matrix(0, nrow = length(samples), ncol = 1)
@@ -291,7 +291,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #' setwd(current_dir)
-reshape_samples <- function(dir_in, dir_out, samples) {
+gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 
   print(" ")
   print("  ///////////////////////////////")
