@@ -2,23 +2,48 @@
 % Please edit documentation in R/read_functions.R
 \name{gcims_read_samples}
 \alias{gcims_read_samples}
-\title{Read GC-IMS Samples from .csv files}
+\title{Read GC-IMS samples from .csv files}
 \usage{
 gcims_read_samples(dir_in, dir_out, sftwr)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where the raw data files are stored.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{Output directory. Where data files are stored as R
+objects.}
 
-\item{sftwr}{Use 1 if the software that has converted the original files into
-csv format is the new one. Use 2 if the software is the old one.}
+\item{sftwr}{Selection of the software version. Use 1 if the
+software that has converted the original files into csv format is VOCal.
+Use 2 if the software is LAV.}
 }
 \value{
-An R object that contains the matrix and the retention times
+A set of S3 objects.
 }
 \description{
-Read GC-IMS Samples from .csv files
+Read GC-IMS samples from .csv files
+}
+\details{
+\code{gcims_read_samples} stores a set of S3 objects in the
+  directory \code{dir_out} (one per sample sample stored in \code{dir_in}).
+  Each object is a list containing the following variables: \code{metadata}
+  and \code{data}.In \code{metadata} you can find information related to the
+  sample that can be added by the user. On the other hand in \code{data} you
+  can find information of the measurement.By default, when the
+  \code{metadata} field is created only includes one variable, called
+  \code{Name}, although the user can include more fields using the function
+  \code{\link{gcims_read_metadata}}. Regarding \code{data}, it is consist in
+  three fields:  \describe{ \item{\code{retention_time}}{ The vector of
+  retention times associated to a sample measurement.}
+  \item{\code{drift_time}}{ The vector of drift times associated to a sample
+  measurement.} \item{\code{data_df}}{ A dataframe containing the intensities
+  of a GCIM measurement of a sample. Each column in the dataset corresponds
+  to a particular drift time, while each row to a different retention time.}
+  }
+}
+\note{
+In the current version of the package, only .csv files converted from
+  LAV or VOCal software of G.A.S GmbH can be used by the function
+  \code{gcims_read_samples}.
 }
 \examples{
 current_dir <- getwd()
@@ -31,9 +56,4 @@ file.remove(files)
 setwd(current_dir)
 
 }
-\seealso{
-Other Reading functions: 
-\code{\link{gcims_read_mat}()},
-\code{\link{gcims_read_metadata}()}
-}
-\concept{Reading functions}
+\concept{Reading functions.}

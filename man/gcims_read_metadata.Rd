@@ -40,7 +40,6 @@ setwd(current_dir)
 }
 \seealso{
 Other Reading functions: 
-\code{\link{gcims_read_mat}()},
-\code{\link{gcims_read_samples}()}
+\code{\link{gcims_read_mat}()}
 }
 \concept{Reading functions}

@@ -41,7 +41,7 @@ current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
-# Example of Retention Two-Dimensional Peak Picking
+# Example of Retention Two-Dimensional Peak Picking:
   gcims_peak_picking(dir_in, dir_out, samples, rem_baseline = TRUE,
   min_length_tr = 50, min_length_td = 10, preprocess = TRUE)
 
