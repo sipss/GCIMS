@@ -2,22 +2,43 @@
 % Please edit documentation in R/read_functions.R
 \name{gcims_read_metadata}
 \alias{gcims_read_metadata}
-\title{Read metadata form a csv}
+\title{Read metadata from a csv}
 \usage{
 gcims_read_metadata(dir_in, samples, file)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where data files are stored.}
 
-\item{samples}{The set of samples to be processed.}
+\item{samples}{Vector of positive integers. Set of sample
+identifiers.}
 
-\item{file}{Name of the file that contains the metadata. It must be an excel file}
+\item{file}{Name of the file that contains the metadata (an Excel
+file).}
 }
 \value{
-An R object that contains the metadata information
+A set of S3 objects.
 }
 \description{
-Read metadata form a csv
+Read metadata from a csv
+}
+\details{
+\code{gcims_read_metadata} reads a metadata Excel file. This file,
+contains:
+\itemize{
+  \item A number of named columns. First column is always named 'Name'. The rest of the columns names
+  correspond to new fields that must be included as metadata in the S3 object.
+  \item A number of rows, each of them associated to a sample in the dataset. Thus in a row, you can find
+  all metadata information of a sample in the dataset.
+}
+After that \code{gcims_read_metadata} looks for the match between the S3
+object metadata field 'Name' value, and its corresponding value
+found in column 'Name' of the metadata file. Then metadata information is
+copied from the metadata file to the S3 object (column names in the metadata
+file define the new fields of metadata in the S3 object). This is done for
+all the samples of the dataset.
+}
+\note{
+The metadata file has to be in the same directory as the data samples.
 }
 \examples{
 current_dir <- getwd()
