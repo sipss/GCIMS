@@ -14,26 +14,42 @@ gcims_smoothing(
 )
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{The input directory. Where data files are stored.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{The output directory. Where smoothed data files are
+stored.}
 
-\item{samples}{The set of samples to be processed.}
+\item{samples}{A vector. Set of samples to be filtered (e.g.: c(1,
+2, 3)).}
 
-\item{time}{It indicates if the correction is going to be in the
-drift time or in the retention time. It should be
-introduce "Retention" for correcting the retention
-time; or "Drift" for the drift time.}
+\item{time}{Sets the dimension to be corrected: drift time or
+retention time. Introduce "Retention" for retention time; or "Drift" for
+drift time.}
 
 \item{filter_length}{Numerical. Length of the filter.}
 
 \item{polynomial_order}{Numerical. Order of the polynomial.}
 }
 \value{
-A filtered  gcims dataset.
+A set of S3 objects.
 }
 \description{
 Data Smoothing using Savitzky-Golay filters
+}
+\details{
+\code{gcims_smoothing} performs digital smoothing on sample
+  chromatograms (in retention time) or spectra (in drift time). This
+  smoothing process is required to reduce the noise level of data samples.
+  \code{gcims_smoothing} relies in Savitzky-Golay filters to reduce noise
+  contribution in data. In a nutshell, Savitzky-Golay filters reconstruct
+  data by fitting successive sets of data points of given length to
+  low-degree polynomials. Short \emph{filter_length} values don't reduce
+  noise significantly, while large ones may distort signal shape. Similarly,
+  polynomials with low \emph{polynomial_order} may not be flexible enough to
+  properly reconstruct the signal, while polynomials with high
+  \emph{polynomial_order} can be too flexible and model noise on the
+  reconstructed signal. A trade-off for these parameter values should be
+  found.
 }
 \examples{
 current_dir <- getwd()
@@ -53,5 +69,14 @@ files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.na
 invisible(file.remove(files))
 setwd(current_dir)
 
+}
+\references{
+{ Savitzky, A. and Golay, M.J.E. (1964) Smoothing and
+ Differentiation of Data by Simplified Least Squares Procedures. Analytical
+ Chemistry, 36, 1627–39. https://doi.org/10.1021/ac60214a047
+
+ Schafer, R.W. (2011) What is a savitzky-golay filter? IEEE Signal Processing
+ Magazine, Institute of Electrical and Electronics Engineers Inc. 28, 111–7.
+ https://doi.org/10.1109/MSP.2011.941097 }
 }
 \concept{Smoothing functions}

@@ -1,19 +1,43 @@
 #' Data Smoothing using Savitzky-Golay filters
 
 
-#' @param dir_in           The input directory.
-#' @param dir_out          The output directory.
-#' @param samples          The set of samples to be processed.
-#' @param time             It indicates if the correction is going to be in the
-#'                         drift time or in the retention time. It should be
-#'                         introduce "Retention" for correcting the retention
-#'                         time; or "Drift" for the drift time.
+#' @param dir_in           The input directory. Where data files are stored.
+#' @param dir_out          The output directory. Where smoothed data files are
+#'   stored.
+#' @param samples          A vector. Set of samples to be filtered (e.g.: c(1,
+#'   2, 3)).
+#' @param time             Sets the dimension to be corrected: drift time or
+#'   retention time. Introduce "Retention" for retention time; or "Drift" for
+#'   drift time.
 #' @param filter_length    Numerical. Length of the filter.
 #' @param polynomial_order Numerical. Order of the polynomial.
-#' @return A filtered  gcims dataset.
+#'
+#' @details \code{gcims_smoothing} performs digital smoothing on sample
+#'   chromatograms (in retention time) or spectra (in drift time). This
+#'   smoothing process is required to reduce the noise level of data samples.
+#'   \code{gcims_smoothing} relies in Savitzky-Golay filters to reduce noise
+#'   contribution in data. In a nutshell, Savitzky-Golay filters reconstruct
+#'   data by fitting successive sets of data points of given length to
+#'   low-degree polynomials. Short \emph{filter_length} values don't reduce
+#'   noise significantly, while large ones may distort signal shape. Similarly,
+#'   polynomials with low \emph{polynomial_order} may not be flexible enough to
+#'   properly reconstruct the signal, while polynomials with high
+#'   \emph{polynomial_order} can be too flexible and model noise on the
+#'   reconstructed signal. A trade-off for these parameter values should be
+#'   found.
+#' @return A set of S3 objects.
 #' @family Smoothing functions
 #' @export
+#'@references { Savitzky, A. and Golay, M.J.E. (1964) Smoothing and
+#'  Differentiation of Data by Simplified Least Squares Procedures. Analytical
+#'  Chemistry, 36, 1627–39. https://doi.org/10.1021/ac60214a047
+#'
+#'  Schafer, R.W. (2011) What is a savitzky-golay filter? IEEE Signal Processing
+#'  Magazine, Institute of Electrical and Electronics Engineers Inc. 28, 111–7.
+#'  https://doi.org/10.1109/MSP.2011.941097 }
+#'
 #' @importFrom signal sgolayfilt
+#'
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
