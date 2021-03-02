@@ -14,9 +14,10 @@ gcims_smoothing(
 )
 }
 \arguments{
-\item{dir_in}{The input directory. Where data files are stored.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{dir_out}{The output directory. Where smoothed data files are
+\item{dir_out}{Output directory. Where smoothed data files are
 stored.}
 
 \item{samples}{A vector. Set of samples to be filtered (e.g.: c(1,
@@ -73,10 +74,10 @@ setwd(current_dir)
 \references{
 { Savitzky, A. and Golay, M.J.E. (1964) Smoothing and
  Differentiation of Data by Simplified Least Squares Procedures. Analytical
- Chemistry, 36, 1627–39. https://doi.org/10.1021/ac60214a047
+ Chemistry, 36, 1627–39. https://doi.org/10.1021/ac60214a047.
 
  Schafer, R.W. (2011) What is a savitzky-golay filter? IEEE Signal Processing
  Magazine, Institute of Electrical and Electronics Engineers Inc. 28, 111–7.
- https://doi.org/10.1109/MSP.2011.941097 }
+ https://doi.org/10.1109/MSP.2011.941097. }
 }
 \concept{Smoothing functions}
