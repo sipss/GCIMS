@@ -7,29 +7,64 @@
 gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are
+loaded from.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{Output directory. Where data files after alignment
+correction are stored.}
 
-\item{samples}{The set of samples to be processed.}
+\item{samples}{A vector. Set of samples to be aligned(e.g.: c(1, 2,
+3)).}
 
-\item{time}{It indicates if the correction is going to be in the
-drift time or in the retention time. It should be
-introduce "Retention" for correcting the retention
-time; or "Drift" for the drift time.}
+\item{time}{Sets the dimension to be corrected: drift time or
+retention time. Introduce "Retention" for retention time; or "Drift" for
+drift time.}
 
 \item{seg_vector}{Vector of segment lengths.}
 
 \item{slack_vector}{Vector of slacks.}
 }
 \value{
-An aligned gcims dataset.
+A set of S3 objects.
 }
 \description{
 Peak alignment using Correlation Optimized Warping (COW)
 }
+\details{
+\code{gcims_baseline_removal} aligns sample chromatograms (in
+  retention time) or spectra (in drift time).
+  The alignment is achieved by transforming the selected temporal  axis of
+  each sample according to the reference using the Correlation Optimized
+  Warping (COW).
+
+  In COW, the reference signal of length \emph{N} is divided
+  in \emph{L} segments of length \emph{I} and so it is done for the signal to
+  be aligned. When the correction is applied along retention time direction,
+  the signals used to estimate COW model are Total Ion Chromatograms (TIC).
+  In case of correcting drift time misalignments, COW model is estimated
+  using Total Ion Spectra (TIS).
+
+  The alignment between reference and sample
+  representatives is performed segment by segment, allowing slight
+  modifications on the segment lengths of a sample. Segment lengths are
+  controlled by the so-called slack parameter, \emph{t}. For each of the
+  segments of a sample, segment length is varied so that the correlation
+  between sample and reference is maximized. At this point a linear
+  interpolation is realized to recover sample segments of the original length
+  and sample period. Once the COW model is known, it is applied to the rest
+  of chromatrograms (if the correction is retention time) or spectra (if the
+  correction is in drift time) of a sample. This is done for all samples
+  selected by the argument \code{samples}.
+
+  Cow method is optimized by selecting the parameters that maximize
+  the average correlation between the reference and the rest of the samples.
+  In particular, the arguments \code{seg_vector} and \code{slack_vector}
+  provide, respectively, the sets of possible values of \emph{L} and \emph{t}
+  for COW parameter optimization.
+}
 \examples{
-current_dir <- getwd()
+\donttest{
+ current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- c(3, 7)
@@ -48,6 +83,7 @@ gcims_plot_spec(dir_out, samples, rt_value = NULL, dt_range = NULL, colorby = "C
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
 setwd(current_dir)
+}
 
 }
 \references{
@@ -73,4 +109,3 @@ Royal Agricultural and Veterinary University - Department of Food Science
 Quality and Technology - Spectroscopy and Chemometrics group - Denmark
 www.models.kvl.dk
 }
-\concept{Alignment functions}

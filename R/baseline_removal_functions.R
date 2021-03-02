@@ -1,14 +1,14 @@
 #' Remove baseline of a dataset using psalsa
 #'
-#' @param dir_in          The input directory. Where input data files are
+#' @param dir_in          Input directory. Where input data files are
 #'   loaded from.
-#' @param dir_out         The output directory. Where data files after baseline
+#' @param dir_out         Output directory. Where data files after baseline
 #'   correction are stored.
-#' @param samples         A vector. Set of samples to be filtered (e.g.: c(1, 2,
-#'   3)).
+#' @param samples         A vector. Set of samples to which remove the baseline
+#'   (e.g.: c(1, 2, 3)).
 #' @param time             Sets the dimension to be corrected: drift time or
 #'   retention time. Introduce "Retention" for retention time; or "Drift" for
-#'   drift time..
+#'   drift time.
 #' @param lambda          Smoothing parameter (generally 1e3 - 1e9).
 #' @param p               Asymmetry parameter (generally 1e-3 - 1e-6).
 #' @param k               Peak height parameter (usually 5\% of maximum intensity).

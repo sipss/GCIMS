@@ -15,18 +15,18 @@ gcims_baseline_removal(
 )
 }
 \arguments{
-\item{dir_in}{The input directory. Where input data files are
+\item{dir_in}{Input directory. Where input data files are
 loaded from.}
 
-\item{dir_out}{The output directory. Where data files after baseline
+\item{dir_out}{Output directory. Where data files after baseline
 correction are stored.}
 
-\item{samples}{A vector. Set of samples to be filtered (e.g.: c(1, 2,
-3)).}
+\item{samples}{A vector. Set of samples to which remove the baseline
+(e.g.: c(1, 2, 3)).}
 
 \item{time}{Sets the dimension to be corrected: drift time or
 retention time. Introduce "Retention" for retention time; or "Drift" for
-drift time..}
+drift time.}
 
 \item{lambda}{Smoothing parameter (generally 1e3 - 1e9).}
 
