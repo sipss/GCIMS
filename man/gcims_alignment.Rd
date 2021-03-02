@@ -64,12 +64,12 @@ Peak alignment using Correlation Optimized Warping (COW)
 }
 \examples{
 \donttest{
- current_dir <- getwd()
+current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- c(3, 7)
 
-# Example of Drift time Alignment :
+# Example of Drift time Alignment:
 # Before:
 gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
 

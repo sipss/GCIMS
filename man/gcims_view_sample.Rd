@@ -7,22 +7,37 @@
 gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{sample_num}{The number corresponding to the sample
-to be visualized.}
+\item{sample_num}{Numeric. Identifies the sample to be visualized from
+the dataset.}
 
-\item{rt_range}{Min a Max retention time values. NULL by
-default.}
+\item{rt_range}{Min and Max retention time values. If NULL the
+complete retention time range is used. NULL by default.}
 
-\item{dt_range}{Min a Max drift time values. NULL by
-default.}
+\item{dt_range}{Min and Max drift time values. If NULL the complete
+drift time range is used. NULL by default.}
 }
 \value{
-An image of the sample matrix.
+An image of selected data sample.
 }
 \description{
 Sample matrix visualization
+}
+\details{
+\code{gcims_view_sample} uses the function
+  \code{\link[ggplot2]{geom_raster}} to represent gcims data as a raster. In
+  this plot, retention time increases along the y-axis from down to up, while
+  drift time does it along the x-axis left to right. \code{gcims_view_sample}
+  provides to the user qualitative information about what are regions of
+  interest to be analyzed in a sample.
+}
+\note{
+\code{gcims_view_sample} can't provide a reliable visualization of a
+  data sample if its sampling frequencies  along drift and/or retention time
+  are not constants. To overcome this problem consider using the function
+  \code{gcims_interpolate} (check also the example of use of this function).
 }
 \examples{
 current_dir <- getwd()
@@ -31,6 +46,11 @@ sample_num <- 3
 gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
 setwd(current_dir)
 
+}
+\references{
+{
+Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
+ }
 }
 \seealso{
 Other Visualization functions: 

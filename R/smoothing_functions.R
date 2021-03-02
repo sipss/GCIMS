@@ -29,7 +29,7 @@
 #' @return A set of S3 objects.
 #' @family Smoothing functions
 #' @export
-#'@references { Savitzky, A. and Golay, M.J.E. (1964) Smoothing and
+#' @references { Savitzky, A. and Golay, M.J.E. (1964) Smoothing and
 #'  Differentiation of Data by Simplified Least Squares Procedures. Analytical
 #'  Chemistry, 36, 1627–39. https://doi.org/10.1021/ac60214a047.
 #'

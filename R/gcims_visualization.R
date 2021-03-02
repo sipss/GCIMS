@@ -1,16 +1,30 @@
 #' Sample matrix visualization
 
 
-#' @param dir_in          The input directory.
-#' @param sample_num      The number corresponding to the sample
-#'                        to be visualized.
-#' @param rt_range        Min a Max retention time values. NULL by
-#'                        default.
-#' @param dt_range        Min a Max drift time values. NULL by
-#'                        default.
-#' @return An image of the sample matrix.
-
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param sample_num      Numeric. Identifies the sample to be visualized from
+#'   the dataset.
+#' @param rt_range        Min and Max retention time values. If NULL the
+#'   complete retention time range is used. NULL by default.
+#' @param dt_range        Min and Max drift time values. If NULL the complete
+#'   drift time range is used. NULL by default.
+#' @return An image of selected data sample.
+#' @details \code{gcims_view_sample} uses the function
+#'   \code{\link[ggplot2]{geom_raster}} to represent gcims data as a raster. In
+#'   this plot, retention time increases along the y-axis from down to up, while
+#'   drift time does it along the x-axis left to right. \code{gcims_view_sample}
+#'   provides to the user qualitative information about what are regions of
+#'   interest to be analyzed in a sample.
+#'
+#' @note \code{gcims_view_sample} can't provide a reliable visualization of a
+#'   data sample if its sampling frequencies  along drift and/or retention time
+#'   are not constants. To overcome this problem consider using the function
+#'   \code{gcims_interpolate} (check also the example of use of this function).
 #' @family Visualization functions
+#' @references {
+#' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
+#'  }
 #' @export
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_raster
