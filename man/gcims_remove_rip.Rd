@@ -2,22 +2,34 @@
 % Please edit documentation in R/utility_functions.R
 \name{gcims_remove_rip}
 \alias{gcims_remove_rip}
-\title{Removes RIP from all samples}
+\title{Removes the Reactant Ion Peak (RIP) from samples}
 \usage{
 gcims_remove_rip(dir_in, dir_out, samples)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{Output directory. Where RIP removed data files are
+stored.}
 
-\item{samples}{The set of samples to be processed.}
+\item{samples}{Numeric vector of integers. Identifies the set of
+samples to which their RIP has to be removed.}
 }
 \value{
-A RIP removed dataset
+A Set of S3 objects.
 }
 \description{
-Removes RIP from all samples
+Removes the Reactant Ion Peak (RIP) from samples
+}
+\details{
+\code{gcims_remove_rip} substitutes the RIP by its corresponding
+  linear approximation to the RIP baseline, for every spectrum in a sample.
+  This process is repeated for all samples in \code{samples}. Use this
+  function if you are interested in enhancing the contrast of peaks of sample
+  images / chromatograms / spectra to be obtained from
+  \code{gcims_view_sample} / \code{gcims_plot_chrom} /
+  \code{gcims_plot_spec}.
 }
 \examples{
 current_dir <- getwd()
@@ -25,7 +37,7 @@ dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
 
-# Example of Drift time Interpolation
+# Example of Reactant Ion Peak removal
 # Before:
 gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
 

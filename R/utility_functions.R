@@ -75,6 +75,7 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #'                        drift time or in the retention time. It should be
 #'                        introduce "Retention" for correcting the retention
 #'                        time; or "Drift" for the drift time.
+
 #' @return An interpolated dataset
 #' @family Utility functions
 #' @export
@@ -153,13 +154,22 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 }
 
 
-#' Removes RIP from all samples
+#' Removes the Reactant Ion Peak (RIP) from samples
 
-
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param samples         The set of samples to be processed.
-#' @return A RIP removed dataset
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where RIP removed data files are
+#'   stored.
+#' @param samples         Numeric vector of integers. Identifies the set of
+#'   samples to which their RIP has to be removed.
+#' @details \code{gcims_remove_rip} substitutes the RIP by its corresponding
+#'   linear approximation to the RIP baseline, for every spectrum in a sample.
+#'   This process is repeated for all samples in \code{samples}. Use this
+#'   function if you are interested in enhancing the contrast of peaks of sample
+#'   images / chromatograms / spectra to be obtained from
+#'   \code{gcims_view_sample} / \code{gcims_plot_chrom} /
+#'   \code{gcims_plot_spec}.
+#' @return A Set of S3 objects.
 #' @family Utility functions
 #' @export
 #' @importFrom pracma findpeaks
@@ -169,7 +179,7 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 #' dir_out <- tempdir()
 #' samples <- 3
 #'
-#' # Example of Drift time Interpolation
+#' # Example of Reactant Ion Peak removal
 #' # Before:
 #' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
 #'
