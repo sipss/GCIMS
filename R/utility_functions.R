@@ -1,10 +1,21 @@
 #' Converts Sample Matrices to Feature Vectors
 
 
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param samples         The set of samples to be processed.
-#' @return A set of feature vectors
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where unfold data files are
+#'   stored.
+#' @param samples         Numeric vector of integers. Identifies the set of
+#'   samples to which their data matrices need to be unfolded.
+#' @return A set of S3 objects
+#' @details \code{gcims_unfold} reshapes \emph{n} x \emph{m} GCIMS data into
+#'   \emph{1} x (\emph{n} x \emph{m}) vectors. This is done for all samples in
+#'   \code{samples}. \code{gcims_unfold} allows the latter use of pattern
+#'   recognition techniques (e.g. Principal Component Analysis) that need to be
+#'   fed with tabular data.
+#' @note It is recommended to perform a previous reduction of data
+#'   dimensionality using the functions \code{gcims_decimate} and
+#'   \code{gcims_cut_samples} before applying \code{gcims_unfold} to the data.
 #' @family Utility functions
 #' @export
 #' @examples
