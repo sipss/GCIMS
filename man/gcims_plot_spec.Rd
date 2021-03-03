@@ -37,11 +37,11 @@ A plot of spectra colored according to some variable included in the
 Plots TIS or spectra
 }
 \details{
-\code{gcims_plot_spec} uses the function
-  \code{\link[ggplot2]{geom_line}} to plot a set of sample spectra at given retention
-  time (or their TIS) and for a specific range of drift times. Use \code{gcims_plot_spec}
-  to visualize the effects of digital smoothing, baseline correction and signal alignment
-  algorithms along the drift time axis.
+\code{gcims_plot_spec} plots a set of sample spectra at given
+  retention time (or their TIS) and for a specific range of drift times. Use
+  \code{gcims_plot_spec} to visualize the effects of digital smoothing,
+  baseline correction and signal alignment algorithms along the drift time
+  axis.
 }
 \examples{
 current_dir <- getwd()

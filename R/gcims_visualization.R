@@ -10,8 +10,7 @@
 #' @param dt_range        Min and Max drift time values. If NULL the complete
 #'   drift time range is used. NULL by default.
 #' @return An image of selected data sample.
-#' @details \code{gcims_view_sample} uses the function
-#'   \code{\link[ggplot2]{geom_raster}} to represent gcims data as a raster. In
+#' @details \code{gcims_view_sample} uses represents gcims data as a raster. In
 #'   this plot, retention time increases along the y-axis from down to up, while
 #'   drift time does it along the x-axis left to right. \code{gcims_view_sample}
 #'   provides to the user qualitative information about what are regions of
@@ -153,11 +152,11 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #'   sample chromatograms.
 #' @return A plot of sample chromatograms colored according to some variable
 #'   included in the metadata.
-#' @details \code{gcims_plot_chrom} uses the function
-#'   \code{\link[ggplot2]{geom_line}} to plot a set of sample chromatograms at given drift
-#'   time (or their TIC) and for a specific range of retention times. Use \code{gcims_plot_chrom}
-#'   to visualize the effects of digital smoothing, baseline correction and signal alignment
-#'   algorithms along the retention time axis.
+#' @details \code{gcims_plot_chrom} uses the function plots a set of sample
+#'   chromatograms at given drift time (or their TIC) and for a specific range
+#'   of retention times. Use \code{gcims_plot_chrom} to visualize the effects of
+#'   digital smoothing, baseline correction and signal alignment algorithms
+#'   along the retention time axis.
 #' @family Visualization functions
 #' @references {
 #' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
@@ -311,11 +310,11 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #'   sample spectra.
 #' @return A plot of spectra colored according to some variable included in the
 #'   metadata.
-#' @details \code{gcims_plot_spec} uses the function
-#'   \code{\link[ggplot2]{geom_line}} to plot a set of sample spectra at given retention
-#'   time (or their TIS) and for a specific range of drift times. Use \code{gcims_plot_spec}
-#'   to visualize the effects of digital smoothing, baseline correction and signal alignment
-#'   algorithms along the drift time axis.
+#' @details \code{gcims_plot_spec} plots a set of sample spectra at given
+#'   retention time (or their TIS) and for a specific range of drift times. Use
+#'   \code{gcims_plot_spec} to visualize the effects of digital smoothing,
+#'   baseline correction and signal alignment algorithms along the drift time
+#'   axis.
 #' @family Visualization functions
 #' @references {
 #' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.

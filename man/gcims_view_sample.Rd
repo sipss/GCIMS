@@ -26,8 +26,7 @@ An image of selected data sample.
 Sample matrix visualization
 }
 \details{
-\code{gcims_view_sample} uses the function
-  \code{\link[ggplot2]{geom_raster}} to represent gcims data as a raster. In
+\code{gcims_view_sample} uses represents gcims data as a raster. In
   this plot, retention time increases along the y-axis from down to up, while
   drift time does it along the x-axis left to right. \code{gcims_view_sample}
   provides to the user qualitative information about what are regions of

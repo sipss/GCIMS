@@ -426,14 +426,25 @@ gcims_decimate <- function(dir_in, dir_out, samples, p_rt, q_rt, p_dt, q_dt){
 #' Cut samples in a retention time - drift time rectangle
 
 
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param samples         The set of samples to be processed.
-#' @param rt_range        A  vector of two components. Beginning and end
-#'                        of the retention time cut.
-#' @param dt_range        A  vector of two components. Beginning and end
-#'                        of the drift time cut.
-#' @return An cut gcims dataset.
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where cut data files are
+#'   stored.
+#' @param samples         A vector. Set of samples to be aligned(e.g.: c(1, 2,
+#'   3)).
+#' @param rt_range        A  vector of two components. Beginning and end of the
+#'   retention time cut.If NULL the complete retention time range is used.
+#' @param dt_range        A  vector of two components. Beginning and end of the
+#'   drift time cut. If NULL the complete drift time range is used.
+#' @return A set of S3 objects.
+#' @details \code{cut_samples} cuts a sample in a retention time - drift time
+#'   rectangle according to the retention time / drift time ranges given by
+#'   function arguments \code{rt_range} / \code{dt_range}. Use this function to
+#'   focus on the retention time - drift time region where chemical information
+#'   is more abundant, that is, where you can find a high peak densities by
+#'   visual inspection.
+#' @note By reducing the size of data, the computational time of signal
+#'   pre-processing stage can reduced substantially.
 #' @family Utility functions
 #' @export
 #' @examples

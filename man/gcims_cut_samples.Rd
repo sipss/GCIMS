@@ -7,23 +7,38 @@
 gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{Output directory. Where cut data files are
+stored.}
 
-\item{samples}{The set of samples to be processed.}
+\item{samples}{A vector. Set of samples to be aligned(e.g.: c(1, 2,
+3)).}
 
-\item{rt_range}{A  vector of two components. Beginning and end
-of the retention time cut.}
+\item{rt_range}{A  vector of two components. Beginning and end of the
+retention time cut.If NULL the complete retention time range is used.}
 
-\item{dt_range}{A  vector of two components. Beginning and end
-of the drift time cut.}
+\item{dt_range}{A  vector of two components. Beginning and end of the
+drift time cut. If NULL the complete drift time range is used.}
 }
 \value{
-An cut gcims dataset.
+A set of S3 objects.
 }
 \description{
 Cut samples in a retention time - drift time rectangle
+}
+\details{
+\code{cut_samples} cuts a sample in a retention time - drift time
+  rectangle according to the retention time / drift time ranges given by
+  function arguments \code{rt_range} / \code{dt_range}. Use this function to
+  focus on the retention time - drift time region where chemical information
+  is more abundant, that is, where you can find a high peak densities by
+  visual inspection.
+}
+\note{
+By reducing the size of data, the computational time of signal
+  pre-processing stage can reduced substantially.
 }
 \examples{
 current_dir <- getwd()
