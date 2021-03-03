@@ -2,7 +2,7 @@
 % Please edit documentation in R/gcims_visualization.R
 \name{gcims_plot_spec}
 \alias{gcims_plot_spec}
-\title{Plots TISa or spectra}
+\title{Plots TIS or spectra}
 \usage{
 gcims_plot_spec(
   dir_in,
@@ -13,23 +13,35 @@ gcims_plot_spec(
 )
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{samples}{The set of samples to be
-to be visualized.}
+\item{samples}{Numeric vector of integers. Identifies the set of
+sample to be visualized from the dataset.}
 
-\item{rt_value}{Selected retention time value. NULL by default.}
-
-\item{dt_range}{Min a Max drift time values. NULL by
+\item{rt_value}{Numeric. Selects the retention time to show spectra of
+samples. If NULL, the Rotal Ion Spectra (TIS) of samples is shown. NULL by
 default.}
 
-\item{colorby}{Metadata parameter used for color the samples.}
+\item{dt_range}{Min and Max drift time values. If NULL the complete
+drift time range is used. NULL by default.}
+
+\item{colorby}{A variable included in the metadata used to color
+sample spectra.}
 }
 \value{
-A set of spectra.
+A plot of spectra colored according to some variable included in the
+  metadata.
 }
 \description{
-Plots TISa or spectra
+Plots TIS or spectra
+}
+\details{
+\code{gcims_plot_spec} uses the function
+  \code{\link[ggplot2]{geom_line}} to plot a set of sample spectra at given retention
+  time (or their TIS) and for a specific range of drift times. Use \code{gcims_view_sample}
+  to visualize the effects of digital smoothing, baseline correction and signal alignment
+  algorithms along the drift time axis.
 }
 \examples{
 current_dir <- getwd()
@@ -38,6 +50,11 @@ samples <- c(3, 7 ,8, 14, 20, 21)
 gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
 setwd(current_dir)
 
+}
+\references{
+{
+Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
+ }
 }
 \seealso{
 Other Visualization functions: 

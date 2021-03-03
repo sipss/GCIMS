@@ -26,7 +26,7 @@ default.}
 \item{colorby}{Metadata parameter used for color the samples.}
 }
 \value{
-A set of Chromatograms.
+A set of Chromatograms
 }
 \description{
 Plots TICs or EICs.
