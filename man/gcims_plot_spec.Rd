@@ -19,9 +19,9 @@ from.}
 \item{samples}{Numeric vector of integers. Identifies the set of
 sample to be visualized from the dataset.}
 
-\item{rt_value}{Numeric. Selects the retention time to show spectra of
-samples. If NULL, the Rotal Ion Spectra (TIS) of samples is shown. NULL by
-default.}
+\item{rt_value}{Numeric. Selects the retention time to show the
+corresponding sample spectra . If NULL, the Total Ion Spectra (TIS) of
+samples is shown. NULL by default.}
 
 \item{dt_range}{Min and Max drift time values. If NULL the complete
 drift time range is used. NULL by default.}
@@ -39,7 +39,7 @@ Plots TIS or spectra
 \details{
 \code{gcims_plot_spec} uses the function
   \code{\link[ggplot2]{geom_line}} to plot a set of sample spectra at given retention
-  time (or their TIS) and for a specific range of drift times. Use \code{gcims_view_sample}
+  time (or their TIS) and for a specific range of drift times. Use \code{gcims_plot_spec}
   to visualize the effects of digital smoothing, baseline correction and signal alignment
   algorithms along the drift time axis.
 }

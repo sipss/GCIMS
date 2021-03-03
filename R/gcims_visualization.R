@@ -139,15 +139,29 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
 
 #' Plots TICs or EICs.
-
-#' @param dir_in          The input directory.
-#' @param samples         The set of samples to be
-#'                        to be visualized.
-#' @param rt_range        Min a Max retention time values. NULL by
-#'                        default.
-#' @param dt_value        Selected drift time value. NULL by default.
-#' @param colorby         Metadata parameter used for color the samples.
-#' @return A set of Chromatograms
+#'
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param samples         Numeric vector of integers. Identifies the set of
+#'   sample to be visualized from the dataset.
+#' @param rt_range        Min and Max retention time values. If NULL the
+#'   complete retention time range is used. NULL by default.
+#' @param dt_value        Numeric. Selects the drift time to show the
+#'   corresponding Extracted Ion Chromatograms (EIC) of samples. If NULL, the
+#'   Total Ion Chromatogram (TIC) of samples is shown. NULL by default.
+#' @param colorby         A variable included in the metadata used to color
+#'   sample chromatograms.
+#' @return A plot of sample chromatograms colored according to some variable
+#'   included in the metadata.
+#' @details \code{gcims_plot_chrom} uses the function
+#'   \code{\link[ggplot2]{geom_line}} to plot a set of sample chromatograms at given drift
+#'   time (or their TIC) and for a specific range of retention times. Use \code{gcims_plot_chrom}
+#'   to visualize the effects of digital smoothing, baseline correction and signal alignment
+#'   algorithms along the retention time axis.
+#' @family Visualization functions
+#' @references {
+#' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
+#'  }
 #' @family Visualization functions
 #' @export
 #' @importFrom dplyr mutate
@@ -290,16 +304,16 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #'   sample to be visualized from the dataset.
 #' @param dt_range        Min and Max drift time values. If NULL the complete
 #'   drift time range is used. NULL by default.
-#' @param rt_value        Numeric. Selects the retention time to show spectra of
-#'   samples. If NULL, the Rotal Ion Spectra (TIS) of samples is shown. NULL by
-#'   default.
+#' @param rt_value        Numeric. Selects the retention time to show the
+#'   corresponding sample spectra . If NULL, the Total Ion Spectra (TIS) of
+#'   samples is shown. NULL by default.
 #' @param colorby         A variable included in the metadata used to color
 #'   sample spectra.
 #' @return A plot of spectra colored according to some variable included in the
 #'   metadata.
 #' @details \code{gcims_plot_spec} uses the function
 #'   \code{\link[ggplot2]{geom_line}} to plot a set of sample spectra at given retention
-#'   time (or their TIS) and for a specific range of drift times. Use \code{gcims_view_sample}
+#'   time (or their TIS) and for a specific range of drift times. Use \code{gcims_plot_spec}
 #'   to visualize the effects of digital smoothing, baseline correction and signal alignment
 #'   algorithms along the drift time axis.
 #' @family Visualization functions

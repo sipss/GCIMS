@@ -13,23 +13,35 @@ gcims_plot_chrom(
 )
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{samples}{The set of samples to be
-to be visualized.}
+\item{samples}{Numeric vector of integers. Identifies the set of
+sample to be visualized from the dataset.}
 
-\item{dt_value}{Selected drift time value. NULL by default.}
+\item{dt_value}{Numeric. Selects the drift time to show the
+corresponding Extracted Ion Chromatograms (EIC) of samples. If NULL, the
+Total Ion Chromatogram (TIC) of samples is shown. NULL by default.}
 
-\item{rt_range}{Min a Max retention time values. NULL by
-default.}
+\item{rt_range}{Min and Max retention time values. If NULL the
+complete retention time range is used. NULL by default.}
 
-\item{colorby}{Metadata parameter used for color the samples.}
+\item{colorby}{A variable included in the metadata used to color
+sample chromatograms.}
 }
 \value{
-A set of Chromatograms
+A plot of sample chromatograms colored according to some variable
+  included in the metadata.
 }
 \description{
 Plots TICs or EICs.
+}
+\details{
+\code{gcims_plot_chrom} uses the function
+  \code{\link[ggplot2]{geom_line}} to plot a set of sample chromatograms at given drift
+  time (or their TIC) and for a specific range of retention times. Use \code{gcims_plot_chrom}
+  to visualize the effects of digital smoothing, baseline correction and signal alignment
+  algorithms along the retention time axis.
 }
 \examples{
 current_dir <- getwd()
@@ -39,7 +51,16 @@ gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "
 setwd(current_dir)
 
 }
+\references{
+{
+Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
+ }
+}
 \seealso{
+Other Visualization functions: 
+\code{\link{gcims_plot_spec}()},
+\code{\link{gcims_view_sample}()}
+
 Other Visualization functions: 
 \code{\link{gcims_plot_spec}()},
 \code{\link{gcims_view_sample}()}
