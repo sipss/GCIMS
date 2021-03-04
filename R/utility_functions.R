@@ -76,18 +76,24 @@ gcims_unfold <- function(dir_in, dir_out, samples){
   }
 }
 
-#' Interpolates data according to retention and drift time sampling frequencies
+#' Interpolates data to obtain constant sampling frequencies in retention and drift times
 
-
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param samples         The set of samples to be processed.
-#' @param time            It indicates if the correction is going to be in the
-#'                        drift time or in the retention time. It should be
-#'                        introduce "Retention" for correcting the retention
-#'                        time; or "Drift" for the drift time.
-
-#' @return An interpolated dataset
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where interpolated data files are
+#'   stored.
+#' @param samples         Numeric vector of integers. Identifies the set of
+#'   samples to which their data matrices need to be interpolated.
+#' @param time            Sets the dimension to be corrected: drift time or
+#'   retention time. Introduce "Retention" for retention time; or "Drift" for
+#'   drift time.
+#' @details \code{gcims_interpolate} performs a linear interpolation on gcims
+#' data along the time axis selected in \code{gcims_interpolate}, and for all
+#' samples in \code{samples}.
+#' @return A set of S3 objects.
+#' @references { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
+#'   "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
+#'   Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 #' @family Utility functions
 #' @export
 #' @importFrom signal interp1
