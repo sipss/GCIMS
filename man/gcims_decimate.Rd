@@ -4,28 +4,39 @@
 \alias{gcims_decimate}
 \title{Decimation}
 \usage{
-gcims_decimate(dir_in, dir_out, samples, p_rt, q_rt, p_dt, q_dt)
+gcims_decimate(dir_in, dir_out, samples, q_rt, q_dt)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{Output directory. Where decimated data files are
+stored.}
 
-\item{samples}{The set of samples to be processed.}
+\item{samples}{Numeric vector of integers. Identifies the set of
+samples to be decimated.}
 
-\item{p_rt}{The current number of averaged scans.}
+\item{q_rt}{Numeric. Binning factor in retention time.}
 
-\item{q_rt}{The new number of averaged scans.}
-
-\item{p_dt}{The current number of averaged scans.}
-
-\item{q_dt}{The new number of averaged scans.}
+\item{q_dt}{Numeric. Binning factor in drift time.}
 }
 \value{
-A reduced  gcims dataset.
+A set of S3 objets.
 }
 \description{
 Decimation
+}
+\details{
+\code{gcims_decimate} performs downsampling in retention and drift
+  time axes of GCIMS data. In particular, it reduces sampling frequency in
+  retention and dritf times respectively, by the  factors \code{q_rt} and
+  \code{q_dt}. Use this function if you are interested in both increasing the
+  signal to noise ratio of data and compress it. Please take in to account
+  that decimation also reduces data resolution.
+}
+\note{
+\code{gcims_decimate} introduces a delay in retention and drift time
+  axes.
 }
 \examples{
 current_dir <- getwd()
@@ -39,11 +50,9 @@ gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "
 gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
 
 # After:
-p_rt <- 1
 q_rt <- 5
-p_dt <- 1
 q_dt <- 2
-gcims_decimate(dir_in, dir_out, samples, p_rt, q_rt, p_dt, q_dt)
+gcims_decimate(dir_in, dir_out, samples, q_rt, q_dt)
 setwd(dir_out)
 gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
 gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
@@ -52,6 +61,11 @@ files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.na
 invisible(file.remove(files))
 setwd(current_dir)
 
+}
+\references{
+{ Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
+  "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
+  Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 }
 \seealso{
 Other Utility functions: 
