@@ -7,17 +7,25 @@
 gcims_reshape_samples(dir_in, dir_out, samples)
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{Output directory. Where reshaped samples are stored.}
 
-\item{samples}{The set of samples to be processed.}
+\item{samples}{Numeric vector of integers. Identifies the set of
+samples to be reshaped.}
 }
 \value{
-An cut matrix.
+A set of S3 objects.
 }
 \description{
 Reshape samples
+}
+\details{
+\code{gcims_reshape_samples} ensures that all samples in a dataset
+  have the same dimensions (number of data points) in retention and drift
+  times. \code{gcims_reshape_samples} checks what are the minimum retention /
+  drift time ranges a cuts all samples according to these ranges.
 }
 \examples{
 current_dir <- getwd()

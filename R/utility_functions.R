@@ -270,10 +270,17 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 
 #' Reshape samples
 #'
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param samples         The set of samples to be processed.
-#' @return An cut matrix.
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where reshaped samples are stored.
+#' @param samples         Numeric vector of integers. Identifies the set of
+#'   samples to be reshaped.
+#' @details \code{gcims_reshape_samples} ensures that all samples in a dataset
+#'   have the same dimensions (number of data points) in retention and drift
+#'   times. \code{gcims_reshape_samples} checks what are the minimum retention /
+#'   drift time ranges a cuts all samples according to these ranges.
+#'
+#' @return A set of S3 objects.
 #' @family Utility functions
 #' @export
 #' @examples
