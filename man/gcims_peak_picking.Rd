@@ -8,33 +8,59 @@ gcims_peak_picking(
   dir_in,
   dir_out,
   samples,
-  rem_baseline = TRUE,
   min_length_tr = 50,
   min_length_td = 10,
   preprocess = TRUE
 )
 }
 \arguments{
-\item{dir_in}{The input directory.}
+\item{dir_in}{Input directory. Where input data files are loaded
+from.}
 
-\item{dir_out}{The output directory.}
+\item{dir_out}{Output directory. Where peak picked data is stored.}
 
-\item{samples}{Samples to which perform the peak picking.}
+\item{samples}{A vector. Set of samples to which perform the peak
+picking.(e.g.: c(1, 2, 3)).}
 
-\item{rem_baseline}{Perform a baseline removal in retention / drift time
-axes. TRUE by default.}
+\item{min_length_tr}{Minimum peak length in retention time (in indexes).}
 
-\item{min_length_tr}{Minimum peak length in retention time (now indexes).}
+\item{min_length_td}{Minimum peak length in drift time (in indexes).}
 
-\item{min_length_td}{Minimum peak length in drift time (now indexes).}
-
-\item{preprocess}{Preprocess the samples?. TRUE or FALSE}
+\item{preprocess}{Preprocess the samples?. TRUE or FALSE. TRUE by
+default.}
 }
 \value{
-A peak table per sample.
+A set of S3 objects.
 }
 \description{
 Two dimensional peak picking
+}
+\details{
+\code{gcims_peak_picking} performs peak picking in set of samples
+  especified by the input argument \code{samples}. For each of these samples,
+  a 2-dimensional matched filtering is applied to the data. The matching
+  pattern consists in a 2-dimensional uncorrelated Gaussian with sigmas
+  \eqn{\sigma}\eqn{r = min_length_tr / 4} and \eqn{\sigma}\eqn{d =
+  min_length_td / 4}.
+
+  \code{gcims_peak_picking} provides a set of Regions Of
+  Interest (ROIs) for each sample which are characterized by the following
+  parameters: \describe{ \item{\code{sample_id}}{Sample identifier.}
+  \item{\code{roi_id}}{ROI identifier within a sample.}
+  \item{\code{max_rt}}{Maximum value of retention time (in indexes) within a
+  ROI.} \item{\code{min_dt}}{Minimum value of drift time (in indexes) within
+  a ROI.} \item{\code{min_rt}}{Minimum value of retention time (in indexes)
+  within a ROI.} \item{\code{max_dt}}{Maximum value of drift time (in
+  indexes) within a ROI.} \item{\code{rt_length}}{ROI length in retetion time
+  (in indexes).} \item{\code{dt_length}}{ROI length in drift time (in
+  indexes).} \item{\code{volume}}{Volume intengral of the ROI}
+  \item{\code{rt_mc}}{Retention time coordinate of the ROI's Center of mass.}
+  \item{\code{dt_mc}}{Drift time coordinate of the ROI's Center of mass.}
+  \item{\code{rt_asym}}{Asymmetry of the ROI with respect the retention time
+  axis.} \item{\code{dt_asym}}{Asymmetry of the ROI with respect the drift
+  time axis.} \item{\code{saturation}}{Saturation level of the ROI. Zero
+  means non saturated, while one means saturated.} \item{\code{snr}}{Signal
+  to Noise Ratio of the ROI.} }
 }
 \examples{
 current_dir <- getwd()
@@ -42,7 +68,7 @@ dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
 # Example of Retention Two-Dimensional Peak Picking:
-  gcims_peak_picking(dir_in, dir_out, samples, rem_baseline = TRUE,
+  gcims_peak_picking(dir_in, dir_out, samples,
   min_length_tr = 50, min_length_td = 10, preprocess = TRUE)
 
 setwd(dir_out)
@@ -52,5 +78,9 @@ head(roi_df)
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
 setwd(current_dir)
+}
+\references{
+{ Oppenheim, Alan V. "Applications of digital signal processing."
+Englewood Cliffs (1978). }
 }
 \concept{Peak Peaking functions}
