@@ -1,11 +1,27 @@
 
-#' Two dimensional peak picking
+#' Peak/ROI grouping
 
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param samples         Samples to which perform the peak picking.
-#' @return A peak table per sample.
+#' @param dir_in          Input directory. Where input peak picked data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where the grouped data (a peak/ROI
+#'   table) is stored.
+#' @param samples        A vector. Set of samples whose peaks/ROIs need to be
+#'   grouped (e.g.: c(1, 2, 3)).
+#' @return A peak/ROI table.
+#' @details \code{gcims_peak_grouping} looks for a correspondence among ROI
+#'   regions in samples and the ones present in the reference sample.  This
+#'   grouping process is performed in two steps: In first step, the algorithm
+#'   checks which of the ROI mass centers in a sample are enclosed within any of
+#'   the ROI regions of the reference. In the second step, the overlapping
+#'   between ROIs of reference and sample pre-selected in step one are computed.
+#'   For each ROI of the reference, the ROI of the sample with maximum
+#'   overlapping is selected as a representative of this reference ROI. This
+#'   way, only one ROI (or none) per sample can be selected as a representative
+#'   of one roi of the reference. This process is repeated for all samples in
+#'   \code{samples}.
 #' @family Peak Grouping functions
+#' @note The grouping process may produce missing values in the final peak/ROI
+#'   table. In such a case use \code{gcims_peak_imputation} to impute them.
 #' @export
 #' @importFrom pracma meshgrid eye
 #' @examples
