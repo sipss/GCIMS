@@ -464,7 +464,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     roi_coord_ind <- apply(roi_coord_sub, sub2ind, n, MARGIN = 1)
 
     # 9)   remove data out of the ROIs
-    aux[!roi_coord_ind] <- 0
+    aux[unique(!roi_coord_ind)] <- 0 # Unique works when the indexes of the ROIs are replicated
 
     # 10)  generate ROI table
     roi_table <- matrix(0, ncol = 16 , nrow = dim(outer_rectangles)[1])
