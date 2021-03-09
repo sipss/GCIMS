@@ -31,19 +31,7 @@ default.}
 }
 \value{
 A set of S3 objects.
-}
-\description{
-Two dimensional peak picking
-}
-\details{
-\code{gcims_peak_picking} performs peak picking in set of samples
-  especified by the input argument \code{samples}. For each of these samples,
-  a 2-dimensional matched filtering is applied to the data. The matching
-  pattern consists in a 2-dimensional uncorrelated Gaussian with sigmas
-  \eqn{\sigma}\eqn{r = min_length_tr / 4} and \eqn{\sigma}\eqn{d =
-  min_length_td / 4}.
-
-  \code{gcims_peak_picking} provides a set of Regions Of
+\code{gcims_peak_picking} provides a set of Regions Of
   Interest (ROIs) for each sample which are characterized by the following
   parameters: \describe{ \item{\code{sample_id}}{Sample identifier.}
   \item{\code{roi_id}}{ROI identifier within a sample.}
@@ -61,6 +49,17 @@ Two dimensional peak picking
   time axis.} \item{\code{saturation}}{Saturation level of the ROI. Zero
   means non saturated, while one means saturated.} \item{\code{snr}}{Signal
   to Noise Ratio of the ROI.} }
+}
+\description{
+Two dimensional peak picking
+}
+\details{
+\code{gcims_peak_picking} performs peak picking in set of samples
+  especified by the input argument \code{samples}. For each of these samples,
+  a 2-dimensional matched filtering is applied to the data. The matching
+  pattern consists in a 2-dimensional uncorrelated Gaussian with sigmas
+  \eqn{\sigma}\eqn{r = min_length_tr / 4} and \eqn{\sigma}\eqn{d =
+  min_length_td / 4}.
 }
 \examples{
 current_dir <- getwd()
