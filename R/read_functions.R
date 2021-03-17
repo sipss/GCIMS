@@ -163,6 +163,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
+    metadata$Name <- i
     dd <- readMat(files[i])[[1]]
     dd <- list(metadata = metadata, data = dd)
     setwd(dir_out)
