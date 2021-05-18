@@ -321,8 +321,8 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
 
   # baseline removal:
 
-  lambda <- 1E7
-  p <-  0.001
+  lambda <- 1E7 #1E7
+  p <-  0.001 #0.0001
   k <- -1
 
   # peak picking:
@@ -399,7 +399,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     aux_vector <- sort(as.vector(aux), decreasing = TRUE) #new
 
     # 4)   a. compute intensity threshold
-    threshold <- estimate_threshold(aux_vector)
+    threshold <- estimate_threshold(aux_vector) ## USE NORMAL AUX_VECTOR
     # 4)  b. compute noise power
     noise_power <- compute_power(aux_vector[aux_vector <= threshold])
     rm(aux_vector)
@@ -460,6 +460,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
       indexes <- which(inner_rectangles[, 1] == k)
       outer_rectangles[h, ] <- compute_outer_border(aux, inner_rectangles[indexes,])
     }
+
     roi_coord_list <- transpose(lapply(split(outer_rectangles, row(outer_rectangles)), find_indexes))
     roi_coord_sub <- cbind(unlist(roi_coord_list$X), unlist(roi_coord_list$Y))
     n <- dim(aux)[1]
@@ -527,7 +528,6 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
       # roi signal to noise ratio
       roi_table[k, 16]  <- compute_power(roi)/ noise_power
     }
-
     roi_table <- as.data.frame(roi_table)
     aux_list$data$data_df <- aux
     aux_list$data$roi_df <- roi_table
