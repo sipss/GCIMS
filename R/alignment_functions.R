@@ -64,6 +64,7 @@
 #' Royal Agricultural and Veterinary University - Department of Food Science
 #' Quality and Technology - Spectroscopy and Chemometrics group - Denmark
 #' www.models.kvl.dk
+#' @importFrom signal interp1
 #'
 #' @examples
 #' \donttest{
@@ -117,10 +118,32 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
     if (i != 0){
       if (time == "Drift"){
         aux <- t(aux)
+        aux <- apply_cow(aux, Warping[m, , ])
       } else if (time == "Retention"){
+        aux_string <- paste0("M", 0, ".rds")
+        aux_list <- readRDS(aux_string) #new
+        aux <- as.matrix(aux_list$data$data_df)
+        logindx <- log(c(1:dim(aux)[2]))
+        reference <- apply(aux, 1, function(x) round(interp1(logindx, x, xi = logindx)))
+        aux_string <- paste0("M", i, ".rds")
+        aux_list <- readRDS(aux_string) #new
+        aux <- as.matrix(aux_list$data$data_df)
+        logindx <- log(c(1:dim(aux)[2]))
+        aux <- apply(aux, 1, function(x) round(interp1(logindx, x, xi = logindx)))
+        num_dt <- nrow(aux)
+        num_ret_time <- ncol(aux)
+        timepad <- c(rep(NA, 500), aux_list$data$retention_time, rep(NA, 500))
+        aux_with_zero_pad <- matrix(0, nrow = 1000 + num_dt, ncol =  num_ret_time)
+        aux_with_zero_pad[501:(nrow(aux_with_zero_pad) - 500), ] <- aux
+        aux_to_align <- aux_with_zero_pad
+        global_warp <- ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0, 1), mode = "backward")
+        summary(global_warp)
+        aux_global_warp <- global_warp$warped.sample
+        aux_global_warp[is.na(aux_global_warp)] <- 0
+        indiv_warp <- ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0,1,0), mode = "backward")
+        aux_indiv_warp <- indiv_warp$warped.sample
+        aux_indiv_warp[is.na(aux_indiv_warp)] <- 0
       }
-
-      aux <- apply_cow(aux, Warping[m, , ])
     } else {
     }
 
@@ -130,7 +153,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
       } else if (time == "Retention"){
       }
     }
-    aux_list$data$data_df <- round(aux)
+    aux_list$data$data_df <- round(aux_indiv_warp)
     M <- aux_list
 
 
