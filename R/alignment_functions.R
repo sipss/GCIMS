@@ -100,7 +100,10 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
 
 
   setwd(dir_in)
-  Warping <- optimize_cow(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+  if (time == "Drift"){
+    Warping <- optimize_cow(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+  } else if (time == "Retention"){
+  }
 
   m <- -1
   for (i in c(0,samples)){
@@ -143,6 +146,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
         indiv_warp <- ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0,1,0), mode = "backward")
         aux_indiv_warp <- indiv_warp$warped.sample
         aux_indiv_warp[is.na(aux_indiv_warp)] <- 0
+        aux <- aux_indiv_warp
       }
     } else {
     }
@@ -153,7 +157,7 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
       } else if (time == "Retention"){
       }
     }
-    aux_list$data$data_df <- round(aux_indiv_warp)
+    aux_list$data$data_df <- round(aux)
     M <- aux_list
 
 
