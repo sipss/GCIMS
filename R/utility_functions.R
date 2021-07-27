@@ -597,7 +597,7 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
   setwd(dir_in)
   m = -1;
-  for (i in c(0, samples)){
+  for (i in c(1, samples)){
     m = m + 1
     if (m != 0){
       print(paste0("Sample ", m, " of ", length(samples)))
@@ -612,4 +612,115 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
   }
 
 }
+
+
+
+
+#' Shifting
+
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where decimated data files are
+#'   stored.
+#' @param samples         Numeric vector of integers. Identifies the set of
+#'   samples to be decimated.
+#' @details \code{gcims_shifting} performs peak shifting in retention time axes
+#'   of GCIMS data. In particular, it shifts all the peaks along the retention
+#'   time axis in order to have the RIP peaks at the exact same time.
+#' @note \code{gcims_shifting} reduce the retention time axis of some of
+#'   the samples.
+#' @return A set of S3 objets.
+#' @family Utility functions
+#' @export
+#' @references { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
+#'   "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
+#'   Prentice Hall. p. 168. ISBN 0-13-754920-2. }
+#' @examples
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#'
+#' # Before:
+#' setwd(dir_in)
+#' samples <- c(3, 7)
+#' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
+#' gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
+#'
+#' # After:
+#' gcims_shifting(dir_in, dir_out, samples)
+#' setwd(dir_out)
+#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
+#' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#'
+
+gcims_shifting <- function(dir_in, dir_out, samples){
+
+
+  print(" ")
+  print("  ////////////////////////")
+  print(" /      Peaks Sifting   /")
+  print("////////////////////////")
+  print(" ")
+
+
+  setwd(dir_in)
+
+  m <- -1
+  tics <- NULL
+  for (i in c(1,samples)){
+    m <- m + 1
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
+
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- as.matrix(aux_list$data$data_df)
+    tic <- colSums(aux)
+    tics <- rbind(tics, tic)
+  }
+
+  mins <- apply(tics, 1, which.min)
+  # plot(x = c(1:64), y = mins)
+  # intensities <- apply(tics, 1, min)
+  # plot(x = c(1:64), y = intensities)
+  referenceindex <- min(mins)
+  referencetime <- which.max(mins)
+
+  m <- 0
+  for (i in c(1,samples)){
+    m <- m + 1
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
+
+    reference <- readRDS(paste0("M", referencetime, ".rds"))
+    reference <- reference$data$data_df
+    referencetic <- colSums(reference)
+    reference <- reference[,-c(1:abs(referenceindex - which.min(referencetic)))]
+    dimension <- dim(reference)[2]
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- as.matrix(aux_list$data$data_df)
+    auxtic <- colSums(aux)
+    if (abs(referenceindex - which.min(auxtic)) > 0){
+      aux <- aux[,-c(1:abs(referenceindex - which.min(auxtic)))]
+    } else {
+      aux <- aux
+    }
+    aux_list$data$retention_time <- aux_list$data$retention_time[1:dimension]
+    aux_list$data$data_df <- aux[,c(1:dimension)]
+    M <- aux_list
+    setwd(dir_out)
+    saveRDS(M, file = paste0("M", i, ".rds"))
+    setwd(dir_in)
+  }
+}
+
+
+
 
