@@ -94,7 +94,13 @@ gcims_baseline_removal <- function(dir_in, dir_out, samples,
 
     if (time == "Drift"){
       aux <- t(aux)
+      lambda <- 1E7
+      p <- 0.001
+      k <- -1
     } else if (time == "Retention"){
+      lambda <- 1E4
+      p <- 0.1
+      k <- -1
     }
 
     psalsa_results <- psalsa(aux, lambda, p, k)
