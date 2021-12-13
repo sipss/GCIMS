@@ -210,8 +210,8 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
       peak_table[j, 2] <- i
       peak_table[j, 3] <- stats[[i]]$peaks[c, 1]
       peak_table[j, 4] <- stats[[i]]$peaks[c, 2]
-      peak_table[j, 5] <- stats[[i]]$peaks[c, 1]/fs
-      peak_table[j, 6] <- stats[[i]]$peaks[c, 2]/fs
+      peak_table[j, 5] <- drift_time[stats[[i]]$peaks[c, 1]]
+      peak_table[j, 6] <- retention_time[stats[[i]]$peaks[c, 2]]
       peak_table[j, 7] <- stats[[i]]$volume[c]
 
       c <- c + 1
