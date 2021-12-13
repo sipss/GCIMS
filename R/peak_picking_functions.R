@@ -341,41 +341,44 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
   #     MAIN    #
   #-------------#
 
-  # 1)   read data
-  # 2)   a. search RIP position
-  #      b. search saturation regions
-  # 3)   remove baseline
-  # 4)   a. compute intensity threshold
-  #      b. compute noise power
-  # 5)   digital smoothing
-  # 6)   a. remove data below threshold
-  #      b. remove data before the RIP
-  # 7)   find peaks in 2D (ROIs if convoluted)
-  # 8)   cluster data in ROIs
-  # 9)   remove data out of the ROIs
-  # 10)  generate ROI table
-  # 11)  save results
+  # 1)   Read data
+  # 2)   a. Search RIP position
+  #      b. Search saturation regions
+  # 3)   Remove baseline
+  # 4)   a. Compute intensity threshold
+  #      b. Compute noise power
+  # 5)   Digital smoothing
+  # 6)   a. Remove data below threshold
+  #      b. Remove data before the RIP
+  # 7)   Find peaks in 2D (ROIs if convoluted)
+  # 8)   Cluster data in ROIs
+  # 9)   Remove data out of the ROIs
+  # 10)  Generate ROI table
+  # 11)  Save results
 
   setwd(dir_in)
   m <- 0
   for (i in samples){
-    m <- m + 1
-    print(paste0("Performing Peak Picking in sample ", samples[m]))
+    m <- m + 1 # Increase by 1
+    print(paste0("Performing Peak Picking in sample ", samples[m])) # Print that the peak picking is being done
 
-    # 1)   read data
-    aux_string <- paste0("M", samples[m], ".rds")
-    aux_list <- readRDS(aux_string) #new
-    aux <- (as.matrix(aux_list$data$data_df))
+    # 1)   Read data
+    aux_string <- paste0("M", samples[m], ".rds") # Generate file name
+    aux_list <- readRDS(aux_string) # Load RDS file
+    aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
 
-    # 2)   a. search RIP position
+    # 2)  a. Search for RIP position
+
+    # If the data is pre-processed, then find the RIP position.
     if (preprocess  == TRUE){
-      total_ion_spectrum <- rowSums(aux)
-      rip_position <- which.max(total_ion_spectrum)
+      total_ion_spectrum <- rowSums(aux) # Sum per rows
+      rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
       minima <- as.vector(findpeaks(-total_ion_spectrum)[, 2])
       rip_end_index <- minima[min(which((minima - rip_position) > 0))]
       rip_start_index <- minima[max(which((rip_position - minima) > 0))]
     }
-    # 2)   b. search saturation regions
+
+    # 2)   b. Search for Saturation Regions
     rip_chrom <- rowSums(aux[, rip_start_index: rip_end_index]) / length(rip_start_index: rip_end_index)
     max_rip_chrom <- max(rip_chrom)
     saturation_threshold <- 0.1 * max_rip_chrom

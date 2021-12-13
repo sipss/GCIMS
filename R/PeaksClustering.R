@@ -199,7 +199,6 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   ## Make table
 
   drift_time <- aux_list$data$drift_time
-  fs = 1/(drift_time[2]-drift_time[1])
   peak_table <- matrix(0, (length(samples) * K), 7)
 
   acc <- 1
