@@ -80,7 +80,6 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
   #--------------#
   # find_peaks2d #
   #--------------#
-
   find_peaks2d <- function(z, min_length_tr, min_length_td, cor_threshold){
     gauss2d <- function(x, sigma1, y,  sigma2){
       my_grid <- meshgrid(x, y)
@@ -373,16 +372,18 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     if (preprocess  == TRUE){
       total_ion_spectrum <- rowSums(aux) # Sum per rows
       rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
-      minima <- as.vector(findpeaks(-total_ion_spectrum)[, 2])
-      rip_end_index <- minima[min(which((minima - rip_position) > 0))]
-      rip_start_index <- minima[max(which((rip_position - minima) > 0))]
+      minima <- as.vector(findpeaks(-total_ion_spectrum)[, 2]) # Find local minima
+      rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
+      rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
     }
 
     # 2)   b. Search for Saturation Regions
-    rip_chrom <- rowSums(aux[, rip_start_index: rip_end_index]) / length(rip_start_index: rip_end_index)
-    max_rip_chrom <- max(rip_chrom)
-    saturation_threshold <- 0.1 * max_rip_chrom
-    saturation_regions <- which(rip_chrom <= saturation_threshold)
+    rip_chrom <- rowSums(aux[, rip_start_index: rip_end_index]) / length(rip_start_index: rip_end_index) # Sum up rows and normalize (¿?)
+    max_rip_chrom <- max(rip_chrom) # Find maximum in RIP
+    saturation_threshold <- 0.1 * max_rip_chrom # Define a saturation threshold
+    saturation_regions <- which(rip_chrom <= saturation_threshold) # Find indexes where the RIP is below the saturation threshold
+
+    # If the ´saturation_regions´ is empty, then there will be no saturation minimum. Otherwise, go to else statement.
     if (length(saturation_regions) == 0){
       saturation_minima <- NULL
     } else {
@@ -393,7 +394,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
       }
     }
 
-    # 3)   remove baseline
+    # 3)   Remove baseline
     if (preprocess  == TRUE){
       aux <- psalsa(data = aux, lambda = lambda, p = p, k = k, maxit = 25)$corrected
       # Remove baseline in retention time
@@ -401,13 +402,13 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     }
     aux_vector <- sort(as.vector(aux), decreasing = TRUE) #new
 
-    # 4)   a. compute intensity threshold
+    # 4)   a. Compute intensity threshold
     threshold <- estimate_threshold(aux_vector) ## USE NORMAL AUX_VECTOR
-    # 4)  b. compute noise power
+    # 4)  b. Compute noise power
     noise_power <- compute_power(aux_vector[aux_vector <= threshold])
     rm(aux_vector)
 
-    # 5)   digital smoothing
+    # 5)   Digital smoothing
     if (preprocess == TRUE){
       aux <- t(aux)
       n <- dim(aux)[1]
@@ -421,14 +422,14 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
       }
     }
 
-    # 6)   a. remove data below threshold
+    # 6)   a. Remove data below threshold
     aux[aux <= threshold] <- 0
-    # 6)   b. remove data before the RIP
+    # 6)   b. Remove data before the RIP
     if (preprocess  == TRUE){
       aux[1:rip_end_index,] <- 0
     }
 
-    # 7)   find peaks in 2D (ROIs if convoluted)
+    # 7)   Find peaks in 2D (ROIs if convoluted)
     corr_2d <- find_peaks2d(aux, min_length_tr, min_length_td, cor_threshold)
     coord_linear <- which(corr_2d > 0)
     coord_mat <- matrix(0, nrow = length(coord_linear), ncol = 2)
@@ -439,7 +440,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     }
     rm(corr_2d)
 
-    # 8)   cluster data in ROIs
+    # 8)   Cluster data in ROIs
     sorted_distances <-sort(kNNdist(coord_mat, k = neighbors))
     eps <- sorted_distances[findknee(1:length(sorted_distances), sorted_distances)[3]]
     out <- dbscan(coord_mat, eps, neighbors)$cluster
@@ -469,10 +470,10 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     n <- dim(aux)[1]
     roi_coord_ind <- apply(roi_coord_sub, sub2ind, n, MARGIN = 1)
 
-    # 9)   remove data out of the ROIs
+    # 9)   Remove data out of the ROIs
     aux[unique(!roi_coord_ind)] <- 0 # Unique works when the indexes of the ROIs are replicated
 
-    # 10)  generate ROI table
+    # 10)  Generate ROI table
     roi_table <- matrix(0, ncol = 16 , nrow = dim(outer_rectangles)[1])
     colnames(roi_table) <- c("sample_id", "roi_id",
                              "max_rt", "min_dt",
@@ -490,33 +491,33 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
       roi_table[k, 4] <- outer_rectangles[k, 5]
       roi_table[k, 5] <- outer_rectangles[k, 4]
       roi_table[k, 6] <-outer_rectangles[k, 3]
-      # current roi
+      # Current ROI
       roi <- aux[outer_rectangles[k, 5]:outer_rectangles[k, 3],
                  outer_rectangles[k, 4]:outer_rectangles[k, 2]]
-      # roi lengths
+      # ROI lengths
       len_x <-  outer_rectangles[k, 2] - outer_rectangles[k, 4]
       len_y <- outer_rectangles[k, 3] - outer_rectangles[k, 5]
       roi_table[k, 7] <- len_x
       roi_table[k, 8] <- len_y
-      # roi area
+      # ROI area
       area <- len_x * len_y
       roi_table[k, 9] <- area
-      # roi volume
+      # ROI volume
       volume <- compute_integral2(roi)
       roi_table[k, 10] <- volume
-      # roi center of mass
+      # ROI center of mass
       x_cm <- round(compute_integral2(roi * (1:dim(roi)[1])) / volume)
       y_cm <- round(compute_integral2(t(roi) * (1:dim(roi)[2])) / volume)
       roi_table[k, 11] <- outer_rectangles[k, 4] + x_cm - 1
       roi_table[k, 12] <- outer_rectangles[k, 5] + y_cm - 1
-      # roi asymmetries
+      # ROI asymmetries
       half_down_area  <- length(1:x_cm) * len_y
       half_up_area    <- length(x_cm:len_x) * len_y
       half_left_area  <- len_x * length(1:y_cm)
       half_right_area <- len_x * length(y_cm:len_y)
       roi_table[k, 13]<- round(((half_down_area - half_up_area) / (area)), 2)
       roi_table[k, 14] <- round(((half_right_area - half_left_area) / (area)), 2)
-      # roi saturation
+      # ROI saturation
       if (length(saturation_minima) == 0){
         # No saturation. Do nothing
       } else {
@@ -528,7 +529,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
           }
         }
       }
-      # roi signal to noise ratio
+      # ROI signal to noise ratio
       roi_table[k, 16]  <- compute_power(roi)/ noise_power
     }
     roi_table <- as.data.frame(roi_table)
@@ -536,7 +537,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     aux_list$data$roi_df <- roi_table
     M <- aux_list
 
-    # 11)  save results
+    # 11)  Save results
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
