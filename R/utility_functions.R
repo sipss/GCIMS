@@ -669,14 +669,9 @@ gcims_shifting <- function(dir_in, dir_out, samples){
 
   setwd(dir_in)
 
-  m <- -1
   tics <- NULL
-  for (i in c(1,samples)){
-    m <- m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
-
+  for (i in samples){
+    print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- as.matrix(aux_list$data$data_df)
@@ -691,33 +686,30 @@ gcims_shifting <- function(dir_in, dir_out, samples){
   referenceindex <- min(mins)
   referencetime <- which.max(mins)
 
-  m <- 0
   for (i in c(1,samples)){
-    m <- m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
-
-    reference <- readRDS(paste0("M", referencetime, ".rds"))
-    reference <- reference$data$data_df
-    referencetic <- colSums(reference)
-    reference <- reference[,-c(1:abs(referenceindex - which.min(referencetic)))]
-    dimension <- dim(reference)[2]
-    aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
-    aux <- as.matrix(aux_list$data$data_df)
-    auxtic <- colSums(aux)
-    if (abs(referenceindex - which.min(auxtic)) > 0){
-      aux <- aux[,-c(1:abs(referenceindex - which.min(auxtic)))]
-    } else {
-      aux <- aux
-    }
-    aux_list$data$retention_time <- aux_list$data$retention_time[1:dimension]
-    aux_list$data$data_df <- aux[,c(1:dimension)]
-    M <- aux_list
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    if (i != referencetime){
+      print(paste0("Sample ", i, " of ", length(samples)))
+      reference <- readRDS(paste0("M", referencetime, ".rds"))
+      reference <- reference$data$data_df
+      referencetic <- colSums(reference)
+      reference <- reference[,-c(1:abs(referenceindex - which.min(referencetic)))]
+      dimension <- dim(reference)[2]
+      aux_string <- paste0("M", i, ".rds")
+      aux_list <- readRDS(aux_string) #new
+      aux <- as.matrix(aux_list$data$data_df)
+      auxtic <- colSums(aux)
+      if (abs(referenceindex - which.min(auxtic)) > 0){
+        aux <- aux[,-c(1:abs(referenceindex - which.min(auxtic)))]
+      } else {
+        aux <- aux
+      }
+      aux_list$data$retention_time <- aux_list$data$retention_time[1:dimension]
+      aux_list$data$data_df <- aux[,c(1:dimension)]
+      M <- aux_list
+      setwd(dir_out)
+      saveRDS(M, file = paste0("M", i, ".rds"))
+      setwd(dir_in)
+      }
   }
 }
 
