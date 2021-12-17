@@ -51,6 +51,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     s = s + 1
     print(paste0("Sample ", s, " of ", length(samples)))
 
+    # 1. Data load
+
     aux_string <- paste0("M", i, ".rds") # Generate file name
     aux_list <- readRDS(aux_string) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
@@ -59,7 +61,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     ret_time <- aux_list$data$retention_time # Extract ret_time from file
     fs = c(1/(drift_time[2]-drift_time[1]),1/(ret_time[2]-ret_time[1])); # Calculate sampling rate
 
-    # Search RIP position
+    # 2. Search of RIP position
 
     total_ion_spectrum <- rowSums(aux) # Sum per rows
     rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
@@ -67,28 +69,34 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
+    # 3. Gradient computation
+
     # Compute the 2nd derivative for both axes
     drt <- apply(aux, 1, function(x) -sgolayfilt(x, p = 2, n = 21, m = 2))
     ddt <- apply(aux, 2, function(x) -sgolayfilt(x, p = 2, n = 21, m = 2))
 
+    # The gradient is the sum of the derivatives in both axes
     daux <- ddt + t(drt)
 
-    patch <- daux[100:200,2000:2100]
-    sigmaNoise <- sd(patch)
+    patch <- daux[100:200,2000:2100] # Patch with noise
+    sigmaNoise <- sd(patch) # Standard deviation of noise
 
-    # Curve fitting of RIP
+    # 4. Curve fitting of RIP
 
-    signal = aux[rip_start_index:rip_end_index, 110]
-    template <- sgolayfilt(signal, p = 2, n = 21, m = 2)
-    tgauss <- drift_time[rip_start_index:rip_end_index]
-    f <- DuffyTools::fit.gaussian(x = tgauss, y = abs(template)) # Fit RIP into Gaussian
+    signal = aux[rip_start_index:rip_end_index, 110] # Take RIP
+    template <- sgolayfilt(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
+    tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
+    f <- DuffyTools::fit.gaussian(x = tgauss, y = abs(template)) # Fit RIP into Gaussian distribution
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
-    ## Peaks and Zero-Crossing for Retention Time ## NO derivada en dos direcciones? diferencia compute derivative y sgolayfilt
-    nNoise <- noise_level # Los picos tienen que estar 3 vece por encima del ruido 3 o 10 segun IUPAC
-    peaksrt <- vector(mode = "list", length = dim(daux)[2])
-    zeros_rt <- vector(mode = "list", length = dim(daux)[2])
+    # 5. Peaks and Zero-crossings
+    ## 5.a. Retention time
 
+    nNoise <- noise_level # Peaks have to be 3 or 10 times above the noise level (according to IUPAC)
+    peaksrt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for peaks
+    zeros_rt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for zero crossings
+
+    # For loop that iterates through all the rows
     for(j in (1:dim(daux)[2])){
       # Find the max (peaks)
       #locs <- findpeaks(daux[,j], minpeakheight  = nNoise*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
@@ -116,10 +124,11 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       peaksrt[[j]] <- locs_tmp
     }
 
-    ## Peaks and Zero-Crossing for Drift Time
-    peaksdt <- vector(mode = "list", length = dim(daux)[1])
-    zeros_dt <- vector(mode = "list", length = dim(daux)[1])
+    ## 5.b. Peaks and Zero-Crossing for Drift Time
+    peaksdt <- vector(mode = "list", length = dim(daux)[1]) # Initialization of vector for peaks
+    zeros_dt <- vector(mode = "list", length = dim(daux)[1]) # Initialization of vector for zero crossings
 
+    # For loop that iterates through all the columns
     for(j in (1:dim(daux)[1])){
       # Find the max (peaks)
       locs <- findpeaks(daux[j, ], minpeakheight = nNoise*sigmaNoise)[ ,2]
