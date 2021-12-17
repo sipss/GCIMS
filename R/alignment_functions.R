@@ -14,8 +14,8 @@
 #' @param slack_vector    Vector of slacks.
 #' @details \code{gcims_baseline_removal} aligns sample chromatograms (in
 #'   retention time) or spectra (in drift time).
-#'   The alignment is achieved by transforming the selected temporal  axis of
-#'   each sample according to the reference using the Correlation Optimized
+#'   The alignment in drift time is achieved by transforming the selected temporal
+#'   axis of each sample according to the reference using the Correlation Optimized
 #'   Warping (COW).
 #'
 #'   In COW, the reference signal of length \emph{N} is divided
@@ -42,6 +42,10 @@
 #'   In particular, the arguments \code{seg_vector} and \code{slack_vector}
 #'   provide, respectively, the sets of possible values of \emph{L} and \emph{t}
 #'   for COW parameter optimization.
+#'
+#'   The alignment in retention time is achieved applying parametric time warping.
+#'   The arguments \code{seg_vector} and \code{slack_vector} are not necessary for
+#'   the retention time alignment.
 #' @return A set of S3 objects.
 #' @export
 #'
@@ -102,7 +106,6 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
   setwd(dir_in)
   if (time == "Drift"){
     Warping <- optimize_cow(dir_in, dir_out, samples, time, seg_vector, slack_vector)
-  } else if (time == "Retention"){
   }
 
   m <- -1
@@ -140,7 +143,6 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
         aux_with_zero_pad[501:(nrow(aux_with_zero_pad) - 500), ] <- aux
         aux_to_align <- aux_with_zero_pad
         global_warp <- ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0, 1), mode = "backward")
-        summary(global_warp)
         aux_global_warp <- global_warp$warped.sample
         aux_global_warp[is.na(aux_global_warp)] <- 0
         indiv_warp <- ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0,1,0), mode = "backward")
@@ -164,10 +166,8 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
     setwd(dir_out)
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
-
   }
-
-  }
+}
 
 
 optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
