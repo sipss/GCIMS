@@ -126,8 +126,104 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 }
 
 
-#' Read GC-IMS Samples from matlab
+read_mea <- function(filename) {
+  string_keys <- c(
+    "ADIO gpident no", "ADIO name", "ADIO serial", "ADIO version",
+    "Class", "Firmware date", "Firmware version", "Machine name",
+    "Machine serial", "Machine type", "Recognized substances", "Sample",
+    "Sample number", "Program", "Status", "Timestamp", "Drift Gas",
+    "Filter", "GC Column", "Sensor data")
+  unitless_integer_keys <- c('Chunk averages', 'Chunk sample count', "Chunks count")
+  value_unit_keys <- c(
+    "Board temperature", 'Chunk sample rate',
+    'Chunk trigger duration', 'Chunk trigger repetition',
+    "Chunk voltrange", "Flow1 setpoint", "Flow2 setpoint",
+    "Start Flow1", "Start flow2", "Start temp1",
+    "Start temp2", "Start temp3", "Temp1 setpoint",
+    "Temp2 setpoint", "Temp3 setpoint",
+    "EPC ambient pressure", "EPC1 end-pressure", "EPC1 pressure", "EPC2 end-pressure",
+    "EPC2 pressure", "Flow Epc 1", "Flow Epc 2", "Flow record interval",
+    "nom Drift Potential Difference", "nom Drift Tube Length", "Pressure Ambient",
+    "Pressure Epc 1", "Pressure Epc 2", "Sensor block", "Sensor drift", "Sensor inject",
+    "Start flow1", "Start flow2", sprintf("Start temp %d", 1:6), sprintf("Temp %d setpoint", 1:6),
+    "Pressure record interval")
+  last_key <- "Timestamp"
 
+  params <- list()
+
+  if (endsWith(filename, ".gz")) {
+    con <- gzfile(filename, "rb")
+  } else {
+    con <- file(filename, "rb")
+  }
+  on.exit(close(con))
+
+  key <- ""
+  while (key != last_key) {
+    tline <- readLines(con, n=1, encoding = "windows-1252")
+    tline <- iconv(tline, from = "windows-1252", to="UTF-8")
+    key_values <- stringr::str_trim(stringr::str_split_fixed(tline, "=", n=2)[1,], side = "both")
+    key <- key_values[1]
+    value <- key_values[2]
+
+    if (key %in% string_keys) {
+      if (nchar(value) > 1 && startsWith(value, '"') && endsWith(value, '"')) {
+        value <- substr(value, start = 2, stop = nchar(value)-1)
+      }
+      params[[key]] <- value
+    } else if (key %in% unitless_integer_keys) {
+      params[[key]] <- as.integer(value)
+    } else if (key %in% value_unit_keys) {
+      pat <- stringr::regex("(.*)\\[(.*)\\]")
+      val_unit <- stringr::str_trim(stringr::str_match(value, pat)[1,], side = "both")
+      value <- val_unit[2]
+      value_as_num <- stringr::str_split(value, stringr::fixed(" "))[[1]]
+      suppressWarnings({
+        value_as_num <- as.numeric(value_as_num)
+      })
+      if (!anyNA(value_as_num)) {
+        value <- value_as_num
+      }
+      unit <- val_unit[3]
+      params[[key]] <- list(value=value, unit=unit)
+    } else {
+      warning(sprintf("Unknown key: %s (please implement this)", key))
+      params[[key]] <- value
+    }
+  }
+  # drift time in ms, we want chunk sample rate in kHz
+  if (params[["Chunk sample rate"]][["unit"]] == "kHz") {
+    drift_time_sample_rate_khz <- params[["Chunk sample rate"]][["value"]]
+  } else {
+    stop(sprintf("Expected Chunk sample rate to be in kHz, found %s instead. Please implement this", params[["Chunk sample rate"]][["unit"]]))
+  }
+  max_drift_time <- params[["Chunk sample count"]] / drift_time_sample_rate_khz
+  drift_time <- seq(from=0.0, to=max_drift_time, length.out=params[["Chunk sample count"]])
+  # create retention time vector. Example:
+  # time between two spectra measurements (in sec)
+  # we are averaging 32 spectra, and one spectra is taken every 21 ms:
+  # 32*21/1000 = 0.692 s approx 0.7 s
+  if (params[["Chunk trigger repetition"]][["unit"]] == "ms") {
+    retention_time_step_s <- params[["Chunk trigger repetition"]][["value"]] / 1000
+  } else if (params[["Chunk trigger repetition"]][["unit"]] == "s") {
+    retention_time_step_s <- params[["Chunk trigger repetition"]][["value"]]
+  } else {
+    stop(sprintf("Expected Chunk trigger repetition to be in ms, found %s instead. Please implement this", params[["Chunk sample rate"]][["unit"]]))
+  }
+
+  ret_time_step <- params[['Chunk averages']]*retention_time_step_s
+  max_ret_time <- params[["Chunks count"]]*ret_time_step
+  ret_time <- seq(from = 0.0, to = max_ret_time, length.out = params[["Chunks count"]])
+  # read the actual data:
+  npoints <- params[["Chunks count"]]*params[["Chunk sample count"]]
+  data <- readBin(con, what = "numeric", n = npoints, size = 16L, endian = "little")
+  data <- matrix(data, nrow = params[["Chunk sample count"]], ncol = params[["Chunks count"]])
+  list(drift_time = drift_time, ret_time = ret_time, data = data, params = params)
+}
+
+
+#' Read GC-IMS Samples from MATLAB files
+#'
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
 #' @return An R object that contains the matrix and the retention times
