@@ -25,9 +25,6 @@
 #'
 #' # Example of ROIs Clustering for Peak Table Creation
 #' gcims_peaks_clustering <- function(dir_in, dir_out, samples)
-
-
-
 gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   print(" ")
   print("  ///////////////////////////")
@@ -35,121 +32,130 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   print("///////////////////////////")
   print(" ")
 
-  setwd(dir_in)
+  load_samples <- function(dir_in, samples) {
+    setwd(dir_in)
+    num_samples <- length(samples)
 
-  imgs <- NULL
-  AsF <- NULL
-  volume <- NULL
-  saturation <- NULL
-  peak <- NULL
-  nrois <- NULL
+    imgs <- vector("list", length = num_samples)
+    peaks <- vector("list", length = num_samples)
 
-  m = 0
-  for (i in samples){
-    m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
+    sample_names <- paste0("M", samples)
 
-    aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
-    aux <- (as.matrix(aux_list$data$data_df))
+    for (m in seq_along(samples)) {
+      print(paste0("Sample ", m, " of ", num_samples))
+      aux_list <- readRDS(paste0(sample_names[m], ".rds"))
 
-    imgs[[i]] <- aux
-    AsF[[i]] <- aux_list$data$Parameters["AsF", ]
-    volume[[i]] <- aux_list$data$Parameters["volume", ]
-    saturation[[i]] <- aux_list$data$Parameters["saturation", ]
-    peak[[i]] <- aux_list$data$Peaks
-    nrois[[i]] <- aux_list$data$ROIs
+      parameters_df_i <- as.data.frame(t(aux_list$data$Parameters))
+      rownames(parameters_df_i) <- sprintf("Peak%d", seq_len(nrow(parameters_df_i)))
+
+      rois_i <- aux_list$data$ROIs
+      rownames(rois_i) <- sprintf("Peak%d", seq_len(nrow(rois_i)))
+      colnames(rois_i) <- c("xmin", "xmax", "ymin", "ymax") # FIXME: Please check the order of the columns.
+
+      apex_i <- aux_list$data$Peaks
+      colnames(apex_i) <- c("xapex", "yapex")
+      rownames(rois_i) <- sprintf("Peak%d", seq_len(nrow(apex_i)))
+
+      # Maybe instead of the Peaks, ROIs and Parameters, we could just have one dataframe in the RDS:
+      peaks_i <- cbind(apex_i, rois_i, parameters_df_i)
+      imgs[[m]] <- as.matrix(aux_list$data$data_df)
+      peaks[[m]] <- tibble::rownames_to_column(peaks_i, var = "PeakID")
+    }
+    names(imgs) <- sample_names
+    names(peaks) <- sample_names
+    peaks_df <- dplyr::bind_rows(peaks, .id = "SampleID")
+    # Add a unique peak ID, that combines Sample+Peak ids:
+    peaks_df <- tibble::add_column(
+      peaks_df,
+      UniqueID = paste0(peaks_df$SampleID, peaks_df$PeakID),
+      .before = 1
+    )
+    list(
+      imgs = imgs,
+      peaks = tibble::as_tibble(peaks_df)
+    )
   }
+  loaded_samples <- load_samples(dir_in, samples)
 
-  AsF <- unlist(AsF)
-  volume <- unlist(volume)
-  saturation <- unlist(saturation)
-  datapoints <- do.call(rbind.data.frame, peak)
-  ROIs <- do.call(rbind.data.frame, nrois)
+  imgs <- loaded_samples$imgs
+  peaks <- loaded_samples$peaks
+  rm(loaded_samples, load_samples)
+
+  # 1. Filter peaks with weird width or height
+  roi_sizes <- tibble::tibble(
+    UniqueID = peaks$UniqueID,
+    width = peaks$xmax - peaks$xmin,
+    height = peaks$ymax - peaks$ymin
+  )
+  quartiles_w <- quantile(roi_sizes$width)
+  lower_bound_iqr_w <- quartiles_w["75%"] - 1.5*(quartiles_w["75%"] - quartiles_w["25%"])
+  higher_bound_iqr_w <- quartiles_w["75%"] + 1.5*(quartiles_w["75%"] - quartiles_w["25%"])
+  quartiles_h <- quantile(roi_sizes$height)
+  lower_bound_iqr_h <- quartiles_h["75%"] - 1.5*(quartiles_h["75%"] - quartiles_h["25%"])
+  higher_bound_iqr_h <- quartiles_h["75%"] + 1.5*(quartiles_h["75%"] - quartiles_h["25%"])
+
+  peaks_to_exclude <- roi_sizes$UniqueID[
+    roi_sizes$width < lower_bound_iqr_w | roi_sizes$width > higher_bound_iqr_w |
+      roi_sizes$height < lower_bound_iqr_h | roi_sizes$height > higher_bound_iqr_h
+  ]
+  message(sprintf("Excluding %d/%d peaks", length(peaks_to_exclude), nrow(peaks)))
+  peaks <- dplyr::filter(peaks, ! UniqueID %in% peaks_to_exclude)
 
 
-  lengthroissamples <- NULL
-  for(j in 1:length(samples)){
-    lengthrois <- dim(nrois[[j]])[1]
-    lengthroissamples <- c(lengthroissamples, lengthrois)
+  N_clusters <- max(by(peaks, peaks$SampleID, nrow))
+
+  # Mahalanobis distance:
+  # https://stats.stackexchange.com/a/81710/62083
+  cholMaha <- function(X) {
+    dec <- chol( cov(X) )
+    tmp <- forwardsolve(t(dec), t(X) )
+    dist(t(tmp))
   }
-
-  N_clusters <- max(lengthroissamples)
-
-  D <- kmed::distNumeric(as.matrix(datapoints), as.matrix(datapoints), method = "sev") ##Revisar
-  ## cluster <- clue::kmedoids(D, N_clusters) Muy pesado
-  cluster <- cluster::pam(datapoints,N_clusters, metric = "manhattan") #Programme from scratch
-  idx <- cluster$clustering
-  idx_post <- matrix(0, length(idx), 3)
-  k <- length(unique(idx))
-
-  for (n in 1:k){
-    idx_tmp <- which(idx == n)
-    acc = 1
-    for (j in 1:length(samples)){
-      boolean <- idx_tmp >= acc & idx_tmp <= (acc-1) + length(nrois[[j]])
-      if (sum(boolean) >= 1){
-        dist <- D[idx_tmp[boolean], n]
-        mindist <- which.min(dist)
-        pos <- which(boolean == TRUE)
-        idx_post[idx_tmp[pos[mindist]], 1] <- n
-        idx_post[idx_tmp[pos], 2] <- j
-      }
-      acc <- acc + lengthroissamples[j]
+  peak2peak_D_mahal <- cholMaha(as.matrix(peaks[,c("xapex", "yapex")]))
+  peak2peak_D_mahal_mat <- as.matrix(peak2peak_D_mahal)
+  rownames(peak2peak_D_mahal_mat) <- peaks$UniqueID
+  colnames(peak2peak_D_mahal_mat) <- peaks$UniqueID
+  # Set distances from pairs of peaks belonging to the same sample to Inf,
+  # so they are never in the same cluster
+  max_dist <- max(peak2peak_D_mahal_mat)
+  for (sampleid in unique(peaks$SampleID)) {
+    peaks_i <- peaks$UniqueID[peaks$SampleID == sampleid]
+    for (peak_i in peaks_i) {
+      peak2peak_D_mahal_mat[peak_i, peaks_i] <- 10*nrow(peak2peak_D_mahal_mat)*max_dist
+      peak2peak_D_mahal_mat[peaks_i, peak_i] <- 10*nrow(peak2peak_D_mahal_mat)*max_dist
+      peak2peak_D_mahal_mat[peak_i, peak_i] <- 0
     }
   }
+  peak2peak_D_mahal_inf_self_sample <- as.dist(peak2peak_D_mahal_mat)
+  rm(peak2peak_D_mahal_mat)
 
-  ## Filtering
+  cluster <- cluster::pam(x = peak2peak_D_mahal_inf_self_sample, k = N_clusters)
 
-  # Filter widths
-  widths <- ROIs[, 2] - ROIs[, 1]
-  quartiles <- quantile(widths)
-  idx_post[c(which(widths > quartiles[2]), which(widths > quartiles[4])), 3] <- 1 #1s son outliers, seran descartados
-
-  # Filter heights
-  heights <- ROIs[, 4] - ROIs[, 3]
-  medianheight <- median(heights)
-  quartiles <- quantile(heights)
-  idx_post[c(which(heights > medianheight + quartiles[2]), which(heights > medianheight + quartiles[4])), 3] <- 1 #1s son outliers, seran descartados
-
-  # Filter clusters with 2 or fewer ROIs (cambiar a tanto por cierto)
-  N_min_clusters <- 2
-  clustfreqs <- plyr::count(idx_post[idx_post[, 3] != 1, 2])
-
-  for (j in clustfreqs[clustfreqs[,2] <= N_min_clusters, 1]){
-    idx_post[idx_post[,1] == j, 3] <- 1
-  }
-
-  # Repescamiento
-  pos_zeros <- which(idx_post[,1] == 0 & idx_post[,3] != 1) #Positions of ROIs where there are zeros and are not discarded
-
-  for (j in pos_zeros){
-    possible_candidates <- setdiff(1:dim(idx_post)[1], idx_post[idx_post[, 2] == idx_post[j, 2] & idx_post[, 3] != 1, 1])
-    k <- intersect(setdiff(possible_candidates, 0), clustfreqs[clustfreqs[,2] > N_min_clusters, 1]) #transponer
-    p_vals <- NULL
-    for (n in (1:length(k))){
-      clustern <- datapoints[idx_post[,1] == k[n] & idx_post[,3] != 1, ]
-      if (dim(clustern)[1] > 2){
-        p_val <- Hotelling::hotelling.test(datapoints[j, ], clustern)
-        p_vals <- c(p_vals, p_val$pval)
-      }
-    }
-    maxpval <- which.max(p_vals)
-    if(p_vals[maxpval] > 0.05){ # If greater than p-value (0.05)
-      idx_post[j, 1] <- maxpval
-    }
-  }
+  peaks$cluster <- cluster$clustering
 
   ## Imputation and statistics
 
-  pos <- idx_post[, 3] != 1 & idx_post[, 1] != 0
-  indices_clusters <- unique(idx_post[pos, 1])
+  indices_clusters <- unique(peaks$cluster)
+  num_clusters <- length(indices_clusters)
   K <- length(indices_clusters)
 
-  stats <- vector(mode = "list", length = K)
-  table <- matrix(0, length(samples), K)
+  stats <- vector(mode = "list", length = num_clusters)
 
-  for (k in (1:K)){
+  median_roi_per_cluster <- peaks %>%
+    dplyr::group_by(clusters) %>%
+    dplyr::summarise(
+      xmin = median(xmin),
+      xmax = median(xmax),
+      ymin = median(ymin),
+      ymax = median(ymax),
+    ) %>%
+    dplyr::ungroup()
+
+  peaks %>%
+    dplyr::select(SampleID, cluster, volume) %>%
+    tidyr::pivot_wider(names_from = SampleID, values_from = volume, values_fn = length)
+
+  for (k in seq_len(num_clusters)) {
     n <- indices_clusters[k]
     pos_n <- idx_post[, 1] == n & idx_post[, 3] != 1
     samples_n <- idx_post[pos_n, 2]
@@ -182,7 +188,6 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
     stats[[k]]$Name <- paste("Cluster", k)
     stats[[k]]$AsF <- AsF_tmp
     stats[[k]]$volume <- volume_tmp
-    table[,k] <- volume_tmp
 
     stats[[k]]$AsF.mean  <- mean(AsF_tmp)
     stats[[k]]$volume_mean <- mean(volume_tmp)
