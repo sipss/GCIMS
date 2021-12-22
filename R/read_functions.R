@@ -216,7 +216,7 @@ read_mea <- function(filename) {
   ret_time <- seq(from = 0.0, to = max_ret_time, length.out = params[["Chunks count"]])
   # read the actual data:
   npoints <- params[["Chunks count"]]*params[["Chunk sample count"]]
-  data <- readBin(con, what = "numeric", n = npoints, size = 16L, endian = "little")
+  data <- readBin(con, what = "int", n = npoints, signed = TRUE, size = 2L, endian = "big")
   data <- matrix(data, nrow = params[["Chunk sample count"]], ncol = params[["Chunks count"]])
   list(drift_time = drift_time, ret_time = ret_time, data = data, params = params)
 }
