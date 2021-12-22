@@ -1,4 +1,4 @@
-#' An object to store GC-IMS datasets
+#' GCIMS dataset class
 #'
 #' GCIMS is an S4 class to store one or more samples
 #' with the same drift and retention time ranges.
@@ -6,6 +6,15 @@
 #' The actual spectra is stored in the `data` slot, in a 3-D array,
 #' where the first index corresponds to drift time, the second to retention time
 #' and the third one to the sample.
+#'
+#' @slot drift_time numeric.
+#' @slot retention_time numeric.
+#' @slot metadata data.frame.
+#' @slot data array. A cubic array with drift time in the rows, retention time
+#'  in columns and the sample index in the third dimension
+#'
+#' @return
+#' @export
 #'
 methods::setClass(
   Class = "GCIMS",
@@ -17,6 +26,12 @@ methods::setClass(
     # long tubo deriva, ... drift gas...
   )
 )
+
+
+#' @name GCIMS-methods
+#' @title Methods for the GC-IMS class
+NULL
+
 
 setMethod("length", "GCIMS", function(x) dim(x)[3])
 
