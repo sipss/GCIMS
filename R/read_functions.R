@@ -126,6 +126,20 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 }
 
 
+#' Read .mea files (from GAS Dortmund)
+#'
+#' This function reads a .mea file (supporting gzip compressed .mea.gz files as well)
+#' and returns a GCIMS object
+#'
+#' @param filename A .mea or a .mea.gz path to a file
+#'
+#' @return A GC-IMS sample
+#' @export
+#'
+#' @examples
+#' mea_file <- system.file("extdata/sample_formats/211108_153700.mea.gz", package = "GCIMS")
+#' sample <- read_mea(mea_file)
+#'
 read_mea <- function(filename) {
   string_keys <- c(
     "ADIO gpident no", "ADIO name", "ADIO serial", "ADIO version",
@@ -187,7 +201,7 @@ read_mea <- function(filename) {
       unit <- val_unit[3]
       params[[key]] <- list(value=value, unit=unit)
     } else {
-      warning(sprintf("Unknown key: %s (please implement this)", key))
+      warning(sprintf("Unknown key: %s (please open an issue to implement this)", key))
       params[[key]] <- value
     }
   }
@@ -195,7 +209,7 @@ read_mea <- function(filename) {
   if (params[["Chunk sample rate"]][["unit"]] == "kHz") {
     drift_time_sample_rate_khz <- params[["Chunk sample rate"]][["value"]]
   } else {
-    stop(sprintf("Expected Chunk sample rate to be in kHz, found %s instead. Please implement this", params[["Chunk sample rate"]][["unit"]]))
+    stop(sprintf("Expected Chunk sample rate to be in kHz, found %s instead. Please open an issue to implement this", params[["Chunk sample rate"]][["unit"]]))
   }
   max_drift_time <- params[["Chunk sample count"]] / drift_time_sample_rate_khz
   drift_time <- seq(from=0.0, to=max_drift_time, length.out=params[["Chunk sample count"]])
@@ -208,7 +222,7 @@ read_mea <- function(filename) {
   } else if (params[["Chunk trigger repetition"]][["unit"]] == "s") {
     retention_time_step_s <- params[["Chunk trigger repetition"]][["value"]]
   } else {
-    stop(sprintf("Expected Chunk trigger repetition to be in ms, found %s instead. Please implement this", params[["Chunk sample rate"]][["unit"]]))
+    stop(sprintf("Expected Chunk trigger repetition to be in ms, found %s instead. Please open an issue to implement this", params[["Chunk sample rate"]][["unit"]]))
   }
 
   ret_time_step <- params[['Chunk averages']]*retention_time_step_s
