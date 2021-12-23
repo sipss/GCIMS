@@ -2,14 +2,19 @@
 % Please edit documentation in R/object.R
 \name{GCIMS-methods}
 \alias{GCIMS-methods}
+\alias{length,GCIMS-method}
 \alias{.DollarNames.GCIMS}
 \alias{$.GCIMS}
 \alias{$<-.GCIMS}
 \alias{[.GCIMS}
 \alias{subset.GCIMS}
 \alias{subset}
+\alias{[[.GCIMS}
+\alias{[[<-,GCIMS,ANY,ANY,ANY-method}
 \title{Methods for the GC-IMS class}
 \usage{
+\S4method{length}{GCIMS}(x)
+
 \method{.DollarNames}{GCIMS}(x, pattern = "")
 
 \method{$}{GCIMS}(x, i, ...)
@@ -19,6 +24,10 @@
 \method{[}{GCIMS}(x, i, j, k, ...)
 
 \method{subset}{GCIMS}(x, subset, dt_idx = NULL, rt_idx = NULL, samples_idx = NULL, ...)
+
+\method{[[}{GCIMS}(x, i, ..., drop = FALSE)
+
+\S4method{[[}{GCIMS,ANY,ANY,ANY}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{ An R object for which valid names after \code{"$"}
@@ -29,6 +38,17 @@
     returned.
   }
 
+\item{i}{index for drift time to subset}
+
+\item{...}{Passed to subset}
+
+\item{value}{A vector of length number of samples with metadata to add; \strong{note}:
+can pass \code{NULL} to remove metadata or an associated object}
+
+\item{j}{index for retention time to subset}
+
+\item{k}{index for samples to subset}
+
 \item{subset}{Logical expression metadata filters to keep}
 
 \item{dt_idx}{A vector of drift time indices to keep}
@@ -36,6 +56,8 @@
 \item{rt_idx}{A vector of retention time indices to keep}
 
 \item{samples_idx}{A vector of sample indices to keep}
+
+\item{drop}{See \code{\link[base]{drop}}}
 }
 \value{
 \code{$}: metadata column \code{i} for object \code{x};
@@ -48,12 +70,22 @@ to return a vector instead of a data frame
 \code{[}: object \code{x} with features \code{i} and cells \code{j}
 
 \code{subset}: A subsetted \code{GCIMS} object
+
+\code{[[}: If \code{i} is missing, the metadata data frame; if
+\code{i} is a vector of metadata names, a data frame with the requested
+metadata, otherwise, the requested associated object
+
+\code{[[<-}: \code{x} with the metadata or associated objects added
+as \code{i}; if \code{value} is \code{NULL}, removes metadata \code{i}
+from object \code{x}
 }
 \description{
 Methods for the GC-IMS class
 }
 \section{Functions}{
 \itemize{
+\item \code{length,GCIMS-method}: Length of a \code{GCIMS} object
+
 \item \code{.DollarNames.GCIMS}: Autocompletion for \code{$} access on a
 \code{GCIMS} object
 
@@ -63,19 +95,34 @@ Methods for the GC-IMS class
 
 \item \code{[.GCIMS}: Simple subsetter for \code{GCIMS} objects
 
-\item \code{subset.GCIMS}: Subset a \code{\link{GCIMS}} object
+\item \code{subset.GCIMS}: Subset a \code{\link{GCIMS-class}} object
+
+\item \code{[[.GCIMS}: Metadata and associated object accessor
+
+\item \code{[[<-,GCIMS,ANY,ANY,ANY-method}: Add metadata
 }}
 
 \examples{
-\dontrun{
 # Get metadata using `$'
+mydataset <- methods::new(
+  "GCIMS",
+  drift_time = 1:2,
+  retention_time = 1:3,
+  metadata = data.frame(groups = c("a", "b")),
+  data = array(1, dim = c(2, 3, 2))
+)
 head(mydataset$groups)
-}
 
 # Add metadata using the `$' operator
-set.seed(42)
-mydataset$value <- sample(1:3, size = length(mydataset), replace = TRUE)
-head(mydataset[["value"]])
+mydataset <- methods::new(
+  "GCIMS",
+  drift_time=1:2,
+  retention_time=1:3,
+  metadata = data.frame(a=1:4),
+  data = array(1, dim = c(2, 3, 4))
+)
+mydataset$value <- c("a", "b", "c", "d")
+head(mydataset$value)
 
 # `[' examples
 
@@ -83,7 +130,18 @@ head(mydataset[["value"]])
 subset(mydataset, subset = Sex > 'Male')
 subset(mydataset, subset = Sex > 'Male', rt = 1:100, dt = 10:20)
 
+# Get the cell-level metadata data frame
+head(pbmc_small[[]])
+
+# Pull specific metadata information
+head(pbmc_small[[c("letter.idents", "groups")]])
+head(pbmc_small[["groups", drop = TRUE]])
+
+# Get a sub-object (eg. an `Assay' or `DimReduc')
+pbmc_small[["RNA"]]
+pbmc_small[["pca"]]
+
 }
 \seealso{
-\code{\link[base]{subset}} \code{\link{WhichSamples}}
+\code{\link[base]{subset}}
 }

@@ -5,7 +5,7 @@
 \alias{GCIMS-class}
 \title{GCIMS dataset class}
 \value{
-
+A GC-IMS object
 }
 \description{
 GCIMS is an S4 class to store one or more samples
