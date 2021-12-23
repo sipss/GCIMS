@@ -189,9 +189,3 @@ psalsa <- function(data, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
   return (list(baseline = estbaseline, corrected = data - estbaseline))
 
 }
-
-
-
-
-
-
