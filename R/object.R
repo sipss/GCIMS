@@ -13,7 +13,7 @@
 #' @slot data array. A cubic array with drift time in the rows, retention time
 #'  in columns and the sample index in the third dimension
 #'
-#' @return
+#' @return A GC-IMS object
 #' @export
 #'
 methods::setClass(
@@ -32,7 +32,8 @@ methods::setClass(
 #' @title Methods for the GC-IMS class
 NULL
 
-
+#' @describeIn GCIMS-methods
+#' Length of a \code{GCIMS} object
 setMethod("length", "GCIMS", function(x) dim(x)[3])
 
 setGeneric("driftTime", function(x) standardGeneric("driftTime"))
@@ -81,6 +82,12 @@ setValidity("GCIMS", function(object) {
   rt <- retentionTime(object)
   metadata <- object@metadata
   x <- object@data
+  if (!inherits(x, "array")) {
+    issues <- c(issues, "data slot should have an array")
+  }
+  if (length(dim(x)) != 3) {
+    issues <- c(issues, "data slot should be a cubic array")
+  }
   if (dim(x)[1] != length(dt)) {
     issues <- c(issues, "Length of drift_time does not match first data dimension")
     success <- FALSE
@@ -126,10 +133,15 @@ setValidity("GCIMS", function(object) {
 #' @method $ GCIMS
 #'
 #' @examples
-#' \dontrun{
 #' # Get metadata using `$'
+#' mydataset <- methods::new(
+#'   "GCIMS",
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   metadata = data.frame(groups = c("a", "b")),
+#'   data = array(1, dim = c(2, 3, 2))
+#' )
 #' head(mydataset$groups)
-#' }
 #'
 "$.GCIMS" <- function(x, i, ...) {
   return(x[[i, drop = TRUE]])
@@ -138,6 +150,7 @@ setValidity("GCIMS", function(object) {
 
 #' @describeIn GCIMS-methods Metadata setter for \code{GCIMS} objects
 #'
+#' @param value A vector of length number of samples with metadata
 #' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
 #' \code{i}
 #'
@@ -146,9 +159,15 @@ setValidity("GCIMS", function(object) {
 #'
 #' @examples
 #' # Add metadata using the `$' operator
-#' set.seed(42)
-#' mydataset$value <- sample(1:3, size = length(mydataset), replace = TRUE)
-#' head(mydataset[["value"]])
+#' mydataset <- methods::new(
+#'   "GCIMS",
+#'   drift_time=1:2,
+#'   retention_time=1:3,
+#'   metadata = data.frame(a=1:4),
+#'   data = array(1, dim = c(2, 3, 4))
+#' )
+#' mydataset$value <- c("a", "b", "c", "d")
+#' head(mydataset$value)
 #'
 "$<-.GCIMS" <- function(x, i, ..., value) {
   x[[i]] <- value
@@ -160,6 +179,10 @@ setValidity("GCIMS", function(object) {
 #'
 #' @return \code{[}: object \code{x} with features \code{i} and cells \code{j}
 #'
+#' @param i index for drift time to subset
+#' @param j index for retention time to subset
+#' @param k index for samples to subset
+#' @param ... Passed to subset
 #' @export
 #' @method [ GCIMS
 #'
@@ -212,7 +235,7 @@ dimnames.GCIMS <- function(x) {
 
 
 
-#' @describeIn GCIMS-methods Subset a \code{\link{GCIMS}} object
+#' @describeIn GCIMS-methods Subset a \code{\link{GCIMS-class}} object
 #'
 #' @param subset Logical expression metadata filters to keep
 #' @param dt_idx A vector of drift time indices to keep
@@ -224,7 +247,7 @@ dimnames.GCIMS <- function(x) {
 #' @importFrom rlang enquo
 #
 #' @aliases subset
-#' @seealso \code{\link[base]{subset}} \code{\link{WhichSamples}}
+#' @seealso \code{\link[base]{subset}}
 #'
 #' @export
 #' @method subset GCIMS
@@ -273,7 +296,7 @@ subset.GCIMS <- function(
     return(x)
   }
 
-  new(
+  methods::new(
     "GCIMS",
     drift_time = dt[dt_idx],
     retention_time = rt[rt_idx],
@@ -281,3 +304,84 @@ subset.GCIMS <- function(
     data = x@data[dt_idx, rt_idx, samples_idx, drop = FALSE]
   )
 }
+
+
+
+#' @describeIn GCIMS-methods Metadata and associated object accessor
+#'
+#' @param drop See \code{\link[base]{drop}}
+#'
+#' @return \code{[[}: If \code{i} is missing, the metadata data frame; if
+#' \code{i} is a vector of metadata names, a data frame with the requested
+#' metadata, otherwise, the requested associated object
+#'
+#' @export
+#' @method [[ GCIMS
+#'
+#' @examples
+#' # Get the cell-level metadata data frame
+#' head(pbmc_small[[]])
+#'
+#' # Pull specific metadata information
+#' head(pbmc_small[[c("letter.idents", "groups")]])
+#' head(pbmc_small[["groups", drop = TRUE]])
+#'
+#' # Get a sub-object (eg. an `Assay' or `DimReduc')
+#' pbmc_small[["RNA"]]
+#' pbmc_small[["pca"]]
+#'
+"[[.GCIMS" <- function(x, i, ..., drop = FALSE) {
+  metadata <- methods::slot(x, name = "metadata")
+  if (missing(x = i)) {
+    i <- colnames(x = metadata)
+  }
+  if (length(i) == 0) {
+    return(metadata)
+  }
+  if (!all(i %in% colnames(metadata))) {
+    missing_columns <- i[! i %in% colnames(metadata)]
+    stop(sprintf("The dataset does not have the following columns: %s", paste(missing_columns, collapse = ", ")))
+  }
+  return(metadata[i])
+}
+
+
+#'
+"[[.GCIMS<-" <- function(x, i, ..., value) {
+  metadata <- methods::slot(x, name = "metadata")
+  if (missing(x = i)) {
+    i <- colnames(x = metadata)
+  }
+  if (length(i) == 0) {
+    return(metadata)
+  }
+  if (!all(i %in% colnames(metadata))) {
+    missing_columns <- i[! i %in% colnames(metadata)]
+    stop(sprintf("The dataset does not have the following columns: %s", paste(missing_columns, collapse = ", ")))
+  }
+  return(metadata[i])
+}
+
+
+#' @describeIn GCIMS-methods Add metadata
+#'
+#' @param value A vector of length number of samples with metadata to add; \strong{note}:
+#' can pass \code{NULL} to remove metadata or an associated object
+#'
+#' @return \code{[[<-}: \code{x} with the metadata or associated objects added
+#' as \code{i}; if \code{value} is \code{NULL}, removes metadata \code{i}
+#' from object \code{x}
+#'
+#' @export
+#'
+setMethod( # because R doesn't allow S3-style [[<- for S4 classes
+  f = '[[<-',
+  signature = c('x' = 'GCIMS'),
+  definition = function(x, i, ..., value) {
+    if (!is.character(x = i)) {
+      stop("'i' must be a character", call. = FALSE)
+    }
+    x@metadata[[i]] <- value
+    x
+  }
+)
