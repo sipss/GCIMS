@@ -39,6 +39,9 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
     imgs <- vector("list", length = num_samples)
     peaks <- vector("list", length = num_samples)
 
+    drift_times <- vector("list", length = num_samples)
+    ret_times <-  vector("list", length = num_samples)
+
     sample_names <- paste0("M", samples)
 
     for (m in seq_along(samples)) {
@@ -59,6 +62,8 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
       # Maybe instead of the Peaks, ROIs and Parameters, we could just have one dataframe in the RDS:
       peaks_i <- cbind(apex_i, rois_i, parameters_df_i)
       imgs[[m]] <- as.matrix(aux_list$data$data_df)
+      ret_times[[m]] <- aux_list$data$retention_time
+      drift_times[[m]] <- aux_list$data$drift_time
       peaks[[m]] <- tibble::rownames_to_column(peaks_i, var = "PeakID")
     }
     names(imgs) <- sample_names
@@ -72,6 +77,8 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
     )
     list(
       imgs = imgs,
+      ret_times = ret_times,
+      drift_times = drift_times,
       peaks = tibble::as_tibble(peaks_df)
     )
   }
@@ -79,6 +86,8 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 
   imgs <- loaded_samples$imgs
   peaks <- loaded_samples$peaks
+  drift_times <- loaded_samples$drift_times
+  ret_times <- loaded_samples$ret_times
   rm(loaded_samples, load_samples)
 
   # 1. Filter peaks with weird width or height
@@ -87,10 +96,10 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
     width = peaks$xmax - peaks$xmin,
     height = peaks$ymax - peaks$ymin
   )
-  quartiles_w <- quantile(roi_sizes$width)
+  quartiles_w <- stats::quantile(roi_sizes$width)
   lower_bound_iqr_w <- quartiles_w["75%"] - 1.5*(quartiles_w["75%"] - quartiles_w["25%"])
   higher_bound_iqr_w <- quartiles_w["75%"] + 1.5*(quartiles_w["75%"] - quartiles_w["25%"])
-  quartiles_h <- quantile(roi_sizes$height)
+  quartiles_h <- stats::quantile(roi_sizes$height)
   lower_bound_iqr_h <- quartiles_h["75%"] - 1.5*(quartiles_h["75%"] - quartiles_h["25%"])
   higher_bound_iqr_h <- quartiles_h["75%"] + 1.5*(quartiles_h["75%"] - quartiles_h["25%"])
 
@@ -107,9 +116,9 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   # Mahalanobis distance:
   # https://stats.stackexchange.com/a/81710/62083
   cholMaha <- function(X) {
-    dec <- chol( cov(X) )
+    dec <- chol( stats::cov(X) )
     tmp <- forwardsolve(t(dec), t(X) )
-    dist(t(tmp))
+    stats::dist(t(tmp))
   }
   peak2peak_D_mahal <- cholMaha(as.matrix(peaks[,c("xapex", "yapex")]))
   peak2peak_D_mahal_mat <- as.matrix(peak2peak_D_mahal)
@@ -126,7 +135,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
       peak2peak_D_mahal_mat[peak_i, peak_i] <- 0
     }
   }
-  peak2peak_D_mahal_inf_self_sample <- as.dist(peak2peak_D_mahal_mat)
+  peak2peak_D_mahal_inf_self_sample <- stats::as.dist(peak2peak_D_mahal_mat)
   rm(peak2peak_D_mahal_mat)
 
   cluster <- cluster::pam(x = peak2peak_D_mahal_inf_self_sample, k = N_clusters)
@@ -142,29 +151,29 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   stats <- vector(mode = "list", length = num_clusters)
 
   median_roi_per_cluster <- peaks %>%
-    dplyr::group_by(clusters) %>%
+    dplyr::group_by(!!rlang::sym("clusters")) %>%
     dplyr::summarise(
-      xmin = median(xmin),
-      xmax = median(xmax),
-      ymin = median(ymin),
-      ymax = median(ymax),
+      xmin = stats::median(!!rlang::sym("xmin")),
+      xmax = stats::median(!!rlang::sym("xmax")),
+      ymin = stats::median(!!rlang::sym("ymin")),
+      ymax = stats::median(!!rlang::sym("ymax")),
     ) %>%
     dplyr::ungroup()
 
   peaks %>%
-    dplyr::select(SampleID, cluster, volume) %>%
-    tidyr::pivot_wider(names_from = SampleID, values_from = volume, values_fn = length)
+    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
+    tidyr::pivot_wider(names_from = !!rlang::sym("SampleID"), values_from = !!rlang::sym("volume"), values_fn = length)
 
   for (k in seq_len(num_clusters)) {
     n <- indices_clusters[k]
     pos_n <- idx_post[, 1] == n & idx_post[, 3] != 1
     samples_n <- idx_post[pos_n, 2]
     rest_samples_n <- setdiff((1:length(samples)), samples_n)
-    ROI_median <- floor(apply(ROIs[pos_n, ], 2, median))
+    ROI_median <- floor(apply(ROIs[pos_n, ], 2, stats::median))
 
     AsF_tmp <- rep(0, length(samples))
     AsF_tmp[samples_n] <- AsF[pos_n]
-    AsF_tmp[rest_samples_n] <- median(AsF[pos_n])
+    AsF_tmp[rest_samples_n] <- stats::median(AsF[pos_n])
 
     volume_tmp <- rep(0, length(samples))
     volume_tmp[samples_n] <- volume[pos_n]
@@ -183,7 +192,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 
     peaks_tmp <- matrix(0, length(samples), 2)
     peaks_tmp[samples_n, ] <- as.matrix(datapoints[pos_n, ])
-    peaks_tmp[rest_samples_n, ]  <- matrix(rep(floor(apply(datapoints[pos_n, ], 2, median)), each = length(rest_samples_n)), nrow = length(rest_samples_n))
+    peaks_tmp[rest_samples_n, ]  <- matrix(rep(floor(apply(datapoints[pos_n, ], 2, stats::median)), each = length(rest_samples_n)), nrow = length(rest_samples_n))
 
     stats[[k]]$Name <- paste("Cluster", k)
     stats[[k]]$AsF <- AsF_tmp
@@ -203,19 +212,20 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 
   ## Make table
 
-  drift_time <- aux_list$data$drift_time
   peak_table <- matrix(0, (length(samples) * K), 7)
 
   acc <- 1
   for (i in (1:K)){
     c <- 1
     for (j in (acc : (acc + length(samples) - 1))){
+      drift_time_idx <- stats[[i]]$peaks[c, 1]
+      ret_time_idx <- stats[[i]]$peaks[c, 2]
       peak_table[j, 1] <- c
       peak_table[j, 2] <- i
-      peak_table[j, 3] <- stats[[i]]$peaks[c, 1]
-      peak_table[j, 4] <- stats[[i]]$peaks[c, 2]
-      peak_table[j, 5] <- drift_time[stats[[i]]$peaks[c, 1]]
-      peak_table[j, 6] <- retention_time[stats[[i]]$peaks[c, 2]]
+      peak_table[j, 3] <- drift_time_idx
+      peak_table[j, 4] <- ret_time_idx
+      peak_table[j, 5] <- drift_times[[1]][drift_time_idx] # FIXME: ? Assuming homogeneus drift times across samples
+      peak_table[j, 6] <- ret_times[[1]][ret_time_idx] # FIXME: ? Assuming homogeneous ret times across samples
       peak_table[j, 7] <- stats[[i]]$volume[c]
 
       c <- c + 1
@@ -225,7 +235,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 
   colnames(peak_table) <- c("Sample", "Cluster", "PicoX (indice)", "PicoY (indice)", "PicoX (tiempo)", "PicoY (tiempo)", "Intensity")
   setwd(dir_out)
-  write.csv(peak_table, "Peaktable.csv")
+  utils::write.csv(peak_table, "Peaktable.csv")
   saveRDS(stats, "ROIsParameters.rds")
 }
 
