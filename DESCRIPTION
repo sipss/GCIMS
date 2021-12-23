@@ -31,6 +31,7 @@ Imports:
     missForest (>= 1.4),
     Hotelling,
     pracma(>= 2.2.9),
+    plyr,
     ptw (>= 1.9-10),
     purrr(>= 0.3.4),
     R.matlab (>= 3.6.2),
