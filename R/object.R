@@ -254,8 +254,8 @@ dimnames.GCIMS <- function(x) {
 #'
 #' @examples
 #' # `subset' examples
-#' subset(mydataset, subset = Sex > 'Male')
-#' subset(mydataset, subset = Sex > 'Male', rt = 1:100, dt = 10:20)
+#' subset(mydataset, subset = Sex == 'Male')
+#' subset(mydataset, subset = Sex == 'Male', rt = 1:100, dt = 10:20)
 #'
 subset.GCIMS <- function(
   x,
