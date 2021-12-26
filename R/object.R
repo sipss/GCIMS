@@ -316,7 +316,6 @@ subset.GCIMS <- function(
 #' metadata, otherwise, the requested associated object
 #'
 #' @export
-#' @method [[ GCIMS
 #'
 #' @examples
 #' # Get the cell-level metadata data frame
