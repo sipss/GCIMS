@@ -33,8 +33,8 @@ Peak alignment using Correlation Optimized Warping (COW)
 \details{
 \code{gcims_baseline_removal} aligns sample chromatograms (in
   retention time) or spectra (in drift time).
-  The alignment is achieved by transforming the selected temporal  axis of
-  each sample according to the reference using the Correlation Optimized
+  The alignment in drift time is achieved by transforming the selected temporal
+  axis of each sample according to the reference using the Correlation Optimized
   Warping (COW).
 
   In COW, the reference signal of length \emph{N} is divided
@@ -61,6 +61,10 @@ Peak alignment using Correlation Optimized Warping (COW)
   In particular, the arguments \code{seg_vector} and \code{slack_vector}
   provide, respectively, the sets of possible values of \emph{L} and \emph{t}
   for COW parameter optimization.
+
+  The alignment in retention time is achieved applying parametric time warping.
+  The arguments \code{seg_vector} and \code{slack_vector} are not necessary for
+  the retention time alignment.
 }
 \examples{
 \donttest{
