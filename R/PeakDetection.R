@@ -6,6 +6,8 @@
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their RIP has to be removed.
+#' @param noise_level     Scalar number. The number of times the standard deviation
+#'   above the noise level needed to detect a peak.
 #' @details \code{gcims_remove_rip} substitutes the RIP by its corresponding
 #'   linear approximation to the RIP baseline, for every spectrum in a sample.
 #'   This process is repeated for all samples in \code{samples}. Use this
@@ -18,6 +20,7 @@
 #' @export
 #' @importFrom signal sgolayfilt
 #' @importFrom pracma findpeaks
+#' @importFrom ggplot2 geom_rect
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -517,7 +520,7 @@ gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL
   # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
   # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
   moltaux$Drift_Time <- drift_time[rep_dt_index]
-  tt <- na.omit(moltaux)
+  tt <- stats::na.omit(moltaux)
   tt <- tt[,-c(1:3)]
 
   rm(aux, aux_string)
