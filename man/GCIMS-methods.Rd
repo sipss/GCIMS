@@ -127,8 +127,8 @@ head(mydataset$value)
 # `[' examples
 
 # `subset' examples
-subset(mydataset, subset = Sex > 'Male')
-subset(mydataset, subset = Sex > 'Male', rt = 1:100, dt = 10:20)
+subset(mydataset, subset = Sex == 'Male')
+subset(mydataset, subset = Sex == 'Male', rt = 1:100, dt = 10:20)
 
 # Get the cell-level metadata data frame
 head(pbmc_small[[]])
