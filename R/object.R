@@ -216,8 +216,6 @@ dimnames.GCIMSSample <- function(x) {
 #'
 #' @return `subset`: A subsetted `GCIMSSample` object
 #'
-#' @importFrom rlang enquo
-#
 #' @aliases subset
 #' @seealso [base::subset()]
 #'
