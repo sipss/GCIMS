@@ -211,12 +211,15 @@ read_mea <- function(filename) {
   } else {
     stop(sprintf("Expected Chunk sample rate to be in kHz, found %s instead. Please open an issue to implement this", params[["Chunk sample rate"]][["unit"]]))
   }
-  max_drift_time <- params[["Chunk sample count"]] / drift_time_sample_rate_khz
-  drift_time <- seq(from=0.0, to=max_drift_time, length.out=params[["Chunk sample count"]])
+  drift_time <- seq(from=0.0, by=1./drift_time_sample_rate_khz, length.out=params[["Chunk sample count"]])
   # create retention time vector. Example:
   # time between two spectra measurements (in sec)
   # we are averaging 32 spectra, and one spectra is taken every 21 ms:
-  # 32*21/1000 = 0.692 s approx 0.7 s
+  # (32+1)*21/1000 = 0.692 s.
+  # FIXME: Ask GAS?: To match the retention time from LAV 2.0.0, we must
+  # multiply the (number of averages +1) by the trigger repetition time.
+  # I do not understand where the +1 comes from, but they are the ground truth.
+  # Check what happens with VOCal.
   if (params[["Chunk trigger repetition"]][["unit"]] == "ms") {
     retention_time_step_s <- params[["Chunk trigger repetition"]][["value"]] / 1000
   } else if (params[["Chunk trigger repetition"]][["unit"]] == "s") {
@@ -224,14 +227,22 @@ read_mea <- function(filename) {
   } else {
     stop(sprintf("Expected Chunk trigger repetition to be in ms, found %s instead. Please open an issue to implement this", params[["Chunk sample rate"]][["unit"]]))
   }
-
-  ret_time_step <- params[['Chunk averages']]*retention_time_step_s
-  max_ret_time <- params[["Chunks count"]]*ret_time_step
-  ret_time <- seq(from = 0.0, to = max_ret_time, length.out = params[["Chunks count"]])
+  ret_time_step <- (params[['Chunk averages']]+1)*retention_time_step_s
+  ret_time <- seq(from = 0.0, by = ret_time_step, length.out = params[["Chunks count"]])
   # read the actual data:
   npoints <- params[["Chunks count"]]*params[["Chunk sample count"]]
   data <- readBin(con, what = "int", n = npoints, signed = TRUE, size = 2L, endian = "big")
+  if (length(data) != npoints) {
+    stop(sprintf("binary data from mea file had %d points, and %d were expected", length(data), npoints))
+  }
   data <- matrix(data, nrow = params[["Chunk sample count"]], ncol = params[["Chunks count"]])
+  last_byte_is_a_zero <- readBin(con, what = "integer", n = 1, size = 1L)
+  if (last_byte_is_a_zero != 0L) {
+    stop("read_mea expected one zero byte at the end of the data stream.")
+  }
+  # FIXME: Filter data so we get the same values as LAV / VOCal
+  # The data in the mea file has some values that differ by multiples of 256
+  # from the corresponing values found in the csv files
   list(drift_time = drift_time, ret_time = ret_time, data = data, params = params)
 }
 
