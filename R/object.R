@@ -51,6 +51,7 @@ methods::setClass(
 #'
 #' @param ... See the slots section in this page
 #' @export
+#' @return A GCIMSSample object
 #'
 #' @examples
 #' # Create a new GCIMSSample with the convenient constructor function:
@@ -73,7 +74,7 @@ GCIMSSample <- function(
 NULL
 
 
-#' @describeIn GCIMSSample Get drift time numeric vector
+#' @describeIn GCIMSSample-methods Get drift time numeric vector
 #'
 #' @return A numeric vector with the drift time
 #'
@@ -81,9 +82,12 @@ NULL
 #' @export
 #'
 setGeneric("driftTime", function(object) standardGeneric("driftTime"))
+
+#' @describeIn GCIMSSample-methods Get the drift time vector
+#' @export
 setMethod("driftTime", "GCIMSSample", function(object) object@drift_time)
 
-#' @describeIn GCIMSSample Get retention time numeric vector
+#' @describeIn GCIMSSample-methods Get retention time vector
 #'
 #' @return A numeric vector with the retention time
 #'
@@ -91,23 +95,28 @@ setMethod("driftTime", "GCIMSSample", function(object) object@drift_time)
 #' @export
 #'
 setGeneric("retentionTime", function(object) standardGeneric("retentionTime"))
+
+#' @describeIn GCIMSSample-methods Get the retention time vector
+#' @export
 setMethod("retentionTime", "GCIMSSample", function(object) object@retention_time)
 
 
-#' @describeIn GCIMSSample Get the intensity matrix
+#' @describeIn GCIMSSample-methods Get the intensity matrix
 #'
 #' @return A numeric matrix with drift time in the rows and retention time in columns
 #'
 #' @param object A GCIMSSample object
+#' @export
+#'
+setGeneric("intensityMatrix", function(object, ...) standardGeneric("intensityMatrix"))
+
+#' @describeIn GCIMSSample-methods Get the intensity matrix
 #' @param dtrange The minimum and maximum drift times to extract (length 2 vector)
 #' @param rtrange The minimum and maximum retention times to extract (length 2 vector)
-#' @export
 #' @examples
 #' mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 #' gcims_sample <- read_mea(mea_file)
 #' my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
-#'
-setGeneric("intensityMatrix", function(object, ...) standardGeneric("intensityMatrix"))
 setMethod("intensityMatrix", "GCIMSSample", function(object, dtrange = NULL, rtrange = NULL) {
   dt <- driftTime(object)
   if (!is.null(dtrange)) {
@@ -205,6 +214,7 @@ setValidity("GCIMSSample", function(object) {
 #'
 #' @return
 #'
+#' @param x A GCIMSSample object
 #' @param ... passed to [graphics::filled.contour]
 #' @export
 #' @method image GCIMSSample

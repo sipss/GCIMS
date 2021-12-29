@@ -2,29 +2,59 @@
 % Please edit documentation in R/object.R
 \name{GCIMSSample-methods}
 \alias{GCIMSSample-methods}
+\alias{driftTime}
+\alias{driftTime,GCIMSSample-method}
+\alias{retentionTime}
+\alias{retentionTime,GCIMSSample-method}
+\alias{intensityMatrix}
+\alias{intensityMatrix,GCIMSSample-method}
 \alias{[.GCIMSSample}
 \alias{subset.GCIMSSample}
 \alias{subset}
 \title{Methods for the GCIMSSample class}
 \usage{
+driftTime(object)
+
+\S4method{driftTime}{GCIMSSample}(object)
+
+retentionTime(object)
+
+\S4method{retentionTime}{GCIMSSample}(object)
+
+intensityMatrix(object, ...)
+
+\S4method{intensityMatrix}{GCIMSSample}(object, dtrange = NULL, rtrange = NULL)
+
 \method{[}{GCIMSSample}(x, i, j, ...)
 
 \method{subset}{GCIMSSample}(x, dt_idx = NULL, rt_idx = NULL, ...)
 }
 \arguments{
+\item{object}{A GCIMSSample object}
+
+\item{...}{ignored}
+
+\item{dtrange}{The minimum and maximum drift times to extract (length 2 vector)}
+
+\item{rtrange}{The minimum and maximum retention times to extract (length 2 vector)}
+
 \item{x}{A GCIMSSample object}
 
 \item{i}{index for drift time to subset}
 
 \item{j}{index for retention time to subset}
 
-\item{...}{ignored}
-
 \item{dt_idx}{A vector of drift time indices to keep}
 
 \item{rt_idx}{A vector of retention time indices to keep}
 }
 \value{
+A numeric vector with the drift time
+
+A numeric vector with the retention time
+
+A numeric matrix with drift time in the rows and retention time in columns
+
 \code{[}: object \code{x} with features \code{i} and cells \code{j}
 
 \code{subset}: A subsetted \code{GCIMSSample} object
@@ -34,12 +64,27 @@ Methods for the GCIMSSample class
 }
 \section{Functions}{
 \itemize{
+\item \code{driftTime}: Get drift time numeric vector
+
+\item \code{driftTime,GCIMSSample-method}: Get the drift time vector
+
+\item \code{retentionTime}: Get retention time vector
+
+\item \code{retentionTime,GCIMSSample-method}: Get the retention time vector
+
+\item \code{intensityMatrix}: Get the intensity matrix
+
+\item \code{intensityMatrix,GCIMSSample-method}: Get the intensity matrix
+
 \item \code{[.GCIMSSample}: Simple subsetter for \linkS4class{GCIMSSample} objects
 
 \item \code{subset.GCIMSSample}: Subset a \linkS4class{GCIMSSample} object
 }}
 
 \examples{
+mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
+gcims_sample <- read_mea(mea_file)
+my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
 # `[' examples
 
 }

@@ -4,37 +4,20 @@
 \name{GCIMSSample-class}
 \alias{GCIMSSample-class}
 \alias{GCIMSSample}
-\alias{driftTime}
-\alias{retentionTime}
-\alias{intensityMatrix}
 \alias{image.GCIMSSample}
 \title{GCIMSSample class}
 \usage{
 GCIMSSample(...)
-
-driftTime(object)
-
-retentionTime(object)
-
-intensityMatrix(object, ...)
 
 \method{image}{GCIMSSample}(x, ...)
 }
 \arguments{
 \item{...}{passed to \link[graphics:filled.contour]{graphics::filled.contour}}
 
-\item{object}{A GCIMSSample object}
-
-\item{dtrange}{The minimum and maximum drift times to extract (length 2 vector)}
-
-\item{rtrange}{The minimum and maximum retention times to extract (length 2 vector)}
+\item{x}{A GCIMSSample object}
 }
 \value{
-A numeric vector with the drift time
-
-A numeric vector with the retention time
-
-A numeric matrix with drift time in the rows and retention time in columns
+A GCIMSSample object
 
 
 }
@@ -50,12 +33,6 @@ second to retention times (columns).
 \section{Functions}{
 \itemize{
 \item \code{GCIMSSample}: Create a GCIMSSample object
-
-\item \code{driftTime}: Get drift time numeric vector
-
-\item \code{retentionTime}: Get retention time numeric vector
-
-\item \code{intensityMatrix}: Get the intensity matrix
 
 \item \code{image.GCIMSSample}: Topographical plot of a GC-IMS Sample
 }}
@@ -99,10 +76,6 @@ dummy_obj <-GCIMSSample(
   drift_gas = "nitrogen",
   drift_tube_length = 98.0 # in mm
 )
-mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
-gcims_sample <- read_mea(mea_file)
-my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
-
 
 dummy_obj <-GCIMSSample(
   drift_time = 1:2,
