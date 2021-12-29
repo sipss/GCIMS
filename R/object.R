@@ -15,6 +15,7 @@
 #'  in columns. (required)
 #' @slot gc_column character. (optional) The type of chromatographic column used
 #' @slot drift_tube_length numeric (optional) The length of the drift tube, in mm
+#' @slot drift_gas character. (optional) The drift gas used (e.g "nitrogen")
 #' @slot params list (optional) Arbitrary list of parameters and annotations
 #'
 #' @return A GCIMSSample object
@@ -47,7 +48,7 @@ methods::setClass(
 #' Create a GCIMSSample object
 #'
 #' @param ... See the slots in [GCIMSSample-class]
-#' @return
+#' @return An instance of [GCIMSSample-class]
 #' @export
 #'
 #' @examples
