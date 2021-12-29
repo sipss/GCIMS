@@ -134,7 +134,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #'
 #' @param filename A .mea or a .mea.gz path to a file
 #'
-#' @return A GC-IMS sample
+#' @return The GC-IMS sample in a [GCIMSSample-class] object
 #' @export
 #'
 #' @examples
@@ -244,7 +244,29 @@ read_mea <- function(filename) {
   # FIXME: Filter data so we get the same values as LAV / VOCal
   # The data in the mea file has some values that differ by multiples of 256
   # from the corresponding values found in the csv files
-  list(drift_time = drift_time, ret_time = ret_time, data = data, params = params)
+
+  drift_tube_length <- numeric(0)
+  if (!is.null(params[["nom Drift Tube Length"]])) {
+    drift_tube_length <- params[["nom Drift Tube Length"]][["value"]]
+    if (params[["nom Drift Tube Length"]][["unit"]] == "\u00b5m") {
+      drift_tube_length <- drift_tube_length / 1000
+    } else if (params[["nom Drift Tube Length"]][["unit"]] == "mm") {
+      # do nothing
+    } else {
+      stop(sprintf("Report this: Unit conversion %s->mm not implemented in drift tube length", params[["nom Drift Tube Length"]][["unit"]]))
+    }
+  }
+
+  gc_column <- ifelse(!is.null(params[["GC Column"]]), params[["GC Column"]], character(0))
+
+  GCIMSSample(
+    drift_time = drift_time,
+    retention_time = ret_time,
+    data = data,
+    gc_column = gc_column,
+    drift_tube_length = drift_tube_length,
+    params = params
+  )
 }
 
 
