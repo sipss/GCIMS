@@ -13,7 +13,7 @@ with the drift and retention time ranges and other relevant attributes
 (GC column, drift tube length...) if available
 }
 \details{
-The actual spectra is stored in the `data` slot, in a matrix,
+The actual spectra is stored in the \code{data} slot, in a matrix,
 where the first index (rows) corresponds to drift times and the
 second to retention times (columns).
 }
@@ -41,6 +41,7 @@ dummy_obj <-methods::new(
   retention_time = 1:3,
   data = matrix(1:6, nrow = 2, ncol = 3),
   gc_column = "Optional column name",
+  drift_gas = "nitrogen",
   drift_tube_length = 98.0 # in mm
 )
 }

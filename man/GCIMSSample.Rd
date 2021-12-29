@@ -7,7 +7,7 @@
 GCIMSSample(...)
 }
 \arguments{
-\item{...}{See [GCIMSSample-class]}
+\item{...}{See the slots in \linkS4class{GCIMSSample}}
 }
 \value{
 
@@ -21,6 +21,7 @@ dummy_obj <-GCIMSSample(
   retention_time = 1:3,
   data = matrix(1:6, nrow = 2, ncol = 3),
   gc_column = "Optional column name",
+  drift_gas = "nitrogen",
   drift_tube_length = 98.0 # in mm
 )
 }

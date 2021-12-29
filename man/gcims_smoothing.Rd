@@ -39,18 +39,18 @@ Data Smoothing using Savitzky-Golay filters
 }
 \details{
 \code{gcims_smoothing} performs digital smoothing on sample
-  chromatograms (in retention time) or spectra (in drift time). This
-  smoothing process is required to reduce the noise level of data samples.
-  \code{gcims_smoothing} relies in Savitzky-Golay filters to reduce noise
-  contribution in data. In a nutshell, Savitzky-Golay filters reconstruct
-  data by fitting successive sets of data points of given length to
-  low-degree polynomials. Short \emph{filter_length} values don't reduce
-  noise significantly, while large ones may distort signal shape. Similarly,
-  polynomials with low \emph{polynomial_order} may not be flexible enough to
-  properly reconstruct the signal, while polynomials with high
-  \emph{polynomial_order} can be too flexible and model noise on the
-  reconstructed signal. A trade-off for these parameter values should be
-  found.
+chromatograms (in retention time) or spectra (in drift time). This
+smoothing process is required to reduce the noise level of data samples.
+\code{gcims_smoothing} relies in Savitzky-Golay filters to reduce noise
+contribution in data. In a nutshell, Savitzky-Golay filters reconstruct
+data by fitting successive sets of data points of given length to
+low-degree polynomials. Short \emph{filter_length} values don't reduce
+noise significantly, while large ones may distort signal shape. Similarly,
+polynomials with low \emph{polynomial_order} may not be flexible enough to
+properly reconstruct the signal, while polynomials with high
+\emph{polynomial_order} can be too flexible and model noise on the
+reconstructed signal. A trade-off for these parameter values should be
+found.
 }
 \examples{
 current_dir <- getwd()
@@ -73,11 +73,11 @@ setwd(current_dir)
 }
 \references{
 { Savitzky, A. and Golay, M.J.E. (1964) Smoothing and
- Differentiation of Data by Simplified Least Squares Procedures. Analytical
- Chemistry, 36, 1627–39. https://doi.org/10.1021/ac60214a047.
+Differentiation of Data by Simplified Least Squares Procedures. Analytical
+Chemistry, 36, 1627–39. https://doi.org/10.1021/ac60214a047.
 
- Schafer, R.W. (2011) What is a savitzky-golay filter? IEEE Signal Processing
- Magazine, Institute of Electrical and Electronics Engineers Inc. 28, 111–7.
- https://doi.org/10.1109/MSP.2011.941097. }
+Schafer, R.W. (2011) What is a savitzky-golay filter? IEEE Signal Processing
+Magazine, Institute of Electrical and Electronics Engineers Inc. 28, 111–7.
+https://doi.org/10.1109/MSP.2011.941097. }
 }
 \concept{Smoothing functions}

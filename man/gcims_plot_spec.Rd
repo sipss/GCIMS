@@ -31,17 +31,17 @@ sample spectra.}
 }
 \value{
 A plot of spectra colored according to some variable included in the
-  metadata.
+metadata.
 }
 \description{
 Plots TIS or spectra
 }
 \details{
 \code{gcims_plot_spec} plots a set of sample spectra at given
-  retention time (or their TIS) and for a specific range of drift times. Use
-  \code{gcims_plot_spec} to visualize the effects of digital smoothing,
-  baseline correction and signal alignment algorithms along the drift time
-  axis.
+retention time (or their TIS) and for a specific range of drift times. Use
+\code{gcims_plot_spec} to visualize the effects of digital smoothing,
+baseline correction and signal alignment algorithms along the drift time
+axis.
 }
 \examples{
 current_dir <- getwd()
@@ -54,7 +54,7 @@ setwd(current_dir)
 \references{
 {
 Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
- }
+}
 }
 \seealso{
 Other Visualization functions: 

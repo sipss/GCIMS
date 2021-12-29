@@ -28,15 +28,15 @@ Decimation
 }
 \details{
 \code{gcims_decimate} performs downsampling in retention and drift
-  time axes of GCIMS data. In particular, it reduces sampling frequency in
-  retention and dritf times respectively, by the  factors \code{q_rt} and
-  \code{q_dt}. Use this function if you are interested in both increasing the
-  signal to noise ratio of data and compress it. Please take in to account
-  that decimation also reduces data resolution.
+time axes of GCIMS data. In particular, it reduces sampling frequency in
+retention and dritf times respectively, by the  factors \code{q_rt} and
+\code{q_dt}. Use this function if you are interested in both increasing the
+signal to noise ratio of data and compress it. Please take in to account
+that decimation also reduces data resolution.
 }
 \note{
 \code{gcims_decimate} introduces a delay in retention and drift time
-  axes.
+axes.
 }
 \examples{
 current_dir <- getwd()
@@ -64,8 +64,8 @@ setwd(current_dir)
 }
 \references{
 { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
-  "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
-  Prentice Hall. p. 168. ISBN 0-13-754920-2. }
+"4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
+Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 }
 \seealso{
 Other Utility functions: 

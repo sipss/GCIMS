@@ -10,7 +10,7 @@ read_mea(filename)
 \item{filename}{A .mea or a .mea.gz path to a file}
 }
 \value{
-A GC-IMS sample
+The GC-IMS sample in a \linkS4class{GCIMSSample} object
 }
 \description{
 This function reads a .mea file (supporting gzip compressed .mea.gz files as well)

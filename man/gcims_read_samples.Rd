@@ -24,26 +24,27 @@ Read GC-IMS samples from .csv files
 }
 \details{
 \code{gcims_read_samples} stores a set of S3 objects in the
-  directory \code{dir_out} (one per sample sample stored in \code{dir_in}).
-  Each object is a list containing the following variables: \code{metadata}
-  and \code{data}.In \code{metadata} you can find information related to the
-  sample that can be added by the user. On the other hand in \code{data} you
-  can find information of the measurement.By default, when the
-  \code{metadata} field is created only includes one variable, called
-  \code{Name}, although the user can include more fields using the function
-  \code{\link{gcims_read_metadata}}. Regarding \code{data}, it is consist in
-  three fields:  \describe{ \item{\code{retention_time}}{ The vector of
-  retention times associated to a sample measurement.}
-  \item{\code{drift_time}}{ The vector of drift times associated to a sample
-  measurement.} \item{\code{data_df}}{ A dataframe containing the intensities
-  of a GCIM measurement of a sample. Each column in the dataset corresponds
-  to a particular drift time, while each row to a different retention time.}
-  }
+directory \code{dir_out} (one per sample sample stored in \code{dir_in}).
+Each object is a list containing the following variables: \code{metadata}
+and \code{data}.In \code{metadata} you can find information related to the
+sample that can be added by the user. On the other hand in \code{data} you
+can find information of the measurement.By default, when the
+\code{metadata} field is created only includes one variable, called
+\code{Name}, although the user can include more fields using the function
+\code{\link[=gcims_read_metadata]{gcims_read_metadata()}}. Regarding \code{data}, it is consist in
+three fields:  \describe{
+\item{\code{retention_time}}{ The vector of retention times associated to a sample measurement.}
+\item{\code{drift_time}}{ The vector of drift times associated to a sample
+measurement.}
+\item{\code{data_df}}{ A dataframe containing the intensities
+of a GCIMS measurement of a sample. Each column in the dataset corresponds
+to a particular drift time, while each row to a different retention time.}
+}
 }
 \note{
 In the current version of the package, only .csv files converted from
-  LAV or VOCal software of G.A.S GmbH can be used by the function
-  \code{gcims_read_samples}.
+LAV or VOCal software of G.A.S GmbH can be used by the function
+\code{gcims_read_samples}.
 }
 \examples{
 current_dir <- getwd()

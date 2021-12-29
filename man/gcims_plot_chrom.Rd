@@ -31,17 +31,17 @@ sample chromatograms.}
 }
 \value{
 A plot of sample chromatograms colored according to some variable
-  included in the metadata.
+included in the metadata.
 }
 \description{
 Plots TICs or EICs.
 }
 \details{
 \code{gcims_plot_chrom} uses the function plots a set of sample
-  chromatograms at given drift time (or their TIC) and for a specific range
-  of retention times. Use \code{gcims_plot_chrom} to visualize the effects of
-  digital smoothing, baseline correction and signal alignment algorithms
-  along the retention time axis.
+chromatograms at given drift time (or their TIC) and for a specific range
+of retention times. Use \code{gcims_plot_chrom} to visualize the effects of
+digital smoothing, baseline correction and signal alignment algorithms
+along the retention time axis.
 }
 \examples{
 current_dir <- getwd()
@@ -54,7 +54,7 @@ setwd(current_dir)
 \references{
 {
 Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
- }
+}
 }
 \seealso{
 Other Visualization functions: 

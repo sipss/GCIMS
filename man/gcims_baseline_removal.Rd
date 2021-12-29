@@ -42,15 +42,15 @@ Remove baseline of a dataset using psalsa
 }
 \details{
 \code{gcims_baseline_removal} performs baseline correction on sample
-  chromatograms (in retention time) or spectra (in drift time).This method
-  relies in is Psalsa algorithm. Psalsa is based on the Asymmetric Least
-  Squares (ALS) algorithm for baseline estimation, although slightly modified
-  to reject the effects of large peaks above the baseline more easily. Psalsa
-  algorithm depends on three parameters: a penalty on the second derivative
-  (\code{lambda}), a penalty on the value of the baseline with respect the
-  value of the signal (\code{p}), and third parameter (\code{k}), that
-  modifies substantially the value of (\code{p}) in the event of large
-  intensity peaks.
+chromatograms (in retention time) or spectra (in drift time).This method
+relies in is \emph{psalsa} algorithm. \emph{psalsa} is based on the Asymmetric Least
+Squares (ALS) algorithm for baseline estimation, although slightly modified
+to reject the effects of large peaks above the baseline more easily. \emph{psalsa}
+depends on three parameters: a penalty on the second derivative
+(\code{lambda}), a penalty on the value of the baseline with respect the
+value of the signal (\code{p}), and third parameter (\code{k}), that
+modifies substantially the value of (\code{p}) in the event of large
+intensity peaks.
 }
 \examples{
 current_dir <- getwd()
@@ -78,21 +78,20 @@ setwd(current_dir)
 \references{
 {
 
-  Eilers, P.H.C. (2003) A perfect smoother. Anal. Chem.  p. 3631–6.
-  https://doi.org/10.1021/ac034173t.
+Eilers, P.H.C. (2003) A perfect smoother. Anal. Chem.  p. 3631–6.
+\doi{10.1021/ac034173t}
 
-  Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S.
-  (2014, February). Adaptive Asymmetric Least Squares baseline estimation for
-  analytical instruments. In 2014 IEEE 11th International Multi-Conference on
-  Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
-  https://doi.org/10.1109/SSD.2014.6808837.
+Oller-Moreno, S., Pardo, A., Jiménez-Soto, J. M., Samitier, J., & Marco, S.
+(2014, February). Adaptive Asymmetric Least Squares baseline estimation for
+analytical instruments. In 2014 IEEE 11th International Multi-Conference on
+Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
+\doi{10.1109/SSD.2014.6808837}
 
-  }
+}
 }
 \author{
 Sergio Oller-Moreno,  \email{soller@.ibecbarcelona.eu}
 
-
-Institute for Bioengieering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
+Institute for Bioengineering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
 }
 \concept{Baseline removal functions}

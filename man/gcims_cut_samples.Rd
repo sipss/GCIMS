@@ -30,15 +30,15 @@ Cut samples in a retention time - drift time rectangle
 }
 \details{
 \code{cut_samples} cuts a sample in a retention time - drift time
-  rectangle according to the retention time / drift time ranges given by
-  function arguments \code{rt_range} / \code{dt_range}. Use this function to
-  focus on the retention time - drift time region where chemical information
-  is more abundant, that is, where you can find a high peak densities by
-  visual inspection.
+rectangle according to the retention time / drift time ranges given by
+function arguments \code{rt_range} / \code{dt_range}. Use this function to
+focus on the retention time - drift time region where chemical information
+is more abundant, that is, where you can find a high peak densities by
+visual inspection.
 }
 \note{
 By reducing the size of data, the computational time of signal
-  pre-processing stage can reduced substantially.
+pre-processing stage can reduced substantially.
 }
 \examples{
 current_dir <- getwd()

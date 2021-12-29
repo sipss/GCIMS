@@ -24,12 +24,12 @@ Shifting
 }
 \details{
 \code{gcims_shifting} performs peak shifting in retention time axes
-  of GCIMS data. In particular, it shifts all the peaks along the retention
-  time axis in order to have the RIP peaks at the exact same time.
+of GCIMS data. In particular, it shifts all the peaks along the retention
+time axis in order to have the RIP peaks at the exact same time.
 }
 \note{
 \code{gcims_shifting} reduce the retention time axis of some of
-  the samples.
+the samples.
 }
 \examples{
 current_dir <- getwd()
@@ -55,8 +55,8 @@ setwd(current_dir)
 }
 \references{
 { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
-  "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
-  Prentice Hall. p. 168. ISBN 0-13-754920-2. }
+"4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
+Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 }
 \seealso{
 Other Utility functions: 

@@ -36,7 +36,7 @@ Methods for the GCIMSSample class
 \itemize{
 \item \code{[.GCIMS}: Simple subsetter for \code{GCIMSSample} objects
 
-\item \code{subset.GCIMSSample}: Subset a \code{\link{GCIMSSample-class}} object
+\item \code{subset.GCIMSSample}: Subset a \code{\link[=GCIMSSample-class]{GCIMSSample-class()}} object
 }}
 
 \examples{
@@ -44,5 +44,5 @@ Methods for the GCIMSSample class
 
 }
 \seealso{
-\code{\link[base]{subset}}
+\code{\link[base:subset]{base::subset()}}
 }
