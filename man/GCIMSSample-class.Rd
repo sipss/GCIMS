@@ -3,20 +3,63 @@
 \docType{class}
 \name{GCIMSSample-class}
 \alias{GCIMSSample-class}
+\alias{GCIMSSample}
+\alias{driftTime}
+\alias{retentionTime}
+\alias{intensityMatrix}
+\alias{image.GCIMSSample}
 \title{GCIMSSample class}
+\usage{
+GCIMSSample(...)
+
+driftTime(object)
+
+retentionTime(object)
+
+intensityMatrix(object, ...)
+
+\method{image}{GCIMSSample}(x, ...)
+}
+\arguments{
+\item{...}{passed to \link[graphics:filled.contour]{graphics::filled.contour}}
+
+\item{object}{A GCIMSSample object}
+
+\item{dtrange}{The minimum and maximum drift times to extract (length 2 vector)}
+
+\item{rtrange}{The minimum and maximum retention times to extract (length 2 vector)}
+}
 \value{
-A GCIMSSample object
+A numeric vector with the drift time
+
+A numeric vector with the retention time
+
+A numeric matrix with drift time in the rows and retention time in columns
+
+
 }
 \description{
 GCIMS Sample is an S4 class to store one sample
 with the drift and retention time ranges and other relevant attributes
 (GC column, drift tube length...) if available
-}
-\details{
+
 The actual spectra is stored in the \code{data} slot, in a matrix,
 where the first index (rows) corresponds to drift times and the
 second to retention times (columns).
 }
+\section{Functions}{
+\itemize{
+\item \code{GCIMSSample}: Create a GCIMSSample object
+
+\item \code{driftTime}: Get drift time numeric vector
+
+\item \code{retentionTime}: Get retention time numeric vector
+
+\item \code{intensityMatrix}: Get the intensity matrix
+
+\item \code{image.GCIMSSample}: Topographical plot of a GC-IMS Sample
+}}
+
 \section{Slots}{
 
 \describe{
@@ -37,6 +80,7 @@ in columns. (required)}
 }}
 
 \examples{
+# Create a new GCIMSSample with methods::new()
 dummy_obj <-methods::new(
   "GCIMSSample",
   drift_time = 1:2,
@@ -46,4 +90,22 @@ dummy_obj <-methods::new(
   drift_gas = "nitrogen",
   drift_tube_length = 98.0 # in mm
 )
+# Create a new GCIMSSample with the convenient constructor function:
+dummy_obj <-GCIMSSample(
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3),
+  gc_column = "Optional column name",
+  drift_gas = "nitrogen",
+  drift_tube_length = 98.0 # in mm
+)
+mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
+gcims_sample <- read_mea(mea_file)
+my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
+
+# `[' examples
+
+}
+\seealso{
+\link{GCIMSSample-methods}
 }

@@ -1,5 +1,6 @@
 #' GCIMSSample class
 #'
+#' @description
 #' GCIMS Sample is an S4 class to store one sample
 #' with the drift and retention time ranges and other relevant attributes
 #' (GC column, drift tube length...) if available
@@ -18,9 +19,10 @@
 #' @slot drift_gas character. (optional) The drift gas used (e.g "nitrogen")
 #' @slot params list (optional) Arbitrary list of parameters and annotations
 #'
-#' @return A GCIMSSample object
 #' @export
+#' @seealso [GCIMSSample-methods]
 #' @examples
+#' # Create a new GCIMSSample with methods::new()
 #' dummy_obj <-methods::new(
 #'   "GCIMSSample",
 #'   drift_time = 1:2,
@@ -45,13 +47,13 @@ methods::setClass(
 
 
 
-#' Create a GCIMSSample object
+#' @describeIn GCIMSSample Create a GCIMSSample object
 #'
-#' @param ... See the slots in [GCIMSSample-class]
-#' @return An instance of [GCIMSSample-class]
+#' @param ... See the slots section in this page
 #' @export
 #'
 #' @examples
+#' # Create a new GCIMSSample with the convenient constructor function:
 #' dummy_obj <-GCIMSSample(
 #'   drift_time = 1:2,
 #'   retention_time = 1:3,
@@ -70,15 +72,44 @@ GCIMSSample <- function(
 #' @title Methods for the GCIMSSample class
 NULL
 
-setGeneric("driftTime", function(x) standardGeneric("driftTime"))
-setMethod("driftTime", "GCIMSSample", function(x) x@drift_time)
 
-setGeneric("retentionTime", function(x) standardGeneric("retentionTime"))
-setMethod("retentionTime", "GCIMSSample", function(x) x@retention_time)
+#' @describeIn GCIMSSample Get drift time numeric vector
+#'
+#' @return A numeric vector with the drift time
+#'
+#' @param object A GCIMSSample object
+#' @export
+#'
+setGeneric("driftTime", function(object) standardGeneric("driftTime"))
+setMethod("driftTime", "GCIMSSample", function(object) object@drift_time)
 
-setGeneric("intensityMatrix", function(x, ...) standardGeneric("intensityMatrix"))
-setMethod("intensityMatrix", "GCIMSSample", function(x, dtrange = NULL, rtrange = NULL) {
-  dt <- driftTime(x)
+#' @describeIn GCIMSSample Get retention time numeric vector
+#'
+#' @return A numeric vector with the retention time
+#'
+#' @param object A GCIMSSample object
+#' @export
+#'
+setGeneric("retentionTime", function(object) standardGeneric("retentionTime"))
+setMethod("retentionTime", "GCIMSSample", function(object) object@retention_time)
+
+
+#' @describeIn GCIMSSample Get the intensity matrix
+#'
+#' @return A numeric matrix with drift time in the rows and retention time in columns
+#'
+#' @param object A GCIMSSample object
+#' @param dtrange The minimum and maximum drift times to extract (length 2 vector)
+#' @param rtrange The minimum and maximum retention times to extract (length 2 vector)
+#' @export
+#' @examples
+#' mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
+#' gcims_sample <- read_mea(mea_file)
+#' my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
+#'
+setGeneric("intensityMatrix", function(object, ...) standardGeneric("intensityMatrix"))
+setMethod("intensityMatrix", "GCIMSSample", function(object, dtrange = NULL, rtrange = NULL) {
+  dt <- driftTime(object)
   if (!is.null(dtrange)) {
     dtmin <- min(dtrange)
     dtmax <- max(dtrange)
@@ -87,7 +118,7 @@ setMethod("intensityMatrix", "GCIMSSample", function(x, dtrange = NULL, rtrange 
     dt_idx <- seq_along(dt)
   }
 
-  rt <- retentionTime(x)
+  rt <- retentionTime(object)
   if (!is.null(rtrange)) {
     rtmin <- min(rtrange)
     rtmax <- max(rtrange)
@@ -95,7 +126,10 @@ setMethod("intensityMatrix", "GCIMSSample", function(x, dtrange = NULL, rtrange 
   } else {
     rt_idx <- seq_along(rt)
   }
-  x@data[dt_idx, rt_idx]
+  out <- object@data[dt_idx, rt_idx]
+  rownames(out) <- dt[dt_idx]
+  colnames(out) <- rt[rt_idx]
+  out
 })
 
 setMethod(
@@ -103,12 +137,13 @@ setMethod(
   "GCIMSSample",
   function(object) {
     axes <- list(
-      "drift time" = driftTime(object),
-      "retention time" = retentionTime(object)
+      "drift time" = list(value=driftTime(object), unit="ms"),
+      "retention time" = list(value=retentionTime(object), unit="s")
     )
     outstring <- "A GCIMS Sample"
     for (axis_name in  names(axes)) {
-      axis <- axes[[axis_name]]
+      axis <- axes[[axis_name]][["value"]]
+      axis_unit <- axes[[axis_name]][["unit"]]
       if (length(axis) == 0) {
         first <- NaN
         last <- NaN
@@ -122,7 +157,12 @@ setMethod(
         last <- axis[length(axis)]
         res <- axis[2]-axis[1]
       }
-      outstring <- c(outstring, sprintf(" with %s from %f to %f (%d points, %f resolution)", axis_name, first, last, length(axis), res))
+      outstring <- c(
+        outstring,
+        paste0(" with ", axis_name, " from ", first, " to ", last, " ", axis_unit,
+               " (", "step: ", res, " ", axis_unit , ", ",
+               "points: ", length(axis), ")")
+      )
     }
     # FIXME: Give more details about the sample
     cat(paste0(outstring, collapse = "\n"))
@@ -161,8 +201,31 @@ setValidity("GCIMSSample", function(object) {
   success
 })
 
+#' @describeIn GCIMSSample Topographical plot of a GC-IMS Sample
+#'
+#' @return
+#'
+#' @param ... passed to [graphics::filled.contour]
+#' @export
+#' @method image GCIMSSample
+#'
+#' @examples
+#' # `[' examples
+#'
+"image.GCIMSSample" <- function(x, ...) {
+  # filled.contour includes a legend
+  graphics::filled.contour(
+    x=x@drift_time,
+    y = x@retention_time/60.0,
+    z=x@data,
+    xlab = "Drift time (ms)",
+    ylab = "Retention time (min)",
+    ...
+  )
+}
 
-#' @describeIn GCIMSSample-methods Simple subsetter for `GCIMSSample` objects
+
+#' @describeIn GCIMSSample-methods Simple subsetter for [GCIMSSample-class] objects
 #'
 #' @return `[`: object `x` with features `i` and cells `j`
 #'
@@ -170,12 +233,12 @@ setValidity("GCIMSSample", function(object) {
 #' @param j index for retention time to subset
 #' @param ... ignored
 #' @export
-#' @method [ GCIMS
+#' @method [ GCIMSSample
 #'
 #' @examples
 #' # `[' examples
 #'
-"[.GCIMS" <- function(x, i, j, ...) {
+"[.GCIMSSample" <- function(x, i, j, ...) {
   if (missing(x = i) && missing(x = j)) {
     return(x)
   }
@@ -212,7 +275,7 @@ dimnames.GCIMSSample <- function(x) {
 }
 
 
-#' @describeIn GCIMSSample-methods Subset a [GCIMSSample-class()] object
+#' @describeIn GCIMSSample-methods Subset a [GCIMSSample-class] object
 #'
 #' @param x A GCIMSSample object
 #' @param dt_idx A vector of drift time indices to keep

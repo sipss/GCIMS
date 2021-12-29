@@ -2,12 +2,12 @@
 % Please edit documentation in R/object.R
 \name{GCIMSSample-methods}
 \alias{GCIMSSample-methods}
-\alias{[.GCIMS}
+\alias{[.GCIMSSample}
 \alias{subset.GCIMSSample}
 \alias{subset}
 \title{Methods for the GCIMSSample class}
 \usage{
-\method{[}{GCIMS}(x, i, j, ...)
+\method{[}{GCIMSSample}(x, i, j, ...)
 
 \method{subset}{GCIMSSample}(x, dt_idx = NULL, rt_idx = NULL, ...)
 }
@@ -34,9 +34,9 @@ Methods for the GCIMSSample class
 }
 \section{Functions}{
 \itemize{
-\item \code{[.GCIMS}: Simple subsetter for \code{GCIMSSample} objects
+\item \code{[.GCIMSSample}: Simple subsetter for \linkS4class{GCIMSSample} objects
 
-\item \code{subset.GCIMSSample}: Subset a \code{\link[=GCIMSSample-class]{GCIMSSample-class()}} object
+\item \code{subset.GCIMSSample}: Subset a \linkS4class{GCIMSSample} object
 }}
 
 \examples{
