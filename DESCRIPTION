@@ -5,10 +5,38 @@ Version: 0.1.0
 Encoding: UTF-8
 Date: 2020-09-25
 Authors@R: c(
-            person("Celia", "Mallafre",email = "cmallafre@ibecbarcelona.eu", role = "aut"),
-            person("Luis","Fernandez", email = "lfernandez@ub.edu", role = "cre"),
-            person("Sergio", "Oller",  email = "soller@ibecbarcelona.eu", role = "aut"))
-Maintainer: Luis Fernandez <lfernandez@ub.edut>
+  person(
+    given = "Celia",
+    family = "Mallafre",
+    email = "cmallafre@ibecbarcelona.eu",
+    role = "aut"
+  ),
+  person(
+    given = "Luis",
+    family = "Fernandez",
+    email = "lfernandez@ibecbarcelona.eu",
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0001-9790-6287")
+  ),
+  person(
+    given = "Sergio",
+    family = "Oller Moreno",
+    email = "soller@ibecbarcelona.eu",
+    role = c("aut"),
+    comment = c(ORCID = "0000-0002-8994-1549")
+  ),
+  person(
+    given = "Santiago",
+    family = "Marco Colás",
+    email = "smarco@ibecbarcelona.eu",
+    role = c("aut"),
+    comment = c(ORCID = "0000-0003-2663-2965")
+  ),
+  person(
+    given = "Institute for Bioengineering of Catalonia",
+    role = "cph"
+  )
+ )
 Description: A consistent package easy to extend implementing common routines
             for analyzing ion mobility spectrometry (IMS) measurements, as well as samples
             from multicapillary columns coupled with IMS (MCC-IMS) and gas chromatography
