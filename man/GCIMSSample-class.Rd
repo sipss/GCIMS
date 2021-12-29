@@ -26,5 +26,21 @@ second to retention times (columns).
 
 \item{\code{data}}{matrix A matrix with drift time in the rows and retention time
 in columns. (required)}
+
+\item{\code{gc_column}}{character. (optional) The type of chromatographic column used}
+
+\item{\code{drift_tube_length}}{numeric (optional) The length of the drift tube, in mm}
+
+\item{\code{params}}{list (optional) Arbitrary list of parameters and annotations}
 }}
 
+\examples{
+dummy_obj <-methods::new(
+  "GCIMSSample",
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3),
+  gc_column = "Optional column name",
+  drift_tube_length = 98.0 # in mm
+)
+}

@@ -13,10 +13,21 @@
 #' @slot retention_time numeric. (required)
 #' @slot data matrix A matrix with drift time in the rows and retention time
 #'  in columns. (required)
+#' @slot gc_column character. (optional) The type of chromatographic column used
+#' @slot drift_tube_length numeric (optional) The length of the drift tube, in mm
+#' @slot params list (optional) Arbitrary list of parameters and annotations
 #'
 #' @return A GCIMSSample object
 #' @export
-#'
+#' @examples
+#' dummy_obj <-methods::new(
+#'   "GCIMSSample",
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3),
+#'   gc_column = "Optional column name",
+#'   drift_tube_length = 98.0 # in mm
+#' )
 methods::setClass(
   Class = "GCIMSSample",
   slots = c(
@@ -30,6 +41,27 @@ methods::setClass(
 )
 
 
+
+#' Create a GCIMSSample object
+#'
+#' @param ... See GCIMSSample-class
+#' @return
+#' @export
+#'
+#' @examples
+#' dummy_obj <-GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3),
+#'   gc_column = "Optional column name",
+#'   drift_tube_length = 98.0 # in mm
+#' )
+GCIMSSample <- function(
+  ...
+) {
+  methods::new("GCIMSSample", ...)
+}
+
 #' @name GCIMSSample-methods
 #' @title Methods for the GCIMSSample class
 NULL
@@ -40,8 +72,8 @@ setMethod("driftTime", "GCIMSSample", function(x) x@drift_time)
 setGeneric("retentionTime", function(x) standardGeneric("retentionTime"))
 setMethod("retentionTime", "GCIMSSample", function(x) x@retention_time)
 
-setGeneric("intensity", function(x, ...) standardGeneric("intensity"))
-setMethod("intensity", "GCIMSSample", function(x, dtrange = NULL, rtrange = NULL) {
+setGeneric("intensityMatrix", function(x, ...) standardGeneric("intensityMatrix"))
+setMethod("intensityMatrix", "GCIMSSample", function(x, dtrange = NULL, rtrange = NULL) {
   dt <- driftTime(x)
   if (!is.null(dtrange)) {
     dtmin <- min(dtrange)
@@ -62,12 +94,35 @@ setMethod("intensity", "GCIMSSample", function(x, dtrange = NULL, rtrange = NULL
   x@data[dt_idx, rt_idx]
 })
 
-setMethod("show",
-          "GCIMSSample",
-          function(object) {
-            cat(sprintf("A GCIMS Sample\n"))
-            # FIXME: Give more details about the sample
-          }
+setMethod(
+  "show",
+  "GCIMSSample",
+  function(object) {
+    axes <- list(
+      "drift time" = driftTime(object),
+      "retention time" = retentionTime(object)
+    )
+    outstring <- "A GCIMS Sample"
+    for (axis_name in  names(axes)) {
+      axis <- axes[[axis_name]]
+      if (length(axis) == 0) {
+        first <- NaN
+        last <- NaN
+        res <- NaN
+      } else if (length(axis) == 1) {
+        first <- axis[1]
+        last <- axis[1]
+        res <- NaN
+      } else {
+        first <- axis[1]
+        last <- axis[length(axis)]
+        res <- axis[2]-axis[1]
+      }
+      outstring <- c(outstring, sprintf(" with %s from %f to %f (%d points, %f resolution)", axis_name, first, last, length(axis), res))
+    }
+    # FIXME: Give more details about the sample
+    cat(paste0(outstring, collapse = "\n"))
+  }
 )
 
 setValidity("GCIMSSample", function(object) {
@@ -76,15 +131,24 @@ setValidity("GCIMSSample", function(object) {
   dt <- driftTime(object)
   rt <- retentionTime(object)
   x <- object@data
-  if (!inherits(x, "matrix")) {
-    issues <- c(issues, "data slot should have a matrix")
-  }
-  if (nrow(x) != length(dt)) {
-    issues <- c(issues, "Length of drift_time does not match the number of rows in data")
+  if (length(dt) == 0) {
+    issues <- c(issues, "drift_time should be a numeric vector")
     success <- FALSE
   }
-  if (ncol(x) != length(rt)) {
-    issues <- c(issues, "Length of retention_time does not match the number of columns in data")
+  if (length(rt) == 0) {
+    issues <- c(issues, "retention_time should be a numeric vector")
+    success <- FALSE
+  }
+  if (!inherits(x, "matrix")) {
+    issues <- c(issues, "data slot should have a matrix")
+    success <- FALSE
+  }
+  if (nrow(x) != length(dt) || nrow(x) == 0) {
+    issues <- c(issues, "data should have as many rows as the drift_time length")
+    success <- FALSE
+  }
+  if (ncol(x) != length(rt) || ncol(x) == 0) {
+    issues <- c(issues, "data should have as many columns as the retention_time length")
     success <- FALSE
   }
   if (!success) {
@@ -146,6 +210,7 @@ dimnames.GCIMSSample <- function(x) {
 
 #' @describeIn GCIMSSample-methods Subset a \code{\link{GCIMSSample-class}} object
 #'
+#' @param x A GCIMSSample object
 #' @param dt_idx A vector of drift time indices to keep
 #' @param rt_idx A vector of retention time indices to keep
 #'
@@ -187,27 +252,3 @@ subset.GCIMSSample <- function(
   new_obj@data <- x@data[dt_idx, rt_idx, drop = FALSE]
   new_obj
 }
-
-
-#' @describeIn GCIMSSample-methods Add metadata
-#'
-#' @param value A vector of length number of samples with metadata to add; \strong{note}:
-#' can pass \code{NULL} to remove metadata or an associated object
-#'
-#' @return \code{[[<-}: \code{x} with the metadata or associated objects added
-#' as \code{i}; if \code{value} is \code{NULL}, removes metadata \code{i}
-#' from object \code{x}
-#'
-#' @export
-#'
-setMethod( # because R doesn't allow S3-style [[<- for S4 classes
-  f = '[[<-',
-  signature = c('x' = 'GCIMSSample'),
-  definition = function(x, i, ..., value) {
-    if (!is.character(x = i)) {
-      stop("'i' must be a character", call. = FALSE)
-    }
-    x@metadata[[i]] <- value
-    x
-  }
-)
