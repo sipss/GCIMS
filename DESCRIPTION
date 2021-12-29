@@ -45,7 +45,6 @@ Description: A consistent package easy to extend implementing common routines
             as well as classification and regression techniques for the modelling of the spectra.
 Depends: R(>= 3.6.0)
 License: GPL-2
-LazyData: true
 Imports: 
     assertthat (>= 0.1),
     chemometrics(>= 1.4.2),
