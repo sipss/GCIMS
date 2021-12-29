@@ -17,6 +17,7 @@
 #' @importFrom cluster pam
 #' @importFrom plyr count
 #' @importFrom Hotelling hotelling.test
+#' @importFrom rlang .data
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -108,7 +109,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
       roi_sizes$height < lower_bound_iqr_h | roi_sizes$height > higher_bound_iqr_h
   ]
   message(sprintf("Excluding %d/%d peaks", length(peaks_to_exclude), nrow(peaks)))
-  peaks <- dplyr::filter(peaks, ! UniqueID %in% peaks_to_exclude)
+  peaks <- dplyr::filter(peaks, ! .data$UniqueID %in% peaks_to_exclude)
 
 
   N_clusters <- max(by(peaks, peaks$SampleID, nrow))
@@ -151,18 +152,18 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   stats <- vector(mode = "list", length = num_clusters)
 
   median_roi_per_cluster <- peaks %>%
-    dplyr::group_by(!!rlang::sym("clusters")) %>%
+    dplyr::group_by(.data$clusters) %>%
     dplyr::summarise(
-      xmin = stats::median(!!rlang::sym("xmin")),
-      xmax = stats::median(!!rlang::sym("xmax")),
-      ymin = stats::median(!!rlang::sym("ymin")),
-      ymax = stats::median(!!rlang::sym("ymax")),
+      xmin = stats::median(.data$xmin),
+      xmax = stats::median(.data$xmax),
+      ymin = stats::median(.data$ymin),
+      ymax = stats::median(.data$ymax),
     ) %>%
     dplyr::ungroup()
 
   peaks %>%
     dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
-    tidyr::pivot_wider(names_from = !!rlang::sym("SampleID"), values_from = !!rlang::sym("volume"), values_fn = length)
+    tidyr::pivot_wider(names_from = dplyr::all_of("SampleID"), values_from = dplyr::all_of("volume"), values_fn = length)
 
   for (k in seq_len(num_clusters)) {
     n <- indices_clusters[k]
