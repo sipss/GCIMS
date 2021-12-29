@@ -38,9 +38,6 @@
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #' setwd(current_dir)
-
-
-
 gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
   print(" ")
   print("  //////////////////////////")
@@ -83,10 +80,10 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     # Curve fitting of RIP
 
-    signal <- aux[rip_start_index:rip_end_index, 110]
-    template <- -computeDerivative(signal, p = 2, n = tail(c(1:length(signal))[c(T,F)], n=1), m = 2)
-    tgauss <- drift_time[rip_start_index:rip_end_index]
-    f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian
+    signal = aux[rip_start_index:rip_end_index, 110] # Take RIP
+    template <- sgolayfilt(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
+    tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
+    f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian density
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
     # 5. Peaks and Zero-crossings
@@ -336,6 +333,8 @@ fit_gaussian_density <- function(x, y) {
   # Return the numeric vector
   out
 }
+
+
 
 #----------------------#
 #   computeDerivative  #
