@@ -210,8 +210,16 @@ setValidity("GCIMSSample", function(object) {
 #' @method image GCIMSSample
 #'
 #' @examples
-#' # `[' examples
 #'
+#' dummy_obj <-GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3),
+#'   gc_column = "Optional column name",
+#'   drift_gas = "nitrogen",
+#'   drift_tube_length = 98.0 # in mm
+#' )
+#' image(dummy_obj)
 "image.GCIMSSample" <- function(x, ...) {
   # filled.contour includes a legend
   graphics::filled.contour(

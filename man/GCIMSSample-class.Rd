@@ -103,8 +103,16 @@ mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = 
 gcims_sample <- read_mea(mea_file)
 my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
 
-# `[' examples
 
+dummy_obj <-GCIMSSample(
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3),
+  gc_column = "Optional column name",
+  drift_gas = "nitrogen",
+  drift_tube_length = 98.0 # in mm
+)
+image(dummy_obj)
 }
 \seealso{
 \link{GCIMSSample-methods}
