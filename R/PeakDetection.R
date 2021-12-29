@@ -8,13 +8,13 @@
 #'   samples to which their RIP has to be removed.
 #' @param noise_level     Scalar number. The number of times the standard deviation
 #'   above the noise level needed to detect a peak.
-#' @details \code{gcims_remove_rip} substitutes the RIP by its corresponding
+#' @details `gcims_remove_rip` substitutes the RIP by its corresponding
 #'   linear approximation to the RIP baseline, for every spectrum in a sample.
-#'   This process is repeated for all samples in \code{samples}. Use this
+#'   This process is repeated for all samples in `samples`. Use this
 #'   function if you are interested in enhancing the contrast of peaks of sample
 #'   images / chromatograms / spectra to be obtained from
-#'   \code{gcims_view_sample} / \code{gcims_plot_chrom} /
-#'   \code{gcims_plot_spec}.
+#'   `gcims_view_sample` / `gcims_plot_chrom` /
+#'   `gcims_plot_spec`.
 #' @return A Set of S3 objects.
 #' @family Utility functions
 #' @export

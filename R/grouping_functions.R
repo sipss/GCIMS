@@ -8,7 +8,7 @@
 #' @param samples        A vector. Set of samples whose peaks/ROIs need to be
 #'   grouped (e.g.: c(1, 2, 3)).
 #' @return A peak/ROI table.
-#' @details \code{gcims_peak_grouping} looks for a correspondence among ROI
+#' @details `gcims_peak_grouping` looks for a correspondence among ROI
 #'   regions in samples and the ones present in the reference sample.  This
 #'   grouping process is performed in two steps: In first step, the algorithm
 #'   checks which of the ROI mass centers in a sample are enclosed within any of
@@ -18,10 +18,10 @@
 #'   overlapping is selected as a representative of this reference ROI. This
 #'   way, only one ROI (or none) per sample can be selected as a representative
 #'   of one roi of the reference. This process is repeated for all samples in
-#'   \code{samples}.
+#'   `samples`.
 #' @family Peak Grouping functions
 #' @note The grouping process may produce missing values in the final peak/ROI
-#'   table. In such a case use \code{gcims_peak_imputation} to impute them.
+#'   table. In such a case use `gcims_peak_imputation` to impute them.
 #' @export
 #' @importFrom pracma meshgrid eye
 #' @examples

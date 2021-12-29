@@ -158,9 +158,9 @@ setValidity("GCIMSSample", function(object) {
 })
 
 
-#' @describeIn GCIMSSample-methods Simple subsetter for \code{GCIMSSample} objects
+#' @describeIn GCIMSSample-methods Simple subsetter for `GCIMSSample` objects
 #'
-#' @return \code{[}: object \code{x} with features \code{i} and cells \code{j}
+#' @return `[`: object `x` with features `i` and cells `j`
 #'
 #' @param i index for drift time to subset
 #' @param j index for retention time to subset
@@ -208,18 +208,18 @@ dimnames.GCIMSSample <- function(x) {
 }
 
 
-#' @describeIn GCIMSSample-methods Subset a \code{\link{GCIMSSample-class}} object
+#' @describeIn GCIMSSample-methods Subset a [GCIMSSample-class()] object
 #'
 #' @param x A GCIMSSample object
 #' @param dt_idx A vector of drift time indices to keep
 #' @param rt_idx A vector of retention time indices to keep
 #'
-#' @return \code{subset}: A subsetted \code{GCIMSSample} object
+#' @return `subset`: A subsetted `GCIMSSample` object
 #'
 #' @importFrom rlang enquo
 #
 #' @aliases subset
-#' @seealso \code{\link[base]{subset}}
+#' @seealso [base::subset()]
 #'
 #' @export
 #' @method subset GCIMSSample

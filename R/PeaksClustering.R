@@ -6,9 +6,9 @@
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples that are going to be included in the peak table.
-#' @details \code{gcims_peaks_clustering}  does a clustering along the ROIs
+#' @details `gcims_peaks_clustering`  does a clustering along the ROIs
 #'   for a peak table creation. The Figures of merits of each ROI are also
-#'   reported. In this table are included all samples in \code{samples}. Use this
+#'   reported. In this table are included all samples in `samples`. Use this
 #'   function if you are interested in obtaining a final peak table for future
 #'   classification techniques.
 #' @return A Set of S3 objects.
