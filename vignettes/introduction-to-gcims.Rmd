@@ -1,0 +1,49 @@
+---
+title: "Introduction to GCIMS"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction-to-gcims}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GCIMS)
+```
+
+The GCIMS package allows you to import your Gas Chromatography - Ion Mobility Spectrometry samples,
+preprocess them, align them one to each other and build a peak table with the relevant features.
+
+This vignette will use a small dataset consisting of a mixture of FIXME ketones. The
+dataset is included with the package
+
+## Import data
+
+Please start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
+with your samples and their annotations. Please name the first column `SampleID`
+and the second column `Filename`.
+
+```{r}
+## We will directly define the data frame here:
+sample_annotations <- tibble::tribble(
+  ~SampleID, ~Filename,
+  "Ketone1", "ketone1.mea",
+  "Ketone2", "ketone2.mea",
+  "Ketone3", "ketone3.mea",
+)
+## But you can use the following code:
+## Use this for excel spreadsheets:
+# sample_annotations <- readxl::read_excel("your_excel_file.xlsx")
+## Use this for CSV files:
+# sample_annotations <- readr::read_csv("your_csv_file.csv")
+
+sample_annotations
+```
+
