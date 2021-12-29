@@ -8,27 +8,28 @@
 #'   software that has converted the original files into csv format is VOCal.
 #'   Use 2 if the software is LAV.
 #'
-#' @details \code{gcims_read_samples} stores a set of S3 objects in the
-#'   directory \code{dir_out} (one per sample sample stored in \code{dir_in}).
-#'   Each object is a list containing the following variables: \code{metadata}
-#'   and \code{data}.In \code{metadata} you can find information related to the
-#'   sample that can be added by the user. On the other hand in \code{data} you
+#' @details `gcims_read_samples` stores a set of S3 objects in the
+#'   directory `dir_out` (one per sample sample stored in `dir_in`).
+#'   Each object is a list containing the following variables: `metadata`
+#'   and `data`.In `metadata` you can find information related to the
+#'   sample that can be added by the user. On the other hand in `data` you
 #'   can find information of the measurement.By default, when the
-#'   \code{metadata} field is created only includes one variable, called
-#'   \code{Name}, although the user can include more fields using the function
-#'   \code{\link{gcims_read_metadata}}. Regarding \code{data}, it is consist in
-#'   three fields:  \describe{ \item{\code{retention_time}}{ The vector of
-#'   retention times associated to a sample measurement.}
-#'   \item{\code{drift_time}}{ The vector of drift times associated to a sample
-#'   measurement.} \item{\code{data_df}}{ A dataframe containing the intensities
-#'   of a GCIM measurement of a sample. Each column in the dataset corresponds
-#'   to a particular drift time, while each row to a different retention time.}
+#'   `metadata` field is created only includes one variable, called
+#'   `Name`, although the user can include more fields using the function
+#'   [gcims_read_metadata()]. Regarding `data`, it is consist in
+#'   three fields:  \describe{
+#'      \item{`retention_time`}{ The vector of retention times associated to a sample measurement.}
+#'      \item{`drift_time`}{ The vector of drift times associated to a sample
+#'   measurement.}
+#'      \item{`data_df`}{ A dataframe containing the intensities
+#'        of a GCIMS measurement of a sample. Each column in the dataset corresponds
+#'        to a particular drift time, while each row to a different retention time.}
 #'   }
 #'
 #' @return A set of S3 objects.
 #' @note In the current version of the package, only .csv files converted from
 #'   LAV or VOCal software of G.A.S GmbH can be used by the function
-#'   \code{gcims_read_samples}.
+#'   `gcims_read_samples`.
 #' @family Reading functions.
 #' @export
 #' @importFrom readr read_csv cols type_convert
@@ -292,7 +293,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #'   identifiers.
 #' @param file            Name of the file that contains the metadata (an Excel
 #'   file).
-#' @details \code{gcims_read_metadata} reads a metadata Excel file. This file,
+#' @details `gcims_read_metadata` reads a metadata Excel file. This file,
 #' contains:
 #' \itemize{
 #'   \item A number of named columns. First column is always named 'Name'. The rest of the columns names
@@ -300,7 +301,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #'   \item A number of rows, each of them associated to a sample in the dataset. Thus in a row, you can find
 #'   all metadata information of a sample in the dataset.
 #' }
-#' After that \code{gcims_read_metadata} looks for the match between the S3
+#' After that `gcims_read_metadata` looks for the match between the S3
 #' object metadata field 'Name' value, and its corresponding value
 #' found in column 'Name' of the metadata file. Then metadata information is
 #' copied from the metadata file to the S3 object (column names in the metadata
