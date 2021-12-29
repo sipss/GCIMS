@@ -31,6 +31,8 @@ in columns. (required)}
 
 \item{\code{drift_tube_length}}{numeric (optional) The length of the drift tube, in mm}
 
+\item{\code{drift_gas}}{character. (optional) The drift gas used (e.g "nitrogen")}
+
 \item{\code{params}}{list (optional) Arbitrary list of parameters and annotations}
 }}
 

@@ -10,7 +10,7 @@ GCIMSSample(...)
 \item{...}{See the slots in \linkS4class{GCIMSSample}}
 }
 \value{
-
+An instance of \linkS4class{GCIMSSample}
 }
 \description{
 Create a GCIMSSample object
