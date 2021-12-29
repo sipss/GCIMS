@@ -257,7 +257,8 @@ read_mea <- function(filename) {
     }
   }
 
-  gc_column <- ifelse(!is.null(params[["GC Column"]]), params[["GC Column"]], character(0))
+  gc_column <- ifelse(!is.null(params[["GC Column"]]), params[["GC Column"]], character(0L))
+  drift_gas <- ifelse(!is.null(params[["Drift Gas"]]), params[["Drift Gas"]], character(0L))
 
   GCIMSSample(
     drift_time = drift_time,
@@ -265,6 +266,7 @@ read_mea <- function(filename) {
     data = data,
     gc_column = gc_column,
     drift_tube_length = drift_tube_length,
+    drift_gas = drift_gas,
     params = params
   )
 }
