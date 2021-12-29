@@ -242,7 +242,7 @@ read_mea <- function(filename) {
   }
   # FIXME: Filter data so we get the same values as LAV / VOCal
   # The data in the mea file has some values that differ by multiples of 256
-  # from the corresponing values found in the csv files
+  # from the corresponding values found in the csv files
   list(drift_time = drift_time, ret_time = ret_time, data = data, params = params)
 }
 
