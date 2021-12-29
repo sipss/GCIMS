@@ -26,6 +26,7 @@
 #'   retention_time = 1:3,
 #'   data = matrix(1:6, nrow = 2, ncol = 3),
 #'   gc_column = "Optional column name",
+#'   drift_gas = "nitrogen",
 #'   drift_tube_length = 98.0 # in mm
 #' )
 methods::setClass(
@@ -35,6 +36,7 @@ methods::setClass(
     retention_time = "numeric",
     data = "matrix", # [dt, rt]
     gc_column = "character",
+    drift_gas = "character",
     drift_tube_length = "numeric",
     params = "list" # arbitrary parameters from the instrument
   )
@@ -44,7 +46,7 @@ methods::setClass(
 
 #' Create a GCIMSSample object
 #'
-#' @param ... See GCIMSSample-class
+#' @param ... See the slots in [GCIMSSample-class]
 #' @return
 #' @export
 #'
@@ -54,6 +56,7 @@ methods::setClass(
 #'   retention_time = 1:3,
 #'   data = matrix(1:6, nrow = 2, ncol = 3),
 #'   gc_column = "Optional column name",
+#'   drift_gas = "nitrogen",
 #'   drift_tube_length = 98.0 # in mm
 #' )
 GCIMSSample <- function(
