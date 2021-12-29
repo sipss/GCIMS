@@ -137,7 +137,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #' @export
 #'
 #' @examples
-#' mea_file <- system.file("extdata/sample_formats/211108_153700.mea.gz", package = "GCIMS")
+#' mea_file <- system.file("extdata/sample_formats/small.mea.gz", package = "GCIMS")
 #' sample <- read_mea(mea_file)
 #'
 read_mea <- function(filename) {
