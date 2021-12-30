@@ -65,28 +65,25 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     total_ion_spectrum <- rowSums(aux) # Sum per rows
     rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
-    minima <- as.vector(findpeaks(-total_ion_spectrum)[, 2]) # Find local minima
+    minima <- as.vector(findpeaks(total_ion_spectrum)[, 2]) # Find local minima
     rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
-    # 3. Gradient computation
-
     # Compute the 2nd derivative for both axes
-    drt <- apply(aux, 1, function(x) -sgolayfilt(x, p = 2, n = 21, m = 2))
-    ddt <- apply(aux, 2, function(x) -sgolayfilt(x, p = 2, n = 21, m = 2))
+    drt <- apply(aux, 1, function(x) -computeDerivative(x, p = 2, n = 21, m = 2, dt = 1/fs))
+    ddt <- apply(aux, 2, function(x) -computeDerivative(x, p = 2, n = 11, m = 2, dt = 1/fs))
 
-    # The gradient is the sum of the derivatives in both axes
     daux <- ddt + t(drt)
 
-    patch <- daux[100:200,2000:2100] # Patch with noise
-    sigmaNoise <- sd(patch) # Standard deviation of noise
+    patch <- daux[100:200,2000:2100]
+    sigmaNoise <- sd(patch)
 
-    # 4. Curve fitting of RIP
+    # Curve fitting of RIP
 
-    signal = aux[rip_start_index:rip_end_index, 110] # Take RIP
-    template <- sgolayfilt(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
-    tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
-    f <- DuffyTools::fit.gaussian(x = tgauss, y = abs(template)) # Fit RIP into Gaussian distribution
+    signal <- aux[rip_start_index:rip_end_index, 110]
+    template <- -computeDerivative(signal, p = 2, n = tail(c(1:length(signal))[c(T,F)], n=1), m = 2)
+    tgauss <- drift_time[rip_start_index:rip_end_index]
+    f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
     # 5. Peaks and Zero-crossings
@@ -100,10 +97,10 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     for(j in (1:dim(daux)[2])){
       # Find the max (peaks)
       #locs <- findpeaks(daux[,j], minpeakheight  = nNoise*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
-      if (8*sd(f$y)*fs < 1) {
+      if (4*sd(f$y)*fs < 1) {
         locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 2)[ ,2]
       } else {
-        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 8*sd(f$y)*fs)[ ,2]
+        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 4*sd(f$y)*fs)[ ,2]
       }
 
       # Find the zero-crossing points
