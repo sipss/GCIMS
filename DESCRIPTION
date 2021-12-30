@@ -7,9 +7,10 @@ Date: 2020-09-25
 Authors@R: c(
   person(
     given = "Celia",
-    family = "Mallafre",
+    family = "Mallafré Muro",
     email = "cmallafre@ibecbarcelona.eu",
-    role = "aut"
+    role = "aut",
+    comment = c(ORCID = "0000-0001-8247-1719")
   ),
   person(
     given = "Luis",
@@ -25,6 +26,12 @@ Authors@R: c(
     role = c("aut"),
     comment = c(ORCID = "0000-0002-8994-1549")
   ),
+  person(
+    given = "Arnau",
+    family = "Blanco Borrego",
+    email = "ablancob@ibecbarcelona.eu",
+    role = "aut"
+  )
   person(
     given = "Santiago",
     family = "Marco Colás",
