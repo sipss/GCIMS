@@ -47,3 +47,27 @@ sample_annotations <- tibble::tribble(
 sample_annotations
 ```
 
+Raw data:
+
+- Reading samples: gcims_read_samples
+- Reading metadata: gcims_read_metadata
+- Reshape sample: reshape_samples
+- Create reference: gcims_create_reference
+- Cut samples: gcims_cut_samples
+
+Pre-Processing in Drift Time:
+
+- Interpolating drift time: gcims_interpolate
+- Drift time baseline removal: gcims_baseline_removal
+- Drift time alignment: gcims_alignment
+
+Pre-Processing in Retention Time:
+
+- Interpolating retention time: gcims_interpolate
+- Retention time baseline removal: gcims_baseline_removal
+- Retention time alignment: gcims_alignment
+
+
+Aligned data:
+
+- ROIs detection à gcims_rois_selection
