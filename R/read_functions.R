@@ -267,6 +267,7 @@ read_mea <- function(filename) {
     gc_column = gc_column,
     drift_tube_length = drift_tube_length,
     drift_gas = drift_gas,
+    history = sprintf("Sample loaded from %s", filename),
     params = params
   )
 }
