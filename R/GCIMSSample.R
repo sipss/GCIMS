@@ -1,3 +1,8 @@
+# S3 classes can be used as S4 slots registering them as "old" classes
+# (old because S4 is newer than S3, not because S3 is deprecated, not great naming)
+methods::setOldClass("numeric_version")
+
+
 #' GCIMSSample class
 #'
 #' @description
@@ -18,6 +23,12 @@
 #' @slot drift_tube_length numeric (optional) The length of the drift tube, in mm
 #' @slot drift_gas character. (optional) The drift gas used (e.g "nitrogen")
 #' @slot params list (optional) Arbitrary list of parameters and annotations
+#' @slot history character. A character vector with a summary of information of the
+#' processing details the sample has gone through already
+#' @slot class_version "numeric_version" (internal) The GCIMSSample object defines
+#' internally a class version, so if a GCIMSSample object is saved, the GCIMS
+#' package is updated and the GCIMSSample class has changed during the upgrade
+#' it may be possible to upgrade the previously saved object when it's loaded.
 #'
 #' @export
 #' @seealso [GCIMSSample-methods]
@@ -41,10 +52,83 @@ methods::setClass(
     gc_column = "character",
     drift_gas = "character",
     drift_tube_length = "numeric",
+    history = "character",
+    class_version = "numeric_version",
     params = "list" # arbitrary parameters from the instrument
   )
 )
 
+.CURRENT_GCIMSSAMPLE_CLASS_VERSION <- numeric_version("0.0.2")
+
+methods::setMethod(
+  "initialize", "GCIMSSample",
+  function(.Object, drift_time, retention_time, data, ...) {
+    .Object@class_version <- .CURRENT_GCIMSSAMPLE_CLASS_VERSION
+    .Object@drift_time <- drift_time
+    .Object@retention_time <- retention_time
+    .Object@data <- data
+    dots <- list(...)
+    if (length(dots) == 0) {
+      return(.Object)
+    }
+    if (is.null(names(dots)) || any(nchar(names(dots)) == 0) ) {
+      rlang::abort(c("Error creating GCIMSSample object",
+                     "x" = "All arguments should be named"))
+    }
+    # class_version is internal and should not be given
+    # drift_time, retention_time, data are mandatory and already given outside of ...
+    invalid_dot_names <-  c("drift_time", "retention_time", "data", "class_version")
+    valid_dot_names <- setdiff(methods::slotNames("GCIMSSample"), invalid_dot_names)
+    if (!all(names(dots) %in% valid_dot_names)) {
+      wrong_dot_names <- setdiff(names(dots), valid_dot_names)
+      # This naming is part of rlang formatting (see ?rlang::abort or
+      # ?rlang::format_error_bullets)
+      names(wrong_dot_names) <- "x"
+      rlang::abort(c("Invalid named arguments in GCIMSSample initialization", wrong_dot_names))
+    }
+    for (arg in names(dots)) {
+      methods::slot(.Object, arg) <- dots[[arg]]
+    }
+    .Object
+  })
+
+
+#' Updates old saved GCIMSSample object to the latest version
+#'
+#' This function is useful when you have saved a [GCIMSSample] object
+#' with a previous version of the GCIMS package and you want to load it
+#' using a new version of the package.
+#'
+#' The function allows you to update the old object, adding missing
+#' slots, etc so it is fully compatible with the new class definition.
+#'
+#'
+#' @param object A [GCIMSSample] object
+#'
+#' @return The updated [GCIMSSample] object
+#' @export
+#'
+#' @examples
+#' obj <- GCIMSSample(drift_time=1:2, retention_time=1:3, data = matrix(1:6, nrow=2, ncol=3))
+#' # Here we modify the object as if it was older:
+#' attr(obj, 'history') <- NULL
+#' attr(obj, "class_version") <- numeric_version("0.0.1")
+#' # Update the object:
+#' newobj <- UpdateGCIMSSample(obj)
+#'
+UpdateGCIMSSample <- function(object) {
+  if (!"class_version" %in% methods::slotNames(object)) {
+    rlang::abort("The object is too old and can't be updated")
+  }
+  obj_version <- methods::slot(object, "class_version")
+  if (obj_version <= "0.0.1") {
+    # Migrate objects from 0.0.1 to the latest version
+    object@history <- "Unknown initial history"
+    object@class_version <- numeric_version("0.0.2")
+    return(object)
+  }
+  return(object)
+}
 
 
 #' @describeIn GCIMSSample Create a GCIMSSample object
@@ -335,3 +419,4 @@ subset.GCIMSSample <- function(
   new_obj@data <- x@data[dt_idx, rt_idx, drop = FALSE]
   new_obj
 }
+
