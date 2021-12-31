@@ -31,7 +31,7 @@ Authors@R: c(
     family = "Blanco Borrego",
     email = "ablancob@ibecbarcelona.eu",
     role = "aut"
-  )
+  ),
   person(
     given = "Santiago",
     family = "Marco Colás",
