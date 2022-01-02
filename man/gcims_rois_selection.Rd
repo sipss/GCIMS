@@ -31,8 +31,7 @@ linear approximation to the RIP baseline, for every spectrum in a sample.
 This process is repeated for all samples in \code{samples}. Use this
 function if you are interested in enhancing the contrast of peaks of sample
 images / chromatograms / spectra to be obtained from
-\code{gcims_view_sample} / \code{gcims_plot_chrom} /
-\code{gcims_plot_spec}.
+\link{gcims_view_sample}, \link{gcims_plot_chrom} or \link{gcims_plot_spec}.
 }
 \examples{
 current_dir <- getwd()

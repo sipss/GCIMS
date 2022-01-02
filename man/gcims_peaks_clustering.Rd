@@ -36,6 +36,8 @@ dir_out <- tempdir()
 samples <- 1:3
 
 # Example of ROIs Clustering for Peak Table Creation
-gcims_peaks_clustering <- function(dir_in, dir_out, samples)
+# Need a proper dataset with peaks detected in the pkg
+# (or maybe better a refactor the function arguments)
+#peak_table <- gcims_peaks_clustering(dir_in, dir_out, samples)
 }
 \concept{Peaks CLustering function}
