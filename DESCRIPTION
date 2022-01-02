@@ -44,13 +44,15 @@ Authors@R: c(
     role = "cph"
   )
  )
-Description: A consistent package easy to extend implementing common routines
-            for analyzing ion mobility spectrometry (IMS) measurements, as well as samples
-            from multicapillary columns coupled with IMS (MCC-IMS) and gas chromatography
-            coupled to ion mobility spectrometry (GC-IMS). The package provides a complete
-            workflow for the analysis, importing the data, preprocessing the spectra
-            as well as classification and regression techniques for the modelling of the spectra.
-Depends: R(>= 3.6.0)
+Description: A package for the analysis of ion mobility spectrometry (IMS)
+ measurements, as well as samples from multicapillary columns coupled with
+ IMS (MCC-IMS) and gas chromatography coupled to ion mobility
+ spectrometry (GC-IMS). The package provides a complete
+ workflow for the analysis, importing the data, preprocessing the spectra
+ as well as classification and regression techniques for the modelling of the spectra.
+ The package also includes visualization helpers, to represent topographic plots,
+ extracted and total ion chromatograms and IMS spectra.
+Depends: R(>= 4.1.0)
 License: GPL-2
 Imports: 
     assertthat (>= 0.1),
