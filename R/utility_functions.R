@@ -597,7 +597,7 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
   setwd(dir_in)
   m = -1;
-  for (i in c(1, samples)){
+  for (i in samples) {
     m = m + 1
     if (m != 0){
       print(paste0("Sample ", m, " of ", length(samples)))
@@ -649,8 +649,9 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 #' # After:
 #' gcims_shifting(dir_in, dir_out, samples)
 #' setwd(dir_out)
-#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
-#' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
+#' # c(50, 226)
+#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(60, 98) , colorby = "Class")
+#' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.8, 9.0), colorby = "Class")
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
@@ -661,9 +662,9 @@ gcims_shifting <- function(dir_in, dir_out, samples){
 
 
   print(" ")
-  print("  ////////////////////////")
-  print(" /      Peaks Sifting   /")
-  print("////////////////////////")
+  print("  /////////////////////////")
+  print(" /      Peaks Shifting   /")
+  print("/////////////////////////")
   print(" ")
 
 
@@ -684,10 +685,15 @@ gcims_shifting <- function(dir_in, dir_out, samples){
   # intensities <- apply(tics, 1, min)
   # plot(x = c(1:64), y = intensities)
   referenceindex <- min(mins)
-  referencetime <- which.max(mins)
+  referencetime <- samples[which.max(mins)]
 
-  for (i in c(1,samples)){
-    if (i != referencetime){
+  for (i in samples){
+    if (i == referencetime) {
+      file.copy(
+        from = paste0("M", referencetime, ".rds"),
+        to = file.path(dir_out, paste0("M", referencetime, ".rds"))
+      )
+    } else {
       print(paste0("Sample ", i, " of ", length(samples)))
       reference <- readRDS(paste0("M", referencetime, ".rds"))
       reference <- reference$data$data_df

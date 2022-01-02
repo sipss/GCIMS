@@ -45,8 +45,9 @@ gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "C
 # After:
 gcims_shifting(dir_in, dir_out, samples)
 setwd(dir_out)
-gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
-gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
+# c(50, 226)
+gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(60, 98) , colorby = "Class")
+gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.8, 9.0), colorby = "Class")
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
