@@ -79,8 +79,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     # Curve fitting of RIP
 
-    signal = aux[rip_start_index:rip_end_index, 110] # Take RIP
-    template <- sgolayfilt(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
+    signal <- aux[rip_start_index:rip_end_index, 110] # Take RIP
+    template <- -computeDerivative(signal, p = 2, n = utils::tail(c(1:length(signal))[c(T,F)], n=1), m = 2) # Compute 2nd derivative of RIP
     tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
     f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian density
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
@@ -532,8 +532,8 @@ gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL
   #      title = "Sample Matrix Image",
   #      fill = "Intensity") +
 
-  p +
-    geom_rect(data=d, mapping=aes(xmin=dt1, xmax=dt2, ymin=rt1, ymax=rt2), color="black", alpha=0.5)
+  #p +
+  #  geom_rect(data=d, mapping=aes(xmin=dt1, xmax=dt2, ymin=rt1, ymax=rt2), color="black", alpha=0.5)
 
   print(p)
 }
