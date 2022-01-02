@@ -60,7 +60,6 @@ Imports:
     dplyr(>= 1.0.2),
     ggplot2 (>= 3.3.2),
     magrittr(>= 1.5),
-    metR (>= 0.7),
     methods,
     missForest (>= 1.4),
     Hotelling,
@@ -73,7 +72,6 @@ Imports:
     readxl(>= 1.3.1),
     reshape2 (>= 1.1.4),
     rlang,
-    rmarkdown (>= 2.6),
     signal (>= 0.7-6),
     stats (>= 4.0.2),
     stringr,
@@ -83,7 +81,8 @@ Imports:
     viridis(>= 0.5.1)
 Suggests:
     testthat (>= 3.0.0),
-    knitr
+    knitr,
+    rmarkdown
 biocViews: Software, Preprocessing, Visualization, Classification,
  Cheminformatics, Metabolomics, DataImport
 RoxygenNote: 7.1.2
