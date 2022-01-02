@@ -84,6 +84,8 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     knitr
+biocViews: Software, Preprocessing, Visualization, Classification,
+ Cheminformatics, Metabolomics, DataImport
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr
 Config/testthat/edition: 3
