@@ -87,10 +87,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   }
   loaded_samples <- load_samples(dir_in, samples)
 
-  imgs <- loaded_samples$imgs
   peaks <- loaded_samples$peaks
-  drift_times <- loaded_samples$drift_times
-  ret_times <- loaded_samples$ret_times
   rm(loaded_samples, load_samples)
 
   # 1. Filter peaks with weird width or height
@@ -119,7 +116,8 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   # Mahalanobis distance:
   # https://stats.stackexchange.com/a/81710/62083
   cholMaha <- function(X) {
-    dec <- chol( stats::cov(X) )
+    covmat <- stats::cov(X)
+    dec <- chol(covmat)
     tmp <- forwardsolve(t(dec), t(X) )
     stats::dist(t(tmp))
   }
@@ -129,12 +127,12 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   colnames(peak2peak_D_mahal_mat) <- peaks$UniqueID
   # Set distances from pairs of peaks belonging to the same sample to Inf,
   # so they are never in the same cluster
-  max_dist <- max(peak2peak_D_mahal_mat)
+  #max_dist <- max(peak2peak_D_mahal_mat)
   for (sampleid in unique(peaks$SampleID)) {
     peaks_i <- peaks$UniqueID[peaks$SampleID == sampleid]
     for (peak_i in peaks_i) {
-      peak2peak_D_mahal_mat[peak_i, peaks_i] <- 10*nrow(peak2peak_D_mahal_mat)*max_dist
-      peak2peak_D_mahal_mat[peaks_i, peak_i] <- 10*nrow(peak2peak_D_mahal_mat)*max_dist
+      peak2peak_D_mahal_mat[peak_i, peaks_i] <- Inf #10*nrow(peak2peak_D_mahal_mat)*max_dist
+      peak2peak_D_mahal_mat[peaks_i, peak_i] <- Inf #10*nrow(peak2peak_D_mahal_mat)*max_dist
       peak2peak_D_mahal_mat[peak_i, peak_i] <- 0
     }
   }
@@ -145,16 +143,8 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 
   peaks$cluster <- cluster$clustering
 
-  ## Imputation and statistics
-
-  indices_clusters <- unique(peaks$cluster)
-  num_clusters <- length(indices_clusters)
-  K <- length(indices_clusters)
-
-  stats <- vector(mode = "list", length = num_clusters)
-
   median_roi_per_cluster <- peaks %>%
-    dplyr::group_by(.data$clusters) %>%
+    dplyr::group_by(.data$cluster) %>%
     dplyr::summarise(
       xmin = stats::median(.data$xmin),
       xmax = stats::median(.data$xmax),
@@ -163,83 +153,21 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
     ) %>%
     dplyr::ungroup()
 
-  peaks %>%
+  peak_table <- peaks %>%
     dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
-    tidyr::pivot_wider(names_from = dplyr::all_of("SampleID"), values_from = dplyr::all_of("volume"), values_fn = length)
+    tidyr::pivot_wider(
+      names_from = dplyr::all_of("SampleID"),
+      values_from = dplyr::all_of("volume"),
+      values_fn = length
+    )
 
-  for (k in seq_len(num_clusters)) {
-    n <- indices_clusters[k]
-    pos_n <- idx_post[, 1] == n & idx_post[, 3] != 1
-    samples_n <- idx_post[pos_n, 2]
-    rest_samples_n <- setdiff((1:length(samples)), samples_n)
-    ROI_median <- floor(apply(ROIs[pos_n, ], 2, stats::median))
-
-    AsF_tmp <- rep(0, length(samples))
-    AsF_tmp[samples_n] <- AsF[pos_n]
-    AsF_tmp[rest_samples_n] <- stats::median(AsF[pos_n])
-
-    volume_tmp <- rep(0, length(samples))
-    volume_tmp[samples_n] <- volume[pos_n]
-
-    I <- NULL
-    if (length(rest_samples_n) >= 1){
-      for (l in rest_samples_n){
-        I[[l]] <- imgs[[l]][ROI_median[1]:ROI_median[2], ROI_median[3]:ROI_median[4]]
-        volume_tmp[rest_samples_n] <- sum(apply(I[[l]], 1, sum)) #[1, dim(I[[l]], 3)]) # size que?
-      }
-    }
-
-    ROI_tmp <- matrix(0, length(samples), 4)
-    ROI_tmp[samples_n, ] <- as.matrix(ROIs[pos_n, ])
-    ROI_tmp[rest_samples_n, ] <- matrix(rep(ROI_median, each = length(rest_samples_n)), nrow = length(rest_samples_n))
-
-    peaks_tmp <- matrix(0, length(samples), 2)
-    peaks_tmp[samples_n, ] <- as.matrix(datapoints[pos_n, ])
-    peaks_tmp[rest_samples_n, ]  <- matrix(rep(floor(apply(datapoints[pos_n, ], 2, stats::median)), each = length(rest_samples_n)), nrow = length(rest_samples_n))
-
-    stats[[k]]$Name <- paste("Cluster", k)
-    stats[[k]]$AsF <- AsF_tmp
-    stats[[k]]$volume <- volume_tmp
-
-    stats[[k]]$AsF.mean  <- mean(AsF_tmp)
-    stats[[k]]$volume_mean <- mean(volume_tmp)
-
-    stats[[k]]$AsF_std <- sd(AsF_tmp)
-    stats[[k]]$volume_std <- sd(volume_tmp)
-
-    stats[[k]]$ROIs <- ROI_tmp
-    stats[[k]]$peaks <- peaks_tmp
-
-  }
-
-
-  ## Make table
-
-  peak_table <- matrix(0, (length(samples) * K), 7)
-
-  acc <- 1
-  for (i in (1:K)){
-    c <- 1
-    for (j in (acc : (acc + length(samples) - 1))){
-      drift_time_idx <- stats[[i]]$peaks[c, 1]
-      ret_time_idx <- stats[[i]]$peaks[c, 2]
-      peak_table[j, 1] <- c
-      peak_table[j, 2] <- i
-      peak_table[j, 3] <- drift_time_idx
-      peak_table[j, 4] <- ret_time_idx
-      peak_table[j, 5] <- drift_times[[1]][drift_time_idx] # FIXME: ? Assuming homogeneus drift times across samples
-      peak_table[j, 6] <- ret_times[[1]][ret_time_idx] # FIXME: ? Assuming homogeneous ret times across samples
-      peak_table[j, 7] <- stats[[i]]$volume[c]
-
-      c <- c + 1
-    }
-    acc <- acc + length(samples)
-  }
-
-  colnames(peak_table) <- c("Sample", "Cluster", "PicoX (indice)", "PicoY (indice)", "PicoX (tiempo)", "PicoY (tiempo)", "Intensity")
-  setwd(dir_out)
-  utils::write.csv(peak_table, "Peaktable.csv")
-  saveRDS(stats, "ROIsParameters.rds")
+  peak_table_annotated <- dplyr::left_join(
+    median_roi_per_cluster,
+    peak_table,
+    by = "cluster"
+  )
+  # Missing values still need to be filled
+  peak_table_annotated
 }
 
 
