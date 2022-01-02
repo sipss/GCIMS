@@ -13,8 +13,7 @@
 #'   This process is repeated for all samples in `samples`. Use this
 #'   function if you are interested in enhancing the contrast of peaks of sample
 #'   images / chromatograms / spectra to be obtained from
-#'   `gcims_view_sample` / `gcims_plot_chrom` /
-#'   `gcims_plot_spec`.
+#'   [gcims_view_sample], [gcims_plot_chrom] or [gcims_plot_spec].
 #' @return A Set of S3 objects.
 #' @family Utility functions
 #' @export
