@@ -25,6 +25,7 @@ methods::setOldClass("numeric_version")
 #' @slot params list (optional) Arbitrary list of parameters and annotations
 #' @slot history character. A character vector with a summary of information of the
 #' processing details the sample has gone through already
+#' @slot filepath character. A string with the path to the raw data
 #' @slot class_version "numeric_version" (internal) The GCIMSSample object defines
 #' internally a class version, so if a GCIMSSample object is saved, the GCIMS
 #' package is updated and the GCIMSSample class has changed during the upgrade
@@ -53,12 +54,13 @@ methods::setClass(
     drift_gas = "character",
     drift_tube_length = "numeric",
     history = "character",
+    filepath = "character",
     class_version = "numeric_version",
     params = "list" # arbitrary parameters from the instrument
   )
 )
 
-.CURRENT_GCIMSSAMPLE_CLASS_VERSION <- numeric_version("0.0.2")
+.CURRENT_GCIMSSAMPLE_CLASS_VERSION <- numeric_version("0.0.3")
 
 methods::setMethod(
   "initialize", "GCIMSSample",
@@ -124,8 +126,15 @@ UpdateGCIMSSample <- function(object) {
   if (obj_version <= "0.0.1") {
     # Migrate objects from 0.0.1 to the latest version
     object@history <- "Unknown initial history"
-    object@class_version <- numeric_version("0.0.2")
+    object@filepath <- ""
+    object@class_version <- numeric_version("0.0.3")
     return(object)
+  }
+  if (obj_version == "0.0.2") {
+    object@filepath <- ""
+    object@class_version <- numeric_version("0.0.3")
+    return(object)
+
   }
   return(object)
 }

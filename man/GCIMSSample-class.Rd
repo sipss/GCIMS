@@ -58,6 +58,8 @@ in columns. (required)}
 \item{\code{history}}{character. A character vector with a summary of information of the
 processing details the sample has gone through already}
 
+\item{\code{filepath}}{character. A string with the path to the raw data}
+
 \item{\code{class_version}}{"numeric_version" (internal) The GCIMSSample object defines
 internally a class version, so if a GCIMSSample object is saved, the GCIMS
 package is updated and the GCIMSSample class has changed during the upgrade
