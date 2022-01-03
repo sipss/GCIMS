@@ -52,7 +52,9 @@ Description: A package for the analysis of ion mobility spectrometry (IMS)
  as well as classification and regression techniques for the modelling of the spectra.
  The package also includes visualization helpers, to represent topographic plots,
  extracted and total ion chromatograms and IMS spectra.
-Depends: R(>= 4.1.0)
+Depends:
+ R(>= 4.1.0),
+ ProtGenerics (>= 1.24.0)
 License: GPL-2
 Imports: 
     assertthat (>= 0.1),
