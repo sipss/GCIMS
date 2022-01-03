@@ -147,8 +147,12 @@ read_mea <- function(filename) {
     "Class", "Firmware date", "Firmware version", "Machine name",
     "Machine serial", "Machine type", "Recognized substances", "Sample",
     "Sample number", "Program", "Status", "Timestamp", "Drift Gas",
-    "Filter", "GC Column", "Sensor data")
-  unitless_integer_keys <- c('Chunk averages', 'Chunk sample count', "Chunks count")
+    "Filter", "GC Column", "Sensor data"
+  )
+  unitless_integer_keys <- c(
+    'Chunk averages', 'Chunk sample count',
+    "Chunks count", "Pump power"
+  )
   value_unit_keys <- c(
     "Board temperature", 'Chunk sample rate',
     'Chunk trigger duration', 'Chunk trigger repetition',
@@ -160,8 +164,11 @@ read_mea <- function(filename) {
     "EPC2 pressure", "Flow Epc 1", "Flow Epc 2", "Flow record interval",
     "nom Drift Potential Difference", "nom Drift Tube Length", "Pressure Ambient",
     "Pressure Epc 1", "Pressure Epc 2", "Sensor block", "Sensor drift", "Sensor inject",
-    "Start flow1", "Start flow2", sprintf("Start temp %d", 1:6), sprintf("Temp %d setpoint", 1:6),
-    "Pressure record interval")
+    "Start flow1", "Start flow2",
+    sprintf("Start temp %d", 1:6),
+    sprintf("Temp %d setpoint", 1:6),
+    "Pressure record interval"
+    )
   last_key <- "Timestamp"
 
   params <- list()
