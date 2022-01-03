@@ -265,11 +265,11 @@ setMethod(
                " (", "step: ", res, " ", axis_unit , ", ",
                "points: ", length(axis), ")")
       )
-      if (length(object@history) > 0) {
-        outstring <- c(outstring, "History:", sprintf("- %s", object@history))
-      } else {
-        outstring <- c(outstring, "History:", "No history available")
-      }
+    }
+    if (length(object@history) > 0) {
+      outstring <- c(outstring, "History:", sprintf("- %s", object@history))
+    } else {
+      outstring <- c(outstring, "History:", "No history available")
     }
     # FIXME: Give more details about the sample
     cat(paste0(outstring, collapse = "\n"))
