@@ -6,9 +6,9 @@ test_that("Can create minimal GCIMSSample object", {
   obj <- GCIMSSample(drift_time = dt, retention_time = rt, data=data)
   expect_s4_class(obj, "GCIMSSample")
   expect_equal(slot(obj, "class_version"), .CURRENT_GCIMSSAMPLE_CLASS_VERSION)
-  expect_equal(driftTime(obj), dt)
-  expect_equal(retentionTime(obj), rt)
-  expect_equal(unname(intensityMatrix(obj)), data)
+  expect_equal(dtime(obj), dt)
+  expect_equal(rtime(obj), rt)
+  expect_equal(unname(intensity(obj)), data)
 })
 
 
@@ -21,9 +21,9 @@ test_that("Can create GCIMSSample object with optional slot", {
   obj <- GCIMSSample(drift_time = dt, retention_time = rt, data=data, drift_gas = drift_gas)
   expect_s4_class(obj, "GCIMSSample")
   expect_equal(slot(obj, "class_version"), .CURRENT_GCIMSSAMPLE_CLASS_VERSION)
-  expect_equal(driftTime(obj), dt)
-  expect_equal(retentionTime(obj), rt)
-  expect_equal(unname(intensityMatrix(obj)), data)
+  expect_equal(dtime(obj), dt)
+  expect_equal(rtime(obj), rt)
+  expect_equal(unname(intensity(obj)), data)
   expect_equal(slot(obj, "drift_gas"), drift_gas)
 })
 

@@ -14,29 +14,10 @@
 #' @return A numeric vector with the drift time
 #'
 #' @param object An object with drift time
-#' @export
-#'
-setGeneric("driftTime", function(object) standardGeneric("driftTime"))
-
-#' Get retention time vector
-#'
-#' @return A numeric vector with the retention time
-#'
-#' @param object An object with retention time
-#' @export
-#'
-setGeneric("retentionTime", function(object) standardGeneric("retentionTime"))
-
-#' Get the intensity matrix
-#'
-#' @return A numeric matrix with drift time in the rows and retention time in columns
-#'
-#' @param object An object with an intensity matrix
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
 #'
-setGeneric("intensityMatrix", function(object, ...) standardGeneric("intensityMatrix"))
-
+setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 
 #' Get extracted ion chromatogram
 #'
