@@ -2,9 +2,9 @@
 % Please edit documentation in R/GCIMSSample.R
 \name{GCIMSSample-methods}
 \alias{GCIMSSample-methods}
-\alias{driftTime,GCIMSSample-method}
-\alias{retentionTime,GCIMSSample-method}
-\alias{intensityMatrix,GCIMSSample-method}
+\alias{dtime,GCIMSSample-method}
+\alias{rtime,GCIMSSample-method}
+\alias{intensity,GCIMSSample-method}
 \alias{[.GCIMSSample}
 \alias{dim.GCIMSSample}
 \alias{subset.GCIMSSample}
@@ -13,11 +13,11 @@
 \alias{getIMSScan,GCIMSSample-method}
 \title{Methods for the GCIMSSample class}
 \usage{
-\S4method{driftTime}{GCIMSSample}(object)
+\S4method{dtime}{GCIMSSample}(object)
 
-\S4method{retentionTime}{GCIMSSample}(object)
+\S4method{rtime}{GCIMSSample}(object)
 
-\S4method{intensityMatrix}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL)
+\S4method{intensity}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL)
 
 \method{[}{GCIMSSample}(x, i, j, ...)
 
@@ -64,11 +64,11 @@ Methods for the GCIMSSample class
 }
 \section{Functions}{
 \itemize{
-\item \code{driftTime,GCIMSSample-method}: Get the drift time vector
+\item \code{dtime,GCIMSSample-method}: Get the drift time vector
 
-\item \code{retentionTime,GCIMSSample-method}: Get the retention time vector
+\item \code{rtime,GCIMSSample-method}: Get the retention time vector
 
-\item \code{intensityMatrix,GCIMSSample-method}: Get the intensity matrix
+\item \code{intensity,GCIMSSample-method}: Get the intensity matrix
 
 \item \code{[.GCIMSSample}: Simple subsetter for \linkS4class{GCIMSSample} objects
 
@@ -86,7 +86,7 @@ Methods for the GCIMSSample class
 \examples{
 mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 gcims_sample <- read_mea(mea_file)
-my_matrix <- intensityMatrix(gcims_sample, dt_range = c(7, 8), rt_range = c(1,30))
+my_matrix <- intensity(gcims_sample, dt_range = c(7, 8), rt_range = c(1,30))
 # `[' examples
 
 # `[' examples
