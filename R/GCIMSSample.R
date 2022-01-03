@@ -167,63 +167,36 @@ GCIMSSample <- function(
 NULL
 
 
-#' @describeIn GCIMSSample-methods Get drift time numeric vector
-#'
-#' @return A numeric vector with the drift time
-#'
-#' @param object A GCIMSSample object
-#' @export
-#'
-setGeneric("driftTime", function(object) standardGeneric("driftTime"))
 
 #' @describeIn GCIMSSample-methods Get the drift time vector
 #' @export
 setMethod("driftTime", "GCIMSSample", function(object) object@drift_time)
 
-#' @describeIn GCIMSSample-methods Get retention time vector
-#'
-#' @return A numeric vector with the retention time
-#'
-#' @param object A GCIMSSample object
-#' @export
-#'
-setGeneric("retentionTime", function(object) standardGeneric("retentionTime"))
-
 #' @describeIn GCIMSSample-methods Get the retention time vector
 #' @export
 setMethod("retentionTime", "GCIMSSample", function(object) object@retention_time)
 
-
 #' @describeIn GCIMSSample-methods Get the intensity matrix
-#'
-#' @return A numeric matrix with drift time in the rows and retention time in columns
-#'
-#' @param object A GCIMSSample object
-#' @export
-#'
-setGeneric("intensityMatrix", function(object, ...) standardGeneric("intensityMatrix"))
-
-#' @describeIn GCIMSSample-methods Get the intensity matrix
-#' @param dtrange The minimum and maximum drift times to extract (length 2 vector)
-#' @param rtrange The minimum and maximum retention times to extract (length 2 vector)
+#' @param dt_range The minimum and maximum drift times to extract (length 2 vector)
+#' @param rt_range The minimum and maximum retention times to extract (length 2 vector)
 #' @examples
 #' mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 #' gcims_sample <- read_mea(mea_file)
-#' my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
-setMethod("intensityMatrix", "GCIMSSample", function(object, dtrange = NULL, rtrange = NULL) {
+#' my_matrix <- intensityMatrix(gcims_sample, dt_range = c(7, 8), rt_range = c(1,30))
+setMethod("intensityMatrix", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL) {
   dt <- driftTime(object)
-  if (!is.null(dtrange)) {
-    dtmin <- min(dtrange)
-    dtmax <- max(dtrange)
+  if (!is.null(dt_range)) {
+    dtmin <- min(dt_range)
+    dtmax <- max(dt_range)
     dt_idx <- dt >= dtmin & dt < dtmax
   } else {
     dt_idx <- seq_along(dt)
   }
 
   rt <- retentionTime(object)
-  if (!is.null(rtrange)) {
-    rtmin <- min(rtrange)
-    rtmax <- max(rtrange)
+  if (!is.null(rt_range)) {
+    rtmin <- min(rt_range)
+    rtmax <- max(rt_range)
     rt_idx <- rt >= rtmin & rt < rtmax
   } else {
     rt_idx <- seq_along(rt)
@@ -385,14 +358,59 @@ setValidity("GCIMSSample", function(object) {
   return(subset.GCIMSSample(x = x, dt_idx = i, rt_idx = j, ...))
 }
 
+#' @describeIn GCIMSSample-methods Simple subsetter for [GCIMSSample-class] objects
+#'
+#' @return `[`: object `x` with features `i` and cells `j`
+#'
+#' @param i index for drift time to subset
+#' @param j index for retention time to subset
+#' @param ... ignored
+#' @export
+#' @method [ GCIMSSample
+#'
+#' @examples
+#' # `[' examples
+#'
+"[.GCIMSSample" <- function(x, i, j, ...) {
+  if (missing(x = i) && missing(x = j)) {
+    return(x)
+  }
+  dt <- driftTime(x)
+  rt <- retentionTime(x)
+  if (missing(x = i)) {
+    i <- seq_along(dt)
+  }
+  if (missing(x = j)) {
+    j <- seq_along(rt)
+  }
 
-dim.GCIMSSample <- function(x) {
-  return(dim(x@data))
+  if (is.logical(x = i)) {
+    if (length(i) != length(x = dt)) {
+      stop("Incorrect number of logical values provided to subset drift time")
+    }
+  }
+  if (is.logical(x = j)) {
+    if (length(j) != length(x = rt)) {
+      stop("Incorrect number of logical values provided to subset retention time")
+    }
+  }
+  return(subset.GCIMSSample(x = x, dt_idx = i, rt_idx = j, ...))
 }
 
 
-dimnames.GCIMSSample <- function(x) {
-  return(dimnames(x@data))
+
+#' @describeIn GCIMSSample-methods Dimension of the data matrix
+#'
+#' @param x A GCIMSSample object
+#'
+#' @return An integer vector with the number of rows and columns of the matrix
+#' @export
+#'
+#' @examples
+#' obj <- GCIMSSample(drift_time=1:2, retention_time=1:3, data = matrix(1:6, nrow=2, ncol=3))
+#' dim(obj)
+dim.GCIMSSample <- function(x) {
+  return(dim(x@data))
 }
 
 
@@ -401,6 +419,8 @@ dimnames.GCIMSSample <- function(x) {
 #' @param x A GCIMSSample object
 #' @param dt_idx A vector of drift time indices to keep
 #' @param rt_idx A vector of retention time indices to keep
+#' @param dt_range The drift time range to keep (in milliseconds)
+#' @param rt_range The retention time range to keep (in seconds)
 #'
 #' @return `subset`: A subsetted `GCIMSSample` object
 #'
@@ -414,11 +434,21 @@ subset.GCIMSSample <- function(
   x,
   dt_idx = NULL,
   rt_idx = NULL,
+  dt_range = NULL,
+  rt_range = NULL,
   ...
 ) {
 
   dt <- driftTime(x)
   rt <- retentionTime(x)
+
+  if (!is.null(dt_range)) {
+    dt_idx <- which(dt >= min(dt_range) & dt < max(dt_range))
+  }
+
+  if (!is.null(rt_range)) {
+    rt_idx <- which(rt >= min(rt_range) & rt < max(rt_range))
+  }
 
   if (is.null(dt_idx)) {
     dt_idx <- seq_along(dt)
@@ -438,4 +468,20 @@ subset.GCIMSSample <- function(
   new_obj@data <- x@data[dt_idx, rt_idx, drop = FALSE]
   new_obj
 }
+
+
+#' @describeIn GCIMSSample-methods Get the extracted ion chromatogram
+#' @export
+setMethod("getEIC", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL) {
+  intens <- intensityMatrix(object, rt_range = rt_range, dt_range = dt_range)
+  colSums(intens)
+})
+
+#' @describeIn GCIMSSample-methods Get IMS spectrum
+#' @param object A GCIMSSample object
+#' @export
+setMethod("getIMSScan", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL) {
+  intens <- intensityMatrix(object, rt_range = rt_range, dt_range = dt_range)
+  rowSums(intens)
+})
 
