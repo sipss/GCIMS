@@ -2,41 +2,41 @@
 % Please edit documentation in R/GCIMSSample.R
 \name{GCIMSSample-methods}
 \alias{GCIMSSample-methods}
-\alias{driftTime}
 \alias{driftTime,GCIMSSample-method}
-\alias{retentionTime}
 \alias{retentionTime,GCIMSSample-method}
-\alias{intensityMatrix}
 \alias{intensityMatrix,GCIMSSample-method}
 \alias{[.GCIMSSample}
+\alias{dim.GCIMSSample}
 \alias{subset.GCIMSSample}
 \alias{subset}
+\alias{getEIC,GCIMSSample-method}
+\alias{getIMSScan,GCIMSSample-method}
 \title{Methods for the GCIMSSample class}
 \usage{
-driftTime(object)
-
 \S4method{driftTime}{GCIMSSample}(object)
-
-retentionTime(object)
 
 \S4method{retentionTime}{GCIMSSample}(object)
 
-intensityMatrix(object, ...)
-
-\S4method{intensityMatrix}{GCIMSSample}(object, dtrange = NULL, rtrange = NULL)
+\S4method{intensityMatrix}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL)
 
 \method{[}{GCIMSSample}(x, i, j, ...)
 
-\method{subset}{GCIMSSample}(x, dt_idx = NULL, rt_idx = NULL, ...)
+\method{[}{GCIMSSample}(x, i, j, ...)
+
+\method{dim}{GCIMSSample}(x)
+
+\method{subset}{GCIMSSample}(x, dt_idx = NULL, rt_idx = NULL, dt_range = NULL, rt_range = NULL, ...)
+
+\S4method{getEIC}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL)
+
+\S4method{getIMSScan}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL)
 }
 \arguments{
 \item{object}{A GCIMSSample object}
 
-\item{...}{ignored}
+\item{dt_range}{The drift time range to keep (in milliseconds)}
 
-\item{dtrange}{The minimum and maximum drift times to extract (length 2 vector)}
-
-\item{rtrange}{The minimum and maximum retention times to extract (length 2 vector)}
+\item{rt_range}{The retention time range to keep (in seconds)}
 
 \item{x}{A GCIMSSample object}
 
@@ -44,18 +44,18 @@ intensityMatrix(object, ...)
 
 \item{j}{index for retention time to subset}
 
+\item{...}{ignored}
+
 \item{dt_idx}{A vector of drift time indices to keep}
 
 \item{rt_idx}{A vector of retention time indices to keep}
 }
 \value{
-A numeric vector with the drift time
-
-A numeric vector with the retention time
-
-A numeric matrix with drift time in the rows and retention time in columns
+\code{[}: object \code{x} with features \code{i} and cells \code{j}
 
 \code{[}: object \code{x} with features \code{i} and cells \code{j}
+
+An integer vector with the number of rows and columns of the matrix
 
 \code{subset}: A subsetted \code{GCIMSSample} object
 }
@@ -64,29 +64,35 @@ Methods for the GCIMSSample class
 }
 \section{Functions}{
 \itemize{
-\item \code{driftTime}: Get drift time numeric vector
-
 \item \code{driftTime,GCIMSSample-method}: Get the drift time vector
 
-\item \code{retentionTime}: Get retention time vector
-
 \item \code{retentionTime,GCIMSSample-method}: Get the retention time vector
-
-\item \code{intensityMatrix}: Get the intensity matrix
 
 \item \code{intensityMatrix,GCIMSSample-method}: Get the intensity matrix
 
 \item \code{[.GCIMSSample}: Simple subsetter for \linkS4class{GCIMSSample} objects
 
+\item \code{[.GCIMSSample}: Simple subsetter for \linkS4class{GCIMSSample} objects
+
+\item \code{dim.GCIMSSample}: Dimension of the data matrix
+
 \item \code{subset.GCIMSSample}: Subset a \linkS4class{GCIMSSample} object
+
+\item \code{getEIC,GCIMSSample-method}: Get the extracted ion chromatogram
+
+\item \code{getIMSScan,GCIMSSample-method}: Get IMS spectrum
 }}
 
 \examples{
 mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 gcims_sample <- read_mea(mea_file)
-my_matrix <- intensityMatrix(gcims_sample, dtrange = c(7, 8), rtrange = c(1,30))
+my_matrix <- intensityMatrix(gcims_sample, dt_range = c(7, 8), rt_range = c(1,30))
 # `[' examples
 
+# `[' examples
+
+obj <- GCIMSSample(drift_time=1:2, retention_time=1:3, data = matrix(1:6, nrow=2, ncol=3))
+dim(obj)
 }
 \seealso{
 \code{\link[base:subset]{base::subset()}}
