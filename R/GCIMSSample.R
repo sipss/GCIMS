@@ -330,13 +330,18 @@ setValidity("GCIMSSample", function(object) {
 #' image(dummy_obj)
 "image.GCIMSSample" <- function(x, ...) {
   # filled.contour includes a legend
-  graphics::filled.contour(
+  dots <- list(...)
+  if (!"main" %in% names(dots)) {
+    dots[["main"]] <- basename(methods::slot(x, "filepath"))
+  }
+  rlang::exec(
+    graphics::filled.contour,
     x=x@drift_time,
     y = x@retention_time/60.0,
     z=x@data,
     xlab = "Drift time (ms)",
     ylab = "Retention time (min)",
-    ...
+    !!!dots
   )
 }
 
