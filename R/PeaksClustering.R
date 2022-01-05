@@ -27,7 +27,7 @@
 #' # Example of ROIs Clustering for Peak Table Creation
 #' # Need a proper dataset with peaks detected in the pkg
 #' # (or maybe better a refactor the function arguments)
-#' peak_table <- gcims_peaks_clustering(dir_in, dir_out, samples)
+#' #peak_table <- gcims_peaks_clustering(dir_in, dir_out, samples)
 gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   print(" ")
   print("  ///////////////////////////")
@@ -41,7 +41,6 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
     nm = paste0("M", samples)
   )
   peaks <- rds_samples_to_peak_list(samples_fn)
-  group_peak_list(peaks)
   group_peak_list(
     peaks = peaks,
     filter_dt_width_criteria = "IQR",
@@ -76,7 +75,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 #'
 #'   No other clustering method is currently supported
 #' @param aggregate_conflicting_peaks `NULL` or a function. When we build the peak table, with peaks in rows, samples in
-#'  columns, peak_table[i,j] is the volume of the peak from sample j in cluster i. If the clustering process
+#'  columns, `peak_table[i,j]` is the volume of the peak from sample `j` in cluster `i`. If the clustering process
 #'  clusters together two peaks form the same sample, those peaks will conflict in the peak table. `NULL` will error
 #'  in that case, another function will be applied on the conflicting volumes (e.g `mean` or `max` would be reasonable options)
 #'
