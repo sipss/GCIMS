@@ -86,6 +86,7 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     knitr,
+    progress,
     rmarkdown
 biocViews: Software, Preprocessing, Visualization, Classification,
  Cheminformatics, Metabolomics, DataImport

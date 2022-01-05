@@ -720,5 +720,12 @@ gcims_shifting <- function(dir_in, dir_out, samples){
 }
 
 
-
-
+new_progress_bar <- function(...) {
+  if (!requireNamespace("progress", quietly = TRUE)) {
+    dummy_pbar <- list(
+      tick = function() {}
+    )
+    return(dummy_pbar)
+  }
+  progress::progress_bar$new(...)
+}

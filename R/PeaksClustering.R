@@ -200,7 +200,7 @@ group_peak_list <- function(
 }
 
 rds_samples_to_peak_list <- function(samples) {
-  pb <- progress::progress_bar$new(total = length(samples))
+  pb <- new_progress_bar(total = length(samples))
 
   peaks_df <- purrr::map_dfr(samples, function(sample_fn) {
     pb$tick()
