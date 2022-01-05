@@ -26,7 +26,7 @@ rand_index <- function(clustering1, clustering2) {
 
 
 get_simple_peak_list <- function() {
-  fn <- system.file("extdata", "peak_list_6_peaks_15_samples_ketones.csv.gz", package = "GCIMS")
+  fn <- system.file("extdata", "peak_lists", "peak_list_6_peaks_15_samples_ketones.csv.gz", package = "GCIMS")
   readr::read_csv(fn, show_col_types = FALSE)
 }
 
