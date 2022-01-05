@@ -36,7 +36,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   print(" ")
 
 
-  samples_fn <- utils::setNames(
+  samples_fn <- stats::setNames(
     object = file.path(dir_in, paste0("M", samples, ".rds")),
     nm = paste0("M", samples)
   )
@@ -101,7 +101,7 @@ group_peak_list <- function(
   verbose = FALSE
 ) {
   # 0. Warn if peaks with NA positions, and remove them
-  peaks_with_na <- complete.cases(peaks)
+  peaks_with_na <- stats::complete.cases(peaks)
   if (!all(peaks_with_na)) {
     rlang::warn("Some peaks in samples have wrong indexes leading to NA positions")
     print(peaks[!peaks_with_na,])
