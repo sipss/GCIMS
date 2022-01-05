@@ -45,7 +45,7 @@ detected peaks per sample.
 No other clustering method is currently supported}
 
 \item{aggregate_conflicting_peaks}{\code{NULL} or a function. When we build the peak table, with peaks in rows, samples in
-columns, peak_table\link{i,j} is the volume of the peak from sample j in cluster i. If the clustering process
+columns, \code{peak_table[i,j]} is the volume of the peak from sample \code{j} in cluster \code{i}. If the clustering process
 clusters together two peaks form the same sample, those peaks will conflict in the peak table. \code{NULL} will error
 in that case, another function will be applied on the conflicting volumes (e.g \code{mean} or \code{max} would be reasonable options)}
 
