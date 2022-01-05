@@ -153,7 +153,7 @@ psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
   }
   d <- 0*numeric(num_points) - 1
 
-  for (it in 1:maxit) {
+  for (it in seq_len(maxit)) {
 
     z <- ptw::whit2(y, lambda, w)
 
@@ -181,7 +181,7 @@ psalsa_one <- function(y, lambda = 1e+07, p = 0.001, k = -1, maxit = 25) {
 psalsa <- function(data, lambda = 1E7, p = 0.001, k = -1, maxit = 25) {
   if (is.matrix(data)) {
     estbaseline <- 0*data
-    for (i in 1:nrow(data)) {
+    for (i in seq_len(nrow(data))) {
       estbaseline[i, ] <- psalsa_one(data[i,], lambda, p, k, maxit)
     }
   } else {

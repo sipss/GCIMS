@@ -106,7 +106,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       posrt <- findZeroCrossings(daux[,j])
       tmp <- NULL
       locs_tmp <- NULL
-      for (k in 1:length(locs)){
+      for (k in seq_along(locs)){
         dist <- locs[k] - posrt
         peakaround <- findZeroCrossings(dist)
         if (length(peakaround) >= 1){

@@ -165,8 +165,8 @@ read_mea <- function(filename) {
     "nom Drift Potential Difference", "nom Drift Tube Length", "Pressure Ambient",
     "Pressure Epc 1", "Pressure Epc 2", "Sensor block", "Sensor drift", "Sensor inject",
     "Start flow1", "Start flow2",
-    sprintf("Start temp %d", 1:6),
-    sprintf("Temp %d setpoint", 1:6),
+    sprintf("Start temp %d", seq.int(1,6)),
+    sprintf("Temp %d setpoint", seq.int(1,6)),
     "Pressure record interval"
     )
   last_key <- "Timestamp"
