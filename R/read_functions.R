@@ -289,7 +289,7 @@ read_mea <- function(filename) {
 #'
 #' @param dir_in          The input directory.
 #' @param dir_out         The output directory.
-#' @return NULL
+#' @return An invisible NULL. This function is called to convert mat files to rds files.
 #' @family Reading functions
 #' @export
 #' @examples
@@ -320,6 +320,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
     }
     saveRDS(dd, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
+  invisible(NULL)
 }
 
 

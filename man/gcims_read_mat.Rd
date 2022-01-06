@@ -11,6 +11,9 @@ gcims_read_mat(dir_in, dir_out)
 
 \item{dir_out}{The output directory.}
 }
+\value{
+An invisible NULL. This function is called to convert mat files to rds files.
+}
 \description{
 Read GC-IMS Samples from MATLAB files
 }
