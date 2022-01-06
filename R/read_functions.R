@@ -298,6 +298,9 @@ read_mea <- function(filename) {
 #' }
 
 gcims_read_mat <- function(dir_in, dir_out) {
+  if (!requireNamespace("R.matlab", quietly = TRUE)) {
+    stop("gcims_read_mat requires to have installed the R.matlab package")
+  }
   print(" ")
   print("  /////////////////////////")
   print(" /    Reading Samples    /")

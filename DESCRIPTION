@@ -71,7 +71,6 @@ Imports:
     plyr,
     ptw (>= 1.9-10),
     purrr(>= 0.3.4),
-    R.matlab (>= 3.6.2),
     readr (>= 1.3.1),
     readxl(>= 1.3.1),
     reshape2 (>= 1.1.4),
@@ -87,7 +86,8 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     progress,
-    rmarkdown
+    rmarkdown,
+    R.matlab (>= 3.6.2)
 biocViews: Software, Preprocessing, Visualization, Classification,
  Cheminformatics, Metabolomics, DataImport
 RoxygenNote: 7.1.2
