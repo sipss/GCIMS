@@ -63,5 +63,18 @@ A list with :
 Peak grouping function, exposing a lot of options useful for benchmarking
 }
 \examples{
-# FIXME
+fn <- system.file("extdata", "peak_lists", "peak_list_6_peaks_15_samples_ketones.csv.gz", package = "GCIMS")
+
+peak_list <- readr::read_csv(fn, show_col_types = FALSE)
+peak_list$volume <- 1
+peak_table_list <- group_peak_list(
+  peaks = peak_list,
+  filter_dt_width_criteria = NULL,
+  filter_rt_width_criteria = NULL,
+  distance_method = "mahalanobis",
+  distance_between_peaks_from_same_sample = Inf,
+  clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+  aggregate_conflicting_peaks = NULL,
+  verbose = FALSE
+)
 }
