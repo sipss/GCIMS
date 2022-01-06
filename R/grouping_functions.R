@@ -76,7 +76,7 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
 
   coarse_clustering <- function(x, y){
     cl <- apply(x, MARGIN = 1, FUN = function(z) which(z == 1))
-    cl <- cl[sapply(cl, FUN = function(z) length(z) > 1)] #1
+    cl <- cl[vapply(cl, FUN = function(z) length(z) > 1, FUN.VALUE = logical(length(cl)))] #1
     cl_index <- vector(mode = "list", length = length(cl))
     for (i in seq_along(cl)){
       cl_index[[i]] <- rep(i, length(cl[[i]]))
