@@ -17,3 +17,11 @@ A numeric vector with the extracted ion chromatogram
 \description{
 Get extracted ion chromatogram
 }
+\examples{
+x <- dummy_obj <-GCIMSSample(
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3)
+)
+getEIC(x) # c(`1` = 3, `2` = 7, `3` = 11)
+}

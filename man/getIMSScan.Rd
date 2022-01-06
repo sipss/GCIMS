@@ -17,3 +17,11 @@ An ion mobility spectrum
 \description{
 Get IMS scans
 }
+\examples{
+x <- dummy_obj <-GCIMSSample(
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3)
+)
+getIMSScan(x) # c(`1` = 9, `2` = 12)
+}

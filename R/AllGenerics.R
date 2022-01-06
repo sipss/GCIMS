@@ -16,6 +16,13 @@
 #' @param object An object with drift time
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
+#' @examples
+#' x <- dummy_obj <-GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3)
+#' )
+#' dtime(x) # c(1,2)
 #'
 setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 
@@ -26,7 +33,13 @@ setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 #' @param object An object that has ion chromatograms
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
-#'
+#' @examples
+#' x <- dummy_obj <-GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3)
+#' )
+#' getEIC(x) # c(`1` = 3, `2` = 7, `3` = 11)
 setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
 
 
@@ -36,4 +49,11 @@ setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
 #' @param object An object that has IMS scans
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
+#' @examples
+#' x <- dummy_obj <-GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3)
+#' )
+#' getIMSScan(x) # c(`1` = 9, `2` = 12)
 setGeneric("getIMSScan", function(object, ...) standardGeneric("getIMSScan"))
