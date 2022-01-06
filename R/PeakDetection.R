@@ -80,7 +80,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # Curve fitting of RIP
 
     signal <- aux[rip_start_index:rip_end_index, 110] # Take RIP
-    template <- -computeDerivative(signal, p = 2, n = utils::tail(c(1:length(signal))[c(T,F)], n=1), m = 2) # Compute 2nd derivative of RIP
+    template <- -computeDerivative(signal, p = 2, n = utils::tail(c(1:length(signal))[c(TRUE,FALSE)], n=1), m = 2) # Compute 2nd derivative of RIP
     tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
     f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian density
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
