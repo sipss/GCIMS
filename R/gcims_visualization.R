@@ -92,14 +92,14 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
   if(is.null(rt_range)){
 
-  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+  } else if(is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
   }
 
   if(is.null(dt_range)){
 
-  } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+  } else if(is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
   }
@@ -240,7 +240,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
   if(is.null(rt_range)){
 
-  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+  } else if(is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
   }
@@ -396,7 +396,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
 
   if(is.null(dt_range)){
 
-  } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+  } else if (is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
   }
