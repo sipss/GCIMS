@@ -86,10 +86,15 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 #' @export
 #'
 #' @examples
-#' fn <- system.file("extdata", "peak_lists", "peak_list_6_peaks_15_samples_ketones.csv.gz", package = "GCIMS")
+#' peak_list_fn <- system.file(
+#'  "extdata",
+#'  "peak_lists",
+#'  "peak_list_6_peaks_15_samples_ketones.csv.gz",
+#'  package = "GCIMS"
+#' )
 #'
-#' peak_list <- readr::read_csv(fn, show_col_types = FALSE)
-#' peak_list$volume <- 1
+#' peak_list <- readr::read_csv(peak_list_fn, show_col_types = FALSE)
+#' peak_list$volume <- 1  # FIXME: peak_list_fn should include the volume as well
 #' peak_table_list <- group_peak_list(
 #'   peaks = peak_list,
 #'   filter_dt_width_criteria = NULL,
