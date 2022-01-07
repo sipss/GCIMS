@@ -64,7 +64,7 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 #'     below the lower quartile.
 #'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks above mean+4iqr or below median-0.75iqr
 #'   - "none": Do not remove peaks based on their drift time width or retention time height
-#' @param distance_method A string. One of the distance methods from [stats::dist] or "mahalanobis"
+#' @param distance_method A string. One of the distance methods from [stats::dist], "sd_scaled_euclidean" or "mahalanobis"
 #' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
 #' @param clustering A named list with "method" and the supported method, as well as further options.
 #'   For `method = "kmedoids"`, you must provide `Nclusters`, with either the number of clusters
@@ -138,6 +138,9 @@ group_peak_list <- function(
                      "binary", "minkowski")
   if (distance_method %in% STATS_METHODS) {
     peak2peak_dist <- stats::dist(peak_matrix, method = distance_method)
+  } else if (distance_method == "sd_scaled_euclidean") {
+    peak_matrix_scaled <- scale(peak_matrix, center = FALSE, scale = TRUE)
+    peak2peak_dist <- stats::dist(peak_matrix_scaled, method = "euclidean")
   } else if (distance_method == "mahalanobis") {
     peak2peak_dist <- mahalanobis_distance(peak_matrix)
   } else {

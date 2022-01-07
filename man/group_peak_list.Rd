@@ -33,7 +33,7 @@ below the lower quartile.
 \item "none": Do not remove peaks based on their drift time width or retention time height
 }}
 
-\item{distance_method}{A string. One of the distance methods from \link[stats:dist]{stats::dist} or "mahalanobis"}
+\item{distance_method}{A string. One of the distance methods from \link[stats:dist]{stats::dist}, "sd_scaled_euclidean" or "mahalanobis"}
 
 \item{distance_between_peaks_from_same_sample}{The distance between two peaks from the same sample will be set to \code{distance_between_peaks_from_same_sample*max(distance_matrix)}}
 
