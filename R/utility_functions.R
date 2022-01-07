@@ -722,6 +722,14 @@ gcims_shifting <- function(dir_in, dir_out, samples){
 
 new_progress_bar <- function(...) {
   if (!requireNamespace("progress", quietly = TRUE)) {
+    rlang::inform(
+      message = c("i" = 'Use install.packages("progress") to get a progress bar'),
+      class = "GCIMS_suggest_install_progress",
+      .frequency = "once",
+      .frequeny_id = "suggest_progress_installation"
+    )
+    # This code path returns a dummy object exposing a compatible API of
+    # progress:progress_bar$new(...).
     dummy_pbar <- list(
       tick = function() {}
     )
