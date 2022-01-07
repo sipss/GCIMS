@@ -15,8 +15,6 @@
 #' @family Peaks CLustering function
 #' @export
 #' @importFrom cluster pam
-#' @importFrom plyr count
-#' @importFrom Hotelling hotelling.test
 #' @importFrom rlang .data
 #' @examples
 #' current_dir <- getwd()
