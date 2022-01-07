@@ -68,10 +68,10 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 #' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
 #' @param clustering A named list with "method" and the supported method, as well as further options.
 #'   For `method = "kmedoids"`, you must provide `Nclusters`, with either the number of clusters
-#'   to use in the kmedoids algorithm or the string "max_peaks_sample" to use the maximum number of
+#'   to use in the kmedoids algorithm ([cluster::pam]) or the string `"max_peaks_sample"` to use the maximum number of
 #'   detected peaks per sample.
 #'
-#'   No other clustering method is currently supported
+#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
 #' @param aggregate_conflicting_peaks `NULL` or a function. When we build the peak table, with peaks in rows, samples in
 #'  columns, `peak_table[i,j]` is the volume of the peak from sample `j` in cluster `i`. If the clustering process
 #'  clusters together two peaks form the same sample, those peaks will conflict in the peak table. `NULL` will error
@@ -162,6 +162,7 @@ group_peak_list <- function(
     value = distance_between_peaks_from_same_sample*max(peak2peak_dist)
   )
 
+  extra_clustering_info <- list()
   if (clustering$method == "kmedoids") {
     if (clustering$Nclusters == "max_peaks_sample") {
       N_clusters <- max(purrr::map_int(peakuids_by_sample, length))
@@ -172,10 +173,20 @@ group_peak_list <- function(
     }
     cluster <- cluster::pam(x = peak2peak_distance, k = N_clusters)
     peaks$cluster <- cluster$clustering
-    extra_clustering_info <- cluster
+    extra_clustering_info$cluster_result <- cluster
+    extra_clustering_info$silhouette <- cluster::silhouette(cluster, dist = peak2peak_distance)
+  } else if (clustering$method == "hclust") {
+    hclust_method <- ifelse(is.null(clustering$hclust_method), "complete", clustering$hclust_method)
+    cluster <- stats::hclust(d = peak2peak_distance, method = hclust_method)
+    # FIXME: Implement something more robust to estimate num_clusters or height to cut:
+    num_clusters <- which.max(-diff(sort(cluster$height, decreasing = TRUE)))+1
+    peaks$cluster <- stats::cutree(cluster, k = num_clusters)
+    extra_clustering_info$cluster <- cluster
+    extra_clustering_info$num_clusters <- num_clusters
   } else {
     stop(sprintf("Unsupported clustering method %s", clustering$method))
   }
+
 
   median_roi_per_cluster <- peaks %>%
     dplyr::group_by(.data$cluster) %>%

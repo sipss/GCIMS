@@ -39,10 +39,10 @@ below the lower quartile.
 
 \item{clustering}{A named list with "method" and the supported method, as well as further options.
 For \code{method = "kmedoids"}, you must provide \code{Nclusters}, with either the number of clusters
-to use in the kmedoids algorithm or the string "max_peaks_sample" to use the maximum number of
+to use in the kmedoids algorithm (\link[cluster:pam]{cluster::pam}) or the string \code{"max_peaks_sample"} to use the maximum number of
 detected peaks per sample.
 
-No other clustering method is currently supported}
+For \code{method = "hclust"}, you can provide \code{hclust_method}, with the \code{method} passed to \link[stats:hclust]{stats::hclust}.}
 
 \item{aggregate_conflicting_peaks}{\code{NULL} or a function. When we build the peak table, with peaks in rows, samples in
 columns, \code{peak_table[i,j]} is the volume of the peak from sample \code{j} in cluster \code{i}. If the clustering process

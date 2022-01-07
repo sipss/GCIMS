@@ -102,3 +102,28 @@ test_that("Peak grouping of simple case works well", {
     1
   )
 })
+
+
+test_that("Peak grouping with sd_scaled_euclidean and hclust", {
+  peak_list <- get_simple_peak_list()
+  peak_list$volume <- 1
+  peak_table_list <- group_peak_list(
+    peaks = peak_list,
+    filter_dt_width_criteria = NULL, # FIXME: outlier roi criteria disabled because it does not work well
+    filter_rt_width_criteria = NULL,# FIXME: outlier roi criteria disabled because it does not work well
+    distance_method = "sd_scaled_euclidean",
+    distance_between_peaks_from_same_sample = 2,
+    clustering = list(method = "hclust", hclust_method = "complete"),
+    aggregate_conflicting_peaks = NULL,
+    verbose = FALSE
+  )
+  peak_list_with_cluster <- peak_table_list$peak_list_with_cluster
+
+  expect_equal(
+    rand_index(
+      peak_list_with_cluster$PeakID,
+      peak_list_with_cluster$cluster
+    ),
+    1
+  )
+})
