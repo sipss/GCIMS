@@ -181,31 +181,62 @@ setMethod("rtime", "GCIMSSample", function(object) object@retention_time)
 #' @import ProtGenerics
 #' @param dt_range The minimum and maximum drift times to extract (length 2 vector)
 #' @param rt_range The minimum and maximum retention times to extract (length 2 vector)
+#' @param dt_idx A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)
+#' @param rt_idx A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)
 #' @examples
 #' mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 #' gcims_sample <- read_mea(mea_file)
 #' my_matrix <- intensity(gcims_sample, dt_range = c(7, 8), rt_range = c(1,30))
-setMethod("intensity", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL) {
+setMethod("intensity", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {
   dt <- dtime(object)
+  if (!is.null(dt_range) && !is.null(dt_idx)) {
+    rlang::abort("Please provide either dt_range or dt_idx, but not both in the same call")
+  }
   if (!is.null(dt_range)) {
     dtmin <- min(dt_range)
     dtmax <- max(dt_range)
     dt_idx <- dt >= dtmin & dt < dtmax
+  } else if (!is.null(dt_idx)) {
+    if (is.logical(dt_idx) && length(dt_idx) != length(dt)) {
+      rlang::abort(
+        sprintf(
+          "dt_idx is a logical vector of length %d and it should be of length %d",
+          length(dt_idx),
+          length(dt)
+        )
+      )
+    } else if (is.numeric(dt_idx) && (min(dt_idx) < 1 || max(dt_idx) > length(dt))) {
+      rlang::abort("dt_idx out of range")
+    }
   } else {
     dt_idx <- seq_along(dt)
   }
 
   rt <- rtime(object)
+  if (!is.null(rt_range) && !is.null(rt_idx)) {
+    rlang::abort("Please provide either rt_range or rt_idx, but not both in the same call")
+  }
   if (!is.null(rt_range)) {
     rtmin <- min(rt_range)
     rtmax <- max(rt_range)
     rt_idx <- rt >= rtmin & rt < rtmax
+  } else if (!is.null(rt_idx)) {
+    if (is.logical(rt_idx) && length(rt_idx) != length(rt)) {
+      rlang::abort(
+        sprintf(
+          "rt_idx is a logical vector of length %d and it should be of length %d",
+          length(rt_idx),
+          length(rt)
+        )
+      )
+    } else if (is.numeric(rt_idx) && (min(rt_idx) < 1 || max(rt_idx) > length(rt))) {
+      rlang::abort("rt_idx out of range")
+    }
   } else {
     rt_idx <- seq_along(rt)
   }
   out <- object@data[dt_idx, rt_idx]
-  rownames(out) <- dt[dt_idx]
-  colnames(out) <- rt[rt_idx]
+  dimnames(out) <- list(dt_ms = dt[dt_idx], rt_s = rt[rt_idx])
   out
 })
 

@@ -17,7 +17,13 @@
 
 \S4method{rtime}{GCIMSSample}(object)
 
-\S4method{intensity}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL)
+\S4method{intensity}{GCIMSSample}(
+  object,
+  dt_range = NULL,
+  rt_range = NULL,
+  dt_idx = NULL,
+  rt_idx = NULL
+)
 
 \method{[}{GCIMSSample}(x, i, j, ...)
 
@@ -38,6 +44,10 @@
 
 \item{rt_range}{The retention time range to keep (in seconds)}
 
+\item{dt_idx}{A vector of drift time indices to keep}
+
+\item{rt_idx}{A vector of retention time indices to keep}
+
 \item{x}{A GCIMSSample object}
 
 \item{i}{index for drift time to subset}
@@ -45,10 +55,6 @@
 \item{j}{index for retention time to subset}
 
 \item{...}{ignored}
-
-\item{dt_idx}{A vector of drift time indices to keep}
-
-\item{rt_idx}{A vector of retention time indices to keep}
 }
 \value{
 \code{[}: object \code{x} with features \code{i} and cells \code{j}
