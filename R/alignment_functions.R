@@ -298,16 +298,24 @@ cow <- function(T, X, Seg, Slack,
   LenSeg <- NA
   nSeg <- NA
   if (Pred_Bound) {
-    assertthat::assert_that(all(Seg[,1] == 1)) #, msg="Segments must start at 1")
-    assertthat::assert_that(all(Seg[,ncol(Seg)] == c(pT, pX)))#, msg="Segments must end at the length of the pattern/target")
+    if (!all(Seg[,1] == 1)) {
+      rlang::abort("Segments must start at 1")
+    }
+    if (!all(Seg[,ncol(Seg)] == c(pT, pX))) {
+      rlang::abort("Segments must end at the length of the pattern/target")
+    }
 
     LenSeg = t(diff(t(Seg))) # Length of the segments in the - 1
 
-    assertthat::assert_that(all(LenSeg >= 2))#, msg = "Segments must contain at least two points")
+    if (!all(LenSeg >= 2)) {
+      rlang::abort("Segments must contain at least two points")
+    }
 
     nSeg <- ncol(LenSeg)
   } else {
-    assertthat::assert_that(Seg <= min(pX, pT))#, msg='Segment length is larger than length of the signal')
+    if (Seg > min(pX, pT)) {
+      rlang::abort('Segment length is larger than length of the signal')
+    }
 
     if (equal_lengths) { # Segments in the signals can have different length from those in the target
       nSeg             = floor((pT - 1)/Seg)
