@@ -116,7 +116,7 @@ group_peak_list <- function(
   verbose = FALSE
 ) {
   # 0. Warn if peaks with NA positions, and remove them
-  peaks_with_na <- stats::complete.cases(peaks)
+  peaks_with_na <- stats::complete.cases(peaks[,c("UniqueID", "SampleID", "dtapex_ms", "rtapex_s")])
   if (!all(peaks_with_na)) {
     rlang::warn("Some peaks in samples have wrong indexes leading to NA positions")
     print(peaks[!peaks_with_na,])
