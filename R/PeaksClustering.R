@@ -131,21 +131,14 @@ group_peak_list <- function(
     verbose = verbose
   )
 
+  # Compute the peak to peak distance:
   peak_matrix <- as.matrix(peaks[,c("dtapex_ms", "rtapex_s")])
   rownames(peak_matrix) <- peaks$UniqueID
 
-  STATS_METHODS <- c("euclidean", "maximum", "manhattan", "canberra",
-                     "binary", "minkowski")
-  if (distance_method %in% STATS_METHODS) {
-    peak2peak_dist <- stats::dist(peak_matrix, method = distance_method)
-  } else if (distance_method == "sd_scaled_euclidean") {
-    peak_matrix_scaled <- scale(peak_matrix, center = FALSE, scale = TRUE)
-    peak2peak_dist <- stats::dist(peak_matrix_scaled, method = "euclidean")
-  } else if (distance_method == "mahalanobis") {
-    peak2peak_dist <- mahalanobis_distance(peak_matrix)
-  } else {
-    stop(sprintf("Unsupported distance %s", distance_method))
-  }
+  peak2peak_dist <- peak2peak_distance(
+    peak_matrix = peak_matrix,
+    distance_method = distance_method
+  )
 
   # Set distances from pairs of peaks belonging to the same sample to Inf,
   # so they are never in the same cluster
@@ -156,7 +149,7 @@ group_peak_list <- function(
     dplyr::ungroup() %>%
     dplyr::pull(.data$UniqueIDs)
 
-  peak2peak_distance <- set_peak_distances_within_groups(
+  peak2peak_dist <- set_peak_distances_within_groups(
     dist_matrix = peak2peak_dist,
     peak_groups = peakuids_by_sample,
     value = distance_between_peaks_from_same_sample*max(peak2peak_dist)
@@ -171,13 +164,13 @@ group_peak_list <- function(
     } else {
       stop("When clustering$method is kmedoids, clustering$Nclusters must be an integer or the string 'max_peaks_sample'")
     }
-    cluster <- cluster::pam(x = peak2peak_distance, k = N_clusters)
+    cluster <- cluster::pam(x = peak2peak_dist, k = N_clusters)
     peaks$cluster <- cluster$clustering
     extra_clustering_info$cluster_result <- cluster
-    extra_clustering_info$silhouette <- cluster::silhouette(cluster, dist = peak2peak_distance)
+    extra_clustering_info$silhouette <- cluster::silhouette(cluster, dist = peak2peak_dist)
   } else if (clustering$method == "hclust") {
     hclust_method <- ifelse(is.null(clustering$hclust_method), "complete", clustering$hclust_method)
-    cluster <- stats::hclust(d = peak2peak_distance, method = hclust_method)
+    cluster <- stats::hclust(d = peak2peak_dist, method = hclust_method)
     # FIXME: Implement something more robust to estimate num_clusters or height to cut:
     num_clusters <- which.max(-diff(sort(cluster$height, decreasing = TRUE)))+1
     peaks$cluster <- stats::cutree(cluster, k = num_clusters)
@@ -408,4 +401,21 @@ mahalanobis_distance <- function(x) {
   tmp <- forwardsolve(t(dec), t(x))
   colnames(tmp) <- rownames(x)
   stats::dist(t(tmp))
+}
+
+
+peak2peak_distance <- function(peak_matrix, distance_method = "mahalanobis") {
+  STATS_METHODS <- c("euclidean", "maximum", "manhattan", "canberra",
+                     "binary", "minkowski")
+  if (distance_method %in% STATS_METHODS) {
+    peak2peak_dist <- stats::dist(peak_matrix, method = distance_method)
+  } else if (distance_method == "sd_scaled_euclidean") {
+    peak_matrix_scaled <- scale(peak_matrix, center = FALSE, scale = TRUE)
+    peak2peak_dist <- stats::dist(peak_matrix_scaled, method = "euclidean")
+  } else if (distance_method == "mahalanobis") {
+    peak2peak_dist <- mahalanobis_distance(peak_matrix)
+  } else {
+    stop(sprintf("Unsupported distance %s", distance_method))
+  }
+  peak2peak_dist
 }
