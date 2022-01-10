@@ -53,8 +53,8 @@ setwd(current_dir)
 }
 \references{
 { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
-  "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
-  Prentice Hall. p. 168. ISBN 0-13-754920-2. }
+"4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
+Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 }
 \seealso{
 Other Utility functions: 
@@ -62,6 +62,8 @@ Other Utility functions:
 \code{\link{gcims_decimate}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()},
+\code{\link{gcims_rois_selection}()},
+\code{\link{gcims_shifting}()},
 \code{\link{gcims_unfold}()}
 }
 \concept{Utility functions}

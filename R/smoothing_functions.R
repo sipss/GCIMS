@@ -13,17 +13,17 @@
 #' @param filter_length    Numerical. Length of the filter.
 #' @param polynomial_order Numerical. Order of the polynomial.
 #'
-#' @details \code{gcims_smoothing} performs digital smoothing on sample
+#' @details `gcims_smoothing` performs digital smoothing on sample
 #'   chromatograms (in retention time) or spectra (in drift time). This
 #'   smoothing process is required to reduce the noise level of data samples.
-#'   \code{gcims_smoothing} relies in Savitzky-Golay filters to reduce noise
+#'   `gcims_smoothing` relies in Savitzky-Golay filters to reduce noise
 #'   contribution in data. In a nutshell, Savitzky-Golay filters reconstruct
 #'   data by fitting successive sets of data points of given length to
-#'   low-degree polynomials. Short \emph{filter_length} values don't reduce
+#'   low-degree polynomials. Short *filter_length* values don't reduce
 #'   noise significantly, while large ones may distort signal shape. Similarly,
-#'   polynomials with low \emph{polynomial_order} may not be flexible enough to
+#'   polynomials with low *polynomial_order* may not be flexible enough to
 #'   properly reconstruct the signal, while polynomials with high
-#'   \emph{polynomial_order} can be too flexible and model noise on the
+#'   *polynomial_order* can be too flexible and model noise on the
 #'   reconstructed signal. A trade-off for these parameter values should be
 #'   found.
 #' @return A set of S3 objects.

@@ -12,14 +12,14 @@
 #'   drift time.
 #' @param seg_vector      Vector of segment lengths.
 #' @param slack_vector    Vector of slacks.
-#' @details \code{gcims_baseline_removal} aligns sample chromatograms (in
+#' @details `gcims_baseline_removal` aligns sample chromatograms (in
 #'   retention time) or spectra (in drift time).
 #'   The alignment in drift time is achieved by transforming the selected temporal
 #'   axis of each sample according to the reference using the Correlation Optimized
 #'   Warping (COW).
 #'
-#'   In COW, the reference signal of length \emph{N} is divided
-#'   in \emph{L} segments of length \emph{I} and so it is done for the signal to
+#'   In COW, the reference signal of length *N* is divided
+#'   in *L* segments of length *I* and so it is done for the signal to
 #'   be aligned. When the correction is applied along retention time direction,
 #'   the signals used to estimate COW model are Total Ion Chromatograms (TIC).
 #'   In case of correcting drift time misalignments, COW model is estimated
@@ -28,23 +28,23 @@
 #'   The alignment between reference and sample
 #'   representatives is performed segment by segment, allowing slight
 #'   modifications on the segment lengths of a sample. Segment lengths are
-#'   controlled by the so-called slack parameter, \emph{t}. For each of the
+#'   controlled by the so-called slack parameter, *t*. For each of the
 #'   segments of a sample, segment length is varied so that the correlation
 #'   between sample and reference is maximized. At this point a linear
 #'   interpolation is realized to recover sample segments of the original length
 #'   and sample period. Once the COW model is known, it is applied to the rest
 #'   of chromatrograms (if the correction is retention time) or spectra (if the
 #'   correction is in drift time) of a sample. This is done for all samples
-#'   selected by the argument \code{samples}.
+#'   selected by the argument `samples`.
 #'
 #'   Cow method is optimized by selecting the parameters that maximize
 #'   the average correlation between the reference and the rest of the samples.
-#'   In particular, the arguments \code{seg_vector} and \code{slack_vector}
-#'   provide, respectively, the sets of possible values of \emph{L} and \emph{t}
+#'   In particular, the arguments `seg_vector` and `slack_vector`
+#'   provide, respectively, the sets of possible values of *L* and *t*
 #'   for COW parameter optimization.
 #'
 #'   The alignment in retention time is achieved applying parametric time warping.
-#'   The arguments \code{seg_vector} and \code{slack_vector} are not necessary for
+#'   The arguments `seg_vector` and `slack_vector` are not necessary for
 #'   the retention time alignment.
 #' @return A set of S3 objects.
 #' @export
@@ -142,10 +142,10 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
         aux_with_zero_pad <- matrix(0, nrow = 1000 + num_dt, ncol =  num_ret_time)
         aux_with_zero_pad[501:(nrow(aux_with_zero_pad) - 500), ] <- aux
         aux_to_align <- aux_with_zero_pad
-        global_warp <- ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0, 1), mode = "backward")
+        global_warp <- ptw::ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0, 1), mode = "backward")
         aux_global_warp <- global_warp$warped.sample
         aux_global_warp[is.na(aux_global_warp)] <- 0
-        indiv_warp <- ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0,1,0), mode = "backward")
+        indiv_warp <- ptw::ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0,1,0), mode = "backward")
         aux_indiv_warp <- indiv_warp$warped.sample
         aux_indiv_warp[is.na(aux_indiv_warp)] <- 0
         aux <- aux_indiv_warp
@@ -298,16 +298,24 @@ cow <- function(T, X, Seg, Slack,
   LenSeg <- NA
   nSeg <- NA
   if (Pred_Bound) {
-    assertthat::assert_that(all(Seg[,1] == 1)) #, msg="Segments must start at 1")
-    assertthat::assert_that(all(Seg[,ncol(Seg)] == c(pT, pX)))#, msg="Segments must end at the length of the pattern/target")
+    if (!all(Seg[,1] == 1)) {
+      rlang::abort("Segments must start at 1")
+    }
+    if (!all(Seg[,ncol(Seg)] == c(pT, pX))) {
+      rlang::abort("Segments must end at the length of the pattern/target")
+    }
 
     LenSeg = t(diff(t(Seg))) # Length of the segments in the - 1
 
-    assertthat::assert_that(all(LenSeg >= 2))#, msg = "Segments must contain at least two points")
+    if (!all(LenSeg >= 2)) {
+      rlang::abort("Segments must contain at least two points")
+    }
 
     nSeg <- ncol(LenSeg)
   } else {
-    assertthat::assert_that(Seg <= min(pX, pT))#, msg='Segment length is larger than length of the signal')
+    if (Seg > min(pX, pT)) {
+      rlang::abort('Segment length is larger than length of the signal')
+    }
 
     if (equal_lengths) { # Segments in the signals can have different length from those in the target
       nSeg             = floor((pT - 1)/Seg)

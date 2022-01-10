@@ -8,14 +8,14 @@
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their data matrices need to be unfolded.
 #' @return A set of S3 objects
-#' @details \code{gcims_unfold} reshapes \emph{n} x \emph{m} GCIMS data into
-#'   \emph{1} x (\emph{n} x \emph{m}) vectors. This is done for all samples in
-#'   \code{samples}. \code{gcims_unfold} allows the latter use of pattern
+#' @details `gcims_unfold` reshapes *n* x *m* GCIMS data into
+#'   *1* x (*n* x *m*) vectors. This is done for all samples in
+#'   `samples`. `gcims_unfold` allows the latter use of pattern
 #'   recognition techniques (e.g. Principal Component Analysis) that need to be
 #'   fed with tabular data.
 #' @note It is recommended to perform a previous reduction of data
-#'   dimensionality using the functions \code{gcims_decimate} and
-#'   \code{gcims_cut_samples} before applying \code{gcims_unfold} to the data.
+#'   dimensionality using the functions `gcims_decimate` and
+#'   `gcims_cut_samples` before applying `gcims_unfold` to the data.
 #' @family Utility functions
 #' @export
 #' @examples
@@ -87,9 +87,9 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #' @param time            Sets the dimension to be corrected: drift time or
 #'   retention time. Introduce "Retention" for retention time; or "Drift" for
 #'   drift time.
-#' @details \code{gcims_interpolate} performs a linear interpolation on gcims
-#' data along the time axis selected in \code{gcims_interpolate}, and for all
-#' samples in \code{samples}.
+#' @details `gcims_interpolate` performs a linear interpolation on gcims
+#' data along the time axis selected in `gcims_interpolate`, and for all
+#' samples in `samples`.
 #' @return A set of S3 objects.
 #' @references { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
 #'   "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
@@ -179,13 +179,13 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their RIP has to be removed.
-#' @details \code{gcims_remove_rip} substitutes the RIP by its corresponding
+#' @details `gcims_remove_rip` substitutes the RIP by its corresponding
 #'   linear approximation to the RIP baseline, for every spectrum in a sample.
-#'   This process is repeated for all samples in \code{samples}. Use this
+#'   This process is repeated for all samples in `samples`. Use this
 #'   function if you are interested in enhancing the contrast of peaks of sample
 #'   images / chromatograms / spectra to be obtained from
-#'   \code{gcims_view_sample} / \code{gcims_plot_chrom} /
-#'   \code{gcims_plot_spec}.
+#'   `gcims_view_sample` / `gcims_plot_chrom` /
+#'   `gcims_plot_spec`.
 #' @return A Set of S3 objects.
 #' @family Utility functions
 #' @export
@@ -275,9 +275,9 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' @param dir_out         Output directory. Where reshaped samples are stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to be reshaped.
-#' @details \code{gcims_reshape_samples} ensures that all samples in a dataset
+#' @details `gcims_reshape_samples` ensures that all samples in a dataset
 #'   have the same dimensions (number of data points) in retention and drift
-#'   times. \code{gcims_reshape_samples} checks what are the minimum retention /
+#'   times. `gcims_reshape_samples` checks what are the minimum retention /
 #'   drift time ranges a cuts all samples according to these ranges.
 #'
 #' @return A set of S3 objects.
@@ -386,13 +386,13 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 #'   samples to be decimated.
 #' @param q_rt            Numeric. Binning factor in retention time.
 #' @param q_dt            Numeric. Binning factor in drift time.
-#' @details \code{gcims_decimate} performs downsampling in retention and drift
+#' @details `gcims_decimate` performs downsampling in retention and drift
 #'   time axes of GCIMS data. In particular, it reduces sampling frequency in
-#'   retention and dritf times respectively, by the  factors \code{q_rt} and
-#'   \code{q_dt}. Use this function if you are interested in both increasing the
+#'   retention and dritf times respectively, by the  factors `q_rt` and
+#'   `q_dt`. Use this function if you are interested in both increasing the
 #'   signal to noise ratio of data and compress it. Please take in to account
 #'   that decimation also reduces data resolution.
-#' @note \code{gcims_decimate} introduces a delay in retention and drift time
+#' @note `gcims_decimate` introduces a delay in retention and drift time
 #'   axes.
 #' @return A set of S3 objets.
 #' @family Utility functions
@@ -473,9 +473,9 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 #' @param dt_range        A  vector of two components. Beginning and end of the
 #'   drift time cut. If NULL the complete drift time range is used.
 #' @return A set of S3 objects.
-#' @details \code{cut_samples} cuts a sample in a retention time - drift time
+#' @details `cut_samples` cuts a sample in a retention time - drift time
 #'   rectangle according to the retention time / drift time ranges given by
-#'   function arguments \code{rt_range} / \code{dt_range}. Use this function to
+#'   function arguments `rt_range` / `dt_range`. Use this function to
 #'   focus on the retention time - drift time region where chemical information
 #'   is more abundant, that is, where you can find a high peak densities by
 #'   visual inspection.
@@ -563,14 +563,14 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
     if(is.null(rt_range)){
 
-    } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+    } else if (methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
     } else {
       stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
     }
 
     if(is.null(dt_range)){
 
-    } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+    } else if (methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
     } else {
       stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
     }
@@ -597,7 +597,7 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
   setwd(dir_in)
   m = -1;
-  for (i in c(1, samples)){
+  for (i in samples) {
     m = m + 1
     if (m != 0){
       print(paste0("Sample ", m, " of ", length(samples)))
@@ -624,10 +624,10 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to be decimated.
-#' @details \code{gcims_shifting} performs peak shifting in retention time axes
+#' @details `gcims_shifting` performs peak shifting in retention time axes
 #'   of GCIMS data. In particular, it shifts all the peaks along the retention
 #'   time axis in order to have the RIP peaks at the exact same time.
-#' @note \code{gcims_shifting} reduce the retention time axis of some of
+#' @note `gcims_shifting` reduce the retention time axis of some of
 #'   the samples.
 #' @return A set of S3 objets.
 #' @family Utility functions
@@ -649,8 +649,9 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 #' # After:
 #' gcims_shifting(dir_in, dir_out, samples)
 #' setwd(dir_out)
-#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
-#' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
+#' # c(50, 226)
+#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(60, 98) , colorby = "Class")
+#' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.8, 9.0), colorby = "Class")
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
@@ -661,9 +662,9 @@ gcims_shifting <- function(dir_in, dir_out, samples){
 
 
   print(" ")
-  print("  ////////////////////////")
-  print(" /      Peaks Sifting   /")
-  print("////////////////////////")
+  print("  /////////////////////////")
+  print(" /      Peaks Shifting   /")
+  print("/////////////////////////")
   print(" ")
 
 
@@ -684,10 +685,15 @@ gcims_shifting <- function(dir_in, dir_out, samples){
   # intensities <- apply(tics, 1, min)
   # plot(x = c(1:64), y = intensities)
   referenceindex <- min(mins)
-  referencetime <- which.max(mins)
+  referencetime <- samples[which.max(mins)]
 
-  for (i in c(1,samples)){
-    if (i != referencetime){
+  for (i in samples){
+    if (i == referencetime) {
+      file.copy(
+        from = paste0("M", referencetime, ".rds"),
+        to = file.path(dir_out, paste0("M", referencetime, ".rds"))
+      )
+    } else {
       print(paste0("Sample ", i, " of ", length(samples)))
       reference <- readRDS(paste0("M", referencetime, ".rds"))
       reference <- reference$data$data_df
@@ -714,5 +720,20 @@ gcims_shifting <- function(dir_in, dir_out, samples){
 }
 
 
-
-
+new_progress_bar <- function(...) {
+  if (!requireNamespace("progress", quietly = TRUE)) {
+    rlang::inform(
+      message = c("i" = 'Use install.packages("progress") to get a progress bar'),
+      class = "GCIMS_suggest_install_progress",
+      .frequency = "once",
+      .frequeny_id = "suggest_progress_installation"
+    )
+    # This code path returns a dummy object exposing a compatible API of
+    # progress:progress_bar$new(...).
+    dummy_pbar <- list(
+      tick = function() {}
+    )
+    return(dummy_pbar)
+  }
+  progress::progress_bar$new(...)
+}

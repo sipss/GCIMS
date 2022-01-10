@@ -6,18 +6,20 @@
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their RIP has to be removed.
-#' @details \code{gcims_remove_rip} substitutes the RIP by its corresponding
+#' @param noise_level     Scalar number. The number of times the standard deviation
+#'   above the noise level needed to detect a peak.
+#' @details `gcims_remove_rip` substitutes the RIP by its corresponding
 #'   linear approximation to the RIP baseline, for every spectrum in a sample.
-#'   This process is repeated for all samples in \code{samples}. Use this
+#'   This process is repeated for all samples in `samples`. Use this
 #'   function if you are interested in enhancing the contrast of peaks of sample
 #'   images / chromatograms / spectra to be obtained from
-#'   \code{gcims_view_sample} / \code{gcims_plot_chrom} /
-#'   \code{gcims_plot_spec}.
+#'   [gcims_view_sample], [gcims_plot_chrom] or [gcims_plot_spec].
 #' @return A Set of S3 objects.
 #' @family Utility functions
 #' @export
 #' @importFrom signal sgolayfilt
 #' @importFrom pracma findpeaks
+#' @importFrom ggplot2 geom_rect
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -35,9 +37,6 @@
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #' setwd(current_dir)
-
-
-
 gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
   print(" ")
   print("  //////////////////////////")
@@ -80,10 +79,10 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     # Curve fitting of RIP
 
-    signal <- aux[rip_start_index:rip_end_index, 110]
-    template <- -computeDerivative(signal, p = 2, n = tail(c(1:length(signal))[c(T,F)], n=1), m = 2)
-    tgauss <- drift_time[rip_start_index:rip_end_index]
-    f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian
+    signal <- aux[rip_start_index:rip_end_index, 110] # Take RIP
+    template <- -computeDerivative(signal, p = 2, n = utils::tail(c(1:length(signal))[c(TRUE,FALSE)], n=1), m = 2) # Compute 2nd derivative of RIP
+    tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
+    f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian density
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
     # 5. Peaks and Zero-crossings
@@ -107,7 +106,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       posrt <- findZeroCrossings(daux[,j])
       tmp <- NULL
       locs_tmp <- NULL
-      for (k in 1:length(locs)){
+      for (k in seq_along(locs)){
         dist <- locs[k] - posrt
         peakaround <- findZeroCrossings(dist)
         if (length(peakaround) >= 1){
@@ -334,6 +333,8 @@ fit_gaussian_density <- function(x, y) {
   out
 }
 
+
+
 #----------------------#
 #   computeDerivative  #
 #----------------------#
@@ -470,14 +471,14 @@ gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL
 
   if(is.null(rt_range)){
 
-  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+  } else if (methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
   }
 
   if(is.null(dt_range)){
 
-  } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+  } else if (methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
   }
@@ -517,7 +518,7 @@ gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL
   # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
   # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
   moltaux$Drift_Time <- drift_time[rep_dt_index]
-  tt <- na.omit(moltaux)
+  tt <- stats::na.omit(moltaux)
   tt <- tt[,-c(1:3)]
 
   rm(aux, aux_string)
@@ -531,8 +532,8 @@ gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL
   #      title = "Sample Matrix Image",
   #      fill = "Intensity") +
 
-  p +
-    geom_rect(data=d, mapping=aes(xmin=dt1, xmax=dt2, ymin=rt1, ymax=rt2), color="black", alpha=0.5)
+  #p +
+  #  geom_rect(data=d, mapping=aes(xmin=dt1, xmax=dt2, ymin=rt1, ymax=rt2), color="black", alpha=0.5)
 
   print(p)
 }

@@ -6,17 +6,16 @@
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples that are going to be included in the peak table.
-#' @details \code{gcims_peaks_clustering}  does a clustering along the ROIs
+#' @details `gcims_peaks_clustering`  does a clustering along the ROIs
 #'   for a peak table creation. The Figures of merits of each ROI are also
-#'   reported. In this table are included all samples in \code{samples}. Use this
+#'   reported. In this table are included all samples in `samples`. Use this
 #'   function if you are interested in obtaining a final peak table for future
 #'   classification techniques.
 #' @return A Set of S3 objects.
 #' @family Peaks CLustering function
 #' @export
 #' @importFrom cluster pam
-#' @importFrom plyr count
-#' @importFrom Hotelling hotelling.test
+#' @importFrom rlang .data
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -24,10 +23,9 @@
 #' samples <- 1:3
 #'
 #' # Example of ROIs Clustering for Peak Table Creation
-#' gcims_peaks_clustering <- function(dir_in, dir_out, samples)
-
-
-
+#' # Need a proper dataset with peaks detected in the pkg
+#' # (or maybe better a refactor the function arguments)
+#' #peak_table <- gcims_peaks_clustering(dir_in, dir_out, samples)
 gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   print(" ")
   print("  ///////////////////////////")
@@ -35,193 +33,379 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
   print("///////////////////////////")
   print(" ")
 
-  setwd(dir_in)
 
-  imgs <- NULL
-  AsF <- NULL
-  volume <- NULL
-  saturation <- NULL
-  peak <- NULL
-  nrois <- NULL
+  samples_fn <- stats::setNames(
+    object = file.path(dir_in, paste0("M", samples, ".rds")),
+    nm = paste0("M", samples)
+  )
+  peaks <- rds_samples_to_peak_list(samples_fn)
+  group_peak_list(
+    peaks = peaks,
+    filter_dt_width_criteria = "IQR",
+    filter_rt_width_criteria = "arnau",
+    distance_method = "mahalanobis",
+    distance_between_peaks_from_same_sample = Inf,
+    clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+    aggregate_conflicting_peaks = mean,
+    verbose = FALSE
+  )
+}
 
-  m = 0
-  for (i in samples){
-    m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
-
-    aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
-    aux <- (as.matrix(aux_list$data$data_df))
-
-    imgs[[i]] <- aux
-    AsF[[i]] <- aux_list$data$Parameters["AsF", ]
-    volume[[i]] <- aux_list$data$Parameters["volume", ]
-    saturation[[i]] <- aux_list$data$Parameters["saturation", ]
-    peak[[i]] <- aux_list$data$Peaks
-    nrois[[i]] <- aux_list$data$ROIs
+#' Peak grouping function, exposing a lot of options useful for benchmarking
+#'
+#' @param peaks A data frame with at least the following columns:
+#'  - "UniqueID" A unique ID for each peak
+#'  - "SampleID" The sample ID the peak belongs to
+#'  - "dtapex_ms", "rtapex_s" The peak positions
+#'  - "volume" The size of the peak
+#'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
+#' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
+#'   - "IQR": Remove peaks more than 1.5 interquartile ranges above upper quartile or
+#'     below the lower quartile.
+#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks above mean+4iqr or below median-0.75iqr
+#'   - "none": Do not remove peaks based on their drift time width or retention time height
+#' @param distance_method A string. One of the distance methods from [stats::dist], "sd_scaled_euclidean" or "mahalanobis"
+#' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
+#' @param clustering A named list with "method" and the supported method, as well as further options.
+#'   For `method = "kmedoids"`, you must provide `Nclusters`, with either the number of clusters
+#'   to use in the kmedoids algorithm ([cluster::pam]) or the string `"max_peaks_sample"` to use the maximum number of
+#'   detected peaks per sample.
+#'
+#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
+#' @param aggregate_conflicting_peaks `NULL` or a function. When we build the peak table, with peaks in rows, samples in
+#'  columns, `peak_table[i,j]` is the volume of the peak from sample `j` in cluster `i`. If the clustering process
+#'  clusters together two peaks form the same sample, those peaks will conflict in the peak table. `NULL` will error
+#'  in that case, another function will be applied on the conflicting volumes (e.g `mean` or `max` would be reasonable options)
+#'
+#' @param verbose logical, to control printing in the function
+#'
+#' @return A list with :
+#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak volume for each sample
+#' - peak_table_duplicity: How many volume values have been aggregated. Should be 1 for each sample/peak
+#' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
+#' @export
+#'
+#' @examples
+#' peak_list_fn <- system.file(
+#'  "extdata",
+#'  "peak_lists",
+#'  "peak_list_6_peaks_15_samples_ketones.csv.gz",
+#'  package = "GCIMS"
+#' )
+#'
+#' peak_list <- readr::read_csv(peak_list_fn, show_col_types = FALSE)
+#' peak_list$volume <- 1  # FIXME: peak_list_fn should include the volume as well
+#' peak_table_list <- group_peak_list(
+#'   peaks = peak_list,
+#'   filter_dt_width_criteria = NULL,
+#'   filter_rt_width_criteria = NULL,
+#'   distance_method = "mahalanobis",
+#'   distance_between_peaks_from_same_sample = Inf,
+#'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+#'   aggregate_conflicting_peaks = NULL,
+#'   verbose = FALSE
+#' )
+group_peak_list <- function(
+  peaks,
+  filter_dt_width_criteria = "IQR",
+  filter_rt_width_criteria = "arnau",
+  distance_method = "mahalanobis",
+  distance_between_peaks_from_same_sample = Inf,
+  clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+  aggregate_conflicting_peaks = NULL,
+  verbose = FALSE
+) {
+  # 0. Warn if peaks with NA positions, and remove them
+  peaks_with_na <- stats::complete.cases(peaks[,c("UniqueID", "SampleID", "dtapex_ms", "rtapex_s")])
+  if (!all(peaks_with_na)) {
+    rlang::warn("Some peaks in samples have wrong indexes leading to NA positions")
+    print(peaks[!peaks_with_na,])
+    peaks <- peaks[peaks_with_na,]
   }
 
-  AsF <- unlist(AsF)
-  volume <- unlist(volume)
-  saturation <- unlist(saturation)
-  datapoints <- do.call(rbind.data.frame, peak)
-  ROIs <- do.call(rbind.data.frame, nrois)
+  # 1. Filter peaks with weird width or height
+  peaks <- remove_peaks_with_outlier_rois(
+    peaks,
+    dtime_criteria = filter_dt_width_criteria,
+    rtime_criteria = filter_rt_width_criteria,
+    verbose = verbose
+  )
 
+  peak_matrix <- as.matrix(peaks[,c("dtapex_ms", "rtapex_s")])
+  rownames(peak_matrix) <- peaks$UniqueID
 
-  lengthroissamples <- NULL
-  for(j in 1:length(samples)){
-    lengthrois <- dim(nrois[[j]])[1]
-    lengthroissamples <- c(lengthroissamples, lengthrois)
+  STATS_METHODS <- c("euclidean", "maximum", "manhattan", "canberra",
+                     "binary", "minkowski")
+  if (distance_method %in% STATS_METHODS) {
+    peak2peak_dist <- stats::dist(peak_matrix, method = distance_method)
+  } else if (distance_method == "sd_scaled_euclidean") {
+    peak_matrix_scaled <- scale(peak_matrix, center = FALSE, scale = TRUE)
+    peak2peak_dist <- stats::dist(peak_matrix_scaled, method = "euclidean")
+  } else if (distance_method == "mahalanobis") {
+    peak2peak_dist <- mahalanobis_distance(peak_matrix)
+  } else {
+    stop(sprintf("Unsupported distance %s", distance_method))
   }
 
-  N_clusters <- max(lengthroissamples)
+  # Set distances from pairs of peaks belonging to the same sample to Inf,
+  # so they are never in the same cluster
+  peakuids_by_sample <- peaks %>%
+    dplyr::select(dplyr::all_of(c("SampleID", "UniqueID"))) %>%
+    dplyr::group_by(.data$SampleID) %>%
+    dplyr::summarize(UniqueIDs = list(.data$UniqueID)) %>%
+    dplyr::ungroup() %>%
+    dplyr::pull(.data$UniqueIDs)
 
-  D <- kmed::distNumeric(as.matrix(datapoints), as.matrix(datapoints), method = "sev") ##Revisar
-  ## cluster <- clue::kmedoids(D, N_clusters) Muy pesado
-  cluster <- cluster::pam(datapoints,N_clusters, metric = "manhattan") #Programme from scratch
-  idx <- cluster$clustering
-  idx_post <- matrix(0, length(idx), 3)
-  k <- length(unique(idx))
+  peak2peak_distance <- set_peak_distances_within_groups(
+    dist_matrix = peak2peak_dist,
+    peak_groups = peakuids_by_sample,
+    value = distance_between_peaks_from_same_sample*max(peak2peak_dist)
+  )
 
-  for (n in 1:k){
-    idx_tmp <- which(idx == n)
-    acc = 1
-    for (j in 1:length(samples)){
-      boolean <- idx_tmp >= acc & idx_tmp <= (acc-1) + length(nrois[[j]])
-      if (sum(boolean) >= 1){
-        dist <- D[idx_tmp[boolean], n]
-        mindist <- which.min(dist)
-        pos <- which(boolean == TRUE)
-        idx_post[idx_tmp[pos[mindist]], 1] <- n
-        idx_post[idx_tmp[pos], 2] <- j
-      }
-      acc <- acc + lengthroissamples[j]
+  extra_clustering_info <- list()
+  if (clustering$method == "kmedoids") {
+    if (clustering$Nclusters == "max_peaks_sample") {
+      N_clusters <- max(purrr::map_int(peakuids_by_sample, length))
+    } else if (is.numeric(clustering$Nclusters)) {
+      N_clusters <- clustering$Nclusters
+    } else {
+      stop("When clustering$method is kmedoids, clustering$Nclusters must be an integer or the string 'max_peaks_sample'")
     }
-  }
-
-  ## Filtering
-
-  # Filter widths
-  widths <- ROIs[, 2] - ROIs[, 1]
-  quartiles <- quantile(widths)
-  idx_post[c(which(widths > quartiles[2]), which(widths > quartiles[4])), 3] <- 1 #1s son outliers, seran descartados
-
-  # Filter heights
-  heights <- ROIs[, 4] - ROIs[, 3]
-  medianheight <- median(heights)
-  quartiles <- quantile(heights)
-  idx_post[c(which(heights > medianheight + quartiles[2]), which(heights > medianheight + quartiles[4])), 3] <- 1 #1s son outliers, seran descartados
-
-  # Filter clusters with 2 or fewer ROIs (cambiar a tanto por cierto)
-  N_min_clusters <- 2
-  clustfreqs <- plyr::count(idx_post[idx_post[, 3] != 1, 2])
-
-  for (j in clustfreqs[clustfreqs[,2] <= N_min_clusters, 1]){
-    idx_post[idx_post[,1] == j, 3] <- 1
-  }
-
-  # Repescamiento
-  pos_zeros <- which(idx_post[,1] == 0 & idx_post[,3] != 1) #Positions of ROIs where there are zeros and are not discarded
-
-  for (j in pos_zeros){
-    possible_candidates <- setdiff(1:dim(idx_post)[1], idx_post[idx_post[, 2] == idx_post[j, 2] & idx_post[, 3] != 1, 1])
-    k <- intersect(setdiff(possible_candidates, 0), clustfreqs[clustfreqs[,2] > N_min_clusters, 1]) #transponer
-    p_vals <- NULL
-    for (n in (1:length(k))){
-      clustern <- datapoints[idx_post[,1] == k[n] & idx_post[,3] != 1, ]
-      if (dim(clustern)[1] > 2){
-        p_val <- Hotelling::hotelling.test(datapoints[j, ], clustern)
-        p_vals <- c(p_vals, p_val$pval)
-      }
-    }
-    maxpval <- which.max(p_vals)
-    if(p_vals[maxpval] > 0.05){ # If greater than p-value (0.05)
-      idx_post[j, 1] <- maxpval
-    }
-  }
-
-  ## Imputation and statistics
-
-  pos <- idx_post[, 3] != 1 & idx_post[, 1] != 0
-  indices_clusters <- unique(idx_post[pos, 1])
-  K <- length(indices_clusters)
-
-  stats <- vector(mode = "list", length = K)
-  table <- matrix(0, length(samples), K)
-
-  for (k in (1:K)){
-    n <- indices_clusters[k]
-    pos_n <- idx_post[, 1] == n & idx_post[, 3] != 1
-    samples_n <- idx_post[pos_n, 2]
-    rest_samples_n <- setdiff((1:length(samples)), samples_n)
-    ROI_median <- floor(apply(ROIs[pos_n, ], 2, median))
-
-    AsF_tmp <- rep(0, length(samples))
-    AsF_tmp[samples_n] <- AsF[pos_n]
-    AsF_tmp[rest_samples_n] <- median(AsF[pos_n])
-
-    volume_tmp <- rep(0, length(samples))
-    volume_tmp[samples_n] <- volume[pos_n]
-
-    I <- NULL
-    if (length(rest_samples_n) >= 1){
-      for (l in rest_samples_n){
-        I[[l]] <- imgs[[l]][ROI_median[1]:ROI_median[2], ROI_median[3]:ROI_median[4]]
-        volume_tmp[rest_samples_n] <- sum(apply(I[[l]], 1, sum)) #[1, dim(I[[l]], 3)]) # size que?
-      }
-    }
-
-    ROI_tmp <- matrix(0, length(samples), 4)
-    ROI_tmp[samples_n, ] <- as.matrix(ROIs[pos_n, ])
-    ROI_tmp[rest_samples_n, ] <- matrix(rep(ROI_median, each = length(rest_samples_n)), nrow = length(rest_samples_n))
-
-    peaks_tmp <- matrix(0, length(samples), 2)
-    peaks_tmp[samples_n, ] <- as.matrix(datapoints[pos_n, ])
-    peaks_tmp[rest_samples_n, ]  <- matrix(rep(floor(apply(datapoints[pos_n, ], 2, median)), each = length(rest_samples_n)), nrow = length(rest_samples_n))
-
-    stats[[k]]$Name <- paste("Cluster", k)
-    stats[[k]]$AsF <- AsF_tmp
-    stats[[k]]$volume <- volume_tmp
-    table[,k] <- volume_tmp
-
-    stats[[k]]$AsF.mean  <- mean(AsF_tmp)
-    stats[[k]]$volume_mean <- mean(volume_tmp)
-
-    stats[[k]]$AsF_std <- sd(AsF_tmp)
-    stats[[k]]$volume_std <- sd(volume_tmp)
-
-    stats[[k]]$ROIs <- ROI_tmp
-    stats[[k]]$peaks <- peaks_tmp
-
+    cluster <- cluster::pam(x = peak2peak_distance, k = N_clusters)
+    peaks$cluster <- cluster$clustering
+    extra_clustering_info$cluster_result <- cluster
+    extra_clustering_info$silhouette <- cluster::silhouette(cluster, dist = peak2peak_distance)
+  } else if (clustering$method == "hclust") {
+    hclust_method <- ifelse(is.null(clustering$hclust_method), "complete", clustering$hclust_method)
+    cluster <- stats::hclust(d = peak2peak_distance, method = hclust_method)
+    # FIXME: Implement something more robust to estimate num_clusters or height to cut:
+    num_clusters <- which.max(-diff(sort(cluster$height, decreasing = TRUE)))+1
+    peaks$cluster <- stats::cutree(cluster, k = num_clusters)
+    extra_clustering_info$cluster <- cluster
+    extra_clustering_info$num_clusters <- num_clusters
+  } else {
+    stop(sprintf("Unsupported clustering method %s", clustering$method))
   }
 
 
-  ## Make table
+  median_roi_per_cluster <- peaks %>%
+    dplyr::group_by(.data$cluster) %>%
+    dplyr::summarise(
+      dplyr::across(
+        c(dplyr::starts_with("dt"), dplyr::starts_with("rt")),
+        stats::median
+      )
+    ) %>%
+    dplyr::ungroup()
 
-  drift_time <- aux_list$data$drift_time
-  peak_table <- matrix(0, (length(samples) * K), 7)
+  peak_table_duplicity <- peaks %>%
+    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
+    tidyr::pivot_wider(
+      names_from = dplyr::all_of("SampleID"),
+      values_from = dplyr::all_of("volume"),
+      values_fn = length
+    )
 
-  acc <- 1
-  for (i in (1:K)){
-    c <- 1
-    for (j in (acc : (acc + length(samples) - 1))){
-      peak_table[j, 1] <- c
-      peak_table[j, 2] <- i
-      peak_table[j, 3] <- stats[[i]]$peaks[c, 1]
-      peak_table[j, 4] <- stats[[i]]$peaks[c, 2]
-      peak_table[j, 5] <- drift_time[stats[[i]]$peaks[c, 1]]
-      peak_table[j, 6] <- retention_time[stats[[i]]$peaks[c, 2]]
-      peak_table[j, 7] <- stats[[i]]$volume[c]
+  peak_table <- peaks %>%
+    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
+    tidyr::pivot_wider(
+      names_from = dplyr::all_of("SampleID"),
+      values_from = dplyr::all_of("volume"),
+      values_fn = aggregate_conflicting_peaks
+    )
 
-      c <- c + 1
-    }
-    acc <- acc + length(samples)
+  peak_table_annotated <- dplyr::left_join(
+    median_roi_per_cluster,
+    peak_table,
+    by = "cluster"
+  )
+  # Missing values still need to be filled
+  list(
+    peak_table = peak_table_annotated,
+    peak_table_duplicity = peak_table_duplicity,
+    peak_list_with_cluster = peaks,
+    extra_clustering_info = extra_clustering_info
+  )
+}
+
+rds_samples_to_peak_list <- function(samples) {
+  pb <- new_progress_bar(total = length(samples))
+
+  peaks_df <- purrr::map_dfr(samples, function(sample_fn) {
+    pb$tick()
+    aux_list <- readRDS(sample_fn)
+
+    parameters_df_i <- as.data.frame(t(aux_list$data$Parameters))
+    rownames(parameters_df_i) <- sprintf("Peak%d", seq_len(nrow(parameters_df_i)))
+
+    rois_i <- aux_list$data$ROIs
+    rownames(rois_i) <- sprintf("Peak%d", seq_len(nrow(rois_i)))
+    colnames(rois_i) <- c("dtmin_idx", "dtmax_idx", "rtmin_idx", "rtmax_idx")
+
+    apex_i <- aux_list$data$Peaks
+    colnames(apex_i) <- c("dtapex_idx", "rtapex_idx")
+    rownames(rois_i) <- sprintf("Peak%d", seq_len(nrow(apex_i)))
+
+    # Maybe instead of the Peaks, ROIs and Parameters, we could just
+    # have one dataframe in the RDS:
+    peaks_i <- tibble::rownames_to_column(
+      cbind(apex_i, rois_i, parameters_df_i),
+      var = "PeakID"
+    )
+    dt <- aux_list$data$drift_time
+    rt <- aux_list$data$retention_time
+    peaks_i <- peaks_i %>%
+      dplyr::mutate(
+        dplyr::across(dplyr::starts_with("dt"), ~ dt[.], .names = "{.col}DTDELETEME"),
+        dplyr::across(dplyr::starts_with("rt"), ~ rt[.], .names = "{.col}RTDELETEME")
+      ) %>%
+      dplyr::rename_with(
+        .fn = ~gsub("_idxDTDELETEME", "_ms", .),
+        .cols = dplyr::ends_with("_idxDTDELETEME")
+      ) %>%
+      dplyr::rename_with(
+        .fn = ~gsub("_idxRTDELETEME", "_s", .),
+        .cols = dplyr::ends_with("_idxRTDELETEME")
+      ) %>%
+      dplyr::select(
+        dplyr::all_of(
+          c("PeakID", "dtapex_ms", "rtapex_s",
+            "rtmin_s", "rtmax_s", "dtmin_ms", "dtmax_ms")
+        ),
+        dplyr::ends_with("_idx"),
+        dplyr::everything()
+      )
+    peaks_i
+  }, .id = "SampleID")
+
+  # Add a unique peak ID, that combines Sample+Peak ids:
+  peaks_df <- tibble::add_column(
+    peaks_df,
+    UniqueID = paste0(peaks_df$SampleID, peaks_df$PeakID),
+    .before = 1
+  )
+  tibble::as_tibble(peaks_df)
+}
+
+#' @noRd
+#' @param peaks A data frame with one peak per row and at least the following columns:
+#'   - UniqueID A unique peak name
+#'   - dt_max_ms, dt_min_ms
+#'   - rt_max_s, rt_min_s
+#' @param dtime_criteria,rtime_criteria A character with the method for outlier detection.
+#'   - "IQR": Remove peaks more than 1.5 interquartile ranges above upper quartile or
+#'     below the lower quartile.
+#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks above mean+4iqr or below median-0.75iqr
+#'   - "none": Do not remove peaks
+#' @param verbose logical. if `TRUE`, a message is printed with the peaks excluded
+#' FIXME: These methods remove peaks in a simple well behaved dataset. Check the tests.
+remove_peaks_with_outlier_rois <- function(
+  peaks,
+  dtime_criteria = "IQR",
+  rtime_criteria = "arnau",
+  verbose = FALSE
+  ) {
+
+  # 1. Filter peaks with weird width or height
+  roi_sizes <- tibble::tibble(
+    UniqueID = peaks$UniqueID,
+    dt_width_ms = peaks$dtmax_ms - peaks$dtmin_ms,
+    rt_width_s = peaks$rtmax_s - peaks$rtmin_s
+  )
+
+  peaks_to_exclude <- c()
+
+  if (is.null(dtime_criteria)) {
+    # do nothing
+  } else if (dtime_criteria == "IQR") {
+    quartiles_dt <- stats::quantile(roi_sizes$dt_width_ms)
+    iqr_dt <- quartiles_dt["75%"] - quartiles_dt["25%"]
+    lower_bound_iqr_dt <- quartiles_dt["25%"] - 1.5*iqr_dt
+    higher_bound_iqr_dt <- quartiles_dt["75%"] + 1.5*iqr_dt
+    peaks_to_exclude <- c(
+      peaks_to_exclude,
+      roi_sizes$UniqueID[
+        roi_sizes$dt_width_ms < lower_bound_iqr_dt | roi_sizes$dt_width_ms > higher_bound_iqr_dt
+      ]
+    )
+  } else {
+    rlang::abort(sprintf("Unknown dtime_criteria: %s", dtime_criteria))
   }
 
-  colnames(peak_table) <- c("Sample", "Cluster", "PicoX (indice)", "PicoY (indice)", "PicoX (tiempo)", "PicoY (tiempo)", "Intensity")
-  setwd(dir_out)
-  write.csv(peak_table, "Peaktable.csv")
-  saveRDS(stats, "ROIsParameters.rds")
+
+  if (is.null(rtime_criteria)) {
+    # do nothing
+  } else if (rtime_criteria == "IQR") {
+    quartiles_rt <- stats::quantile(roi_sizes$rt_width_s)
+    iqr_rt <- quartiles_rt["75%"] - quartiles_rt["25%"]
+    lower_bound_iqr_rt <- quartiles_rt["25%"] - 1.5*iqr_rt
+    higher_bound_iqr_rt <- quartiles_rt["75%"] + 1.5*iqr_rt
+    peaks_to_exclude <- c(
+      peaks_to_exclude,
+      roi_sizes$UniqueID[
+        roi_sizes$rt_width_s < lower_bound_iqr_rt | roi_sizes$rt_width_s > higher_bound_iqr_rt
+      ]
+    )
+  } else if (rtime_criteria == "arnau") { # FIXME: This method is very adhoc and hard to justify
+    quartiles_rt <- stats::quantile(roi_sizes$rt_width_s)
+    median_rt <- quartiles_rt["50%"]
+    iqr_rt <- quartiles_rt["75%"] - quartiles_rt["25%"]
+    lower_bound_rt <- mean(roi_sizes$rt_width_s) - 0.75*iqr_rt
+    higher_bound_rt <- median_rt + 4*iqr_rt
+    peaks_to_exclude <- c(
+      peaks_to_exclude,
+      roi_sizes$UniqueID[
+        roi_sizes$rt_width_s < lower_bound_rt | roi_sizes$rt_width_s > higher_bound_rt
+      ]
+    )
+  }else {
+    rlang::abort(sprintf("Unknown rtime_criteria: %s", rtime_criteria))
+  }
+  if (verbose) {
+    message(sprintf("Excluding %d/%d peaks", length(peaks_to_exclude), nrow(peaks)))
+  }
+  dplyr::filter(peaks, ! .data$UniqueID %in% peaks_to_exclude)
 }
 
 
+#' Override peak distances to infinity
+#'
+#' This function receives a distance matrix and a list of peak groups. Each group
+#' consists of peaks that should not be grouped as the same peak (for instance because
+#' they belong to the same sample). For each group, we set the distance between
+#' all its peaks to infinity.
+#'
+#' @noRd
+#'
+#' @param dist_matrix A square matrix, where `dist_matrix[i,j]` is the distance
+#'  from peak `i` to peak `j`. The matrix must have as row names and column names
+#'  unique peak names.
+#' @param peak_groups A list, where each element is a character vector with peak names
+#' @param value `Inf` by default, but you could set to any other value
+#'
+#' @return An object of class "dist". See [stats::dist].
+#'
+set_peak_distances_within_groups <- function(dist_matrix, peak_groups, value = Inf) {
+  # Set distances from pairs of peaks belonging to the same sample to Inf,
+  # so they are never in the same cluster
+  dist_matrix <- as.matrix(dist_matrix)
+  for (peak_ids in peak_groups) {
+    for (peak_i in peak_ids) {
+      dist_matrix[peak_i, peak_ids] <- value
+      dist_matrix[peak_ids, peak_i] <- value
+      dist_matrix[peak_i, peak_i] <- 0
+    }
+  }
+  stats::as.dist(dist_matrix)
+}
+
+
+# Mahalanobis distance:
+# https://stats.stackexchange.com/a/81710/62083
+mahalanobis_distance <- function(x) {
+  covmat <- stats::cov(x)
+  dec <- chol(covmat)
+  tmp <- forwardsolve(t(dec), t(x))
+  colnames(tmp) <- rownames(x)
+  stats::dist(t(tmp))
+}

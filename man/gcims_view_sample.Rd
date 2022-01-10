@@ -27,16 +27,16 @@ Sample matrix visualization
 }
 \details{
 \code{gcims_view_sample} uses represents gcims data as a raster. In
-  this plot, retention time increases along the y-axis from down to up, while
-  drift time does it along the x-axis left to right. \code{gcims_view_sample}
-  provides to the user qualitative information about what are regions of
-  interest to be analyzed in a sample.
+this plot, retention time increases along the y-axis from down to up, while
+drift time does it along the x-axis left to right. \code{gcims_view_sample}
+provides to the user qualitative information about what are regions of
+interest to be analyzed in a sample.
 }
 \note{
 \code{gcims_view_sample} can't provide a reliable visualization of a
-  data sample if its sampling frequencies  along drift and/or retention time
-  are not constants. To overcome this problem consider using the function
-  \code{gcims_interpolate} (check also the example of use of this function).
+data sample if its sampling frequencies  along drift and/or retention time
+are not constants. To overcome this problem consider using the function
+\code{gcims_interpolate} (check also the example of use of this function).
 }
 \examples{
 current_dir <- getwd()
@@ -49,7 +49,7 @@ setwd(current_dir)
 \references{
 {
 Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
- }
+}
 }
 \seealso{
 Other Visualization functions: 

@@ -25,10 +25,10 @@ Read metadata from a csv
 \code{gcims_read_metadata} reads a metadata Excel file. This file,
 contains:
 \itemize{
-  \item A number of named columns. First column is always named 'Name'. The rest of the columns names
-  correspond to new fields that must be included as metadata in the S3 object.
-  \item A number of rows, each of them associated to a sample in the dataset. Thus in a row, you can find
-  all metadata information of a sample in the dataset.
+\item A number of named columns. First column is always named 'Name'. The rest of the columns names
+correspond to new fields that must be included as metadata in the S3 object.
+\item A number of rows, each of them associated to a sample in the dataset. Thus in a row, you can find
+all metadata information of a sample in the dataset.
 }
 After that \code{gcims_read_metadata} looks for the match between the S3
 object metadata field 'Name' value, and its corresponding value

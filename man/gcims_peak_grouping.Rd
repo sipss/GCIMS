@@ -24,20 +24,20 @@ Peak/ROI grouping
 }
 \details{
 \code{gcims_peak_grouping} looks for a correspondence among ROI
-  regions in samples and the ones present in the reference sample.  This
-  grouping process is performed in two steps: In first step, the algorithm
-  checks which of the ROI mass centers in a sample are enclosed within any of
-  the ROI regions of the reference. In the second step, the overlapping
-  between ROIs of reference and sample pre-selected in step one are computed.
-  For each ROI of the reference, the ROI of the sample with maximum
-  overlapping is selected as a representative of this reference ROI. This
-  way, only one ROI (or none) per sample can be selected as a representative
-  of one roi of the reference. This process is repeated for all samples in
-  \code{samples}.
+regions in samples and the ones present in the reference sample.  This
+grouping process is performed in two steps: In first step, the algorithm
+checks which of the ROI mass centers in a sample are enclosed within any of
+the ROI regions of the reference. In the second step, the overlapping
+between ROIs of reference and sample pre-selected in step one are computed.
+For each ROI of the reference, the ROI of the sample with maximum
+overlapping is selected as a representative of this reference ROI. This
+way, only one ROI (or none) per sample can be selected as a representative
+of one roi of the reference. This process is repeated for all samples in
+\code{samples}.
 }
 \note{
 The grouping process may produce missing values in the final peak/ROI
-  table. In such a case use \code{gcims_peak_imputation} to impute them.
+table. In such a case use \code{gcims_peak_imputation} to impute them.
 }
 \examples{
 \dontrun{

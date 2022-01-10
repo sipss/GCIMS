@@ -10,16 +10,16 @@
 #' @param dt_range        Min and Max drift time values. If NULL the complete
 #'   drift time range is used. NULL by default.
 #' @return An image of selected data sample.
-#' @details \code{gcims_view_sample} uses represents gcims data as a raster. In
+#' @details `gcims_view_sample` uses represents gcims data as a raster. In
 #'   this plot, retention time increases along the y-axis from down to up, while
-#'   drift time does it along the x-axis left to right. \code{gcims_view_sample}
+#'   drift time does it along the x-axis left to right. `gcims_view_sample`
 #'   provides to the user qualitative information about what are regions of
 #'   interest to be analyzed in a sample.
 #'
-#' @note \code{gcims_view_sample} can't provide a reliable visualization of a
+#' @note `gcims_view_sample` can't provide a reliable visualization of a
 #'   data sample if its sampling frequencies  along drift and/or retention time
 #'   are not constants. To overcome this problem consider using the function
-#'   \code{gcims_interpolate} (check also the example of use of this function).
+#'   `gcims_interpolate` (check also the example of use of this function).
 #' @family Visualization functions
 #' @references {
 #' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
@@ -92,14 +92,14 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
   if(is.null(rt_range)){
 
-  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+  } else if(methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
   }
 
   if(is.null(dt_range)){
 
-  } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+  } else if(methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
   }
@@ -152,9 +152,9 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #'   sample chromatograms.
 #' @return A plot of sample chromatograms colored according to some variable
 #'   included in the metadata.
-#' @details \code{gcims_plot_chrom} uses the function plots a set of sample
+#' @details `gcims_plot_chrom` uses the function plots a set of sample
 #'   chromatograms at given drift time (or their TIC) and for a specific range
-#'   of retention times. Use \code{gcims_plot_chrom} to visualize the effects of
+#'   of retention times. Use `gcims_plot_chrom` to visualize the effects of
 #'   digital smoothing, baseline correction and signal alignment algorithms
 #'   along the retention time axis.
 #' @family Visualization functions
@@ -240,7 +240,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
   if(is.null(rt_range)){
 
-  } else if((class(sel_index_rt) == "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+  } else if(methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
   }
@@ -310,9 +310,9 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #'   sample spectra.
 #' @return A plot of spectra colored according to some variable included in the
 #'   metadata.
-#' @details \code{gcims_plot_spec} plots a set of sample spectra at given
+#' @details `gcims_plot_spec` plots a set of sample spectra at given
 #'   retention time (or their TIS) and for a specific range of drift times. Use
-#'   \code{gcims_plot_spec} to visualize the effects of digital smoothing,
+#'   `gcims_plot_spec` to visualize the effects of digital smoothing,
 #'   baseline correction and signal alignment algorithms along the drift time
 #'   axis.
 #' @family Visualization functions
@@ -396,7 +396,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
 
   if(is.null(dt_range)){
 
-  } else if((class(sel_index_dt) == "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+  } else if (methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
   } else {
     stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
   }

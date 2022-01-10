@@ -45,7 +45,7 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 
   # 6) Perform roi imputation using Random Forest
   roi_table_wide_mis <- roi_table_wide_mis[, reliable_columns]
-  invisible(capture.output(roi_table_wide_imp <- missForest(roi_table_wide_mis)$ximp))
+  invisible(capture.output({roi_table_wide_imp <- missForest(roi_table_wide_mis)$ximp}))
 
   # 7) Save results
   setwd(dir_out)

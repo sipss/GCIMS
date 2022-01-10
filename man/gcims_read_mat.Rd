@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_functions.R
 \name{gcims_read_mat}
 \alias{gcims_read_mat}
-\title{Read GC-IMS Samples from matlab}
+\title{Read GC-IMS Samples from MATLAB files}
 \usage{
 gcims_read_mat(dir_in, dir_out)
 }
@@ -12,19 +12,14 @@ gcims_read_mat(dir_in, dir_out)
 \item{dir_out}{The output directory.}
 }
 \value{
-An R object that contains the matrix and the retention times
+An invisible NULL. This function is called to convert mat files to rds files.
 }
 \description{
-Read GC-IMS Samples from matlab
+Read GC-IMS Samples from MATLAB files
 }
 \examples{
 \dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-
-print(dataset_pos)
+gcims_read_mat("/path/to/dir/with/mat/files", "where_to_save_samples_in_rds/")
 }
 }
 \seealso{

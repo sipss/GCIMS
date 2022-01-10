@@ -24,15 +24,15 @@ Converts Sample Matrices to Feature Vectors
 }
 \details{
 \code{gcims_unfold} reshapes \emph{n} x \emph{m} GCIMS data into
-  \emph{1} x (\emph{n} x \emph{m}) vectors. This is done for all samples in
-  \code{samples}. \code{gcims_unfold} allows the latter use of pattern
-  recognition techniques (e.g. Principal Component Analysis) that need to be
-  fed with tabular data.
+\emph{1} x (\emph{n} x \emph{m}) vectors. This is done for all samples in
+\code{samples}. \code{gcims_unfold} allows the latter use of pattern
+recognition techniques (e.g. Principal Component Analysis) that need to be
+fed with tabular data.
 }
 \note{
 It is recommended to perform a previous reduction of data
-  dimensionality using the functions \code{gcims_decimate} and
-  \code{gcims_cut_samples} before applying \code{gcims_unfold} to the data.
+dimensionality using the functions \code{gcims_decimate} and
+\code{gcims_cut_samples} before applying \code{gcims_unfold} to the data.
 }
 \examples{
 current_dir <- getwd()
@@ -73,6 +73,8 @@ Other Utility functions:
 \code{\link{gcims_decimate}()},
 \code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
-\code{\link{gcims_reshape_samples}()}
+\code{\link{gcims_reshape_samples}()},
+\code{\link{gcims_rois_selection}()},
+\code{\link{gcims_shifting}()}
 }
 \concept{Utility functions}

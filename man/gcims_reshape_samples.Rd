@@ -23,9 +23,9 @@ Reshape samples
 }
 \details{
 \code{gcims_reshape_samples} ensures that all samples in a dataset
-  have the same dimensions (number of data points) in retention and drift
-  times. \code{gcims_reshape_samples} checks what are the minimum retention /
-  drift time ranges a cuts all samples according to these ranges.
+have the same dimensions (number of data points) in retention and drift
+times. \code{gcims_reshape_samples} checks what are the minimum retention /
+drift time ranges a cuts all samples according to these ranges.
 }
 \examples{
 current_dir <- getwd()
@@ -76,6 +76,8 @@ Other Utility functions:
 \code{\link{gcims_decimate}()},
 \code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
+\code{\link{gcims_rois_selection}()},
+\code{\link{gcims_shifting}()},
 \code{\link{gcims_unfold}()}
 }
 \concept{Utility functions}
