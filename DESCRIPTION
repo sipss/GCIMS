@@ -30,7 +30,8 @@ Authors@R: c(
     given = "Arnau",
     family = "Blanco Borrego",
     email = "blancoarnau@gmail.com",
-    role = "aut"
+    role = "aut",
+    comment = c(ORCID = "0000-0002-5287-7491")
   ),
   person(
     given = "Santiago",
