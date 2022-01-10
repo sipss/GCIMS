@@ -171,7 +171,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
           width <- abs(maxX[1] - minX[1])
           height <- abs(maxY[1] - minY[1])
 
-          if (minX[1] != maxX[1] & minY[1] != maxY[1]){
+          if (minX[1] != maxX[1] & minY[1] != maxY[1] & minX[1] < maxX[1] & minY[1] < maxY[1]){
             ROIs <- rbind(ROIs, c(minX[1], maxX[1], minY[1], maxY[1]))
           }
         }
@@ -283,6 +283,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       }
     }
 
+    colnames(ROIs_overlap) <- c("minRT", "maxRT", "minDT", "maxDT")
+
     aux_list$data$data_df <- round(aux)
     aux_list$data$ROIs <- ROIs_overlap
     aux_list$data$Peaks <- peaks_overlap
@@ -299,6 +301,38 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 #   FUNCTIONS   #
 #---------------#
 
+#--------------------------#
+#   fit_gaussian_density  #
+#------------------------#
+
+# https://stats.stackexchange.com/a/83029/62083
+fit_gaussian_density <- function(x, y) {
+  # Guess for  mu, k and sigma
+  mu0 <- which.max(y)
+  k0 <- y[mu0]
+  x_in_peak <- x[(y - k0/2) > 0]
+  if (length(x_in_peak) == 0)  {
+    fwhm <- stats::IQR(x)
+  } else {
+    fwhm <- max(x_in_peak) - min(x_in_peak)
+    if (fwhm == 0) {
+      fwhm <- stats::IQR(x)
+    }
+  }
+  sigma0 <- fwhm/2.35482004503
+  # Fit with nls:
+  fit <- stats::nls(
+    y ~ k*exp(-1/2*(x-mu)^2/sigma^2),
+    start=c(mu=mu0,sigma=sigma0,k=k0),
+    data = data.frame(x = x, y = y)
+  )
+  # Get coefficients and fitted values:
+  out <- as.list(stats::coef(fit)) # list(mu = ***, sigma = ***, k = ***)
+  out$x <- x
+  out$y <- stats::predict(fit)
+  # Return the numeric vector
+  out
+}
 
 #----------------------#
 #   computeDerivative  #
