@@ -62,7 +62,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
     }
 
     m <- 0
-    for (i in 1:length(files)){
+    for (i in seq_along(files)){
       m <- m + 1
       print(paste0("Sample ", m, " of ", length(files)))
       aux_string <- paste0("M", i, ".rds")
@@ -96,7 +96,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
     }
 
     m <- 0
-    for (i in 1:length(files)){
+    for (i in seq_along(files)){
       m <- m + 1
       print(paste0("Sample ", m, " of ", length(files)))
       aux_string <- paste0("M", i, ".rds")
@@ -383,7 +383,7 @@ gcims_read_metadata <- function(dir_in, samples, file) {
   Metadatafile <- read_excel(file)
   metadata <- NULL
   m <- 0
-  for (i in 1:length(samples)){
+  for (i in seq_along(samples)){
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
