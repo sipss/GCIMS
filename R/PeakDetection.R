@@ -69,8 +69,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
     # Compute the 2nd derivative for both axes
-    drt <- apply(aux, 1, function(x) -computeDerivative(x, p = 2, n = 21, m = 2, dt = 1/fs))
-    ddt <- apply(aux, 2, function(x) -computeDerivative(x, p = 2, n = 11, m = 2, dt = 1/fs))
+    drt <- apply(aux, 1, function(x) -computeDerivative(x, p = 2, n = 21, m = 2, dt = 1/fs[1]))
+    ddt <- apply(aux, 2, function(x) -computeDerivative(x, p = 2, n = 11, m = 2, dt = 1/fs[0]))
 
     daux <- ddt + t(drt)
 
