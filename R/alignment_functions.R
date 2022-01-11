@@ -69,6 +69,7 @@
 #' Quality and Technology - Spectroscopy and Chemometrics group - Denmark
 #' www.models.kvl.dk
 #' @importFrom signal interp1
+#' @importFrom ptw ptw
 #'
 #' @examples
 #' \donttest{

@@ -133,7 +133,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       posdt <- findZeroCrossings(daux[j,])
       tmp <- NULL
       locs_tmp <- NULL
-      for (k in 1:length(locs)){
+      for (k in seq_along(locs)){
         dist <- locs[k] - posdt
         peakaround <- findZeroCrossings(dist)
         if (length(peakaround) >= 1){
@@ -152,7 +152,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     peaks <- NULL
     ROIs <- NULL
-    for (row in (1:length(peaksrt))){
+    for (row in seq_along(peaksrt)){
       columns <- peaksrt[[row]]
       zeros_columns <- zeros_rt[[row]]
       for (col in columns){
@@ -211,7 +211,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     max_rip_chrom <- max(rip_chrom)
     saturation_threshold <- 0.1 * max_rip_chrom
 
-    for (n in (1:length(labels))){
+    for (n in seq_along(labels)){
       idx <- which(aff == labels[n])
       uniqueness <- c(uniqueness, length(idx))
       R1 <- ROIs[idx[1], ]
@@ -262,7 +262,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       } else {
         saturation_list <- split(saturation_regions, cumsum(c(1, diff(saturation_regions)) != 1))
         saturation_minima <- matrix(0, length(saturation_list), 2)
-        for (k in 1:length(saturation_list)){
+        for (k in seq_along(saturation_list)){
           saturation_minima[k, ] <- c(min(saturation_list[[k]]), max(saturation_list[[k]]))
         }
       }
