@@ -490,8 +490,8 @@ subset.GCIMSSample <- function(
     rt_idx <- seq_along(rt)
   }
 
-  if (all(dt_idx == seq_along(dt)) &&
-      all(rt_idx == seq_along(rt))) {
+  if (identical(dt_idx, seq_along(dt)) &&
+      identical(rt_idx, seq_along(rt))) {
     return(x)
   }
 
