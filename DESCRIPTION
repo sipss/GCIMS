@@ -79,7 +79,8 @@ Imports:
     tibble,
     tidyr(>= 1.1.2),
     utils (>= 4.0.2),
-    viridis(>= 0.5.1)
+    viridis(>= 0.5.1),
+    multiway
 Suggests:
     testthat (>= 3.0.0),
     knitr,
