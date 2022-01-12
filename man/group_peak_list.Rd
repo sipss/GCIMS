@@ -27,9 +27,9 @@ group_peak_list(
 
 \item{filter_dt_width_criteria, filter_rt_width_criteria}{A character with the method for outlier detection.
 \itemize{
-\item "IQR": Remove peaks more than 1.5 interquartile ranges above upper quartile or
+\item "IQR": Remove peaks with widths more than 1.5 interquartile ranges above upper quartile or
 below the lower quartile.
-\item "arnau": FIXME Adhoc method from Arnau, where he removes peaks above mean+4iqr or below median-0.75iqr
+\item "arnau": FIXME Adhoc method from Arnau, where he removes peaks with widths above mean+4iqr or below median-0.75iqr
 \item "none": Do not remove peaks based on their drift time width or retention time height
 }}
 
