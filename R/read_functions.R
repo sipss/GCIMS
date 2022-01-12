@@ -356,7 +356,7 @@ write_mea <- function(object, filename) {
     sprintf(fmt["key_string"], "Filter", "SG8"),
     sprintf(fmt["key_string"], "Firmware date", "2019-08-06"),
     sprintf(fmt["key_string"], "Firmware version", "2.54"),
-    sprintf(fmt["key_string"], "Machine namen", "GAScontrol"),
+    sprintf(fmt["key_string"], "Machine name", "GAScontrol"),
     sprintf(fmt["key_string"], "Machine serial", "1H1-00071"),
     sprintf(fmt["key_string"], "Machine type", "FlavourSpec®"),
     #sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"),
