@@ -216,6 +216,8 @@ group_peak_list <- function(
   list(
     peak_table = peak_table_annotated,
     peak_table_duplicity = peak_table_duplicity,
+    dist = peak2peak_dist,
+    peak_matrix = peak_matrix,
     peak_list_with_cluster = peaks,
     extra_clustering_info = extra_clustering_info
   )
