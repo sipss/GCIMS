@@ -285,6 +285,86 @@ read_mea <- function(filename) {
 }
 
 
+#' write a mea file (experimental)
+#'
+#' This function writes a GCIMSSample into a .mea file. The implementation
+#' misses a lot of metadata, and may not be fully compliant with LAV or VOCal,
+#' so it is not recommended in production environments.
+#'
+#' @param object A `GCIMSSample` object
+#' @param filename The filename to write it to (will have .mea appended if no extension is given)
+#'
+#' @return Nothing
+#' @export
+#'
+write_mea <- function(object, filename) {
+  if (!inherits(filename, "character")) {
+    stop("filename should be a string")
+  }
+  if (length(filename) != 1) {
+    stop("filename should be of length one")
+  }
+  if (endsWith(filename, ".mea.gz")) {
+    con <- gzfile(filename, "wb")
+  } else {
+    if (!endsWith(filename, ".mea")) {
+      filename <- paste0(filename, ".mea")
+    }
+    con <- file(filename, "wb")
+  }
+  on.exit(close(con))
+
+  dt <- dtime(object)
+  rt <- rtime(object)
+  dtime_rate_khz <- 1./(dt[2]-dt[1])
+  rtime_rate_hz <-  1./(rt[2]-rt[1])
+  fmt <- c(
+    "key_value_unit" = "%-31s= %f [%s]",
+    "key_integer" = "%-31s= %d",
+    "key_string" = '%-31s= "%s"'
+  )
+  FAKE_CHUNK_AVGS <- 12
+  FAKE_TIMESTAMP <- "1970-01-01T00:00:00"
+  header <- c(
+    sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"), #fake
+    sprintf(fmt["key_string"], "ADIO name", "ADIO TYP02"), #fake
+    sprintf(fmt["key_string"], "ADIO serial", "ADIO-10010"), #fake
+    sprintf(fmt["key_string"], "ADIO version", "V1.20"), #fake
+    sprintf(fmt["key_value_unit"], "Board temperature", 34, "ºC"), #fake
+    sprintf(fmt["key_integer"], "Chunk averages", FAKE_CHUNK_AVGS), #fake
+    sprintf(fmt["key_integer"], "Chunk sample count", length(dt)),
+    sprintf(fmt["key_value_unit"], "Chunk sample rate", dtime_rate_khz, "kHz"),
+    sprintf(fmt["key_value_unit"], "Chunk trigger duration", 100, "µs"), #fake
+    sprintf(fmt["key_value_unit"], "Chunk trigger repetition", 1000/rtime_rate_hz/(FAKE_CHUNK_AVGS+1), "ms"),
+    sprintf(fmt["key_value_unit"], "Chunk voltrange", 10.000, "V"),
+    sprintf(fmt["key_integer"], "Chunks count", length(rt)),
+    sprintf(fmt["key_string"], "Class", "program/pos"), # required
+    sprintf(fmt["key_string"], "Drift Gas", "nitrogen"),
+    sprintf(fmt["key_value_unit"], "EPC ambient pressure", 100.516, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC1 end-pressure", 0.503, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC1 pressure",0.500, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC2 end-pressure", 164.430, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC2 pressure", 141.011, "kPa"), # fake
+    sprintf(fmt["key_string"], "Filter", "SG8"),
+    sprintf(fmt["key_string"], "Firmware date", "2019-08-06"),
+    sprintf(fmt["key_string"], "Firmware version", "2.54"),
+    sprintf(fmt["key_string"], "Machine namen", "GAScontrol"),
+    sprintf(fmt["key_string"], "Machine serial", "1H1-00071"),
+    sprintf(fmt["key_string"], "Machine type", "FlavourSpec®"),
+    #sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"),
+    #sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"),
+    sprintf(fmt["key_string"], "Timestamp", FAKE_TIMESTAMP),
+    ""
+  )
+
+  binheader <- iconv(paste0(header, collapse = "\n"), from = "UTF-8", to = "windows-1252", toRaw = TRUE)[[1]]
+  writeBin(binheader, con = con, useBytes = TRUE)
+  writeBin(as.integer(intensity(object)),
+           con, size = 2L, endian = "big", useBytes = FALSE)
+  writeBin(object = as.raw(0), con = con, size = 1, endian = "big")
+  invisible(NULL)
+}
+
 #' Read GC-IMS Samples from MATLAB files
 #'
 #' @param dir_in          The input directory.
