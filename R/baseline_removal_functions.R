@@ -26,7 +26,6 @@
 #' @family Baseline removal functions
 #' @return A set of S3 objects.
 #' @export
-#' @importFrom ptw whit2
 #' @references {
 #'
 #'   Eilers, P.H.C. (2003) A perfect smoother. Anal. Chem.  p. 3631–6.
