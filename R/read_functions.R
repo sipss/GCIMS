@@ -296,7 +296,15 @@ read_mea <- function(filename) {
 #'
 #' @return Nothing
 #' @export
-#'
+#' @examples
+#' \dontrun{
+#' obj <- GCIMSSample(
+#'  drift_time = 1:2,
+#'  retention_time = 1:3,
+#'  data = matrix(1:6, nrow = 2, ncol = 3),
+#'  )
+#'  write_mea(obj, "test.mea")
+#'  }
 write_mea <- function(object, filename) {
   if (!inherits(filename, "character")) {
     stop("filename should be a string")
