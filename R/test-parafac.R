@@ -1,6 +1,6 @@
 test_that("3-way PARAFAC with random data", {
 
-  skip_if_not_installed("multiway")
+  skip("toy example, not meant to run")
   mydim <- c(40,15,6) # Dimensions for A, B and C (rows)
   N <- 3 # Dimensions for columns (3-way PARAFAC)
 
