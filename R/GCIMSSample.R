@@ -94,6 +94,9 @@ methods::setMethod(
     .Object
   })
 
+methods::setMethod("smooth","GCIMSSample",function(x, p, n, m, dt){
+  dx = signal::sgolayfilt(x, p, n, m)
+})
 
 #' Updates old saved GCIMSSample object to the latest version
 #'
