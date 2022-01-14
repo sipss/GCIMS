@@ -46,7 +46,7 @@ test_that("sample peak list is consistent", {
   )
 })
 
-test_that("No peak is removed if criterias are NULL", {
+test_that("No peak is removed if criteria are NULL", {
   peak_list <- get_simple_peak_list()
   expect_equal(
     peak_list$UniqueID,
