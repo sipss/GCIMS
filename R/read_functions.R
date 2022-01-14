@@ -386,11 +386,11 @@ write_mea <- function(object, filename) {
     sprintf(fmt["key_string"], "ADIO name", "ADIO TYP02"), #fake
     sprintf(fmt["key_string"], "ADIO serial", "ADIO-10010"), #fake
     sprintf(fmt["key_string"], "ADIO version", "V1.20"), #fake
-    sprintf(fmt["key_value_unit"], "Board temperature", 34, "ºC"), #fake
+    sprintf(fmt["key_value_unit"], "Board temperature", 34, "\u00B0C"), #fake
     sprintf(fmt["key_integer"], "Chunk averages", FAKE_CHUNK_AVGS), #fake
     sprintf(fmt["key_integer"], "Chunk sample count", length(dt)),
     sprintf(fmt["key_value_unit"], "Chunk sample rate", dtime_rate_khz, "kHz"),
-    sprintf(fmt["key_value_unit"], "Chunk trigger duration", 100, "µs"), #fake
+    sprintf(fmt["key_value_unit"], "Chunk trigger duration", 100, "\u03BCs"), #fake
     sprintf(fmt["key_value_unit"], "Chunk trigger repetition", 1000/rtime_rate_hz/(FAKE_CHUNK_AVGS+1), "ms"),
     sprintf(fmt["key_value_unit"], "Chunk voltrange", 10.000, "V"),
     sprintf(fmt["key_integer"], "Chunks count", length(rt)),
@@ -406,7 +406,7 @@ write_mea <- function(object, filename) {
     sprintf(fmt["key_string"], "Firmware version", "2.54"),
     sprintf(fmt["key_string"], "Machine name", "GAScontrol"),
     sprintf(fmt["key_string"], "Machine serial", "1H1-00071"),
-    sprintf(fmt["key_string"], "Machine type", "FlavourSpec®"),
+    sprintf(fmt["key_string"], "Machine type", "FlavourSpec\u00AE"),
     #sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"),
     #sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"),
     sprintf(fmt["key_string"], "Timestamp", FAKE_TIMESTAMP),
