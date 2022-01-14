@@ -60,9 +60,9 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 #'  - "volume" The size of the peak
 #'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
 #' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
-#'   - "IQR": Remove peaks more than 1.5 interquartile ranges above upper quartile or
+#'   - "IQR": Remove peaks with widths more than 1.5 interquartile ranges above upper quartile or
 #'     below the lower quartile.
-#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks above mean+4iqr or below median-0.75iqr
+#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks with widths above mean+4iqr or below median-0.75iqr
 #'   - "none": Do not remove peaks based on their drift time width or retention time height
 #' @param distance_method A string. One of the distance methods from [stats::dist], "sd_scaled_euclidean" or "mahalanobis"
 #' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
@@ -216,6 +216,8 @@ group_peak_list <- function(
   list(
     peak_table = peak_table_annotated,
     peak_table_duplicity = peak_table_duplicity,
+    dist = peak2peak_dist,
+    peak_matrix = peak_matrix,
     peak_list_with_cluster = peaks,
     extra_clustering_info = extra_clustering_info
   )
