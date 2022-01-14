@@ -127,3 +127,9 @@ test_that("Peak grouping with sd_scaled_euclidean and hclust", {
     1
   )
 })
+
+test_that("GCIMSSample method", {
+  signal <- 1:100
+  sample <- new("GCIMSSample", drift_time = numeric(10), retention_time = numeric(10), data = matrix(0,100,100))
+  smooth(sample, arr = signal, p = 2, n = 21, m = 2)
+})
