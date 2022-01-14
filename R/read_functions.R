@@ -415,9 +415,9 @@ write_mea <- function(object, filename) {
 
   binheader <- iconv(paste0(header, collapse = "\n"), from = "UTF-8", to = "windows-1252", toRaw = TRUE)[[1]]
   writeBin(binheader, con = con, useBytes = TRUE)
+  writeBin(object = as.raw(0), con = con, size = 1)
   writeBin(as.integer(intensity(object)),
-           con, size = 2L, endian = "big", useBytes = FALSE)
-  writeBin(object = as.raw(0), con = con, size = 1, endian = "big")
+           con, size = 2L, endian = "little", useBytes = FALSE)
   invisible(NULL)
 }
 
