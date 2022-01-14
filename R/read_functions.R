@@ -169,24 +169,71 @@ read_mea <- function(filename) {
     sprintf("Temp %d setpoint", seq.int(1,6)),
     "Pressure record interval"
     )
-  last_key <- "Timestamp"
 
   params <- list()
 
-  if (endsWith(filename, ".gz")) {
-    con <- gzfile(filename, "rb")
-  } else {
-    con <- file(filename, "rb")
-  }
-  on.exit(close(con))
 
-  key <- ""
-  while (key != last_key) {
-    tline <- readLines(con, n=1, encoding = "windows-1252")
-    tline <- iconv(tline, from = "windows-1252", to="UTF-8")
-    key_values <- stringr::str_trim(stringr::str_split_fixed(tline, "=", n=2)[1,], side = "both")
-    key <- key_values[1]
-    value <- key_values[2]
+  tryCatch({
+    if (endsWith(filename, ".gz")) {
+      con <- gzfile(filename, "rb")
+    } else {
+      con <- file(filename, "rb")
+    }
+    # Read all file in memory (chunks of 64MB, so hopefully we'll have enough with one)
+    sixtyfour_mb <- 64*1024*1024
+    read_file_in_memory <- list(readBin(con = con, what = "raw", n = sixtyfour_mb))
+    while (length(read_file_in_memory[[length(read_file_in_memory)]]) == sixtyfour_mb) {
+      read_file_in_memory <- append(read_file_in_memory, list(readBin(con = con, what = "raw", n = sixtyfour_mb)))
+    }
+    if (length(read_file_in_memory) == 1) {
+      read_file_in_memory <- read_file_in_memory[[1]]
+    } else {
+      read_file_in_memory <- purrr::flatten_raw(read_file_in_memory)
+    }
+  }, finally = {
+    close(con)
+  })
+
+  # Returns the index of the first time "a" appears in "x".
+  # efficient for raw vectors
+  match_raw <- function(a, x, slice_size = 8192L) {
+    offset <- 0
+    x_len <- length(x)
+    start_idx <- 1
+    end_idx <- slice_size
+    while (TRUE) {
+      comp <- which(x[start_idx:end_idx] == a)
+      if (length(comp) != 0) {
+        return(offset + comp[1])
+      } else {
+        offset <- offset + slice_size
+        start_idx <- start_idx + slice_size
+        end_idx <- end_idx + slice_size
+        if (start_idx > length(x)) {
+          return(NA_integer_)
+        } else if (end_idx > length(x)) {
+          end_idx <- length(x)
+        }
+      }
+    }
+  }
+
+  # Find where the header ends
+  # match(as.raw(0L), read_file_in_memory) is painfully slow due to internal character coercions.
+  head_data_sep <- match_raw(as.raw(0L), read_file_in_memory, slice_size = 8192L)
+  header_as_text <- iconv(
+    rawToChar(utils::head(read_file_in_memory, n = head_data_sep - 1)),
+    from = "windows-1252",
+    to = "UTF-8"
+  )
+
+  key_values_list <- strsplit(header_as_text, split = "\n", fixed = TRUE)[[1]]
+  key_values_matrix <- stringr::str_split_fixed(key_values_list, "=", n=2)
+  key_values_matrix <- matrix(stringr::str_trim(key_values_matrix, side = "both"), ncol = 2)
+  # Parse header:
+  for (i in seq_len(nrow(key_values_matrix))) {
+    key <- key_values_matrix[i, 1]
+    value <- key_values_matrix[i, 2]
 
     if (key %in% string_keys) {
       if (nchar(value) > 1 && startsWith(value, '"') && endsWith(value, '"')) {
@@ -217,6 +264,21 @@ read_mea <- function(filename) {
       params[[key]] <- value
     }
   }
+
+  # Convert and shape the data
+  npoints <- params[["Chunks count"]]*params[["Chunk sample count"]]
+  data <-readBin(
+    read_file_in_memory[(head_data_sep+1):length(read_file_in_memory)],
+    what = "integer",
+    n = npoints,
+    signed = TRUE,
+    size = 2,
+    endian = "little"
+  )
+  data <- matrix(data, nrow = params[["Chunk sample count"]], ncol = params[["Chunks count"]])
+
+  # Build drift time, retention time, parse gc_column...
+
   # drift time in ms, we want chunk sample rate in kHz
   if (params[["Chunk sample rate"]][["unit"]] == "kHz") {
     drift_time_sample_rate_khz <- params[["Chunk sample rate"]][["value"]]
@@ -241,20 +303,6 @@ read_mea <- function(filename) {
   }
   ret_time_step <- (params[['Chunk averages']]+1)*retention_time_step_s
   ret_time <- seq(from = 0.0, by = ret_time_step, length.out = params[["Chunks count"]])
-  # read the actual data:
-  npoints <- params[["Chunks count"]]*params[["Chunk sample count"]]
-  data <- readBin(con, what = "int", n = npoints, signed = TRUE, size = 2L, endian = "big")
-  if (length(data) != npoints) {
-    stop(sprintf("binary data from mea file had %d points, and %d were expected", length(data), npoints))
-  }
-  data <- matrix(data, nrow = params[["Chunk sample count"]], ncol = params[["Chunks count"]])
-  last_byte_is_a_zero <- readBin(con, what = "integer", n = 1, size = 1L)
-  if (last_byte_is_a_zero != 0L) {
-    stop("read_mea expected one zero byte at the end of the data stream.")
-  }
-  # FIXME: Filter data so we get the same values as LAV / VOCal
-  # The data in the mea file has some values that differ by multiples of 256
-  # from the corresponding values found in the csv files
 
   drift_tube_length <- numeric(0)
   if (!is.null(params[["nom Drift Tube Length"]])) {
