@@ -290,10 +290,7 @@ read_mea <- function(filename) {
   # time between two spectra measurements (in sec)
   # we are averaging 32 spectra, and one spectra is taken every 21 ms:
   # (32+1)*21/1000 = 0.692 s.
-  # FIXME: Ask GAS?: To match the retention time from LAV 2.0.0, we must
-  # multiply the (number of averages +1) by the trigger repetition time.
-  # I do not understand where the +1 comes from, but they are the ground truth.
-  # Check what happens with VOCal.
+  # After a great discussion with GAS, the +1 exists for backwards compatibility and it is not going to change.
   if (params[["Chunk trigger repetition"]][["unit"]] == "ms") {
     retention_time_step_s <- params[["Chunk trigger repetition"]][["value"]] / 1000
   } else if (params[["Chunk trigger repetition"]][["unit"]] == "s") {
