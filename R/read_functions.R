@@ -169,24 +169,71 @@ read_mea <- function(filename) {
     sprintf("Temp %d setpoint", seq.int(1,6)),
     "Pressure record interval"
     )
-  last_key <- "Timestamp"
 
   params <- list()
 
-  if (endsWith(filename, ".gz")) {
-    con <- gzfile(filename, "rb")
-  } else {
-    con <- file(filename, "rb")
-  }
-  on.exit(close(con))
 
-  key <- ""
-  while (key != last_key) {
-    tline <- readLines(con, n=1, encoding = "windows-1252")
-    tline <- iconv(tline, from = "windows-1252", to="UTF-8")
-    key_values <- stringr::str_trim(stringr::str_split_fixed(tline, "=", n=2)[1,], side = "both")
-    key <- key_values[1]
-    value <- key_values[2]
+  tryCatch({
+    if (endsWith(filename, ".gz")) {
+      con <- gzfile(filename, "rb")
+    } else {
+      con <- file(filename, "rb")
+    }
+    # Read all file in memory (chunks of 64MB, so hopefully we'll have enough with one)
+    sixtyfour_mb <- 64*1024*1024
+    read_file_in_memory <- list(readBin(con = con, what = "raw", n = sixtyfour_mb))
+    while (length(read_file_in_memory[[length(read_file_in_memory)]]) == sixtyfour_mb) {
+      read_file_in_memory <- append(read_file_in_memory, list(readBin(con = con, what = "raw", n = sixtyfour_mb)))
+    }
+    if (length(read_file_in_memory) == 1) {
+      read_file_in_memory <- read_file_in_memory[[1]]
+    } else {
+      read_file_in_memory <- purrr::flatten_raw(read_file_in_memory)
+    }
+  }, finally = {
+    close(con)
+  })
+
+  # Returns the index of the first time "a" appears in "x".
+  # efficient for raw vectors
+  match_raw <- function(a, x, slice_size = 8192L) {
+    offset <- 0
+    x_len <- length(x)
+    start_idx <- 1
+    end_idx <- slice_size
+    while (TRUE) {
+      comp <- which(x[start_idx:end_idx] == a)
+      if (length(comp) != 0) {
+        return(offset + comp[1])
+      } else {
+        offset <- offset + slice_size
+        start_idx <- start_idx + slice_size
+        end_idx <- end_idx + slice_size
+        if (start_idx > length(x)) {
+          return(NA_integer_)
+        } else if (end_idx > length(x)) {
+          end_idx <- length(x)
+        }
+      }
+    }
+  }
+
+  # Find where the header ends
+  # match(as.raw(0L), read_file_in_memory) is painfully slow due to internal character coercions.
+  head_data_sep <- match_raw(as.raw(0L), read_file_in_memory, slice_size = 8192L)
+  header_as_text <- iconv(
+    rawToChar(utils::head(read_file_in_memory, n = head_data_sep - 1)),
+    from = "windows-1252",
+    to = "UTF-8"
+  )
+
+  key_values_list <- strsplit(header_as_text, split = "\n", fixed = TRUE)[[1]]
+  key_values_matrix <- stringr::str_split_fixed(key_values_list, "=", n=2)
+  key_values_matrix <- matrix(stringr::str_trim(key_values_matrix, side = "both"), ncol = 2)
+  # Parse header:
+  for (i in seq_len(nrow(key_values_matrix))) {
+    key <- key_values_matrix[i, 1]
+    value <- key_values_matrix[i, 2]
 
     if (key %in% string_keys) {
       if (nchar(value) > 1 && startsWith(value, '"') && endsWith(value, '"')) {
@@ -217,6 +264,21 @@ read_mea <- function(filename) {
       params[[key]] <- value
     }
   }
+
+  # Convert and shape the data
+  npoints <- params[["Chunks count"]]*params[["Chunk sample count"]]
+  data <-readBin(
+    read_file_in_memory[(head_data_sep+1):length(read_file_in_memory)],
+    what = "integer",
+    n = npoints,
+    signed = TRUE,
+    size = 2,
+    endian = "little"
+  )
+  data <- matrix(data, nrow = params[["Chunk sample count"]], ncol = params[["Chunks count"]])
+
+  # Build drift time, retention time, parse gc_column...
+
   # drift time in ms, we want chunk sample rate in kHz
   if (params[["Chunk sample rate"]][["unit"]] == "kHz") {
     drift_time_sample_rate_khz <- params[["Chunk sample rate"]][["value"]]
@@ -228,10 +290,7 @@ read_mea <- function(filename) {
   # time between two spectra measurements (in sec)
   # we are averaging 32 spectra, and one spectra is taken every 21 ms:
   # (32+1)*21/1000 = 0.692 s.
-  # FIXME: Ask GAS?: To match the retention time from LAV 2.0.0, we must
-  # multiply the (number of averages +1) by the trigger repetition time.
-  # I do not understand where the +1 comes from, but they are the ground truth.
-  # Check what happens with VOCal.
+  # After a great discussion with GAS, the +1 exists for backwards compatibility and it is not going to change.
   if (params[["Chunk trigger repetition"]][["unit"]] == "ms") {
     retention_time_step_s <- params[["Chunk trigger repetition"]][["value"]] / 1000
   } else if (params[["Chunk trigger repetition"]][["unit"]] == "s") {
@@ -241,20 +300,6 @@ read_mea <- function(filename) {
   }
   ret_time_step <- (params[['Chunk averages']]+1)*retention_time_step_s
   ret_time <- seq(from = 0.0, by = ret_time_step, length.out = params[["Chunks count"]])
-  # read the actual data:
-  npoints <- params[["Chunks count"]]*params[["Chunk sample count"]]
-  data <- readBin(con, what = "int", n = npoints, signed = TRUE, size = 2L, endian = "big")
-  if (length(data) != npoints) {
-    stop(sprintf("binary data from mea file had %d points, and %d were expected", length(data), npoints))
-  }
-  data <- matrix(data, nrow = params[["Chunk sample count"]], ncol = params[["Chunks count"]])
-  last_byte_is_a_zero <- readBin(con, what = "integer", n = 1, size = 1L)
-  if (last_byte_is_a_zero != 0L) {
-    stop("read_mea expected one zero byte at the end of the data stream.")
-  }
-  # FIXME: Filter data so we get the same values as LAV / VOCal
-  # The data in the mea file has some values that differ by multiples of 256
-  # from the corresponding values found in the csv files
 
   drift_tube_length <- numeric(0)
   if (!is.null(params[["nom Drift Tube Length"]])) {
@@ -284,6 +329,94 @@ read_mea <- function(filename) {
   )
 }
 
+
+#' write a mea file (experimental)
+#'
+#' This function writes a GCIMSSample into a .mea file. The implementation
+#' misses a lot of metadata, and may not be fully compliant with LAV or VOCal,
+#' so it is not recommended in production environments.
+#'
+#' @param object A `GCIMSSample` object
+#' @param filename The filename to write it to (will have .mea appended if no extension is given)
+#'
+#' @return Nothing
+#' @export
+#' @examples
+#' \dontrun{
+#' obj <- GCIMSSample(
+#'  drift_time = 1:2,
+#'  retention_time = 1:3,
+#'  data = matrix(1:6, nrow = 2, ncol = 3),
+#'  )
+#'  write_mea(obj, "test.mea")
+#'  }
+write_mea <- function(object, filename) {
+  if (!inherits(filename, "character")) {
+    stop("filename should be a string")
+  }
+  if (length(filename) != 1) {
+    stop("filename should be of length one")
+  }
+  if (endsWith(filename, ".mea.gz")) {
+    con <- gzfile(filename, "wb")
+  } else {
+    if (!endsWith(filename, ".mea")) {
+      filename <- paste0(filename, ".mea")
+    }
+    con <- file(filename, "wb")
+  }
+  on.exit(close(con))
+
+  dt <- dtime(object)
+  rt <- rtime(object)
+  dtime_rate_khz <- 1./(dt[2]-dt[1])
+  rtime_rate_hz <-  1./(rt[2]-rt[1])
+  fmt <- c(
+    "key_value_unit" = "%-31s= %f [%s]",
+    "key_integer" = "%-31s= %d",
+    "key_string" = '%-31s= "%s"'
+  )
+  FAKE_CHUNK_AVGS <- 12
+  FAKE_TIMESTAMP <- "1970-01-01T00:00:00"
+  header <- c(
+    sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"), #fake
+    sprintf(fmt["key_string"], "ADIO name", "ADIO TYP02"), #fake
+    sprintf(fmt["key_string"], "ADIO serial", "ADIO-10010"), #fake
+    sprintf(fmt["key_string"], "ADIO version", "V1.20"), #fake
+    sprintf(fmt["key_value_unit"], "Board temperature", 34, "\u00B0C"), #fake
+    sprintf(fmt["key_integer"], "Chunk averages", FAKE_CHUNK_AVGS), #fake
+    sprintf(fmt["key_integer"], "Chunk sample count", length(dt)),
+    sprintf(fmt["key_value_unit"], "Chunk sample rate", dtime_rate_khz, "kHz"),
+    sprintf(fmt["key_value_unit"], "Chunk trigger duration", 100, "\u03BCs"), #fake
+    sprintf(fmt["key_value_unit"], "Chunk trigger repetition", 1000/rtime_rate_hz/(FAKE_CHUNK_AVGS+1), "ms"),
+    sprintf(fmt["key_value_unit"], "Chunk voltrange", 10.000, "V"),
+    sprintf(fmt["key_integer"], "Chunks count", length(rt)),
+    sprintf(fmt["key_string"], "Class", "program/pos"), # required
+    sprintf(fmt["key_string"], "Drift Gas", "nitrogen"),
+    sprintf(fmt["key_value_unit"], "EPC ambient pressure", 100.516, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC1 end-pressure", 0.503, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC1 pressure",0.500, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC2 end-pressure", 164.430, "kPa"), # fake
+    sprintf(fmt["key_value_unit"], "EPC2 pressure", 141.011, "kPa"), # fake
+    sprintf(fmt["key_string"], "Filter", "SG8"),
+    sprintf(fmt["key_string"], "Firmware date", "2019-08-06"),
+    sprintf(fmt["key_string"], "Firmware version", "2.54"),
+    sprintf(fmt["key_string"], "Machine name", "GAScontrol"),
+    sprintf(fmt["key_string"], "Machine serial", "1H1-00071"),
+    sprintf(fmt["key_string"], "Machine type", "FlavourSpec\u00AE"),
+    #sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"),
+    #sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"),
+    sprintf(fmt["key_string"], "Timestamp", FAKE_TIMESTAMP),
+    ""
+  )
+
+  binheader <- iconv(paste0(header, collapse = "\n"), from = "UTF-8", to = "windows-1252", toRaw = TRUE)[[1]]
+  writeBin(binheader, con = con, useBytes = TRUE)
+  writeBin(object = as.raw(0), con = con, size = 1)
+  writeBin(as.integer(intensity(object)),
+           con, size = 2L, endian = "little", useBytes = FALSE)
+  invisible(NULL)
+}
 
 #' Read GC-IMS Samples from MATLAB files
 #'
