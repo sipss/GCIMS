@@ -135,12 +135,17 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #' @param filename A .mea or a .mea.gz path to a file
 #'
 #' @return The GC-IMS sample in a [GCIMSSample-class] object
-#' @export
+#'
+#' @details
+#'
+#' Thanks to Daniel Sanders and Thomas Wortelmann from  [GAS Dortmund](https://www.gas-dortmund.de/) for providing the
+#' necessary support to implement this function.
 #'
 #' @examples
 #' mea_file <- system.file("extdata/sample_formats/small.mea.gz", package = "GCIMS")
 #' sample <- read_mea(mea_file)
 #'
+#' @export
 read_mea <- function(filename) {
   string_keys <- c(
     "ADIO gpident no", "ADIO name", "ADIO serial", "ADIO version",

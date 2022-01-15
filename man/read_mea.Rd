@@ -16,6 +16,10 @@ The GC-IMS sample in a \linkS4class{GCIMSSample} object
 This function reads a .mea file (supporting gzip compressed .mea.gz files as well)
 and returns a GCIMS object
 }
+\details{
+Thanks to Daniel Sanders and Thomas Wortelmann from  \href{https://www.gas-dortmund.de/}{GAS Dortmund} for providing the
+necessary support to implement this function.
+}
 \examples{
 mea_file <- system.file("extdata/sample_formats/small.mea.gz", package = "GCIMS")
 sample <- read_mea(mea_file)
