@@ -75,10 +75,20 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     daux <- ddt + t(drt)
 
-    # Region without peaks:
+    # Region without peaks: PROBAR CON ORINA
+    # p1 <- hist(daux)
+    # plot(p1$breaks[-1], p1$counts)
+    # plot(p1$breaks[-1], log(p1$counts))
     # quantile(daux)
+    # quantile(daux, c(0.25, 0.75))
+
     patch <- daux[100:200,2000:2100]
     sigmaNoise <- sd(patch)
+
+    # tt <- aux < quantile(aux, 0.15)
+    # indx_noise <- which(tt == TRUE, arr.ind = TRUE)
+    # sd(daux[indx_noise])
+
 
     # Curve fitting of RIP
 
@@ -512,3 +522,4 @@ gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL
 
   print(p)
 }
+
