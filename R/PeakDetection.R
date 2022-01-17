@@ -56,9 +56,6 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     aux_list <- readRDS(aux_string) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
 
-    drift_time <- aux_list$data$drift_time # Extract drift_time from file
-    ret_time <- aux_list$data$retention_time # Extract ret_time from file
-    fs = c(1/(drift_time[2]-drift_time[1]),1/(ret_time[2]-ret_time[1])); # Calculate sampling rate
 
     # 2. Search of RIP position
 
@@ -70,8 +67,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
     # Compute the 2nd derivative for both axes
-    drt <- apply(aux, 1, function(x) -computeDerivative(x, p = 2, n = 21, m = 2, dt = 1/fs[1]))
-    ddt <- apply(aux, 2, function(x) -computeDerivative(x, p = 2, n = 11, m = 2, dt = 1/fs[0]))
+    drt <- apply(aux, 1, function(x) -computeDerivative(x, p = 2, n = 21, m = 2))
+    ddt <- apply(aux, 2, function(x) -computeDerivative(x, p = 2, n = 11, m = 2))
 
     daux <- ddt + t(drt)
 
