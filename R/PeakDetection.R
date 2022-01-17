@@ -65,7 +65,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     total_ion_spectrum <- rowSums(aux) # Sum per rows
     rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
     rt_idx_with_max_rip <- which.max(aux[rip_position,])
-    minima <- as.vector(findpeaks(total_ion_spectrum)[, 2]) # Find local minima
+    minima <- pracma::findpeaks(-total_ion_spectrum)[, 2] # Find local minima
     rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
