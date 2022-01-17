@@ -7,7 +7,7 @@
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their RIP has to be removed.
 #' @param noise_level     Scalar number. The number of times the standard deviation
-#'   above the noise level needed to detect a peak.
+#'   above the noise level needed to detect a peak. IUPAC recommends `noise_level = 3` for detection.
 #' @details `gcims_remove_rip` substitutes the RIP by its corresponding
 #'   linear approximation to the RIP baseline, for every spectrum in a sample.
 #'   This process is repeated for all samples in `samples`. Use this
@@ -37,7 +37,7 @@
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #' setwd(current_dir)
-gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
+gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
   print(" ")
   print("  //////////////////////////")
   print(" /    Selecting the ROIs  /")
@@ -103,19 +103,15 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # 5. Peaks and Zero-crossings
     ## 5.a. Retention time
 
-    nNoise <- noise_level # Peaks have to be 3 or 10 times above the noise level (according to IUPAC)
     peaksrt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for peaks
     zeros_rt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for zero crossings
 
+    num_ims_spectra <- ncol(daux)
     # For each IMS Spectra:
-    for(j in (1:dim(daux)[2])){
+    for (j in seq_len(num_ims_spectra)) {
       # Find the max (peaks)
-      #locs <- findpeaks(daux[,j], minpeakheight  = nNoise*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
-      if (4*sigma0 < 1) {
-        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 2)[ ,2]
-      } else {
-        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 4*sigma0)[ ,2]
-      }
+      #locs <- findpeaks(daux[,j], minpeakheight  = noise_level*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
+      locs <- findpeaks(daux[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
 
       # Find the zero-crossing points
       posrt <- findZeroCrossings(daux[,j])
@@ -142,7 +138,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # For loop that iterates through all the columns
     for(j in (1:dim(daux)[1])){
       # Find the max (peaks)
-      locs <- findpeaks(daux[j, ], minpeakheight = nNoise*sigmaNoise)[ ,2]
+      locs <- findpeaks(daux[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
 
       # Find the zero-crossing points
       posdt <- findZeroCrossings(daux[j,])
