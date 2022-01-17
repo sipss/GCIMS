@@ -67,8 +67,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
     # Compute the 2nd derivative for both axes
-    drt <- apply(aux, 1, function(x) -computeDerivative(x, p = 2, n = 21, m = 2))
-    ddt <- apply(aux, 2, function(x) -computeDerivative(x, p = 2, n = 11, m = 2))
+    drt <- apply(aux, 1, function(x) -signal::sgolayfilt(x, p = 2, n = 21, m = 2))
+    ddt <- apply(aux, 2, function(x) -signal::sgolayfilt(x, p = 2, n = 11, m = 2))
 
     daux <- ddt + t(drt)
 
@@ -90,7 +90,12 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # Curve fitting of RIP
 
     signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
-    template <- -computeDerivative(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
+    if (length(signal) > 21) {
+      filter_length <- 21
+    } else {
+      filter_length <- length(signal) - (length(signal) %% 2 == 0)
+    }
+    template <- -signal::sgolayfilt(signal, p = 2, n = filter_length, m = 2) # Compute 2nd derivative of RIP
 
     sigma0 <- estimate_stddev_peak_width(template)
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
@@ -325,16 +330,6 @@ estimate_stddev_peak_width <- function(template) {
   sigma
 }
 
-
-#----------------------#
-#   computeDerivative  #
-#----------------------#
-
-
-computeDerivative <- function(x, p, n, m, dt){
-  dx = sgolayfilt(x, p, n, m) # From package: signal
-  return(dx)
-}
 
 #----------------------#
 #   findZeroCrossings  #
