@@ -94,13 +94,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
     template <- -computeDerivative(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
-    tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
-    k0 <- max(template)
-    fwhm <- sum((template - k0/2) > 0)
-    # https://en.wikipedia.org/wiki/Full_width_at_half_maximum#Normal_distribution
-    sigma0 <- fwhm/2.35482004503
 
-
+    sigma0 <- estimate_stddev_peak_width(template)
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
     # 5. Peaks and Zero-crossings
@@ -110,7 +105,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     peaksrt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for peaks
     zeros_rt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for zero crossings
 
-    # For loop that iterates through all the rows
+    # For each IMS Spectra:
     for(j in (1:dim(daux)[2])){
       # Find the max (peaks)
       #locs <- findpeaks(daux[,j], minpeakheight  = nNoise*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
@@ -318,6 +313,20 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 #   FUNCTIONS   #
 #---------------#
 
+estimate_stddev_peak_width <- function(template) {
+  # We want to find the FWHM. To do that:
+  # 1. Find all points above the half maximum
+  max_idx <- which.max(template)
+  points_above_half_max <- (template - template[max_idx]/2) > 0  # c(FALSE, FALSE, ..., TRUE, TRUE, TRUE, FALSE, FALSE)
+  # 2.
+  # If the RIP behaves well, points_above_half_max will be TRUE only when we are on the FWHM region
+  # Count the number of points above half max, and that's the FWHM (measured in points):
+  fwhm <- sum(points_above_half_max)
+  # Convert fhwm to sigma, assuming gaussianity:
+  # https://en.wikipedia.org/wiki/Full_width_at_half_maximum#Normal_distribution
+  sigma <- fwhm/(2*sqrt(2*log(2)))
+  sigma
+}
 
 
 #----------------------#
