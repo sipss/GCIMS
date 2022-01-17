@@ -64,6 +64,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     total_ion_spectrum <- rowSums(aux) # Sum per rows
     rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
+    rt_idx_with_max_rip <- which.max(aux[rip_position,])
     minima <- as.vector(findpeaks(total_ion_spectrum)[, 2]) # Find local minima
     rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
@@ -74,15 +75,22 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 
     daux <- ddt + t(drt)
 
+    # Region without peaks:
+    # quantile(daux)
     patch <- daux[100:200,2000:2100]
     sigmaNoise <- sd(patch)
 
     # Curve fitting of RIP
 
-    signal <- aux[rip_start_index:rip_end_index, 110] # Take RIP
-    template <- -computeDerivative(signal, p = 2, n = utils::tail(c(1:length(signal))[c(TRUE,FALSE)], n=1), m = 2) # Compute 2nd derivative of RIP
+    signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
+    template <- -computeDerivative(signal, p = 2, n = 21, n=1, m = 2) # Compute 2nd derivative of RIP
     tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
-    f <- fit_gaussian_density(x = tgauss, y = abs(template)) # Fit RIP into Gaussian density
+    k0 <- max(template)
+    fwhm <- sum((template - k0/2) > 0)
+    # https://en.wikipedia.org/wiki/Full_width_at_half_maximum#Normal_distribution
+    sigma0 <- fwhm/2.35482004503
+
+
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
     # 5. Peaks and Zero-crossings
@@ -96,10 +104,10 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     for(j in (1:dim(daux)[2])){
       # Find the max (peaks)
       #locs <- findpeaks(daux[,j], minpeakheight  = nNoise*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
-      if (4*sd(f$y)*fs < 1) {
+      if (4*sigma0 < 1) {
         locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 2)[ ,2]
       } else {
-        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 4*sd(f$y)*fs)[ ,2]
+        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 4*sigma0)[ ,2]
       }
 
       # Find the zero-crossing points
@@ -299,39 +307,6 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 #---------------#
 #   FUNCTIONS   #
 #---------------#
-
-#--------------------------#
-#   fit_gaussian_density  #
-#------------------------#
-
-# https://stats.stackexchange.com/a/83029/62083
-fit_gaussian_density <- function(x, y) {
-  # Guess for  mu, k and sigma
-  mu0 <- which.max(y)
-  k0 <- y[mu0]
-  x_in_peak <- x[(y - k0/2) > 0]
-  if (length(x_in_peak) == 0)  {
-    fwhm <- stats::IQR(x)
-  } else {
-    fwhm <- max(x_in_peak) - min(x_in_peak)
-    if (fwhm == 0) {
-      fwhm <- stats::IQR(x)
-    }
-  }
-  sigma0 <- fwhm/2.35482004503
-  # Fit with nls:
-  fit <- stats::nls(
-    y ~ k*exp(-1/2*(x-mu)^2/sigma^2),
-    start=c(mu=mu0,sigma=sigma0,k=k0),
-    data = data.frame(x = x, y = y)
-  )
-  # Get coefficients and fitted values:
-  out <- as.list(stats::coef(fit)) # list(mu = ***, sigma = ***, k = ***)
-  out$x <- x
-  out$y <- stats::predict(fit)
-  # Return the numeric vector
-  out
-}
 
 
 
