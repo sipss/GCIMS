@@ -79,11 +79,11 @@ Imports:
     tibble,
     tidyr(>= 1.1.2),
     utils (>= 4.0.2),
-    viridis(>= 0.5.1),
-    multiway
+    viridis(>= 0.5.1)
 Suggests:
     testthat (>= 3.0.0),
     knitr,
+    multiway,
     progress,
     rmarkdown,
     R.matlab (>= 3.6.2)

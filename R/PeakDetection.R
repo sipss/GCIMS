@@ -93,7 +93,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # Curve fitting of RIP
 
     signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
-    template <- -computeDerivative(signal, p = 2, n = 21, n=1, m = 2) # Compute 2nd derivative of RIP
+    template <- -computeDerivative(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
     tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
     k0 <- max(template)
     fwhm <- sum((template - k0/2) > 0)
