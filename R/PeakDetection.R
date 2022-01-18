@@ -7,7 +7,7 @@
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their RIP has to be removed.
 #' @param noise_level     Scalar number. The number of times the standard deviation
-#'   above the noise level needed to detect a peak.
+#'   above the noise level needed to detect a peak. IUPAC recommends `noise_level = 3` for detection.
 #' @details `gcims_remove_rip` substitutes the RIP by its corresponding
 #'   linear approximation to the RIP baseline, for every spectrum in a sample.
 #'   This process is repeated for all samples in `samples`. Use this
@@ -37,7 +37,7 @@
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #' setwd(current_dir)
-gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
+gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
   print(" ")
   print("  //////////////////////////")
   print(" /    Selecting the ROIs  /")
@@ -56,22 +56,19 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     aux_list <- readRDS(aux_string) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
 
-    drift_time <- aux_list$data$drift_time # Extract drift_time from file
-    ret_time <- aux_list$data$retention_time # Extract ret_time from file
-    fs = c(1/(drift_time[2]-drift_time[1]),1/(ret_time[2]-ret_time[1])); # Calculate sampling rate
 
     # 2. Search of RIP position
 
     total_ion_spectrum <- rowSums(aux) # Sum per rows
     rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
     rt_idx_with_max_rip <- which.max(aux[rip_position,])
-    minima <- as.vector(findpeaks(total_ion_spectrum)[, 2]) # Find local minima
+    minima <- pracma::findpeaks(-total_ion_spectrum)[, 2] # Find local minima
     rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
     # Compute the 2nd derivative for both axes
-    drt <- apply(aux, 1, function(x) -computeDerivative(x, p = 2, n = 21, m = 2, dt = 1/fs[1]))
-    ddt <- apply(aux, 2, function(x) -computeDerivative(x, p = 2, n = 11, m = 2, dt = 1/fs[0]))
+    drt <- apply(aux, 1, function(x) -signal::sgolayfilt(x, p = 2, n = 21, m = 2))
+    ddt <- apply(aux, 2, function(x) -signal::sgolayfilt(x, p = 2, n = 11, m = 2))
 
     daux <- ddt + t(drt)
 
@@ -93,32 +90,28 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # Curve fitting of RIP
 
     signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
-    template <- -computeDerivative(signal, p = 2, n = 21, m = 2) # Compute 2nd derivative of RIP
-    tgauss <- drift_time[rip_start_index:rip_end_index] # Take timepoints of RIP
-    k0 <- max(template)
-    fwhm <- sum((template - k0/2) > 0)
-    # https://en.wikipedia.org/wiki/Full_width_at_half_maximum#Normal_distribution
-    sigma0 <- fwhm/2.35482004503
+    if (length(signal) > 21) {
+      filter_length <- 21
+    } else {
+      filter_length <- length(signal) - (length(signal) %% 2 == 0)
+    }
+    template <- -signal::sgolayfilt(signal, p = 2, n = filter_length, m = 2) # Compute 2nd derivative of RIP
 
-
+    sigma0 <- estimate_stddev_peak_width(template)
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
     # 5. Peaks and Zero-crossings
     ## 5.a. Retention time
 
-    nNoise <- noise_level # Peaks have to be 3 or 10 times above the noise level (according to IUPAC)
     peaksrt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for peaks
     zeros_rt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for zero crossings
 
-    # For loop that iterates through all the rows
-    for(j in (1:dim(daux)[2])){
+    num_ims_spectra <- ncol(daux)
+    # For each IMS Spectra:
+    for (j in seq_len(num_ims_spectra)) {
       # Find the max (peaks)
-      #locs <- findpeaks(daux[,j], minpeakheight  = nNoise*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
-      if (4*sigma0 < 1) {
-        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 2)[ ,2]
-      } else {
-        locs <- findpeaks(daux[,j], minpeakheight = nNoise*sigmaNoise, minpeakdistance = 4*sigma0)[ ,2]
-      }
+      #locs <- findpeaks(daux[,j], minpeakheight  = noise_level*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
+      locs <- findpeaks(daux[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
 
       # Find the zero-crossing points
       posrt <- findZeroCrossings(daux[,j])
@@ -145,7 +138,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # For loop that iterates through all the columns
     for(j in (1:dim(daux)[1])){
       # Find the max (peaks)
-      locs <- findpeaks(daux[j, ], minpeakheight = nNoise*sigmaNoise)[ ,2]
+      locs <- findpeaks(daux[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
 
       # Find the zero-crossing points
       posdt <- findZeroCrossings(daux[j,])
@@ -318,17 +311,21 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 #   FUNCTIONS   #
 #---------------#
 
-
-
-#----------------------#
-#   computeDerivative  #
-#----------------------#
-
-
-computeDerivative <- function(x, p, n, m, dt){
-  dx = sgolayfilt(x, p, n, m) # From package: signal
-  return(dx)
+estimate_stddev_peak_width <- function(template) {
+  # We want to find the FWHM. To do that:
+  # 1. Find all points above the half maximum
+  max_idx <- which.max(template)
+  points_above_half_max <- (template - template[max_idx]/2) > 0  # c(FALSE, FALSE, ..., TRUE, TRUE, TRUE, FALSE, FALSE)
+  # 2.
+  # If the RIP behaves well, points_above_half_max will be TRUE only when we are on the FWHM region
+  # Count the number of points above half max, and that's the FWHM (measured in points):
+  fwhm <- sum(points_above_half_max)
+  # Convert fhwm to sigma, assuming gaussianity:
+  # https://en.wikipedia.org/wiki/Full_width_at_half_maximum#Normal_distribution
+  sigma <- fwhm/(2*sqrt(2*log(2)))
+  sigma
 }
+
 
 #----------------------#
 #   findZeroCrossings  #
