@@ -24,6 +24,44 @@ preprocess them, align them one to each other and build a peak table with the re
 This vignette will use a small dataset consisting of a mixture of FIXME ketones. The
 dataset is included with the package
 
+## Create work directories
+
+The first steps, is to create all teh directories and folders where the samples are located and will be stored along all the process. 
+The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
+created.
+
+```{r}
+wd <- getwd()
+data <- paste0(wd,'/data')
+shiftr <- paste0(wd,'/shiftr')
+reshaped <- paste0(wd,'/reshaped')
+cut <- paste0(wd,'/cut')
+interpd <- paste0(wd,'/interpd')
+filtd <- paste0(wd,'/filtd')
+bslnd <- paste0(wd,'/bslnd')
+alignd <- paste0(wd,'/alignd')
+interpr <- paste0(wd,'/interpr')
+filtr <- paste0(wd,'/filtr')
+bslnr <- paste0(wd,'/bslnr')
+alignr <- paste0(wd,'/alignr')
+roispp <- paste0(wd,'/roispp')
+
+
+dir.create(data)
+dir.create(shiftr)
+dir.create(reshaped)
+dir.create(cut)
+dir.create(interpd)
+dir.create(filtd)
+dir.create(bslnd)
+dir.create(alignd)
+dir.create(interpr)
+dir.create(filtr)
+dir.create(bslnr)
+dir.create(alignr)
+dir.create(roispp)
+```
+
 ## Import data
 
 Please start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
@@ -50,23 +88,196 @@ sample_annotations
 Raw data:
 
 - Reading samples: gcims_read_samples
+All the samples for the working directory are going to be read and convert into the format needed for working with this package
+
+```{r}
+# READING SAMPLES
+dir_in <- getwd()
+dir_out <- data
+gcims_read_samples(dir_in, dir_out, sftwr = 1)
+```
+
 - Reading metadata: gcims_read_metadata
+An excel file containing all the metadata information needed is going to be read and all the metadata information will be included 
+in the files
+
+```{r}
+# READING METADATA
+dir_in <- data
+samples <- 1:24
+file <- "Metadata.xlsx"
+gcims_read_metadata(dir_in, samples, file)
+```
+
 - Reshape sample: reshape_samples
+An adjustment of the dimensions of the samples is performed. There are occasions where the samples do not measure exactly the same,
+making very complicated working with them.
+
+```{r}
+# RESHAPE SAMPLES
+dir_in <- data
+dir_out <- reshaped
+samples <- 1:24
+gcims_reshape_samples(dir_in, dir_out, samples)
+```
+
 - Create reference: gcims_create_reference
+A reference sample is created. This reference sample can be one selected sample, or just the mean of all the samples.
+
+```{r}
+# CREATE REFERENCE
+dir_in <- reshaped
+dir_out <- reshaped
+samples <- 1:24
+ref_number <- NULL
+gcims_create_reference (dir_in, dir_out, samples, ref_number)
+```
+
 - Cut samples: gcims_cut_samples
+The samples are cut for a better data manipulation. There are part of the data matrix that does not contain any information.
+The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+
+```{r}
+#SAMPLES CUT
+dir_in <- reshaped
+dir_out <- cut
+samples <- 1:24
+rt_range <- c(0, 850)
+dt_range <- c(7, 14)
+gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
+```
 
 Pre-Processing in Drift Time:
 
 - Interpolating drift time: gcims_interpolate
+
+```{r}
+# INTERPOLATING DRIFT TIME
+dir_in <- cut
+dir_out <- interpd
+samples <- 1:24
+time <- "Drift"
+gcims_interpolate(dir_in, dir_out, samples, time)
+```
+
+- Smoothing drift time: gcims_smoothing
+
+```{r}
+# DRIFT TIME FILTERING
+dir_in <- interpd
+dir_out <- filtd
+time <- "Drift"
+samples <- 1:24
+gcims_smoothing(dir_in, dir_out, samples, time)
+```
+
 - Drift time baseline removal: gcims_baseline_removal
+
+```{r}
+# DRIFT TIME BASELINE REMOVAL
+dir_in <- filtd
+dir_out <- bslnd
+time <- "Drift"
+samples <- 1:24
+gcims_baseline_removal(dir_in, dir_out, samples, time)
+```
+
 - Drift time alignment: gcims_alignment
+COW Algorithm
+
+```{r}
+#ALIGNMENT DRIFT TIME
+dir_in <- bslnd
+dir_out <- alignd
+samples <- 1:24
+time <- "Drift"
+seg_vector <- seq(from = 10, to = 30, by = 5)
+slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
+gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+```
+
 
 Pre-Processing in Retention Time:
 
 - Interpolating retention time: gcims_interpolate
-- Retention time baseline removal: gcims_baseline_removal
-- Retention time alignment: gcims_alignment
 
+```{r}
+# INTERPOLATING RETENTION TIME
+dir_in <- alignd
+dir_out <- interpr
+samples <- 1:24
+time <- "Retention"
+gcims_interpolate(dir_in, dir_out, samples, time)
+```
+
+- Smoothing retention time: gcims_smoothing
+
+```{r}
+# RETENTION TIME FILTERING
+dir_in <- interpr
+dir_out <- filtr
+time <- "Retention"
+samples <- 1:24
+gcims_smoothing(dir_in, dir_out, samples, time)
+```
+
+- Retention time baseline removal: gcims_baseline_removal
+
+```{r}
+# RETENTION TIME BASELINE REMOVAL
+dir_in <- filtr
+dir_out <- bslnr
+time <- "Retention"
+samples <- 1:24 
+gcims_baseline_removal(dir_in, dir_out, samples, time)
+```
+
+- Retention time alignment: gcims_alignment
+PTW algorithm
+
+```{r}
+#ALIGNMENT RETENTION TIME
+dir_in <- bslnr
+dir_out <- alignr
+samples <- 1:24
+time <- "Retention"
+gcims_alignment(dir_in, dir_out, samples, time)
+```
+
+
+Data Visualization
+
+- Spectra visualziation: gcims_plot_spec
+
+```{r}
+# PLOT SPECTRA
+sample_num <- 1:24
+rt_value <- NULL
+dt_range <- NULL
+dir_in <- alignr
+gcims_plot_spec(dir_in, sample_num, rt_value, dt_range, colorby = "Name")
+```
+
+- Chromatograms visualization: gcims_plot_chrom
+
+```{r}
+# PLOT CHROMATOGRAMS
+sample_num <- 1:24
+dir_in <- alignr                          
+dt_value <- NULL
+rt_range <- NULL
+gcims_plot_chrom(dir_in, sample_num, dt_value, rt_range, colorby = "Name")
+```
+
+- Sample image visualization: gcims_view_sample
+
+```{r}
+sample_num <- 1
+dir_in <- alignr                          
+dt_value <- NULL
+rt_range <- NULL
+gcims_view_sample(dir_in, sample_num, rt_value, dt_range)
+```
 
 Aligned data:
 
