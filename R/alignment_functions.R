@@ -9,9 +9,11 @@
 #'   3)).
 #' @param time            Sets the dimension to be corrected: drift time or
 #'   retention time. Introduce "Retention" for retention time; or "Drift" for
-#'   drift time.
+#'   drift time. The values can be "global" and "individual",
 #' @param seg_vector      Vector of segment lengths.
 #' @param slack_vector    Vector of slacks.
+#' @param alignment_type indicates if the parametic time warping alignment performed
+#'   is a global alignment or a global and an individual one.
 #' @details `gcims_baseline_removal` aligns sample chromatograms (in
 #'   retention time) or spectra (in drift time).
 #'   The alignment in drift time is achieved by transforming the selected temporal
@@ -93,7 +95,7 @@
 #' setwd(current_dir)
 #'}
 #'
-gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
+gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector, alignment_type){
 
 
   print(" ")
@@ -142,13 +144,17 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
         aux_with_zero_pad <- matrix(0, nrow = 1000 + num_dt, ncol =  num_ret_time)
         aux_with_zero_pad[501:(nrow(aux_with_zero_pad) - 500), ] <- aux
         aux_to_align <- aux_with_zero_pad
-        global_warp <- ptw::ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0, 1), mode = "backward")
+        global_warp <- ptw::ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0,1), mode = "backward")
         aux_global_warp <- global_warp$warped.sample
         aux_global_warp[is.na(aux_global_warp)] <- 0
-        indiv_warp <- ptw::ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0,1,0), mode = "backward")
-        aux_indiv_warp <- indiv_warp$warped.sample
-        aux_indiv_warp[is.na(aux_indiv_warp)] <- 0
-        aux <- aux_indiv_warp
+        if (alignment_type == "Individual") {
+          indiv_warp <- ptw::ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0, 1), mode = "backward")
+          aux_indiv_warp <- indiv_warp$warped.sample
+          aux_indiv_warp[is.na(aux_indiv_warp)] <- 0
+          aux <- aux_indiv_warp
+        } else {
+          aux <- aux_global_warp
+        }
       }
     } else {
     }
