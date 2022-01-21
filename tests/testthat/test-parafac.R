@@ -23,3 +23,7 @@ test_that("3-way PARAFAC with random data", {
   expect_equal(dim(Xhat),dim(X)) # Expected dimensions of Xhat
 
 })
+
+#test_that("3-way PARAFAC with test data", {
+
+#})
