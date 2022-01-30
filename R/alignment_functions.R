@@ -142,13 +142,10 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
         aux_with_zero_pad <- matrix(0, nrow = 1000 + num_dt, ncol =  num_ret_time)
         aux_with_zero_pad[501:(nrow(aux_with_zero_pad) - 500), ] <- aux
         aux_to_align <- aux_with_zero_pad
-        global_warp <- ptw::ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0, 1), mode = "backward")
+        global_warp <- ptw::ptw(ref = t(reference), samp = t(aux_to_align), warp.type = "global", init.coef = c(0,1), mode = "backward")
         aux_global_warp <- global_warp$warped.sample
         aux_global_warp[is.na(aux_global_warp)] <- 0
-        indiv_warp <- ptw::ptw(ref = t(reference), samp = aux_global_warp, warp.type = "individual", init.coef = c(0,1,0), mode = "backward")
-        aux_indiv_warp <- indiv_warp$warped.sample
-        aux_indiv_warp[is.na(aux_indiv_warp)] <- 0
-        aux <- aux_indiv_warp
+        aux <- aux_global_warp
       }
     } else {
     }
