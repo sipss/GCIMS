@@ -80,7 +80,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
     # quantile(daux, c(0.25, 0.75))
 
     patch <- daux[100:200,2000:2100]
-    sigmaNoise <- sd(patch)
+    sigmaNoise <- stats::sd(patch)
 
     # tt <- aux < quantile(aux, 0.15)
     # indx_noise <- which(tt == TRUE, arr.ind = TRUE)
@@ -306,11 +306,266 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
   }
 }
 
+#' Detect peaks
+#' @noRd
+#'
+#' @param intmat The matrix with intensities with drift time in rows and retention time in columns
+#' @param noise_level How many times the standard deviation of a region without peaks the signal must be,
+#'   in order for it to be detected.
+#' @param area_overlap_frac If two peaks are too close, their regions will overlap. Peaks with an area overlap
+#'   above this threshold will be merged into one larger peak.
+#' @param rip_saturation_threshold Fraction of the maximum RIP intensity that determines if a peak appears saturating the RIP.
+#'  This is used to compute the `saturated` property of the peaks.
+#'
+#' @return A data frame with one row per peak detected, with the following columns:
+#'  - `peak_id`: An identifier of the peak
+#'  - `rt_apex`: The index of the retention time with the peak apex (maximum)
+#'  - `dt_apex`: The index of the drift time with the peak apex (maximum)
+#'  - `rt_min`, `rt_max`, `dt_min`, `dt_max`: The index of the retention/drift time where the peak starts/ends
+#'  - `volume`: The volume of the peak (the sum of all the intensities within the region of the peak)
+#'  - `saturated`: A logical column indicating whether the RIP was depleted at the retention time where the center of mass of the peak is.
+#'  - `uniqueness`: An integer column of how many peaks were detected with enough overlap to be merged
+#'  - `asymmetry`: A number between 0 and 1 indicating how centered the peak is (0.5 is centered)
+#'
+detect_peaks <- function(intmat, noise_level = 3, area_overlap_frac = 0.2, rip_saturation_threshold = 0.1) {
+  # Search of RIP position
+
+  rownames(intmat) <- NULL
+  colnames(intmat) <- NULL
+
+  total_ion_spectrum <- rowSums(intmat) # Sum per rows
+  rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
+  rt_idx_with_max_rip <- which.max(intmat[rip_position,])
+  minima <- pracma::findpeaks(-total_ion_spectrum)[, 2] # Find local minima
+  rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
+  rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
+
+  # Retention time range with the RIP saturated:
+  rip_chrom <- rowSums(intmat[rip_start_index: rip_end_index, ]) / length(rip_start_index:rip_end_index)
+  rt_rip_saturated_idx <- which(rip_chrom < (rip_saturation_threshold * max(rip_chrom)))
+
+
+  # Compute the 2nd derivative for both axes
+  drt <- t(apply(intmat, 1, function(x) -signal::sgolayfilt(x, p = 2, n = 21, m = 2)))
+  ddt <- apply(intmat, 2, function(x) -signal::sgolayfilt(x, p = 2, n = 11, m = 2))
+
+  laplacian <- ddt + drt
+
+  # Region without peaks: PROBAR CON ORINA
+  # p1 <- hist(laplacian)
+  # plot(p1$breaks[-1], p1$counts)
+  # plot(p1$breaks[-1], log(p1$counts))
+  # quantile(laplacian)
+  # quantile(laplacian, c(0.25, 0.75))
+
+  # region <- list(row_min = 100, row_max = 200, col_min = 2000, col_max = 2100)
+  region <- find_region_without_peaks(intmat, half_min_size = c(10, 10), noise_quantile = 0.25)
+  sigmaNoise <- stats::sd(laplacian[region$row_min:region$row_max, region$col_min:region$col_max])
+
+  # tt <- intmat < quantile(intmat, 0.15)
+  # indx_noise <- which(tt == TRUE, arr.ind = TRUE)
+  # sd(laplacian[indx_noise])
+
+
+  # Curve fitting of RIP
+
+  signal <- intmat[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
+  if (length(signal) > 21) {
+    filter_length <- 21
+  } else {
+    filter_length <- length(signal) - (length(signal) %% 2 == 0)
+  }
+  template <- -signal::sgolayfilt(signal, p = 2, n = filter_length, m = 2) # Compute 2nd derivative of RIP
+
+  sigma0 <- estimate_stddev_peak_width(template)
+
+  # 5. Peaks and Zero-crossings
+  ## 5.a. Retention time
+
+  # For each IMS Spectra:
+  zeros_peaks_rt <- vector(mode = "list", length = ncol(laplacian))
+  for (i in seq_along(zeros_peaks_rt)) {
+    zeros_peaks_rt[[i]] <- find_peaks_and_zero_crossing(
+      laplacian[,i],
+      laplacian[,i],
+      #drt[,i],
+      intmat[,i],
+      min_peak_height = noise_level*sigmaNoise,
+      min_peak_distance = 4*sqrt(2)*sigma0
+    )
+  }
+  zeros_peaks_rt <- dplyr::bind_rows(zeros_peaks_rt, .id = "rt_idx")
+  zeros_peaks_rt$rt_idx <- as.numeric(zeros_peaks_rt$rt_idx)
+  zeros_peaks_rt <- dplyr::rename(
+    zeros_peaks_rt,
+    dt_min = "zero_left_idx",
+    dt_apex = "peak_apex",
+    dt_max = "zero_right_idx"
+  )
+
+  ## 5.b. Peaks and Zero-Crossing for Drift Time
+  zeros_peaks_dt <- vector(mode = "list", length = nrow(laplacian))
+  for (i in seq_along(zeros_peaks_dt)) {
+    zeros_peaks_dt[[i]] <- find_peaks_and_zero_crossing(
+      laplacian[i,],
+      laplacian[i,],
+      #ddt[i,],
+      intmat[i,],
+      min_peak_height = noise_level*sigmaNoise,
+      min_peak_distance = 6*sigma0
+    )
+  }
+
+  zeros_peaks_dt <- dplyr::bind_rows(zeros_peaks_dt, .id = "dt_idx")
+  zeros_peaks_dt$dt_idx <- as.numeric(zeros_peaks_dt$dt_idx)
+  zeros_peaks_dt <- dplyr::rename(
+    zeros_peaks_dt,
+    rt_min = "zero_left_idx",
+    rt_apex = "peak_apex",
+    rt_max = "zero_right_idx"
+  )
+
+  peaks <- dplyr::inner_join(
+    zeros_peaks_rt,
+    dplyr::select(zeros_peaks_dt, -dplyr::all_of("peak_max_intensity")),
+    by = c("rt_idx" = "rt_apex", "dt_apex" = "dt_idx")
+  )
+  peaks <- dplyr::rename(peaks, rt_apex = "rt_idx")
+
+  dt_max_length <- Inf*sigma0
+  rt_max_length <- Inf
+  message(dt_max_length)
+  message(nrow(peaks))
+  peaks <- dplyr::filter(
+    peaks,
+    .data$dt_apex > rip_end_index,
+    (.data$dt_max - .data$dt_min) < dt_max_length,
+    (.data$rt_max - .data$rt_min) < rt_max_length
+  )
+  message(nrow(peaks))
+
+  peaks$peak_id <- seq_len(nrow(peaks))
+  peaks$area <- (peaks$dt_max-peaks$dt_min)*(peaks$rt_max-peaks$rt_min)
+
+  # dplyr does not have non-equ joins, so we do a cross-join + filter
+  peak_pairs <- dplyr::full_join(peaks, peaks, by = character(), suffix = c("_1", "_2"))
+  # Filter out peak pairs that can't overlap TODO
+  peak_pairs <- dplyr::filter(
+    peak_pairs,
+    .data$peak_id_1 < .data$peak_id_2, # Symmetry
+  )
+  peak_pairs$rt_intersect_min <- pmax(peak_pairs$rt_min_1, peak_pairs$rt_min_2)
+  peak_pairs$dt_intersect_min <- pmax(peak_pairs$dt_min_1, peak_pairs$dt_min_2)
+  peak_pairs$rt_intersect_max <- pmin(peak_pairs$rt_max_1, peak_pairs$rt_max_2)
+  peak_pairs$dt_intersect_max <- pmin(peak_pairs$dt_max_1, peak_pairs$dt_max_2)
+  peak_pairs <- dplyr::filter(
+    peak_pairs,
+    .data$rt_intersect_min < .data$rt_intersect_max,
+    .data$dt_intersect_min < .data$dt_intersect_max,
+  )
+  peak_pairs <- dplyr::mutate(
+    peak_pairs,
+    area_intersect = (.data$dt_intersect_max-.data$dt_intersect_min)*(.data$rt_intersect_max-.data$rt_intersect_min),
+    frac_overlap = .data$area_intersect / ( .data$area_1 + .data$area_2 - .data$area_intersect)
+  )
+
+  peak_pairs <- dplyr::filter(
+    peak_pairs,
+    .data$frac_overlap > area_overlap_frac
+  )
+  ids_to_merge <- peak_pairs[,c("peak_id_1", "peak_id_2")]
+  ids_to_merge <- dplyr::arrange(ids_to_merge, .data$peak_id_1, .data$peak_id_2)
+  for (i in rev(seq_len(nrow(ids_to_merge)))) {
+    peaks$peak_id[peaks$peak_id == ids_to_merge$peak_id_2[i]] <- ids_to_merge$peak_id_1[i]
+  }
+  # Merge
+
+  peaks <- dplyr::group_by(peaks, .data$peak_id)
+  peaks <- dplyr::summarise(
+    peaks,
+    rt_min = min(.data$rt_min),
+    rt_max = max(.data$rt_max),
+    dt_min = min(.data$dt_min),
+    dt_max = max(.data$dt_max),
+    uniqueness = dplyr::n()
+  )
+  peaks <- dplyr::ungroup(peaks)
+
+  # Compute all peak properties from the ROI regions:
+  peaks$rt_apex <- NA_real_
+  peaks$dt_apex <- NA_real_
+  peaks$volume <- NA_real_
+  peaks$saturated <- NA
+  peaks$dt_cm <- NA_real_
+  peaks$rt_cm <- NA_real_
+  peaks$peak_max_intensity <- NA_real_
+  # We now know the boundaries of each peak. Let's find their apex and
+  # other properties from the data:
+  for (i in seq_len(nrow(peaks))) {
+    roi_data <- intmat[peaks$dt_min[i]:peaks$dt_max[i], peaks$rt_min[i]:peaks$rt_max[i]]
+    ind <- arrayInd(
+      which.max(roi_data),
+      dim(roi_data)
+    )
+    peaks$peak_max_intensity[i] <- roi_data[ind]
+    peaks$rt_apex[i] <- peaks$rt_min[i] + ind[1,1] - 1L
+    peaks$dt_apex[i] <- peaks$dt_min[i] + ind[1,2] - 1L
+    # TODO: Consider baseline estimation here based on a plane
+    #       crossing at the limits of the ROI, and subtract the volume of
+    #       that plane.
+    peaks$volume[i] <- sum(roi_data)
+    # Centers of mass to compute asymmetry later:
+    v <- rowSums(roi_data)
+    peaks$dt_cm[i] <- (sum(v * seq_along(v)) / sum(v)) + peaks$dt_min[i]  - 1L
+    v <- colSums(roi_data)
+    peaks$rt_cm[i] <- (sum(v * seq_along(v)) / sum(v)) + peaks$rt_min[i] - 1L
+  }
+
+  peaks <- dplyr::mutate(
+    peaks,
+    asymmetry = ((.data$rt_cm - .data$rt_min) - (.data$rt_max - .data$rt_cm))/(.data$rt_max - .data$rt_min)
+  )
+
+  peaks$saturated <- floor(peaks$rt_cm) %in% c(rt_rip_saturated_idx, rt_rip_saturated_idx-1L)
+
+
+  # The final peak ID:
+  peaks$peak_id <- paste0("Peak", seq_len(nrow(peaks)))
+  peaks <- peaks[,c("peak_id", "rt_apex", "dt_apex", "rt_min", "rt_max",
+                    "dt_min", "dt_max", "peak_max_intensity", "volume",
+                    "saturated", "uniqueness", "asymmetry")]
+  peaks
+}
+
+
+
+
 
 #---------------#
 #   FUNCTIONS   #
 #---------------#
 
+#' Estimate the standard deviation of a peak.
+#' @noRd
+#'
+#' @description
+#' This function does a rough estimation of the standard deviation (in points)
+#' of a given numeric vector that represents a gaussian density.
+#'
+#' It works as follows:
+#'
+#' - Finds the maximum of the given signal
+#' - Finds all points above half the maximum
+#' - The number of points above half the maximum corresponds to the full width at half the maximum
+#' - The standard deviation $\frac{fwhm}{2 \sqrt{2 \ln{2}}}$
+#'
+#' @param template A numeric vector, representing a gaussian density
+#'
+#' @return The standard deviation of the template, a number
+#'
+#' @examples
+#' x <- exp(-(1:100-30)^2/(2*5^2))
+#' estimate_stddev_peak_width(x)
 estimate_stddev_peak_width <- function(template) {
   # We want to find the FWHM. To do that:
   # 1. Find all points above the half maximum
@@ -326,6 +581,92 @@ estimate_stddev_peak_width <- function(template) {
   sigma
 }
 
+#' Match peak positions with their zero crossings
+#' @noRd
+#'
+#' @param peak_indices An integer vector with peak indices
+#' @param zero_indices An integer vector with zero crossings
+#'
+#' @return A data frame with three columns corresponding to indices:
+#'  - zero_left_idx: the zero at the left of the peak
+#'  - peak_apex: the peak position
+#'  - zero_right_idx: the zero after the peak
+#'
+match_peaks_with_zero_crossings <- function(peak_indices, peak_intensities, zero_indices) {
+  out <- tibble::tibble(
+    zero_left_idx = NA_integer_*integer(length = length(peak_indices)),
+    peak_apex = NA_integer_*integer(length = length(peak_indices)),
+    peak_max_intensity = NA_real_*numeric(length = length(peak_indices)),
+    zero_right_idx = NA_integer_*integer(length = length(peak_indices))
+  )
+  for (i in seq_along(peak_indices)) {
+    peak_idx <- peak_indices[i]
+    peak_boundary_idx_idx <- which(zero_indices - peak_idx > 0)[1] - 1L
+    # The peak must have zeroes at both sides:
+    if (is.na(peak_boundary_idx_idx) || peak_boundary_idx_idx == 0L) {
+      next
+    }
+    out$zero_left_idx[i] <- zero_indices[peak_boundary_idx_idx]
+    out$peak_apex[i] <- peak_idx
+    out$peak_max_intensity[i] <- peak_intensities[i]
+    out$zero_right_idx[i] <- zero_indices[peak_boundary_idx_idx+1L]
+  }
+  out[!is.na(out$peak_apex),]
+}
+
+find_peaks_and_zero_crossing <- function(laplacian, second_deriv, signal, min_peak_height, min_peak_distance) {
+  # Find the max (peaks)
+  locs <- pracma::findpeaks(
+    laplacian,
+    minpeakheight = min_peak_height,
+    minpeakdistance = min_peak_distance
+  )[ ,2]
+
+  # Find the zero-crossing points
+  x_crossing_zero_idx <- findZeroCrossings(second_deriv)
+  peak_intensities <- signal[locs]
+  #x_crossing_zero_idx <- c(1L, findZeroCrossings(second_deriv), length(second_deriv))
+  match_peaks_with_zero_crossings(peak_indices = locs, peak_intensities = peak_intensities, zero_indices = x_crossing_zero_idx)
+}
+
+
+#' Finds a region without peaks in the matrix
+#' @noRd
+#'
+#' @param intens The matrix where we want to find a region without peaks
+#' @param half_min_size Two integers. The region will be of size `2*half_min_size+1`.
+#' @param noise_quantile A percentile, intensities below this percentile are considered background
+#'
+#' @return A list with the indexes that bound the region without peaks (`row_min`, `row_max`, `col_min`, `col_max`)
+#'
+#' @examples
+#' x <- matrix(0, nrow = 500, ncol = 500)
+#' x[1:200, 1:300] <- 500 # you could call that a weird peak...
+#' region <- find_region_without_peaks(x)
+#' # The region has zero values
+#' sum(x[region$row_min:region$row_max, region$col_min:region$col_max]) == 0
+find_region_without_peaks <- function(intens, half_min_size = c(10, 10), noise_quantile = 0.25) {
+  thr <- stats::quantile(intens, noise_quantile)
+  binarized <- intens <= thr
+
+  center_i <- seq.int(from = 1L+half_min_size[1], to = dim(binarized)[1] - half_min_size[1], by = 2L*half_min_size[1]+1L)
+  center_j <- seq.int(from = 1L+half_min_size[2], to = dim(binarized)[2] - half_min_size[2], by = 2L*half_min_size[2]+1L)
+
+
+  for (i in center_i) {
+    for (j in center_j) {
+      row_min <- i - half_min_size[1]
+      row_max <- i + half_min_size[1]
+      col_min <- j - half_min_size[2]
+      col_max <- j + half_min_size[2]
+      if (all(binarized[row_min:row_max, col_min:col_max])) {
+        return(list(row_min=row_min, row_max = row_max, col_min = col_min, col_max = col_max))
+      }
+    }
+  }
+  stop("Could not find a region without peaks")
+}
+
 
 #----------------------#
 #   findZeroCrossings  #
@@ -333,9 +674,10 @@ estimate_stddev_peak_width <- function(template) {
 
 findZeroCrossings <- function(x){
   signs <- sign(x)
-  pos_plus <- which(diff(signs) >= 2)
-  pos_minus <- which(diff(signs) == -2)
-  pos <- sort(as.vector(union(pos_plus + 1, pos_minus)))
+  dsigns <- diff(signs)
+  pos_plus <- which(dsigns == 2)
+  pos_minus <- which(dsigns == -2)
+  pos <- sort(union(pos_plus + 1L, pos_minus))
   return(pos)
 }
 
@@ -376,10 +718,10 @@ compute_integral2 <- function(data){
   yb <- m
 
   # Set up Gauss-Legendre Method
-  cx <- gaussLegendre(n, xa, xb)
+  cx <- pracma::gaussLegendre(n, xa, xb)
   x <- cx$x
   wx <- cx$w
-  cy <- gaussLegendre(m, ya, yb)
+  cy <- pracma::gaussLegendre(m, ya, yb)
   y <- cy$x
   wy <- cy$w
 
