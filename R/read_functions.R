@@ -42,10 +42,8 @@
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' print(files)
 #' file.remove(files)
-#' setwd(current_dir)
 #'
 gcims_read_samples <- function(dir_in, dir_out, sftwr) {
-  setwd(dir_in)
   print(" ")
   print("  /////////////////////////")
   print(" /    Reading Samples    /")
@@ -56,7 +54,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
   data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
 
   if (sftwr == 1){
-    files <- list.files(pattern = ".csv")
+    files <- list.files(path = dir_in, pattern = ".csv")
     if (length(files) == 0){
       stop("This folder does not contains any .csv file")
     }
@@ -69,7 +67,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
       # METADATA
       metadata$Name <- i
       # DATA
-      single_file <- read_csv(files[i],
+      single_file <- read_csv(file.path(dir_in, files[i]),
                               progress = FALSE, skip = 1, col_names = FALSE,
                               col_types = cols(.default = "c"))
 
@@ -84,13 +82,11 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 
       # Join
       dd_list <- list(metadata = metadata, data = data)
-      setwd(dir_out)
-      saveRDS(dd_list, file = paste0("M", i, ".rds"))
-      setwd(dir_in)
+      saveRDS(dd_list, file = file.path(dir_out, paste0("M", i, ".rds")))
     }
   }
   else {
-    files <- list.files(pattern = ".csv")
+    files <- list.files(path = dir_in, pattern = ".csv")
     if (length(files) == 0){
       stop("This folder does not contains any .csv file")
     }
@@ -104,7 +100,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
       # METADATA
       metadata$Name <- i
       # DATA
-      single_file <- read_csv(files[i], skip = 130,
+      single_file <- read_csv(file.path(dir_in, files[i]), skip = 130,
                               progress = FALSE, col_names = FALSE,
                               col_types = cols(.default = "c"))
 
@@ -119,9 +115,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 
       # Join
       dd_list <- list(metadata = metadata, data = data)
-      setwd(dir_out)
-      saveRDS(dd_list, file = paste0("M", i, ".rds"))
-      setwd(dir_in)
+      saveRDS(dd_list, file = file.path(dir_out, paste0("M", i, ".rds")))
     }
   }
 }
@@ -490,12 +484,9 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' @family Reading functions
 #' @note The metadata file has to be in the same directory as the data samples.
 #' @export
-#' @importFrom readxl read_excel
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata","add_meta", package = "GCIMS")
-#' setwd(dir_in)
-#' M1 <- readRDS("M1.rds")
+#' M1 <- readRDS(file.path(dir_in, "M1.rds"))
 #' samples <- 1
 #' print(M1$metadata)
 #' file <- "Metadata.xlsx"
@@ -507,30 +498,23 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' M1$metadata$Brand <- NULL
 #' print(M1$metadata)
 #' saveRDS(M1, "M1.rds")
-#' setwd(current_dir)
 #'
 gcims_read_metadata <- function(dir_in, samples, file) {
-  setwd(dir_in)
-
   print(" ")
   print("  //////////////////////////")
   print(" /    Reading Metadata    /")
   print("//////////////////////////")
   print(" ")
 
-  Metadatafile <- read_excel(file)
+  Metadatafile <- readxl::read_excel(file.path(dir_in, file))
   metadata <- NULL
-  m <- 0
   for (i in seq_along(samples)){
-    m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
-    aux_string <- paste0("M", i, ".rds")
+    print(paste0("Sample ", i, " of ", length(samples)))
+    aux_string <- file.path(dir_in, paste0("M", samples[i], ".rds"))
     aux_list <- readRDS(aux_string)
     metadata <- Metadatafile[which(Metadatafile$Name == aux_list$metadata$Name),]
     aux_list$metadata <- metadata
-    saveRDS(aux_list, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
-
+    saveRDS(aux_list, file = aux_string)
   }
 }
 
