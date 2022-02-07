@@ -44,6 +44,8 @@
 #' file.remove(files)
 #'
 gcims_read_samples <- function(dir_in, dir_out, sftwr) {
+  stopifnot(is.character(dir_out), length(dir_out) == 1)
+
   print(" ")
   print("  /////////////////////////")
   print(" /    Reading Samples    /")
@@ -59,6 +61,9 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
       stop("This folder does not contains any .csv file")
     }
 
+    if (!dir.exists(dir_out)) {
+      dir.create(dir_out, recursive = TRUE)
+    }
     m <- 0
     for (i in seq_along(files)){
       m <- m + 1
