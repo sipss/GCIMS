@@ -4,7 +4,7 @@
 \alias{gcims_rois_selection}
 \title{ROIs Selection}
 \usage{
-gcims_rois_selection(dir_in, dir_out, samples, noise_level)
+gcims_rois_selection(dir_in, dir_out, samples, noise_level = 3)
 }
 \arguments{
 \item{dir_in}{Input directory. Where input data files are loaded
@@ -17,7 +17,7 @@ stored.}
 samples to which their RIP has to be removed.}
 
 \item{noise_level}{Scalar number. The number of times the standard deviation
-above the noise level needed to detect a peak.}
+above the noise level needed to detect a peak. IUPAC recommends \code{noise_level = 3} for detection.}
 }
 \value{
 A Set of S3 objects.
