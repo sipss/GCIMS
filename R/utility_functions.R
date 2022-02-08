@@ -122,6 +122,10 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
   print("////////////////////////")
   print(" ")
 
+  if (!dir.exists(dir_out)) {
+    dir.create(dir_out, recursive = TRUE)
+  }
+
   m = -1
   for (i in c(0, samples)){
     m = m + 1
