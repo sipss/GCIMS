@@ -588,20 +588,12 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
   #     MAIN    #
   #-------------#
 
-  setwd(dir_in)
-  m = -1;
-  for (i in samples) {
-    m = m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
-    aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+  for (i in seq_along(samples)) {
+    print(paste0("Sample ", i, " of ", length(samples)))
+    aux_string <- paste0("M", samples[i], ".rds")
+    aux_list <- readRDS(file.path(dir_in, aux_string))
     M <- cut_samples(aux_list, rt_range, dt_range)
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
-
+    saveRDS(M, file = file.path(dir_out, paste0("M", samples[i], ".rds")))
   }
 
 }
