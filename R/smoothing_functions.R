@@ -66,7 +66,6 @@ gcims_smoothing <- function (dir_in, dir_out, samples, time,
   print("/////////////////////////")
   print(" ")
 
-  setwd(dir_in)
   m = -1
   for (i in c(0, samples)){
     m = m + 1
@@ -74,32 +73,22 @@ gcims_smoothing <- function (dir_in, dir_out, samples, time,
       print(paste0("Sample ", m, " of ", length(samples)))
     }
 
-    aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, paste0("M", i, ".rds")))
     aux <- as.matrix(aux_list$data$data_df)
 
     if (time == "Drift"){
       aux <- t(aux)
-    } else if (time == "Retention"){
     }
 
-    n <- dim(aux)[1]
-
-    for (j in (1:n)){
-      aux[j, ] <- sgolayfilt(aux[j, ], p = polynomial_order, n = filter_length)
+    for (j in seq_len(nrow(aux))) {
+      aux[j, ] <- signal::sgolayfilt(aux[j, ], p = polynomial_order, n = filter_length)
     }
 
     if (time == "Drift"){
       aux <- t(aux)
-    } else if (time == "Retention"){
     }
 
     aux_list$data$data_df <- round(aux)
-    M <- aux_list
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
-
-
