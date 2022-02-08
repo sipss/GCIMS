@@ -29,7 +29,6 @@ gcims_create_reference <- function(dir_in, dir_out, samples, ref_number){
   print(" ")
 
 
-  setwd(dir_in)
   if (length(samples) == 0){
     stop("No vector with sample numbers was provided")
   } else if(!is.numeric(samples)){
@@ -53,42 +52,41 @@ gcims_create_reference <- function(dir_in, dir_out, samples, ref_number){
     stop("ref_number is not containend in samples")
   }
 
+  if (!dir.exists(dir_out)) {
+    dir.create(dir_out, recursive = TRUE)
+  }
 
   if (sum(samples == ref_number) == 1){
     print(paste0("Reference Sample is: M", ref_number))
     aux_string <- paste0("M", ref_number, ".rds")
-    M <- readRDS(aux_string)
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", 0, ".rds"))
-    setwd(dir_in)
+    file.copy(
+      from = file.path(dir_in, aux_string),
+      to = file.path(dir_out, paste0("M", 0, ".rds"))
+    )
   }
 
   if (is.null(ref_number)){
       print(paste0("Reference Sample is the average sample"))
       aux_string <- paste0("M", samples[1], ".rds")
 
-      aux_list <- readRDS(aux_string) #new
-      aux <- (as.matrix(aux_list$data$data_df)) #new
+      aux_list <- readRDS(file.path(dir_in, aux_string))
+      aux <- as.matrix(aux_list$data$data_df)
 
-      #aux <- readRDS(aux_string)
+      #aux <- readRDS(file.path(dir_in, aux_string))
       acc_sample <- matrix(0, dim(aux)[1], dim(aux)[2])
       rm(aux_string, aux)
 
-      m <- 0
       for (i in samples){
-        m <- m + 1
         aux_string <- paste0("M", i, ".rds")
-        aux_list <- readRDS(aux_string) #new
-        aux <- (as.matrix(aux_list$data$data_df)) #new
+        aux_list <- readRDS(file.path(dir_in, aux_string))
+        aux <- as.matrix(aux_list$data$data_df)
         acc_sample <- acc_sample + aux
       }
 
-      aux_list$data$data_df <- (acc_sample / length(samples))
+      aux_list$data$data_df <- acc_sample / length(samples)
       M <- aux_list
 
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", 0, ".rds"))
-    setwd(dir_in)
+    saveRDS(M, file = file.path(dir_out, paste0("M", 0, ".rds")))
   }
 }
 
