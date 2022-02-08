@@ -75,9 +75,7 @@ All the samples for the working directory are going to be read and convert into 
 
 ```{r}
 # READING SAMPLES
-dir_in <- getwd()
-dir_out <- data
-gcims_read_samples(dir_in, dir_out, sftwr = 1)
+gcims_read_samples(dir_in = wd, dir_out = data, sftwr = 1)
 ```
 
 - Reading metadata: gcims_read_metadata
@@ -86,10 +84,9 @@ in the files
 
 ```{r}
 # READING METADATA
-dir_in <- data
 samples <- 1:24
 file <- "Metadata.xlsx"
-gcims_read_metadata(dir_in, samples, file)
+gcims_read_metadata(dir_in = data, samples, file)
 ```
 
 - Reshape sample: reshape_samples
@@ -98,10 +95,8 @@ making very complicated working with them.
 
 ```{r}
 # RESHAPE SAMPLES
-dir_in <- data
-dir_out <- reshaped
 samples <- 1:24
-gcims_reshape_samples(dir_in, dir_out, samples)
+gcims_reshape_samples(dir_in = data, dir_out = reshaped, samples)
 ```
 
 - Create reference: gcims_create_reference
@@ -109,11 +104,9 @@ A reference sample is created. This reference sample can be one selected sample,
 
 ```{r}
 # CREATE REFERENCE
-dir_in <- reshaped
-dir_out <- reshaped
 samples <- 1:24
 ref_number <- NULL
-gcims_create_reference (dir_in, dir_out, samples, ref_number)
+gcims_create_reference(dir_in = reshaped, dir_out = reshaped, samples, ref_number)
 ```
 
 - Cut samples: gcims_cut_samples
@@ -122,12 +115,10 @@ The sample cut can be performed at the beginning, but also at the end after all 
 
 ```{r}
 #SAMPLES CUT
-dir_in <- reshaped
-dir_out <- cut
 samples <- 1:24
 rt_range <- c(0, 850)
 dt_range <- c(7, 14)
-gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
+gcims_cut_samples(dir_in = reshaped, dir_out = cut, samples, rt_range, dt_range)
 ```
 
 Pre-Processing in Drift Time:
@@ -136,33 +127,27 @@ Pre-Processing in Drift Time:
 
 ```{r}
 # INTERPOLATING DRIFT TIME
-dir_in <- cut
-dir_out <- interpd
 samples <- 1:24
 time <- "Drift"
-gcims_interpolate(dir_in, dir_out, samples, time)
+gcims_interpolate(dir_in = cut, dir_out = interpd, samples, time)
 ```
 
 - Smoothing drift time: gcims_smoothing
 
 ```{r}
 # DRIFT TIME FILTERING
-dir_in <- interpd
-dir_out <- filtd
 time <- "Drift"
 samples <- 1:24
-gcims_smoothing(dir_in, dir_out, samples, time)
+gcims_smoothing(dir_in = interpd, dir_out = filtd, samples, time)
 ```
 
 - Drift time baseline removal: gcims_baseline_removal
 
 ```{r}
 # DRIFT TIME BASELINE REMOVAL
-dir_in <- filtd
-dir_out <- bslnd
 time <- "Drift"
 samples <- 1:24
-gcims_baseline_removal(dir_in, dir_out, samples, time)
+gcims_baseline_removal(dir_in = filtd, dir_out = bslnd, samples, time)
 ```
 
 - Drift time alignment: gcims_alignment
@@ -170,13 +155,11 @@ COW Algorithm
 
 ```{r}
 #ALIGNMENT DRIFT TIME
-dir_in <- bslnd
-dir_out <- alignd
 samples <- 1:24
 time <- "Drift"
 seg_vector <- seq(from = 10, to = 30, by = 5)
 slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
-gcims_alignment(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+gcims_alignment(dir_in = bslnd, dir_out = alignd, samples, time, seg_vector, slack_vector)
 ```
 
 
@@ -186,33 +169,27 @@ Pre-Processing in Retention Time:
 
 ```{r}
 # INTERPOLATING RETENTION TIME
-dir_in <- alignd
-dir_out <- interpr
 samples <- 1:24
 time <- "Retention"
-gcims_interpolate(dir_in, dir_out, samples, time)
+gcims_interpolate(dir_in = alignd, dir_out = interpr, samples, time)
 ```
 
 - Smoothing retention time: gcims_smoothing
 
 ```{r}
 # RETENTION TIME FILTERING
-dir_in <- interpr
-dir_out <- filtr
 time <- "Retention"
 samples <- 1:24
-gcims_smoothing(dir_in, dir_out, samples, time)
+gcims_smoothing(dir_in = interpr, dir_out = filtr, samples, time)
 ```
 
 - Retention time baseline removal: gcims_baseline_removal
 
 ```{r}
 # RETENTION TIME BASELINE REMOVAL
-dir_in <- filtr
-dir_out <- bslnr
 time <- "Retention"
 samples <- 1:24 
-gcims_baseline_removal(dir_in, dir_out, samples, time)
+gcims_baseline_removal(dir_in = filtr, dir_out = bslnr, samples, time)
 ```
 
 - Retention time alignment: gcims_alignment
@@ -220,11 +197,9 @@ PTW algorithm
 
 ```{r}
 #ALIGNMENT RETENTION TIME
-dir_in <- bslnr
-dir_out <- alignr
 samples <- 1:24
 time <- "Retention"
-gcims_alignment(dir_in, dir_out, samples, time)
+gcims_alignment(dir_in = bslnr, dir_out = alignr, samples, time)
 ```
 
 
@@ -238,7 +213,7 @@ sample_num <- 1:24
 rt_value <- NULL
 dt_range <- NULL
 dir_in <- alignr
-gcims_plot_spec(dir_in, sample_num, rt_value, dt_range, colorby = "Name")
+gcims_plot_spec(dir_in = alignr, sample_num, rt_value, dt_range, colorby = "Name")
 ```
 
 - Chromatograms visualization: gcims_plot_chrom
@@ -246,20 +221,18 @@ gcims_plot_spec(dir_in, sample_num, rt_value, dt_range, colorby = "Name")
 ```{r}
 # PLOT CHROMATOGRAMS
 sample_num <- 1:24
-dir_in <- alignr                          
 dt_value <- NULL
 rt_range <- NULL
-gcims_plot_chrom(dir_in, sample_num, dt_value, rt_range, colorby = "Name")
+gcims_plot_chrom(dir_in = alignr, sample_num, dt_value, rt_range, colorby = "Name")
 ```
 
 - Sample image visualization: gcims_view_sample
 
 ```{r}
 sample_num <- 1
-dir_in <- alignr                          
 dt_value <- NULL
 rt_range <- NULL
-gcims_view_sample(dir_in, sample_num, rt_value, dt_range)
+gcims_view_sample(dir_in = alignr, sample_num, rt_value, dt_range)
 ```
 
 Aligned data:
