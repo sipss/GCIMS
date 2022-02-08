@@ -101,6 +101,9 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
   print("/////////////////////////")
   print(" ")
 
+  if (!dir.exists(dir_out)) {
+    dir.create(dir_out, recursive = TRUE)
+  }
 
   if (time == "Drift"){
     Warping <- optimize_cow(dir_in, samples, time, seg_vector, slack_vector)
