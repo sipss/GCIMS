@@ -334,45 +334,38 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
   print(" ")
 
   dimensions <- list(NULL)
-  setwd(dir_in)
-  m = 0
-  for (i in samples){
-    m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
-    aux_string <- paste0("M", samples[m], ".rds")
-    aux_list <- readRDS(aux_string) #new
-    aux <- (as.matrix(aux_list$data$data_df)) #new
-    dimensions[[m]] <- dim(aux)
+  for (i in seq_along(samples)) {
+    print(paste0("Sample ", i, " of ", length(samples)))
+    aux_string <- paste0("M", samples[i], ".rds")
+    aux_list <- readRDS(file.path(dir_in, aux_string))
+    aux <- as.matrix(aux_list$data$data_df)
+    dimensions[[i]] <- dim(aux)
   }
 
   rts <- NULL
   dts <- NULL
-  m <-0
-  for (i in samples){
-    m <- m + 1
-    dts <- c(dts, dimensions[[m]][1])
-    rts <- c(rts, dimensions[[m]][2])
+  for (i in seq_along(samples)) {
+    dts <- c(dts, dimensions[[i]][1])
+    rts <- c(rts, dimensions[[i]][2])
   }
 
   rts <- min(rts)
   dts <- min(dts)
 
+  if (!dir.exists(dir_out)) {
+    dir.create(dir_out, recursive = TRUE)
+  }
 
-  m <- 0
-  for (i in samples){
-    m <- m + 1
+  for (i in seq_along(samples)) {
     print(paste0("Sample ", i, " of ", length(samples)))
-    aux_string <- paste0("M", samples[m], ".rds")
-    aux_list <- readRDS(aux_string) #new
-    aux <- (as.matrix(aux_list$data$data_df))
+    aux_string <- paste0("M", samples[i], ".rds")
+    aux_list <- readRDS(file.path(dir_in, aux_string))
+    aux <- as.matrix(aux_list$data$data_df)
     aux <- aux[1:dts, 1:rts]
     aux_list$data$data_df <- aux
     aux_list$data$retention_time <- aux_list$data$retention_time[1:rts]
     aux_list$data$drift_time <- aux_list$data$drift_time[1:dts]
-    M <- aux_list
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", samples[i], ".rds")))
   }
 }
 
