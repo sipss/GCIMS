@@ -93,8 +93,7 @@
 #' setwd(current_dir)
 #'}
 #'
-gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
-
+gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector) {
 
   print(" ")
   print("  /////////////////////////")
@@ -103,9 +102,8 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
   print(" ")
 
 
-  setwd(dir_in)
   if (time == "Drift"){
-    Warping <- optimize_cow(dir_in, dir_out, samples, time, seg_vector, slack_vector)
+    Warping <- optimize_cow(dir_in, samples, time, seg_vector, slack_vector)
   }
 
   m <- -1
@@ -116,29 +114,28 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
     }
 
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string))
 
 
     aux <- as.matrix(aux_list$data$data_df)
 
     if (i != 0){
-      if (time == "Drift"){
+      if (time == "Drift") {
         aux <- t(aux)
         aux <- apply_cow(aux, Warping[m, , ])
       } else if (time == "Retention"){
         aux_string <- paste0("M", 0, ".rds")
-        aux_list <- readRDS(aux_string) #new
+        aux_list <- readRDS(file.path(dir_in, aux_string))
         aux <- as.matrix(aux_list$data$data_df)
         logindx <- log(c(1:dim(aux)[2]))
-        reference <- apply(aux, 1, function(x) round(interp1(logindx, x, xi = logindx)))
+        reference <- apply(aux, 1, function(x) round(signal::interp1(logindx, x, xi = logindx)))
         aux_string <- paste0("M", i, ".rds")
-        aux_list <- readRDS(aux_string) #new
+        aux_list <- readRDS(file.path(dir_in, aux_string))
         aux <- as.matrix(aux_list$data$data_df)
         logindx <- log(c(1:dim(aux)[2]))
-        aux <- apply(aux, 1, function(x) round(interp1(logindx, x, xi = logindx)))
+        aux <- apply(aux, 1, function(x) round(signal::interp1(logindx, x, xi = logindx)))
         num_dt <- nrow(aux)
         num_ret_time <- ncol(aux)
-        timepad <- c(rep(NA, 500), aux_list$data$retention_time, rep(NA, 500))
         aux_with_zero_pad <- matrix(0, nrow = 1000 + num_dt, ncol =  num_ret_time)
         aux_with_zero_pad[501:(nrow(aux_with_zero_pad) - 500), ] <- aux
         aux_to_align <- aux_with_zero_pad
@@ -147,29 +144,20 @@ gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_ve
         aux_global_warp[is.na(aux_global_warp)] <- 0
         aux <- aux_global_warp
       }
-    } else {
     }
 
     if (i != 0){
       if (time == "Drift"){
         aux <- t(aux)
-      } else if (time == "Retention"){
       }
     }
     aux_list$data$data_df <- round(aux)
-    M <- aux_list
-
-
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 
 
-optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector){
-  setwd(dir_in)
-
+optimize_cow <- function(dir_in, samples, time, seg_vector, slack_vector){
   # Load a sample to know its length in the
   # direction of alignment (transpose if needed).
   # Create a matrix for storing the samples to
@@ -180,13 +168,12 @@ optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vecto
 
 
   aux_string <- paste0("M", samples[1], ".rds")
-  aux_list <- readRDS(aux_string) #new
+  aux_list <- readRDS(file.path(dir_in, aux_string))
   aux <- as.matrix(aux_list$data$data_df)
 
 
   if (time == "Drift"){
     aux <- t(aux)
-  } else if (time == "Retention"){
   }
 
   curves <- matrix(0, dim(aux)[2], length(samples) + 1)
@@ -200,7 +187,7 @@ optimize_cow <- function(dir_in, dir_out, samples, time, seg_vector, slack_vecto
   for (i in c(0, samples)){
     m <- m + 1
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- as.matrix(aux_list$data$data_df)
 
 
