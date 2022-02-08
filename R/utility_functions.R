@@ -96,7 +96,6 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #'   Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 #' @family Utility functions
 #' @export
-#' @importFrom signal interp1
 #' @examples
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
@@ -123,7 +122,6 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
   print("////////////////////////")
   print(" ")
 
-  setwd(dir_in)
   m = -1
   for (i in c(0, samples)){
     m = m + 1
@@ -131,7 +129,7 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
       print(paste0("Sample ", m, " of ", length(samples)))
     }
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- as.matrix(aux_list$data$data_df)
 
     if (time == "Retention"){
@@ -152,7 +150,7 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
     n <- dim(aux)[1]
 
     for (j in (1:n)){
-      aux[j, ] <- interp1(x, aux[j, ], xi, method = "linear", extrap = TRUE)
+      aux[j, ] <- signal::interp1(x, aux[j, ], xi, method = "linear", extrap = TRUE)
     }
 
     if (time == "Retention"){
@@ -164,9 +162,7 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 
     aux_list$data$data_df <- round(aux)
     M <- aux_list
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(M, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 
