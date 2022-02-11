@@ -449,3 +449,50 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
   print(p)
 }
 
+
+
+#' ROIs visualization
+
+
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param sample_num      Numeric. Sample whose ROIs you want to visualize
+#' @return An image were each ROIs is represenetd as a rectangle in grey.
+#' @family Visualization functions
+#' @references {
+#' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
+#'  }
+#' @export
+#' @importFrom dplyr mutate
+#' @importFrom magrittr '%>%'
+#' @importFrom reshape2 melt
+#' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
+#' @examples
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' sample_num <- 13
+#' gcims_view_ROIs(dir_in, sample_num)
+#' setwd(current_dir)
+#'
+gcims_view_ROIs <- function(dir_in, sample_num){
+  print(" ")
+  print("  ///////////////////////////////////")
+  print(" /    Sample ROIs Visualization    /")
+  print("///////////////////////////////////")
+  print(" ")
+
+  setwd(dir_in)
+  print(paste0("Visualizing sample ", sample_num))
+  aux_string <- paste0("M", sample_num, ".rds")
+  aux_list <- readRDS(aux_string) #new
+  aux <- (as.matrix(aux_list$data$data_df)) #new
+  ROIs <- as.data.frame(aux_list$data$ROIs)
+
+  p <- ggplot() +
+    geom_rect(data = ROIs, mapping = aes(xmin=minDT, xmax=maxDT, ymin=minRT, ymax=maxRT), color="black", alpha=0.5) +
+    xlim(0, dim(aux)[1]) +
+    ylim(0, dim(aux)[2])
+
+  print(p)
+}
+

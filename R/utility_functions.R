@@ -722,3 +722,121 @@ new_progress_bar <- function(...) {
   }
   progress::progress_bar$new(...)
 }
+
+
+#' Removes the Reactant Ion Peak (RIP) from samples
+
+#' @param dir_in          Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out         Output directory. Where RIP removed data files are
+#'   stored.
+#' @param samples         Numeric vector of integers. Identifies the set of
+#'   samples to which their RIP has to be removed.
+#' @details `gcims_figures_merit` calculates a set of figures of merit that
+#' are characteristic of each ROI of the sample..
+#' @return A Set of S3 objects.
+#' @family Utility functions
+#' @export
+#' @importFrom pracma findpeaks
+#' @examples
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- 1:5
+#' gcims_figures_merit <- function(dir_in, dir_out, samples)
+#'
+gcims_figures_merit <- function(dir_in, dir_out, samples){
+  print(" ")
+  print("  /////////////////////")
+  print("  / Figures of Merit  /")
+  print("  ////////////////////")
+  print(" ")
+
+  setwd(dir_in)
+  m = 0
+  for (i in samples){
+    m = m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(aux_string)
+    aux <- aux_list$data$data_df
+    ROIs <- as.data.frame(aux_list$data$ROIs)
+
+    AsF <- NULL
+    volume <- NULL
+    area <- NULL
+    rtmaxs <- NULL
+    dtmaxs <- NULL
+    saturation <- rep(0, length(labels))
+
+    # Search saturation regions
+    total_ion_spectrum <- rowSums(aux) # Sum per rows
+    rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
+    rt_idx_with_max_rip <- which.max(aux[rip_position,])
+    minima <- pracma::findpeaks(-total_ion_spectrum)[, 2] # Find local minima
+    rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
+    rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
+    rip_chrom <- rowSums(aux[rip_start_index: rip_end_index, ]) / length(rip_start_index: rip_end_index)
+    max_rip_chrom <- max(rip_chrom)
+    saturation_threshold <- 0.1 * max_rip_chrom
+
+    for (n in seq_along(dim(ROIs)[1])){
+
+      len_dt <- ROIs[n, 2] - ROIs[n, 1]
+      len_rt <- ROIs[n, 4] - ROIs[n, 3]
+
+      # roi area
+      area_roi <- len_rt * len_dt
+      area <- c(area, area_roi)
+
+      # roi volume
+      volume <- c(volume, sum(aux[R1[1]:R1[2], R1[3]:R1[4]]))
+
+      # roi center of mass
+      x_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs[n, 2] - ROIs[n, 1])) / volume[n])
+      y_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs[n, 4] - ROIs[n, 3])) / volume[n])
+      dt_mc <- ROIs[n, 1] + x_cm - 1 #min_dt
+      rt_mc <- ROIs[n, 3] + y_cm - 1 #min_rt
+      rtmaxs <- c(rtmaxs, y_cm)
+      dtmaxs <- c(dtmaxs, x_cm)
+
+
+      # roi asymmetries
+      half_down_area  <- length(1:y_cm) * len_rt
+      half_up_area    <- length(y_cm:len_dt) * len_rt
+      asymetry <- round(((half_down_area - half_up_area) / (area_roi)), 2)
+      AsF <- c(AsF, asymetry)
+
+      # roi saturation
+      saturation_regions <- which(rip_chrom <= saturation_threshold)
+      if (length(saturation_regions) == 0){
+        saturation_minima <- NULL
+      } else {
+        saturation_list <- split(saturation_regions, cumsum(c(1, diff(saturation_regions)) != 1))
+        saturation_minima <- matrix(0, length(saturation_list), 2)
+        for (k in seq_along(saturation_list)){
+          saturation_minima[k, ] <- c(min(saturation_list[[k]]), max(saturation_list[[k]]))
+        }
+      }
+
+
+      if (length(saturation_minima) == 0){
+        # No saturation. Do nothing
+      } else {
+        for (l in (1:dim(saturation_minima)[1])){
+          if ((saturation_minima[l, 1] < rt_mc)
+              & (saturation_minima[l, 2] > rt_mc)) {
+            saturation[n] <- 1
+            break
+          }
+        }
+      }
+    }
+  }
+
+  aux_list$data$Parameters <- rbind(rtmaxs, dtmaxs, AsF, saturation, area, volume)
+  setwd(dir_out)
+  M <- aux_list
+  saveRDS(M, file = paste0("M", i, ".rds"))
+  setwd(dir_in)
+}
