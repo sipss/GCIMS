@@ -638,12 +638,12 @@ findZeroCrossings <- function(x){
 #----------------------#
 
 overlapPercentage <- function(ROI1, ROI2){
-  x_left <- max(ROI1[3], ROI2[3])
-  y_top <- max(ROI1[1], ROI2[1])
-  x_right <- min(ROI1[4], ROI2[4])
-  y_bottom <- min(ROI1[2], ROI2[2])
+  x_left <- max(ROI1[1], ROI2[1])
+  y_top <- min(ROI1[4], ROI2[4])
+  x_right <- min(ROI1[2], ROI2[2])
+  y_bottom <- max(ROI1[3], ROI2[3])
 
-  if (!(x_right <= x_left | y_bottom <= y_top)){
+  if (x_right >= x_left | y_top >= y_bottom){
     area1 <- (ROI1[2] - ROI1[1])*(ROI1[4] - ROI1[3])
     area2 <- (ROI2[2] - ROI2[1])*(ROI2[4] - ROI2[3])
     overlapping_area <- (x_right - x_left)*(y_bottom - y_top)
