@@ -613,8 +613,29 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
 }
 
+# Compute Intersection Over Union (IoU)
 
+#' @param ROI1 First ROI with (ROI_minX,ROI_maxX, ROI_minY, ROI_maxY)
+#' @param ROI2 Second ROI with (ROI_minX,ROI_maxX, ROI_minY, ROI_maxY)
+#' @return The Intersection Over Union (IoU) metric.
 
+intersection_over_union <- function(ROI1,ROI2){
+  x_left = max(ROI1[1],ROI2[1])
+  y_top = max(ROI1[3],ROI2[3])
+  x_right = min(ROI1[2],ROI2[2])
+  y_bottom = min(ROI1[4],ROI2[4])
+
+  if (!(x_right < x_left || y_bottom < y_top)){
+    area1 = (ROI1[2]-ROI1[1])*(ROI1[4]-ROI1[3])
+    area2 = (ROI2[2]-ROI2[1])*(ROI2[4]-ROI2[3])
+    overlapping_area = (x_right - x_left)*(y_bottom - y_top)
+    p = overlapping_area / (area1 + area2 - overlapping_area)
+  }else{
+    p = 0
+  }
+
+  return(p)
+}
 
 #' Shifting
 
