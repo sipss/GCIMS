@@ -79,7 +79,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
     # quantile(daux)
     # quantile(daux, c(0.25, 0.75))
 
-    patch <- daux[100:200,2000:2100]
+    patch <- daux[4100:4200, 100:200]
     sigmaNoise <- stats::sd(patch)
 
     # tt <- aux < quantile(aux, 0.15)
@@ -138,7 +138,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
     # For loop that iterates through all the columns
     for(j in (1:dim(daux)[1])){
       # Find the max (peaks)
-      locs <- findpeaks(daux[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
+      locs <- findpeaksRois(daux[j, ], MinPeakHeight = noise_level*sigmaNoise, MinPeakDistance = 1)$loc
 
       # Find the zero-crossing points
       posdt <- findZeroCrossings(daux[j,])
@@ -170,24 +170,31 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
         c <- peaksdt[[col]]
         zeros_c <- zeros_dt[[col]]
 
-        if(length(intersect(row,c)) >= 1 & (col > rip_start_index)) {
+        if(length(intersect(row,c)) >= 1 & (col > rip_end_index)) {
           peaks <- rbind(peaks, c(row, col))
           minY <- zeros_c[1, c == row]
           maxY <- zeros_c[2, c == row]
 
-          minX <- zeros_columns[columns == col][1]
-          maxX <- zeros_columns[columns == col][2]
+          minX <- zeros_columns[1, columns == col]
+          maxX <- zeros_columns[2, columns == col]
 
           width <- abs(maxX[1] - minX[1])
           height <- abs(maxY[1] - minY[1])
 
           if (minX[1] != maxX[1] & minY[1] != maxY[1] & minX[1] < maxX[1] & minY[1] < maxY[1]){
+            # begindt <- minX[1] - round(0.5*width)
+            # beginrt <- minY[1] - round(0.5*height)
+            # endt <- maxX[1] + round(0.5*width)
+            # endrt <- maxY[1] + round(0.5*height)
+            # minX <- begindt*(begindt > 0) + 1
+            # maxX <- endt*(endt <= dim(aux)[1]) + (dim(aux)[1] *(endt > dim(aux)[1]))
+            # minY <- beginrt*(beginrt > 0) + 1
+            # maxY <- endrt*(endrt <= dim(aux)[2]) + (dim(aux)[1] *(endrt > dim(aux)[2]) )
             ROIs <- rbind(ROIs, c(minX[1], maxX[1], minY[1], maxY[1]))
           }
         }
       }
     }
-
 
     # Merging algorithm
 
@@ -211,11 +218,16 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
 
     ROIs_overlap <- NULL
     peaks_overlap <- NULL
-    uniqueness <- NULL
     labels <- unique(aff)
     AsF <- NULL
     volume <- NULL
+    area <- NULL
+    rtmaxs <- NULL
+    dtmaxs <- NULL
     saturation <- rep(0, length(labels))
+
+
+
 
     # Search saturation regions
     rip_chrom <- rowSums(aux[rip_start_index: rip_end_index, ]) / length(rip_start_index: rip_end_index)
@@ -224,12 +236,11 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
 
     for (n in seq_along(labels)){
       idx <- which(aff == labels[n])
-      uniqueness <- c(uniqueness, length(idx))
       R1 <- ROIs[idx[1], ]
       if (length(idx) > 1) {
         for (m in (2:length(idx))){
           R2 <- ROIs[idx[m], ]
-          R1 <- c(min(R1[1], R2[1]), max(R1[2], R2[2]), min(R1[3], R2[3]), max(R1[4], R2[4]))
+          R1 <- c(mean(R1[1], R2[1]), mean(R1[2], R2[2]), mean(R1[3], R2[3]), mean(R1[4], R2[4]))
         }
       }
 
@@ -247,24 +258,28 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
       len_rt <- ROIs_overlap[n, 4] - ROIs_overlap[n, 3]
 
       # roi area
-      area <- len_rt * len_dt
+      area_roi <- len_rt * len_dt
+      area <- c(area, area_roi)
 
       # roi volume
       volume <- c(volume, sum(aux[R1[1]:R1[2], R1[3]:R1[4]]))
 
       # roi center of mass
-      x_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs_overlap[n, 2] - ROIs_overlap[n, 1])) / volume[n])
-      y_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs_overlap[n, 4] - ROIs_overlap[n, 3])) / volume[n])
-      dt_mc <- ROIs_overlap[n, 1] + x_cm - 1 #min_dt
-      rt_mc <- ROIs_overlap[n, 3] + y_cm - 1 #min_rt
+      ind <- arrayInd(which.max(aux[R1[1]:R1[2], R1[3]:R1[4]]), dim(aux[R1[1]:R1[2], R1[3]:R1[4]]))
+      y_cm <- R1[1] + ind[1,1] - 1L
+      x_cm <- R1[3] + ind[1,2] - 1L
+      # x_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs_overlap[n, 2] - ROIs_overlap[n, 1])) / volume[n])
+      # y_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs_overlap[n, 4] - ROIs_overlap[n, 3])) / volume[n])
+      # dt_mc <- ROIs_overlap[n, 1] + x_cm - 1 #min_dt
+      # rt_mc <- ROIs_overlap[n, 3] + y_cm - 1 #min_rt
+      rtmaxs <- c(rtmaxs, y_cm)
+      dtmaxs <- c(dtmaxs, x_cm)
 
 
       # roi asymmetries
       half_down_area  <- length(1:y_cm) * len_rt
       half_up_area    <- length(y_cm:len_dt) * len_rt
-      half_left_area  <- len_dt * length(1:x_cm)
-      half_right_area <- len_dt * length(x_cm:len_rt)
-      asymetry <- round(((half_down_area - half_up_area) / (area)), 2)
+      asymetry <- round(((half_down_area - half_up_area) / (area_roi)), 2)
       AsF <- c(AsF, asymetry)
 
       saturation_regions <- which(rip_chrom <= saturation_threshold)
@@ -284,8 +299,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
         # No saturation. Do nothing
       } else {
         for (l in (1:dim(saturation_minima)[1])){
-          if ((saturation_minima[l, 1] < rt_mc)
-              & (saturation_minima[l, 2] > rt_mc)) {
+          if ((saturation_minima[l, 1] < y_cm)
+              & (saturation_minima[l, 2] > y_cm)) {
             saturation[n] <- 1
             break
           }
@@ -293,14 +308,18 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
       }
     }
 
-    colnames(ROIs_overlap) <- c("minRT", "maxRT", "minDT", "maxDT")
+    colnames(ROIs_overlap) <- c("minDT", "maxDT", "minRT", "maxRT")
+    dim(ROIs_overlap)
 
     aux_list$data$data_df <- round(aux)
     aux_list$data$ROIs <- ROIs_overlap
     aux_list$data$Peaks <- peaks_overlap
-    aux_list$data$Parameters <- rbind(AsF, saturation, uniqueness, volume)
-    M <- aux_list
+    aux_list$data$Parameters <- rbind(AsF, saturation, volume)
+    peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmaxs, rtmaxs, ROIs_overlap, area, volume, AsF, saturation)
+    colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT", "Area", "Volume", "AsF", "Saturation")
     setwd(dir_out)
+    write.csv(peaktable, file = paste0("PeakTable", i, ".csv"))
+    M <- aux_list
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
   }
@@ -686,12 +705,12 @@ findZeroCrossings <- function(x){
 #----------------------#
 
 overlapPercentage <- function(ROI1, ROI2){
-  x_left <- max(ROI1[3], ROI2[3])
-  y_top <- max(ROI1[1], ROI2[1])
-  x_right <- min(ROI1[4], ROI2[4])
-  y_bottom <- min(ROI1[2], ROI2[2])
+  x_left <- max(ROI1[1], ROI2[1])
+  y_top <- min(ROI1[4], ROI2[4])
+  x_right <- min(ROI1[2], ROI2[2])
+  y_bottom <- max(ROI1[3], ROI2[3])
 
-  if (!(x_right <= x_left | y_bottom <= y_top)){
+  if (x_right >= x_left | y_top >= y_bottom){
     area1 <- (ROI1[2] - ROI1[1])*(ROI1[4] - ROI1[3])
     area2 <- (ROI2[2] - ROI2[1])*(ROI2[4] - ROI2[3])
     overlapping_area <- (x_right - x_left)*(y_bottom - y_top)
@@ -735,130 +754,85 @@ compute_integral2 <- function(data){
   return(I)
 }
 
+#' Find Peaks according to a minimum peaks distance and peak height
+#' @noRd
+#'
+#' @param MinPeakDistance Minimum value for the ditsance between peaks
+#' @param MinPeakHeight Minimum value at which peaks have to be detected
+#'
+#' @return A data frame with two columns corresponding to:
+#'  - pks: the intensity of the peak
+#'  - loc: the peak position
+#'
 
-gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL){
+findpeaksRois <- function (data, MinPeakDistance = 1, MinPeakHeight = 1) {
+  ld <- length(data)
+  tmp <- data
 
-  Retention_Time <- Drift_Time <- Value <- NULL
-
-  print(" ")
-  print("  ///////////////////////////////////")
-  print(" /    Sample ROIs Visualization    /")
-  print("///////////////////////////////////")
-  print(" ")
-
-  setwd(dir_in)
-  print(paste0("Visualizing sample ", sample_num))
-  aux_string <- paste0("M", sample_num, ".rds")
-  aux_list <- readRDS(aux_string) #new
-  aux <- (as.matrix(aux_list$data$data_df)) #new
-  ROIs <- aux_list$data$ROIs
-  colnames(ROIs) <- c("dt1", "dt2", "rt1", "rt2")
-
-  #SOME CHECKS
-  retention_time <- aux_list$data$retention_time
-  drift_time <- aux_list$data$drift_time
-  cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
-  cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
-  cond_1_dt <-(dt_range[1] - drift_time[1]) < 0
-  cond_2_dt <-(dt_range[2] - drift_time[length(drift_time)]) > 0
-
-
-  if(is.null(rt_range)){# old
-    rt_ind <- c(1, dim(aux)[2]) #New
-
-  } else{
-    if(cond_1_rt | cond_2_rt){
-      stop("Retention time range out of bounds.")
+  df1 <- diff(data, differences = 1)[c(1, 1:(ld - 1))]
+  df2 <- diff(data, differences = 2)[c(1, 1, 1:(ld - 2))]
+  idx <- which(df1 * c(df1[2:length(df1)], 0) <= 0 & c(df2[2:length(df2)], 0) < 0)
+  max_ind <- which(data[idx] > MinPeakHeight)
+  idx <- idx[max_ind]
+  if (length(idx) > 0) {
+    tmp <- sort(data[idx], decreasing = TRUE, index = TRUE)
+    idx_s <- idx[tmp$ix]
+    D <- with(expand.grid(A = idx_s, B = t(idx_s)), abs(A - B))
+    dim(D) <- c(length(idx_s), length(idx_s))
+    if (dim(D)[1] > 1){
+      diag(D) <- NA
     }
-    rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2])))
-    if( rt_ind[1] == rt_ind[2]){
-      stop("Initial and Final retention time values can't be equal in the variable rt_range.")
-    }##New
-  }
-
-
-
-  if(is.null(dt_range)){# old
-    dt_ind <- c(1, dim(aux)[1]) #New
-  } else{
-    if(cond_1_dt | cond_2_dt){
-      stop("Drift time range out of bounds.")
+    if (any(D) < MinPeakDistance) {
+      i <- 1
+      pointsmax <- seq_along(idx_s)
+      checked <- NULL
+      idx_pruned <- idx_s
+      while (length(pointsmax) > 0) {
+        d <- D[pointsmax[1], ]
+        checked <- c(checked, pointsmax[1])
+        pointsmax <- pointsmax[-1]
+        remains <- setdiff(which(d < MinPeakDistance), checked)
+        if (length(remains) > 0) {
+          idx_pruned <- setdiff(idx_pruned, idx_s[remains])
+          checked <- c(checked, remains)
+          pointsmax <- setdiff(pointsmax, checked)
+        }
+      }
+      idx <- idx_pruned
     }
-    dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2]))) #New
-    if( dt_ind[1] == dt_ind[2]){
-      stop("Initial and Final drift time values can't be equal in the variable dt_range.")
-    }#
-  }
 
-  sel_index_rt <- rt_ind[1]: rt_ind[2]
-  sel_index_dt <- dt_ind[1]: dt_ind[2]
+    idx <- sort(idx)
+    idx.pruned <- idx
+    n <- length(idx)
+    for (i in 1:n) {
+      ind <- round(max(idx[i] - MinPeakDistance/2, 1)):round(min(idx[i] + MinPeakDistance/2, ld))
+      pp <- rep(0L, 3)
+      H <- data[idx[i]]
+      xm <- idx[i]
+      pp <- rep(1L, 3)
+      pp[1] <- pracma::mldivide((ind - xm)^2, (data[ind] - H))
+      pp[2] <- -2 * pp[1] * xm
+      pp[3] <- H + pp[1] * xm^2
+      sigma <- sqrt(abs(1/(2*pp[3])))
+      if (abs(pp[1]) > 0){
+        width <- exp(abs(pp[1]) + abs(pp[2])*sigma^2^2/(2*sigma^2))
+      } else {
+        width <- exp(1 + 1*sigma^2^2/(2*sigma^2))
+      }
+      MinPeakWidth <- (H/2 - 15)
+      MaxPeakWidth <- (H/2 + 20)
+      if ((width > MaxPeakWidth || width < MinPeakWidth) ||
+          pp[1] > 0 || H < MinPeakHeight || data[idx[i]] < H ||
+          abs(idx[i] - xm) > MinPeakDistance/2) {
+        idx.pruned <- setdiff(idx.pruned, idx[i])
+      }
+    }
 
-  if(is.null(rt_range)){
-
-  } else if (methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+    idx <- idx.pruned
+    pks <- data[idx]
+    list(pks = pks, loc = idx)
   } else {
-    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
+    list(pks = NULL, loc = NULL)
   }
-
-  if(is.null(dt_range)){
-
-  } else if (methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
-  } else {
-    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
-  }
-
-  retention_time <- retention_time[sel_index_rt]
-  drift_time <- drift_time[sel_index_dt]
-
-  aux <- aux[sel_index_dt, sel_index_rt]#old
-  rownames(aux) <- round(drift_time, digits = 2) #old
-  colnames(aux) <- retention_time
-
-  moltaux <- melt((aux))
-  colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
-
-  ROIsTime <- matrix(NA, nrow = dim(ROIs)[1], ncol = 4)
-  moltaux$ROIsmoltxmin <- rep(NA, dim(moltaux)[1])
-  moltaux$ROIsmoltxmax <- rep(NA, dim(moltaux)[1])
-  moltaux$ROIsmoltymin <- rep(NA, dim(moltaux)[1])
-  moltaux$ROIsmoltymax <- rep(NA, dim(moltaux)[1])
-
-  for (j in (1:dim(ROIsTime)[1])) {
-    dt <- drift_time[2] - drift_time [1]
-    rt <- retention_time[2] - retention_time[1]
-    ROIsTime[,1:2] <- round(ROIs[,1:2] * rt, digits = 2)
-    ROIsTime[,3:4] <- round((ROIs[,3:4] * dt) + 6, digits = 2)
-
-    moltaux[which(moltaux[,2] == ROIsTime[j, 1]), "ROIsmoltxmin"] <- ROIsTime[j, 1]
-    moltaux[which(moltaux[,2] == ROIsTime[j, 2]), "ROIsmoltxmax"] <- ROIsTime[j, 2]
-    moltaux[which(moltaux[,1] == ROIsTime[j, 3]), "ROIsmoltymin"] <- ROIsTime[j, 3]
-    moltaux[which(moltaux[,1] == ROIsTime[j, 4]), "ROIsmoltymax"] <- ROIsTime[j, 4]
-  }
-
-  #We do this in order to plot the data using geom_raster that is faster than geom_tile
-  #perhaps a previous interpolation is needed to avoid this patch:
-  rep_dt_index <- rep(seq(from = 1, to = dim(aux)[1], by = 1), times = dim(aux)[2])
-  # drift_time_period <- mean(diff(drift_time))
-  # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
-  # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
-  moltaux$Drift_Time <- drift_time[rep_dt_index]
-  tt <- stats::na.omit(moltaux)
-  tt <- tt[,-c(1:3)]
-
-  rm(aux, aux_string)
-
-  p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
-    geom_raster(interpolate = FALSE) +
-    scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
-    theme_minimal()
-  # labs(x="Drift Time (ms)",
-  #      y="Retention Time (s)",
-  #      title = "Sample Matrix Image",
-  #      fill = "Intensity") +
-
-  #p +
-  #  geom_rect(data=d, mapping=aes(xmin=dt1, xmax=dt2, ymin=rt1, ymax=rt2), color="black", alpha=0.5)
-
-  print(p)
 }
 
