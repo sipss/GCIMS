@@ -240,7 +240,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
       if (length(idx) > 1) {
         for (m in (2:length(idx))){
           R2 <- ROIs[idx[m], ]
-          R1 <- c(mean(R1[1], R2[1]), mean(R1[2], R2[2]), mean(R1[3], R2[3]), mean(R1[4], R2[4]))
+          R1 <- c(min(R1[1], R2[1]), max(R1[2], R2[2]), min(R1[3], R2[3]), max(R1[4], R2[4]))
         }
       }
 
