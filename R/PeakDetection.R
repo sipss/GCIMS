@@ -215,7 +215,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
       }
     }
 
-
+    colnames(ROIs) <- c("minDT", "maxDT", "minRT", "maxRT")
     ROIs_overlap <- NULL
     peaks_overlap <- NULL
     labels <- unique(aff)
@@ -240,13 +240,14 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
       if (length(idx) > 1) {
         for (m in (2:length(idx))){
           R2 <- ROIs[idx[m], ]
-          R1 <- c(min(R1[1], R2[1]), max(R1[2], R2[2]), min(R1[3], R2[3]), max(R1[4], R2[4]))
+          R1 <- c(min(R1["minDT"], R2["minDT"]), max(R1["maxDT"], R2["maxDT"]),
+                  min(R1["minRT"], R2["minRT"]), max(R1["maxRT"], R2["maxRT"]))
         }
       }
 
       ROIs_overlap <- rbind(ROIs_overlap, R1)
 
-      patch <- aux[R1[1]:R1[2], R1[3]:R1[4]]
+      patch <- aux[R1["minDT"]:R1["maxDT"], R1["minRT"]:R1["maxRT"]]
       idx <- which.max(patch)
       r <- ((idx-1) %% nrow(aux)) + 1 # retention = y
       c <- floor((idx-1) / nrow(aux)) + 1 # drift = x
@@ -262,10 +263,11 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
       area <- c(area, area_roi)
 
       # roi volume
-      volume <- c(volume, sum(aux[R1[1]:R1[2], R1[3]:R1[4]]))
+      volume <- c(volume, sum(aux[R1["minDT"]:R1["maxDT"], R1["minRT"]:R1["maxRT"]]))
 
       # roi center of mass
-      ind <- arrayInd(which.max(aux[R1[1]:R1[2], R1[3]:R1[4]]), dim(aux[R1[1]:R1[2], R1[3]:R1[4]]))
+      ind <- arrayInd(which.max(aux[R1["minDT"]:R1["maxDT"], R1["minRT"]:R1["maxRT"]]),
+                      dim(aux[R1["minDT"]:R1["maxDT"], R1["minRT"]:R1["maxRT"]]))
       y_cm <- R1[1] + ind[1,1] - 1L
       x_cm <- R1[3] + ind[1,2] - 1L
       # x_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs_overlap[n, 2] - ROIs_overlap[n, 1])) / volume[n])
@@ -309,7 +311,6 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
     }
 
     colnames(ROIs_overlap) <- c("minDT", "maxDT", "minRT", "maxRT")
-    dim(ROIs_overlap)
 
     aux_list$data$data_df <- round(aux)
     aux_list$data$ROIs <- ROIs_overlap
