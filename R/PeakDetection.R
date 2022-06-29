@@ -111,10 +111,10 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
     for (j in seq_len(num_ims_spectra)) {
       # Find the max (peaks)
       #locs <- findpeaks(daux[,j], minpeakheight  = noise_level*sigmaNoise,'WidthReference','halfheight', minpeakdistance  = 4*f.c1*fs)
-      locs <- findpeaks(daux[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
+      locs <- findpeaks(ddt[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
 
       # Find the zero-crossing points
-      posrt <- findZeroCrossings(daux[,j])
+      posrt <- findZeroCrossings(ddt[,j])
       tmp <- NULL
       locs_tmp <- NULL
       for (k in seq_along(locs)){
@@ -138,10 +138,10 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level=3){
     # For loop that iterates through all the columns
     for(j in (1:dim(daux)[1])){
       # Find the max (peaks)
-      locs <- findpeaks(daux[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
+      locs <- findpeaks(t(drt)[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
 
       # Find the zero-crossing points
-      posdt <- findZeroCrossings(daux[j,])
+      posdt <- findZeroCrossings(t(drt)[j,])
       tmp <- NULL
       locs_tmp <- NULL
       for (k in seq_along(locs)){
