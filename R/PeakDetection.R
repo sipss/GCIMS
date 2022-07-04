@@ -735,17 +735,21 @@ findZeroCrossings <- function(x){
 #   overlapPercentage  #
 #----------------------#
 
-overlapPercentage <- function(ROI1, ROI2){
-  x_left <- max(ROI1[1], ROI2[1])
-  y_top <- min(ROI1[4], ROI2[4])
-  x_right <- min(ROI1[2], ROI2[2])
-  y_bottom <- max(ROI1[3], ROI2[3])
 
-  if (x_right >= x_left | y_top >= y_bottom){
+overlapPercentage <- function(ROI1, ROI2){
+  if (!(ROI1[1] >= ROI2[2] | ROI1[2] <= ROI2[1] | ROI1[3] >= ROI2[4] | ROI1[4] <= ROI2[3])){
     area1 <- (ROI1[2] - ROI1[1])*(ROI1[4] - ROI1[3])
     area2 <- (ROI2[2] - ROI2[1])*(ROI2[4] - ROI2[3])
-    overlapping_area <- (x_right - x_left)*(y_bottom - y_top)
-    p <- overlapping_area / (area1 + area2 - overlapping_area)
+    x_left <- max(ROI1[1], ROI2[1])
+    y_top <- min(ROI1[4], ROI2[4])
+    x_right <- min(ROI1[2], ROI2[2])
+    y_bottom <- max(ROI1[3], ROI2[3])
+    overlapping_area <- (x_right - x_left)*(y_top - y_bottom)
+    if (area1 == overlapping_area | area2 == overlapping_area){
+      p <- 1
+    } else {
+      p <- overlapping_area / (area1 + area2 - overlapping_area)
+    }
   } else {
     p <- 0
   }
@@ -863,130 +867,3 @@ findpeaksRois <- function (data, MinPeakDistance = 1, MinPeakHeight = 1) {
 }
 
 
-
-
-gcims_view_ROIs <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL){
-
-  Retention_Time <- Drift_Time <- Value <- NULL
-
-  print(" ")
-  print("  ///////////////////////////////////")
-  print(" /    Sample ROIs Visualization    /")
-  print("///////////////////////////////////")
-  print(" ")
-
-  setwd(dir_in)
-  print(paste0("Visualizing sample ", sample_num))
-  aux_string <- paste0("M", sample_num, ".rds")
-  aux_list <- readRDS(aux_string) #new
-  aux <- (as.matrix(aux_list$data$data_df)) #new
-  ROIs <- aux_list$data$ROIs
-  colnames(ROIs) <- c("dt1", "dt2", "rt1", "rt2")
-
-  #SOME CHECKS
-  retention_time <- aux_list$data$retention_time
-  drift_time <- aux_list$data$drift_time
-  cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
-  cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
-  cond_1_dt <-(dt_range[1] - drift_time[1]) < 0
-  cond_2_dt <-(dt_range[2] - drift_time[length(drift_time)]) > 0
-
-
-  if(is.null(rt_range)){# old
-    rt_ind <- c(1, dim(aux)[2]) #New
-
-  } else{
-    if(cond_1_rt | cond_2_rt){
-      stop("Retention time range out of bounds.")
-    }
-    rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2])))
-    if( rt_ind[1] == rt_ind[2]){
-      stop("Initial and Final retention time values can't be equal in the variable rt_range.")
-    }##New
-  }
-
-
-
-  if(is.null(dt_range)){# old
-    dt_ind <- c(1, dim(aux)[1]) #New
-  } else{
-    if(cond_1_dt | cond_2_dt){
-      stop("Drift time range out of bounds.")
-    }
-    dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2]))) #New
-    if( dt_ind[1] == dt_ind[2]){
-      stop("Initial and Final drift time values can't be equal in the variable dt_range.")
-    }#
-  }
-
-  sel_index_rt <- rt_ind[1]: rt_ind[2]
-  sel_index_dt <- dt_ind[1]: dt_ind[2]
-
-  if(is.null(rt_range)){
-
-  } else if (methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
-  } else {
-    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
-  }
-
-  if(is.null(dt_range)){
-
-  } else if (methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
-  } else {
-    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
-  }
-
-  retention_time <- retention_time[sel_index_rt]
-  drift_time <- drift_time[sel_index_dt]
-
-  aux <- aux[sel_index_dt, sel_index_rt]#old
-  rownames(aux) <- round(drift_time, digits = 2) #old
-  colnames(aux) <- retention_time
-
-  moltaux <- melt((aux))
-  colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
-
-  ROIsTime <- matrix(NA, nrow = dim(ROIs)[1], ncol = 4)
-  moltaux$ROIsmoltxmin <- rep(NA, dim(moltaux)[1])
-  moltaux$ROIsmoltxmax <- rep(NA, dim(moltaux)[1])
-  moltaux$ROIsmoltymin <- rep(NA, dim(moltaux)[1])
-  moltaux$ROIsmoltymax <- rep(NA, dim(moltaux)[1])
-
-  for (j in (1:dim(ROIsTime)[1])) {
-    dt <- drift_time[2] - drift_time [1]
-    rt <- retention_time[2] - retention_time[1]
-    ROIsTime[,1:2] <- round(ROIs[,1:2] * rt, digits = 2)
-    ROIsTime[,3:4] <- round((ROIs[,3:4] * dt) + 6, digits = 2)
-
-    moltaux[which(moltaux[,2] == ROIsTime[j, 1]), "ROIsmoltxmin"] <- ROIsTime[j, 1]
-    moltaux[which(moltaux[,2] == ROIsTime[j, 2]), "ROIsmoltxmax"] <- ROIsTime[j, 2]
-    moltaux[which(moltaux[,1] == ROIsTime[j, 3]), "ROIsmoltymin"] <- ROIsTime[j, 3]
-    moltaux[which(moltaux[,1] == ROIsTime[j, 4]), "ROIsmoltymax"] <- ROIsTime[j, 4]
-  }
-
-  #We do this in order to plot the data using geom_raster that is faster than geom_tile
-  #perhaps a previous interpolation is needed to avoid this patch:
-  rep_dt_index <- rep(seq(from = 1, to = dim(aux)[1], by = 1), times = dim(aux)[2])
-  # drift_time_period <- mean(diff(drift_time))
-  # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
-  # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
-  moltaux$Drift_Time <- drift_time[rep_dt_index]
-  tt <- stats::na.omit(moltaux)
-  tt <- tt[,-c(1:3)]
-
-  rm(aux, aux_string)
-
-  p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
-    geom_raster(interpolate = FALSE) +
-    scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
-    theme_minimal()
-  # labs(x="Drift Time (ms)",
-  #      y="Retention Time (s)",
-  #      title = "Sample Matrix Image",
-  #      fill = "Intensity") +
-
-  #p +
-  #  geom_rect(data=d, mapping=aes(xmin=dt1, xmax=dt2, ymin=rt1, ymax=rt2), color="black", alpha=0.5)
-
-  print(p)
-}
