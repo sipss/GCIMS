@@ -183,14 +183,6 @@ samples <- 1:24
 gcims_smoothing(dir_in = interpr, dir_out = filtr, samples, time)
 ```
 
-- Retention time baseline removal: gcims_baseline_removal
-
-```{r}
-# RETENTION TIME BASELINE REMOVAL
-time <- "Retention"
-samples <- 1:24 
-gcims_baseline_removal(dir_in = filtr, dir_out = bslnr, samples, time)
-```
 
 - Retention time alignment: gcims_alignment
 PTW algorithm
@@ -229,6 +221,7 @@ gcims_plot_chrom(dir_in = alignr, sample_num, dt_value, rt_range, colorby = "Nam
 - Sample image visualization: gcims_view_sample
 
 ```{r}
+# SAMPLE VISUALIZATION
 sample_num <- 1
 dt_value <- NULL
 rt_range <- NULL
@@ -237,4 +230,11 @@ gcims_view_sample(dir_in = alignr, sample_num, rt_value, dt_range)
 
 Aligned data:
 
-- ROIs detection à gcims_rois_selection
+- ROIs detection: gcims_rois_selection
+
+```{r}
+# ROIs DETECTION
+samples <- c(3, 8, 13, 5, 6, 9)
+noise_level <- 3
+gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, noise_level)
+```
