@@ -587,3 +587,40 @@ InterpCoeff <- function(n,nprime,offs) {
   }
   return(list(Coeff = Coeff, Index = Index))
 }
+
+#' Multiplicative correction to the drift time axis
+#'
+#' This spectra alignment function computes the largest peak from
+#' each spectrum, assuming it corresponds to the Reactant Ion Peak.
+#' Then it computes the median RIP position of all the samples and
+#' corrects the drift time for each sample.
+#' The correction is multiplicative, meaning:
+#' drift_time_corr = Kcorr * drift_time
+#'
+#' Changes in pressure and temperature during measurements may lead to
+#' correction factors up to [0.9, 1.1].
+#'
+#' This alignment technique can be used when the pressure and temperature
+#' measurements are not available.
+#'
+#' @param spectra            Matrix with one spectra per row to be aligned
+#' @param drift_time         Numerical vector as with length equal to ncol(spectra)
+#' @param drift_time_rip_ref A function that will take the drift times of the RIP for each spectra
+#'                           and returns the expected RIP drift time (default: median).
+#'                           It can also be the theoretical drift time position.
+#'
+align_rip <- function(spectra, drift_time, drift_time_rip_ref=stats::median) {
+  rip_position <- apply(spectra, MARGIN = 1, which.max)
+  dt_rip_position <- drift_time[rip_position]
+  if (is.function(drift_time_rip_ref)) {
+    drift_time_rip_ref <- drift_time_rip_ref(dt_rip_position)
+  }
+  drift_time_rip_ref_pos <- which.min(abs(drift_time - drift_time_rip_ref))
+  Kcorr <- drift_time_rip_ref_pos/rip_position
+  drift_time_corr <- matrix(Kcorr, ncol = 1) %*% matrix(drift_time, ncol = length(drift_time), byrow = TRUE)
+  spectra_corr <- 0*spectra
+  for (i in seq_len(nrow(spectra))) {
+    spectra_corr[i,] <- signal::interp1(drift_time_corr[i,], spectra[i, ], drift_time)
+  }
+  return(list(corrected = spectra_corr, drift_time_corr = drift_time_corr, Kcorr = Kcorr))
+}
