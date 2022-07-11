@@ -18,8 +18,6 @@ GCIMSSample(...)
 }
 \value{
 A GCIMSSample object
-
-
 }
 \description{
 GCIMS Sample is an S4 class to store one sample

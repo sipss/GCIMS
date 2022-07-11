@@ -4,7 +4,7 @@
 \alias{gcims_rois_selection}
 \title{ROIs Selection}
 \usage{
-gcims_rois_selection(dir_in, dir_out, samples, noise_level = 3)
+gcims_rois_selection(dir_in, dir_out, samples, noise_level)
 }
 \arguments{
 \item{dir_in}{Input directory. Where input data files are loaded

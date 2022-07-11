@@ -9,6 +9,8 @@
 #'   complete retention time range is used. NULL by default.
 #' @param dt_range        Min and Max drift time values. If NULL the complete
 #'   drift time range is used. NULL by default.
+#' @param transform       Boolean. IF TRUE, performs the cubic root of data to
+#'   enhance image contrast. FALSE by default.
 #' @return An image of selected data sample.
 #' @details `gcims_view_sample` uses represents gcims data as a raster. In
 #'   this plot, retention time increases along the y-axis from down to up, while
@@ -35,105 +37,120 @@
 #' gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
 #' setwd(current_dir)
 #'
-gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL){
+gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL, transform = FALSE){
 
-  Retention_Time <- Drift_Time <- Value <- NULL
+    Retention_Time <- Drift_Time <- Value <- NULL
 
-  print(" ")
-  print("  /////////////////////////////////////")
-  print(" /    Sample Matrix Visualization    /")
-  print("/////////////////////////////////////")
-  print(" ")
+    print(" ")
+    print("  /////////////////////////////////////")
+    print(" /    Sample Matrix Visualization    /")
+    print("/////////////////////////////////////")
+    print(" ")
 
-  setwd(dir_in)
-  print(paste0("Visualizing sample ", sample_num))
-  aux_string <- paste0("M", sample_num, ".rds")
-  aux_list <- readRDS(aux_string) #new
-  aux <- (as.matrix(aux_list$data$data_df)) #new
+    setwd(dir_in)
+    print(paste0("Visualizing sample ", sample_num))
+    aux_string <- paste0("M", sample_num, ".rds")
+    aux_list <- readRDS(aux_string) #new
+    aux <- (as.matrix(aux_list$data$data_df)) #new
 
-  #SOME CHECKS
-  retention_time <- aux_list$data$retention_time
-  drift_time <- aux_list$data$drift_time
-  cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
-  cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
-  cond_1_dt <-(dt_range[1] - drift_time[1]) < 0
-  cond_2_dt <-(dt_range[2] - drift_time[length(drift_time)]) > 0
+    #SOME CHECKS
+    retention_time <- aux_list$data$retention_time
+    drift_time <- aux_list$data$drift_time
+    cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
+    cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
+    cond_1_dt <-(dt_range[1] - drift_time[1]) < 0
+    cond_2_dt <-(dt_range[2] - drift_time[length(drift_time)]) > 0
 
 
-  if(is.null(rt_range)){# old
-    rt_ind <- c(1, dim(aux)[2]) #New
+    if(is.null(rt_range)){# old
+      rt_ind <- c(1, dim(aux)[2]) #New
 
-  } else{
-    if(cond_1_rt | cond_2_rt){
-      stop("Retention time range out of bounds.")
+    } else{
+      if(cond_1_rt | cond_2_rt){
+        stop("Retention time range out of bounds.")
+      }
+      rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2])))
+      if( rt_ind[1] == rt_ind[2]){
+        stop("Initial and Final retention time values can't be equal in the variable rt_range.")
+      }##New
     }
-    rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2])))
-    if( rt_ind[1] == rt_ind[2]){
-      stop("Initial and Final retention time values can't be equal in the variable rt_range.")
-    }##New
-  }
 
 
 
-  if(is.null(dt_range)){# old
-    dt_ind <- c(1, dim(aux)[1]) #New
-  } else{
-    if(cond_1_dt | cond_2_dt){
-      stop("Drift time range out of bounds.")
+    if(is.null(dt_range)){# old
+      dt_ind <- c(1, dim(aux)[1]) #New
+    } else{
+      if(cond_1_dt | cond_2_dt){
+        stop("Drift time range out of bounds.")
+      }
+      dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2]))) #New
+      if( dt_ind[1] == dt_ind[2]){
+        stop("Initial and Final drift time values can't be equal in the variable dt_range.")
+      }#
     }
-    dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2]))) #New
-    if( dt_ind[1] == dt_ind[2]){
-      stop("Initial and Final drift time values can't be equal in the variable dt_range.")
-    }#
+
+    sel_index_rt <- rt_ind[1]: rt_ind[2]
+    sel_index_dt <- dt_ind[1]: dt_ind[2]
+
+    if(is.null(rt_range)){
+
+    } else if(methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
+    } else {
+      stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
+    }
+
+    if(is.null(dt_range)){
+
+    } else if(methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
+    } else {
+      stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
+    }
+
+    if(is.logical(transform)){
+    }else{
+      stop("This variable must be boolean")
+    }
+
+    retention_time <- retention_time[sel_index_rt]
+    drift_time <- drift_time[sel_index_dt]
+
+    aux <- aux[sel_index_dt, sel_index_rt]#old
+
+    #scale intensinty
+    if(transform == TRUE){
+      aux <- (aux)^(1/3)
+      i_label <- parse(text="Intensity^(1/3)")
+    } else {
+      i_label <- "Intensity"
+    }
+
+
+    rownames(aux) <- drift_time #old
+    colnames(aux) <- retention_time
+
+    moltaux <- melt((aux))
+    colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
+
+
+    #We do this in order to plot the data using geom_raster that is faster than geom_tile
+    #perhaps a previous interpolation is needed to avoid this patch:
+    rep_dt_index <- rep(seq(from = 1, to = dim(aux)[1], by = 1), times = dim(aux)[2])
+    # drift_time_period <- mean(diff(drift_time))
+    # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
+    # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
+    moltaux$Drift_Time <- drift_time[rep_dt_index]
+
+    rm(aux, aux_string)
+    p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
+      geom_raster(interpolate = FALSE) +
+      scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
+      labs(x="Drift Time (ms)",
+           y="Retention Time (s)",
+           title = "Sample Matrix Image",
+           fill = i_label) +
+      theme_minimal()
+    suppressWarnings(print(p))
   }
-
-  sel_index_rt <- rt_ind[1]: rt_ind[2]
-  sel_index_dt <- dt_ind[1]: dt_ind[2]
-
-  if(is.null(rt_range)){
-
-  } else if(methods::is(sel_index_rt, "integer") & (sel_index_rt[2] > sel_index_rt[1])){
-  } else {
-    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided retention time range is not an integer vector, 2) or rt_range[2] <= rt_range[1])")
-  }
-
-  if(is.null(dt_range)){
-
-  } else if(methods::is(sel_index_dt, "integer") & (sel_index_dt[2] > sel_index_dt[1])){
-  } else {
-    stop("Possible errors: 1) The selected vector of indexes corresponding to the provided drift time range is not an integer vector, 2) or dt_range[2] <= dt_range[1])")
-  }
-
-  retention_time <- retention_time[sel_index_rt]
-  drift_time <- drift_time[sel_index_dt]
-
-  aux <- aux[sel_index_dt, sel_index_rt]#old
-  rownames(aux) <- drift_time #old
-  colnames(aux) <- retention_time
-
-  moltaux <- melt((aux))
-  colnames(moltaux) <- c("Drift_Time", "Retention_Time", "Value")
-
-
-  #We do this in order to plot the data using geom_raster that is faster than geom_tile
-  #perhaps a previous interpolation is needed to avoid this patch:
-   rep_dt_index <- rep(seq(from = 1, to = dim(aux)[1], by = 1), times = dim(aux)[2])
-  # drift_time_period <- mean(diff(drift_time))
-  # corr_drift_time <- seq(from = drift_time[1], by = drift_time_period, length.out = length(drift_time))
-  # moltaux$Drift_Time <- corr_drift_time[rep_dt_index]
-  moltaux$Drift_Time <- drift_time[rep_dt_index]
-
-  rm(aux, aux_string)
-  p <- ggplot(moltaux, aes(x = Drift_Time, y = Retention_Time, fill = Value)) +
-    geom_raster(interpolate = FALSE) +
-    scale_fill_viridis(discrete = FALSE, option = "A", direction = -1) +
-    labs(x="Drift Time (ms)",
-         y="Retention Time (s)",
-         title = "Sample Matrix Image",
-         fill = "Intensity") +
-    theme_minimal()
-  print(p)
-}
 
 
 

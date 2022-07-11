@@ -4,7 +4,13 @@
 \alias{gcims_view_sample}
 \title{Sample matrix visualization}
 \usage{
-gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
+gcims_view_sample(
+  dir_in,
+  sample_num,
+  rt_range = NULL,
+  dt_range = NULL,
+  transform = FALSE
+)
 }
 \arguments{
 \item{dir_in}{Input directory. Where input data files are loaded
@@ -18,6 +24,9 @@ complete retention time range is used. NULL by default.}
 
 \item{dt_range}{Min and Max drift time values. If NULL the complete
 drift time range is used. NULL by default.}
+
+\item{transform}{Boolean. IF true, performs the cubic root of data to
+enhance image contrast. FALSE by default.}
 }
 \value{
 An image of selected data sample.
