@@ -32,7 +32,6 @@ data along the time axis selected in \code{gcims_interpolate}, and for all
 samples in \code{samples}.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
@@ -48,7 +47,6 @@ gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NUL
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 
 }
 \references{

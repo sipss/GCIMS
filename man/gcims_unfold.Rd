@@ -35,15 +35,13 @@ dimensionality using the functions \code{gcims_decimate} and
 \code{gcims_cut_samples} before applying \code{gcims_unfold} to the data.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
 
 # Example of Sample Data unfolding
 # Before:
-setwd(dir_in)
-M3 <- readRDS("M3.rds")
+M3 <- readRDS(file.path(dir_in, "M3.rds"))
 data <- M3$data$data_df
 data_dimensions <- dim(data)
 
@@ -52,8 +50,7 @@ message("Before unfolding data has ", data_dimensions[1],
 
 # After:
 gcims_unfold(dir_in, dir_out, samples)
-setwd(dir_out)
-M3 <- readRDS("M3.rds")
+M3 <- readRDS(file.path(dir_out, "M3.rds"))
 data <- M3$data$data_df
 data_length <- length(data)
 
@@ -63,8 +60,6 @@ of columns by the number of rows of the original data.")
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
-
 
 }
 \seealso{

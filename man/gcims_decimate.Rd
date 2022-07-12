@@ -39,7 +39,6 @@ that decimation also reduces data resolution.
 axes.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 
@@ -59,7 +58,6 @@ gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), col
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 
 }
 \references{

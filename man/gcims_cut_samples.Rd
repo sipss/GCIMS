@@ -41,7 +41,6 @@ By reducing the size of data, the computational time of signal
 pre-processing stage can reduced substantially.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
@@ -58,7 +57,6 @@ gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NUL
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 }
 \seealso{
 Other Utility functions: 

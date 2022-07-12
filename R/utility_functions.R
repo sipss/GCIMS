@@ -19,15 +19,13 @@
 #' @family Utility functions
 #' @export
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 3
 #'
 #' # Example of Sample Data unfolding
 #' # Before:
-#' setwd(dir_in)
-#' M3 <- readRDS("M3.rds")
+#' M3 <- readRDS(file.path(dir_in, "M3.rds"))
 #' data <- M3$data$data_df
 #' data_dimensions <- dim(data)
 #'
@@ -36,8 +34,7 @@
 #'
 #' # After:
 #' gcims_unfold(dir_in, dir_out, samples)
-#' setwd(dir_out)
-#' M3 <- readRDS("M3.rds")
+#' M3 <- readRDS(file.path(dir_out, "M3.rds"))
 #' data <- M3$data$data_df
 #' data_length <- length(data)
 #'
@@ -47,8 +44,6 @@
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
-#'
 #'
 gcims_unfold <- function(dir_in, dir_out, samples){
   print(" ")
@@ -57,7 +52,6 @@ gcims_unfold <- function(dir_in, dir_out, samples){
   print("  //////////////////////////////////")
   print(" ")
 
-  setwd(dir_in)
   m = -1
   for (i in c(0, samples)){
     m = m + 1
@@ -65,14 +59,11 @@ gcims_unfold <- function(dir_in, dir_out, samples){
       print(paste0("Sample ", m, " of ", length(samples)))
     }
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string)
+    aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- aux_list$data$data_df
     aux <- c(t(as.matrix(aux)))
     aux_list$data$data_df <- aux
-    M <-aux_list
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 
@@ -97,7 +88,6 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #' @family Utility functions
 #' @export
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 3
@@ -113,7 +103,6 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #'
 gcims_interpolate <- function(dir_in, dir_out, samples, time){
   print(" ")
@@ -191,7 +180,6 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 #' @export
 #' @importFrom pracma findpeaks
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 3
@@ -206,7 +194,6 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #'
 gcims_remove_rip <- function(dir_in, dir_out, samples){
   print(" ")
@@ -215,7 +202,10 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
   print("////////////////////////")
   print(" ")
 
-  setwd(dir_in)
+  if (!dir.exists(dir_out)) {
+    dir.create(dir_out, recursive = TRUE)
+  }
+
   m = -1
   for (i in c(0, samples)){
     m = m + 1
@@ -223,7 +213,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
       print(paste0("Sample ", m, " of ", length(samples)))
     }
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- (as.matrix(aux_list$data$data_df))
 
     # Compute the total ion spectra
@@ -261,10 +251,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
     }
 
     aux_list$data$data_df <- round(aux)
-    M <- aux_list
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 
@@ -284,7 +271,6 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' @family Utility functions
 #' @export
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- c(3, 7, 8, 14, 20, 21, 22)
@@ -296,24 +282,22 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' # Before:
 #' nrow_before <- matrix(0, nrow = length(samples), ncol = 1)
 #' ncol_before <- matrix(0, nrow = length(samples), ncol = 1)
-#' setwd(dir_in)
 #' for (i in seq_along(samples)){
-#' aux_string <- paste0("M", samples[i], ".rds")
-#' aux_list <- readRDS(aux_string)
-#' nrow_before[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
-#' ncol_before[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
+#'   aux_string <- paste0("M", samples[i], ".rds")
+#'   aux_list <- readRDS(file.path(dir_in, aux_string))
+#'   nrow_before[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+#'   ncol_before[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
 #' }
 #'
 #' # After:
 #' gcims_reshape_samples(dir_in, dir_out, samples)
-#' setwd(dir_out)
 #' nrow_after <- matrix(0, nrow = length(samples), ncol = 1)
 #' ncol_after <- matrix(0, nrow = length(samples), ncol = 1)
 #' for (i in seq_along(samples)){
-#' aux_string <- paste0("M", samples[i], ".rds")
-#' aux_list <- readRDS(aux_string)
-#' nrow_after[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
-#' ncol_after[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
+#'   aux_string <- paste0("M", samples[i], ".rds")
+#'   aux_list <- readRDS(file.path(dir_out, aux_string))
+#'   nrow_after[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+#'   ncol_after[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
 #' }
 #'
 #' reshaping_info <- cbind(nrow_before, ncol_before, nrow_after, ncol_after)
@@ -324,7 +308,6 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 
   print(" ")
@@ -395,7 +378,6 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 #'   Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 #' @importFrom signal resample
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #'
@@ -415,7 +397,6 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #'
 
 gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
@@ -427,7 +408,6 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 
   p_rt <- 1
   p_dt <- 1
-  setwd(dir_in)
   m = -1
   for (i in c(0, samples)){
     m = m + 1
@@ -435,7 +415,7 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
       print(paste0("Sample ", m, " of ", length(samples)))
     }
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string)
+    aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- aux_list$data$data_df
     dtreduced <- apply(t(aux), 1, function(x) resample(x, p = p_dt, q = q_dt))
     resampleddt <- resample(aux_list$data$drift_time, p = p_dt, q = q_dt)
@@ -444,10 +424,7 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
     aux_list$data$data_df <- t(rtreduced)
     aux_list$data$drift_time <- resampleddt
     aux_list$data$retention_time <- resampledrt
-    M <- aux_list
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 
@@ -477,7 +454,6 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 #' @family Utility functions
 #' @export
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 3
@@ -494,7 +470,6 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #
 gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 

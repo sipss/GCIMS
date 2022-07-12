@@ -28,7 +28,6 @@ times. \code{gcims_reshape_samples} checks what are the minimum retention /
 drift time ranges a cuts all samples according to these ranges.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- c(3, 7, 8, 14, 20, 21, 22)
@@ -40,24 +39,22 @@ samples <- c(3, 7, 8, 14, 20, 21, 22)
 # Before:
 nrow_before <- matrix(0, nrow = length(samples), ncol = 1)
 ncol_before <- matrix(0, nrow = length(samples), ncol = 1)
-setwd(dir_in)
 for (i in seq_along(samples)){
-aux_string <- paste0("M", samples[i], ".rds")
-aux_list <- readRDS(aux_string)
-nrow_before[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
-ncol_before[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
+  aux_string <- paste0("M", samples[i], ".rds")
+  aux_list <- readRDS(file.path(dir_in, aux_string))
+  nrow_before[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+  ncol_before[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
 }
 
 # After:
 gcims_reshape_samples(dir_in, dir_out, samples)
-setwd(dir_out)
 nrow_after <- matrix(0, nrow = length(samples), ncol = 1)
 ncol_after <- matrix(0, nrow = length(samples), ncol = 1)
 for (i in seq_along(samples)){
-aux_string <- paste0("M", samples[i], ".rds")
-aux_list <- readRDS(aux_string)
-nrow_after[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
-ncol_after[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
+  aux_string <- paste0("M", samples[i], ".rds")
+  aux_list <- readRDS(file.path(dir_out, aux_string))
+  nrow_after[i, 1] <- nrow(as.matrix(aux_list$data$data_df))
+  ncol_after[i, 1] <- ncol(as.matrix(aux_list$data$data_df))
 }
 
 reshaping_info <- cbind(nrow_before, ncol_before, nrow_after, ncol_after)
@@ -68,7 +65,6 @@ print(reshaping_info)
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 }
 \seealso{
 Other Utility functions: 
