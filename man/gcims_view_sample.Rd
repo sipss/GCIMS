@@ -25,7 +25,7 @@ complete retention time range is used. NULL by default.}
 \item{dt_range}{Min and Max drift time values. If NULL the complete
 drift time range is used. NULL by default.}
 
-\item{transform}{Boolean. IF true, performs the cubic root of data to
+\item{transform}{Boolean. IF TRUE, performs the cubic root of data to
 enhance image contrast. FALSE by default.}
 }
 \value{

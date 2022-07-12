@@ -18,6 +18,8 @@ GCIMSSample(...)
 }
 \value{
 A GCIMSSample object
+
+The outcome of \link[graphics:filled.contour]{graphics::filled.contour}. Although this function is called for its side effect (the plot)
 }
 \description{
 GCIMS Sample is an S4 class to store one sample

@@ -1,6 +1,4 @@
 #' Read GC-IMS samples from .csv files
-
-
 #' @param dir_in          Input directory. Where the raw data files are stored.
 #' @param dir_out         Output directory. Where data files are stored as R
 #'   objects.
@@ -125,6 +123,58 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
   }
 }
 
+
+#' Read GC-IMS samples from .mea or .mea.gz files and save them as RDS list objects
+#' @param dir_in          Input directory. Where the raw data files are stored.
+#' @param dir_out         Output directory. Where data files are stored as R
+#'   objects.
+#'
+#' @details `gcims_read_samples` stores a set of S3 objects in the
+#'   directory `dir_out` (one per sample sample stored in `dir_in`).
+#'   Each object is a list containing the following variables: `metadata`
+#'   and `data`.In `metadata` you can find information related to the
+#'   sample that can be added by the user. On the other hand in `data` you
+#'   can find information of the measurement.By default, when the
+#'   `metadata` field is created only includes one variable, called
+#'   `Name`, although the user can include more fields using the function
+#'   [gcims_read_metadata()]. Regarding `data`, it is consist in
+#'   three fields:  \describe{
+#'      \item{`retention_time`}{ The vector of retention times associated to a sample measurement.}
+#'      \item{`drift_time`}{ The vector of drift times associated to a sample
+#'   measurement.}
+#'      \item{`data_df`}{ A dataframe containing the intensities
+#'        of a GCIMS measurement of a sample. Each column in the dataset corresponds
+#'        to a particular drift time, while each row to a different retention time.}
+#'   }
+#'
+#' @family Reading functions.
+#' @export
+#'
+gcims_read_mea <- function(dir_in, dir_out) {
+  
+  files <- list.files(path = dir_in, pattern = "(\\.mea(\\.gz)?)$", full.names = TRUE)
+  m <- 0
+  for (i in seq_along(files)){
+    metadata <- list(Name = NULL)
+    data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
+    
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(files)))
+    aux_string <- paste0("M", i, ".rds")
+    single_mea <- read_mea(files[i])
+    
+    # Metadata
+    metadata$Name <- i
+    # Data
+    data$drift_time <- dtime(single_mea)
+    data$retention_time <- rtime(single_mea)
+    data$data_df <- intensity(single_mea)
+
+    # Join
+    dd_list <- list(metadata = metadata, data = data)
+    saveRDS(dd_list, file = file.path(dir_out, aux_string))
+  }
+}
 
 #' Read .mea files (from GAS Dortmund)
 #'

@@ -319,7 +319,7 @@ setValidity("GCIMSSample", function(object) {
 
 #' @describeIn GCIMSSample Topographical plot of a GC-IMS Sample
 #'
-#' @return
+#' @return The outcome of [graphics::filled.contour]. Although this function is called for its side effect (the plot)
 #'
 #' @param x A GCIMSSample object
 #' @param ... passed to [graphics::filled.contour]
