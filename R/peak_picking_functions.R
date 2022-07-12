@@ -13,25 +13,7 @@
 #' `gcims_peak_picking` provides a set of Regions Of
 #'   Interest (ROIs) for each sample which are characterized by the following
 #'   parameters:
-#'   \describe{
-#'     \item{`sample_id`}{Sample identifier.}
-#'     \item{`roi_id`}{ROI identifier within a sample.}
-#'     \item{`max_rt`}{Maximum value of retention time (in indexes) within a ROI.}
-#'     \item{`min_dt`}{Minimum value of drift time (in indexes) within a ROI.}
-#'     \item{`min_rt`}{Minimum value of retention time (in indexes) within a ROI.}
-#'     \item{`max_dt`}{Maximum value of drift time (in indexes) within a ROI.}
-#'     \item{`rt_length`}{ROI length in retention time (in indexes).}
-#'     \item{`dt_length`}{ROI length in drift time (in indexes).}
-#'     \item{`volume`}{Volume intengral of the ROI}
-#'     \item{`rt_mc`}{Retention time coordinate of the ROI's Center of mass.}
-#'     \item{`dt_mc`}{Drift time coordinate of the ROI's Center of mass.}
-#'     \item{`rt_asym`}{Asymmetry of the ROI with respect the retention time axis.}
-#'     \item{`dt_asym`}{Asymmetry of the ROI with respect the drift time axis.}
-#'     \item{`saturation`}{Saturation level of the ROI. Zero means non saturated,
-#'      while one means saturated.}
-#'     \item{`snr`}{Signal to Noise Ratio of the ROI.}
-#'   }
-#'
+
 #' @details `gcims_peak_picking` performs peak picking in set of samples
 #'   especified by the input argument `samples`. For each of these samples,
 #'   a 2-dimensional matched filtering is applied to the data. The matching
@@ -56,7 +38,7 @@
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 3
-
+#'
 #' # Example of Retention Two-Dimensional Peak Picking:
 #'   gcims_peak_picking(dir_in, dir_out, samples,
 #'   min_length_tr = 50, min_length_td = 10, preprocess = TRUE)

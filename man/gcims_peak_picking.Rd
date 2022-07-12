@@ -34,24 +34,6 @@ A set of S3 objects.
 \code{gcims_peak_picking} provides a set of Regions Of
 Interest (ROIs) for each sample which are characterized by the following
 parameters:
-\describe{
-\item{\code{sample_id}}{Sample identifier.}
-\item{\code{roi_id}}{ROI identifier within a sample.}
-\item{\code{max_rt}}{Maximum value of retention time (in indexes) within a ROI.}
-\item{\code{min_dt}}{Minimum value of drift time (in indexes) within a ROI.}
-\item{\code{min_rt}}{Minimum value of retention time (in indexes) within a ROI.}
-\item{\code{max_dt}}{Maximum value of drift time (in indexes) within a ROI.}
-\item{\code{rt_length}}{ROI length in retention time (in indexes).}
-\item{\code{dt_length}}{ROI length in drift time (in indexes).}
-\item{\code{volume}}{Volume intengral of the ROI}
-\item{\code{rt_mc}}{Retention time coordinate of the ROI's Center of mass.}
-\item{\code{dt_mc}}{Drift time coordinate of the ROI's Center of mass.}
-\item{\code{rt_asym}}{Asymmetry of the ROI with respect the retention time axis.}
-\item{\code{dt_asym}}{Asymmetry of the ROI with respect the drift time axis.}
-\item{\code{saturation}}{Saturation level of the ROI. Zero means non saturated,
-while one means saturated.}
-\item{\code{snr}}{Signal to Noise Ratio of the ROI.}
-}
 }
 \description{
 Two dimensional peak picking
@@ -69,6 +51,7 @@ current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
+
 # Example of Retention Two-Dimensional Peak Picking:
   gcims_peak_picking(dir_in, dir_out, samples,
   min_length_tr = 50, min_length_td = 10, preprocess = TRUE)

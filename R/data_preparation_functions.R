@@ -1,0 +1,246 @@
+
+#' Data preparation for individual samples.
+
+
+#' @param dir_in           Input directory. Where input data files are loaded
+#'   from.
+#' @param dir_out          Output directory. Where smoothed data files are
+#'   stored.
+#' @param samples          A vector. Set of samples to which remove the baseline
+#'   (e.g.: c(1, 2, 3)).
+#' @param params           A list of lists with parameter values to perform
+#'                         filtering and decimation in retention and drift time axes.
+#' @details Description of the parameters found in the variable `params`.
+##' \itemize{
+#'   \item{`params$filter$do_filter`}{ is a Boolean variable. If TRUE a Savitzky-Golay filters are applied.}
+#'   \item{`params$filter$order_rt`}{ is a positive integer. Polynomial order in retention time.}
+#'   \item{`params$filter$length_rt`}{ is a positive integer. Filter length in retention time.}
+#'   \item{`params$filter$order_dt`}{ is a positive integer. Polynomial order in drift time.}
+#'   \item{`params$filter$length_dt`}{ is a positive integer. Filter length in drift time.}
+#'   \item{`params$decimate$do_decimate`}{ is a Boolean variable. If TRUE decimation is performed on data.}
+#'   \item{`params$decimate$dfactor_rt`}{ is a positive integer. Decimation factor in retention time.}
+#'   \item{`params$decimate$factor_dt`}{ is a positive integer. Decimation factor in drift time.}
+#'   }
+#' @details `gcims_prepare_data` prepares samples for the subsequent data
+#'  pre-processing stage.
+#'  Each of the samples is interpolated, filtered (optional),
+#'  and decimated (optional).
+#'  Note that filter length must be an odd number bigger than the
+#'  polynomial order of the filter.
+#' @return A set of S3 objects.
+#' @family Data preparation functions
+#' @export
+#' @references { García, S., Luengo, J. and Herrera, F., 2015. Data preprocessing
+#'  in data mining (Vol. 72, pp. 59-139). Cham, Switzerland: Springer International
+#'  Publishing.
+#'  \doi{10.1007/978-3-319-10247-4}
+#'   }
+#'
+#' @importFrom signal sgolayfilt
+#'
+#' @examples
+#' current_dir <- getwd()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' dir_out <- tempdir()
+#' samples <- 3
+#'
+#' # Example of digital smoothing and decimation, in both axes:
+#' # Before:
+#' gcims_plot_chrom(dir_in, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
+#'
+#' # Set parameters:
+#' params <-list()
+#'
+#' # Filtering
+#' params$filter$do <- TRUE
+#' params$filter$order_rt <- 2
+#' params$filter$length_rt <- 19
+#' params$filter$order_dt <- 2
+#' params$filter$length_dt <- 19
+#'
+#' # Decimation
+#' params$decimate$do <- TRUE
+#' params$decimate$factor_rt <- 2
+#' params$decimate$factor_dt <- 2
+#'
+#' # After:
+#' gcims_prepare_data(dir_in, dir_out, samples, params)
+#' gcims_plot_chrom(dir_out, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#' setwd(current_dir)
+#'
+gcims_prepare_data <- function (dir_in, dir_out, samples, params){
+  print(" ")
+  print("  ////////////////////////")
+  print(" /    Preparing data    /")
+  print("////////////////////////")
+  print(" ")
+
+  # Function to know if a number is integer
+  is.wholenumber <- function(x, tol = .Machine$double.eps^0.5){
+    abs(x - round(x)) < tol
+  }
+
+  # SOME GENERAL CHECKS
+  do_filter <- params$filter$do
+  if(!is.logical(do_filter)){
+    stop("the parameter params$filter$do must be logical")
+  }
+
+  do_decimate <- params$decimate$do
+  if(!is.logical(do_decimate)){
+    stop("the parameter params$decimate$do must be logical")
+  }
+
+  #CHECK filtering values
+  if (do_filter == TRUE){
+    order_rt <- params$filter$order_rt
+    length_rt <-params$filter$length_rt
+    order_dt <-params$filter$order_dt
+    length_dt <-params$filter$length_dt
+
+    # Give some reasonable numbers in case the user doesn't provide any´.
+    if(is.null(order_rt)){
+      order_rt = 2
+    }
+    if(is.null(length_rt)){
+      length_rt = 19
+    }
+    if(is.null(order_dt)){
+      order_dt = 2
+    }
+    if(is.null(length_dt)){
+      length_dt = 19
+    }
+
+    # TEST that the introduced numbers are positive integers and that the selection does not produces an error
+
+    if(any((c(order_rt, length_rt, order_dt, length_dt)) < 0)){
+      stop("Make sure that filter orders and lengths are positive")
+    }
+    if(all(is.wholenumber(c(order_rt, length_rt, order_dt, length_dt)))){
+    } else {
+      stop("Make sure that filter orders and lengths are whole numbers")
+    }
+    if(order_rt > length_rt){
+      stop("The length of the filter must be higher than the order of the polynomial (Retention time).")
+    }
+    if(order_dt > length_dt){
+      stop("The length of the filter must be higher than the order of the polynomial (Drift time).")
+    }
+  }
+
+  # CHECK decimation values
+  if(do_decimate == TRUE){
+    factor_rt <- params$decimate$factor_rt
+    factor_dt <- params$decimate$factor_dt
+  }
+
+  # TEST that the introduced numbers are positive integers and that the selection does not produces an error
+  if(any((c(factor_rt,factor_dt)) < 0)){
+    stop("Make sure that decimation factors are positive")
+  }
+  if(all(is.wholenumber(c(factor_rt,factor_dt)))){
+  } else {
+    stop("ake sure that decimation factors are whole numbers")
+  }
+
+
+  if (!dir.exists(dir_out)) {
+    dir.create(dir_out, recursive = TRUE)
+  }
+
+  m = 0
+  for (i in  samples){
+    m = m + 1
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(file.path(dir_in, aux_string))
+    aux <- as.matrix(aux_list$data$data_df)
+    aux_list <- interpolate(aux_list,m)
+    if(do_filter == TRUE){
+      aux_list <- smoothing(aux_list, m,order_rt, length_rt, order_dt, length_dt)
+    }
+    if(do_decimate == TRUE){
+      aux_list <- decimate(aux_list, m, factor_rt, factor_dt)
+    }
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
+  }
+}
+
+interpolate <- function(aux_list, sample_index){
+  # Interpolation function
+  interpolate <- function(aux_list, time){
+    aux <- as.matrix(aux_list$data$data_df)
+    if(time == "Retention"){
+      x <- aux_list$data$retention_time
+    }else if(time == "Drift"){
+      aux <- t(aux)
+      x <- aux_list$data$drift_time
+    }
+    step_x <- (x[length(x)]- x[1]) / (length(x) - 1)
+    xi <- seq(from = x[1],
+              by = step_x,
+              length.out = length(x))
+
+    n <- dim(aux)[1]
+    for (j in (1:n)){
+      aux[j, ] <- signal::interp1(x, aux[j, ], xi, method = "linear", extrap = TRUE)
+    }
+    if(time == "Retention"){
+      aux_list$data$retention_time <- xi
+    } else if (time == "Drift"){
+      aux <- t(aux)
+      aux_list$data$drift_time <- xi
+    }
+    aux_list$data$data_df <- aux
+    return(aux_list)
+  }
+  aux_list <- interpolate(aux_list,"Retention")
+  aux_list <- interpolate(aux_list,"Drift")
+  aux_list$data$data_df <- round(aux_list$data$data_df)
+  return(aux_list)
+}
+
+smoothing <- function (aux_list, sample_index,
+                                  order_rt, length_rt,
+                                  order_dt, length_dt){
+  # Filtering function
+  digital_filter <- function(aux_list, time, order, length){
+    aux <- as.matrix(aux_list$data$data_df)
+    if (time == "Drift"){
+      aux <- t(aux)
+    }
+    for (j in seq_len(nrow(aux))) {
+      aux[j, ] <- signal::sgolayfilt(aux[j, ], p = order, n = length)
+    }
+    if (time == "Drift"){
+      aux <- t(aux)
+    }
+    aux_list$data$data_df <- aux
+    return(aux_list)
+  }
+  aux_list <-  digital_filter(aux_list,"Retention",order_rt, length_rt)
+  aux_list <-  digital_filter(aux_list,"Drift",order_dt, length_dt)
+  aux_list$data$data_df <- round(aux_list$data$data_df)
+  return(aux_list)
+}
+
+decimate <- function(aux_list, sample_index, factor_rt, factor_dt){
+  aux <- as.matrix(aux_list$data$data_df)
+
+  rt_index <- seq(from = 1, to = dim(aux)[2], by = factor_rt)
+  dt_index <- seq(from = 1, to = dim(aux)[1], by = factor_dt)
+
+  aux_list$data$retention_time <-aux_list$data$retention_time[rt_index]
+  aux_list$data$drift_time <-aux_list$data$drift_time[dt_index]
+  aux_list$data$data_df<- aux[dt_index,rt_index]
+  return(aux_list)
+
+}
+
+
