@@ -75,6 +75,9 @@ All the samples for the working directory are going to be read and convert into 
 
 ```{r}
 # READING SAMPLES
+# For mea or mea.gz files, use:
+#gcims_read_mea(dir_in = wd, dir_out = data)
+# For .csv files use:
 gcims_read_samples(dir_in = wd, dir_out = data, sftwr = 1)
 ```
 
