@@ -112,7 +112,7 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
   print(" ")
 
   if (!dir.exists(dir_out)) {
-    dir.create(dir_out, recursive = TRUE)
+    dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   }
 
   m = -1
@@ -563,6 +563,7 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
   #     MAIN    #
   #-------------#
 
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   for (i in seq_along(samples)) {
     print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", samples[i], ".rds")
