@@ -151,18 +151,19 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #' @export
 #'
 gcims_read_mea <- function(dir_in, dir_out) {
-  
+
   files <- list.files(path = dir_in, pattern = "(\\.mea(\\.gz)?)$", full.names = TRUE)
   m <- 0
-  for (i in seq_along(files)){
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+  for (i in seq_along(files)) {
     metadata <- list(Name = NULL)
     data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
-    
+
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
     single_mea <- read_mea(files[i])
-    
+
     # Metadata
     metadata$Name <- i
     # Data
