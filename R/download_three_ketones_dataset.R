@@ -26,12 +26,12 @@ download_three_ketones_dataset <- function(outdir = "2021-mixture-six-ketones-de
 
   dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
-  purrr::imap(urls, function(url, name) {
+  purrr::iwalk(urls, function(url, name) {
     outfile <- file.path(outdir, name)
-    if (file.exists(outfile)) {
-      return()
+    if (!file.exists(outfile)) {
+      curl::curl_download(url, outfile)
     }
-    curl::curl_download(url, outfile)
   })
+  names(urls)
 }
 
