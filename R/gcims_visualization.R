@@ -31,11 +31,9 @@
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_raster
 #' @importFrom viridis scale_fill_viridis
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' sample_num <- 3
 #' gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
-#' setwd(current_dir)
 #'
 gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL, transform = FALSE){
 
@@ -47,10 +45,9 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
     print("/////////////////////////////////////")
     print(" ")
 
-    setwd(dir_in)
     print(paste0("Visualizing sample ", sample_num))
     aux_string <- paste0("M", sample_num, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new
 
     #SOME CHECKS
@@ -184,14 +181,11 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' samples <- c(3, 7 ,8, 14, 20, 21)
 #' # Example without transforming data
 #' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
-#' setwd(current_dir)
 #'
-
 gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby = "Name"){
 
   Retention_Time <- Index <- Value <- Sample <- Class <- NULL
@@ -215,9 +209,8 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
     stop ("Incorrect input value for dt_value: It must be either NULL or a non-negative scalar numeric")
   }
 
-  setwd(dir_in)
   aux_string <- paste0("M", samples[1], ".rds")
-  aux_list <- readRDS(aux_string) #new
+  aux_list <- readRDS(file.path(dir_in, aux_string)) #new
   aux <- (as.matrix(aux_list$data$data_df)) #new
 
   retention_time <- aux_list$data$retention_time
@@ -271,7 +264,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new
 
 
@@ -344,11 +337,9 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' samples <- c(3, 7 ,8, 14, 20, 21)
 #' gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
-#' setwd(current_dir)
 #'
 gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Name"){
 

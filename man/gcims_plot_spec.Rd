@@ -44,11 +44,9 @@ baseline correction and signal alignment algorithms along the drift time
 axis.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 samples <- c(3, 7 ,8, 14, 20, 21)
 gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
-setwd(current_dir)
 
 }
 \references{
