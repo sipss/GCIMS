@@ -47,6 +47,7 @@ along the retention time axis.
 current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 samples <- c(3, 7 ,8, 14, 20, 21)
+# Example without transforming data
 gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 setwd(current_dir)
 
@@ -57,10 +58,6 @@ Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Stati
 }
 }
 \seealso{
-Other Visualization functions: 
-\code{\link{gcims_plot_spec}()},
-\code{\link{gcims_view_sample}()}
-
 Other Visualization functions: 
 \code{\link{gcims_plot_spec}()},
 \code{\link{gcims_view_sample}()}

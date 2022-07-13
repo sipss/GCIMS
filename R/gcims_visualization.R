@@ -116,7 +116,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
     aux <- aux[sel_index_dt, sel_index_rt]#old
 
-    #scale intensinty
+    #scale intensity
     if(transform == TRUE){
       aux <- (aux)^(1/3)
       i_label <- parse(text="Intensity^(1/3)")
@@ -178,7 +178,6 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @references {
 #' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
 #'  }
-#' @family Visualization functions
 #' @export
 #' @importFrom dplyr mutate
 #' @importFrom magrittr '%>%'
@@ -188,6 +187,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' samples <- c(3, 7 ,8, 14, 20, 21)
+#' # Example without transforming data
 #' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 #' setwd(current_dir)
 #'
@@ -202,7 +202,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
   print("///////////////////////////////")
   print(" ")
 
-
+  # Some checks
   if(is.null(dt_value)){
     #it's OK if it's null
   } else if((is.numeric(dt_value)) & (length(dt_value) == 1)){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
@@ -273,6 +273,8 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(aux_string) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new
+
+
     if (is.null(dt_value)){
       chroms[, m] <- colSums(aux[sel_index_dt, sel_index_rt])#new
     } else {
@@ -302,7 +304,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
   p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Class)) +
     geom_line() +
     labs(x="Retention Time (s)",
-         y="Intensity (a.u.)",
+         y= "Intensity (a.u.)",
          color = "Class",
          title = plot_title) +
     theme_minimal()
