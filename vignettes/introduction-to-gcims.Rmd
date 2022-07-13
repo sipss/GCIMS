@@ -21,8 +21,27 @@ library(GCIMS)
 The GCIMS package allows you to import your Gas Chromatography - Ion Mobility Spectrometry samples,
 preprocess them, align them one to each other and build a peak table with the relevant features.
 
-This vignette will use a small dataset consisting of a mixture of FIXME ketones. The
-dataset is included with the package
+This vignette will use a small dataset consisting of a mixture of three ketones.
+
+## Downloading the dataset:
+
+```{r}
+# Download the ketones dataset:
+tryCatch({
+  download_three_ketones_dataset("threeketones")
+}, error = function(e) {
+  message("The download of the samples did not succeed. The vignette can't continue.")
+  message(conditionMessage(e))
+  knitr::knit_exit()
+})
+```
+
+```{r}
+# Check that the files are downloaded:
+list.files("threeketones")
+```
+
+
 
 ## Create work directories
 
@@ -31,7 +50,7 @@ The current working directory should be the folder where the raw data samples ar
 created.
 
 ```{r}
-wd <- getwd()
+wd <- "intermediate_files"
 data <- file.path(wd,'data')
 reshaped <- file.path(wd,'reshaped')
 cut <- file.path(wd,'cut')
