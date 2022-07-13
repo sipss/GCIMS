@@ -151,16 +151,14 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #' @export
 #'
 gcims_read_mea <- function(dir_in, dir_out) {
-
   files <- list.files(path = dir_in, pattern = "(\\.mea(\\.gz)?)$", full.names = TRUE)
-  m <- 0
+  outfiles <- c()
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   for (i in seq_along(files)) {
     metadata <- list(Name = NULL)
     data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
 
-    m <- m + 1
-    print(paste0("Sample ", m, " of ", length(files)))
+    print(paste0("Sample ", i, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
     single_mea <- read_mea(files[i])
 
@@ -173,8 +171,12 @@ gcims_read_mea <- function(dir_in, dir_out) {
 
     # Join
     dd_list <- list(metadata = metadata, data = data)
-    saveRDS(dd_list, file = file.path(dir_out, aux_string))
+    outfile <- file.path(dir_out, aux_string)
+    saveRDS(dd_list, file = outfile)
+    outfiles <- c(outfiles, outfile)
   }
+  names(outfiles) <- files
+  outfiles
 }
 
 #' Read .mea files (from GAS Dortmund)
@@ -573,4 +575,3 @@ gcims_read_metadata <- function(dir_in, samples, file) {
     saveRDS(aux_list, file = aux_string)
   }
 }
-
