@@ -373,9 +373,8 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
     stop ("Incorrect input value for rt_value: It must be either NULL or a non-negative scalar numeric")
   }
 
-  setwd(dir_in)
   aux_string <- paste0("M", samples[1], ".rds")
-  aux_list <- readRDS(aux_string) #new
+  aux_list <- readRDS(file.path(dir_in, aux_string)) #new
   aux <- (as.matrix(aux_list$data$data_df)) #new
 
 
@@ -430,7 +429,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
     m <- m + 1
     print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new
 
     if (is.null(rt_value)){
