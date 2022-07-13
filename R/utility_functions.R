@@ -697,3 +697,35 @@ new_progress_bar <- function(...) {
   }
   progress::progress_bar$new(...)
 }
+
+require_pkgs <- function(pkg, msgs = NULL, ...) {
+  have_pkgs <- purrr::map_lgl(pkg, function(p) {requireNamespace(p, quietly = TRUE)})
+  names(have_pkgs) <- pkg
+  if (!all(have_pkgs)) {
+    missing_pkgs <- names(have_pkgs)[!have_pkgs]
+    aval_pkgs <- rownames(utils::available.packages())
+    missing_cran_pkgs <- intersect(missing_pkgs, aval_pkgs)
+    missing_bioc_pkgs <- setdiff(missing_pkgs, missing_cran_pkgs)
+    if (length(missing_bioc_pkgs) > 0) {
+      if (!"BiocManager" %in% rownames(utils::installed.packages())) {
+        missing_cran_pkgs <- c(missing_cran_pkgs, "BiocManager")
+      }
+    }
+    if (length(missing_cran_pkgs) > 0) {
+      missing_cran_pkgs <- deparse(missing_cran_pkgs)
+    }
+    if (length(missing_bioc_pkgs) > 0) {
+      missing_bioc_pkgs <- deparse(missing_bioc_pkgs)
+    }
+    parent_call <- format(rlang::caller_call())
+    rlang::abort(
+      message = c(
+        glue::glue("{parent_call} requires additional packages. Please install them. You may want to use:", parent_call = parent_call),
+        glue::glue("    install.packages({missing_cran_pkgs}) and", missing_cran_pkgs = missing_cran_pkgs),
+        glue::glue("    BiocManager::install({missing_bioc_pkgs})", missing_bioc_pkgs = missing_bioc_pkgs),
+        msgs
+      ),
+      ...
+    )
+  }
+}
