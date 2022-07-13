@@ -564,7 +564,14 @@ gcims_read_metadata <- function(dir_in, samples, file) {
   print("//////////////////////////")
   print(" ")
 
-  Metadatafile <- readxl::read_excel(file.path(dir_in, file))
+  if (is.character(file)) {
+    Metadatafile <- readxl::read_excel(file.path(dir_in, file))
+  } else if (is.data.frame(file)) {
+    Metadatafile <- file
+  } else {
+    stop("file must be an Excel file name")
+  }
+
   metadata <- NULL
   for (i in seq_along(samples)){
     print(paste0("Sample ", i, " of ", length(samples)))
