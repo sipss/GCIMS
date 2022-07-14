@@ -33,7 +33,6 @@
 #' @importFrom readr read_csv cols type_convert
 #' @importFrom utils menu
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' gcims_read_samples(dir_in, dir_out, sftwr = 2)
@@ -147,22 +146,28 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #'        to a particular drift time, while each row to a different retention time.}
 #'   }
 #'
+#' @return The filenames that have been created in `dir_out`
 #' @family Reading functions.
 #' @export
+#' @examples
+#' dir_in <- system.file("extdata", "sample_formats", package = "GCIMS")
+#' dir_out <- tmpfile("dir_out")
+#' dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+#' gcims_read_mea(dir_in, dir_out)
+#' list.files(dir_out)
 #'
 gcims_read_mea <- function(dir_in, dir_out) {
-  
   files <- list.files(path = dir_in, pattern = "(\\.mea(\\.gz)?)$", full.names = TRUE)
-  m <- 0
-  for (i in seq_along(files)){
+  outfiles <- c()
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+  for (i in seq_along(files)) {
     metadata <- list(Name = NULL)
     data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
-    
-    m <- m + 1
-    print(paste0("Sample ", m, " of ", length(files)))
+
+    print(paste0("Sample ", i, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
     single_mea <- read_mea(files[i])
-    
+
     # Metadata
     metadata$Name <- i
     # Data
@@ -172,8 +177,12 @@ gcims_read_mea <- function(dir_in, dir_out) {
 
     # Join
     dd_list <- list(metadata = metadata, data = data)
-    saveRDS(dd_list, file = file.path(dir_out, aux_string))
+    outfile <- file.path(dir_out, aux_string)
+    saveRDS(dd_list, file = outfile)
+    outfiles <- c(outfiles, outfile)
   }
+  names(outfiles) <- files
+  outfiles
 }
 
 #' Read .mea files (from GAS Dortmund)
@@ -396,14 +405,14 @@ read_mea <- function(filename) {
 #' @return Nothing
 #' @export
 #' @examples
-#' \dontrun{
 #' obj <- GCIMSSample(
 #'  drift_time = 1:2,
 #'  retention_time = 1:3,
 #'  data = matrix(1:6, nrow = 2, ncol = 3),
-#'  )
-#'  write_mea(obj, "test.mea")
-#'  }
+#' )
+#' mea_file <- tempfile(fileext = ".mea")
+#' write_mea(obj, mea_file)
+#' file.remove(mea_file)
 write_mea <- function(object, filename) {
   if (!inherits(filename, "character")) {
     stop("filename should be a string")
@@ -480,21 +489,32 @@ write_mea <- function(object, filename) {
 #' @family Reading functions
 #' @export
 #' @examples
-#' \dontrun{
-#' gcims_read_mat("/path/to/dir/with/mat/files", "where_to_save_samples_in_rds/")
-#' }
-
+#' # We can create a mat file:
+#' mat_samples_dir <- tempfile("mat_samples")
+#' dir.create(mat_samples_dir)
+#' matfile <- file.path(mat_samples_dir, "sample.mat")
+#'
+#' obj <- list(
+#'   metadata = list(Name = 1),
+#'   data = list(
+#'     drift_time = 1:3,
+#'     retention_time = 1:4,
+#'     data_df = matrix(1:12, nrow = 3, ncol = 4)
+#'   )
+#' )
+#' R.matlab::writeMat(obj, matfile)
+#' dir_out <- tempfile("rds_samples")
+#' dir.create(dir_out)
+#' gcims_read_mat(mat_samples_dir, dir_out)
 gcims_read_mat <- function(dir_in, dir_out) {
-  if (!requireNamespace("R.matlab", quietly = TRUE)) {
-    stop("gcims_read_mat requires to have installed the R.matlab package")
-  }
+  require_pkgs("R.matlab")
   print(" ")
   print("  /////////////////////////")
   print(" /    Reading Samples    /")
   print("/////////////////////////")
   print(" ")
 
-  files <- list.files(path = dir_in, pattern = ".mat$")
+  files <- list.files(path = dir_in, pattern = "\\.mat$")
   if (length(files) == 0){
     stop("This folder does not contains any .mat file")
   }
@@ -540,19 +560,28 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' @note The metadata file has to be in the same directory as the data samples.
 #' @export
 #' @examples
-#' dir_in <- system.file("extdata","add_meta", package = "GCIMS")
+#' # Prepare a directory:
+#' dir_in <- tempfile("dir_in")
+#' dir.create(dir_in, recursive = TRUE)
+#' file.copy(
+#'   system.file("extdata","add_meta", "Metadata.xlsx", package = "GCIMS"),
+#'   dir_in
+#' )
+#' file.copy(
+#'   system.file("extdata","add_meta", "M1.rds", package = "GCIMS"),
+#'   dir_in
+#' )
 #' M1 <- readRDS(file.path(dir_in, "M1.rds"))
-#' samples <- 1
 #' print(M1$metadata)
+#' samples <- 1
 #' file <- "Metadata.xlsx"
 #' gcims_read_metadata(dir_in, samples, file)
-#' M1 <- readRDS("M1.rds")
+#' M1 <- readRDS(file.path(dir_in, "M1.rds"))
 #' print(M1$metadata)
 #' M1$metadata$Class <- NULL
 #' M1$metadata$Bottle <- NULL
 #' M1$metadata$Brand <- NULL
 #' print(M1$metadata)
-#' saveRDS(M1, "M1.rds")
 #'
 gcims_read_metadata <- function(dir_in, samples, file) {
   print(" ")
@@ -561,7 +590,14 @@ gcims_read_metadata <- function(dir_in, samples, file) {
   print("//////////////////////////")
   print(" ")
 
-  Metadatafile <- readxl::read_excel(file.path(dir_in, file))
+  if (is.character(file)) {
+    Metadatafile <- readxl::read_excel(file.path(dir_in, file))
+  } else if (is.data.frame(file)) {
+    Metadatafile <- file
+  } else {
+    stop("file must be an Excel file name")
+  }
+
   metadata <- NULL
   for (i in seq_along(samples)){
     print(paste0("Sample ", i, " of ", length(samples)))
@@ -572,4 +608,3 @@ gcims_read_metadata <- function(dir_in, samples, file) {
     saveRDS(aux_list, file = aux_string)
   }
 }
-

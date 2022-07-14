@@ -47,7 +47,6 @@ pattern consists in a 2-dimensional uncorrelated Gaussian with sigmas
   min_length_td / 4}.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
@@ -56,13 +55,11 @@ samples <- 3
   gcims_peak_picking(dir_in, dir_out, samples,
   min_length_tr = 50, min_length_td = 10, preprocess = TRUE)
 
-setwd(dir_out)
-M3 <- readRDS("M3.rds")
+M3 <- readRDS(file.path(dir_out, "M3.rds"))
 roi_df <- M3$data$roi_df
 head(roi_df)
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 }
 \references{
 { Oppenheim, Alan V. "Applications of digital signal processing."

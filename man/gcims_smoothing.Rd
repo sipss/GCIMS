@@ -53,7 +53,6 @@ reconstructed signal. A trade-off for these parameter values should be
 found.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
@@ -68,7 +67,6 @@ gcims_plot_chrom(dir_out, samples, dt_value = 8.5,  rt_range = NULL, colorby = "
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 
 }
 \references{

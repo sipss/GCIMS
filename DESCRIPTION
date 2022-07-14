@@ -58,11 +58,13 @@ Depends:
  ProtGenerics (>= 1.24.0)
 License: GPL-2
 Imports: 
+    BiocParallel,
     chemometrics(>= 1.4.2),
     cluster,
     dbscan(>= 1.1-5),
     dplyr(>= 1.0.2),
     ggplot2 (>= 3.3.2),
+    glue,
     magrittr(>= 1.5),
     methods,
     missForest (>= 1.4),
@@ -81,6 +83,8 @@ Imports:
     utils (>= 4.0.2),
     viridis(>= 0.5.1)
 Suggests:
+    curl,
+    httr,
     testthat (>= 3.0.0),
     knitr,
     multiway,

@@ -48,11 +48,9 @@ are not constants. To overcome this problem consider using the function
 \code{gcims_interpolate} (check also the example of use of this function).
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 sample_num <- 3
 gcims_view_sample(dir_in, sample_num, rt_range = NULL, dt_range = NULL)
-setwd(current_dir)
 
 }
 \references{

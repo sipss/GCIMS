@@ -21,7 +21,6 @@
 #' @importFrom pracma findpeaks
 #' @importFrom ggplot2 geom_rect
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 3
@@ -36,7 +35,6 @@
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
   print(" ")
   print("  //////////////////////////")
@@ -44,16 +42,16 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
   print("//////////////////////////")
   print(" ")
 
-  setwd(dir_in)
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   s = 0
-  for (i in samples){
+  for (i in samples) {
     s = s + 1
     print(paste0("Sample ", s, " of ", length(samples)))
 
     # 1. Data load
 
     aux_string <- paste0("M", i, ".rds") # Generate file name
-    aux_list <- readRDS(aux_string) # Load RDS file
+    aux_list <- readRDS(file.path(dir_in, aux_string)) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
 
 
@@ -118,7 +116,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       #posrt <- findZeroCrossings(daux[,j])
       tmp <- NULL
       locs_tmp <- NULL
-      for (k in seq_along(locs)){
+      for (k in seq_along(locs)) {
         dist <- locs[k] - posrt
         peakaround <- findZeroCrossings(dist)
         if (length(peakaround) >= 1){
@@ -214,7 +212,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       }
     }
 
-    ROIs <- na.omit(ROIs)
+    ROIs <- stats::na.omit(ROIs)
     # Merging algorith
 
     thrOverlap <- 0.2
@@ -346,11 +344,9 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     aux_list$data$Parameters <- rbind(AsF, saturation, volume)
     peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmcs, rtmcs, ROIs_overlap, area, volume, AsF, saturation)
     colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT", "Area", "Volume", "AsF", "Saturation")
-    setwd(dir_out)
-    write.csv(peaktable, file = paste0("PeakTable", i, ".csv"))
+    utils::write.csv(peaktable, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
     M <- aux_list
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(M, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 

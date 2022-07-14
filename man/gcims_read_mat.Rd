@@ -18,9 +18,23 @@ An invisible NULL. This function is called to convert mat files to rds files.
 Read GC-IMS Samples from MATLAB files
 }
 \examples{
-\dontrun{
-gcims_read_mat("/path/to/dir/with/mat/files", "where_to_save_samples_in_rds/")
-}
+# We can create a mat file:
+mat_samples_dir <- tempfile("mat_samples")
+dir.create(mat_samples_dir)
+matfile <- file.path(mat_samples_dir, "sample.mat")
+
+obj <- list(
+  metadata = list(Name = 1),
+  data = list(
+    drift_time = 1:3,
+    retention_time = 1:4,
+    data_df = matrix(1:12, nrow = 3, ncol = 4)
+  )
+)
+R.matlab::writeMat(obj, matfile)
+dir_out <- tempfile("rds_samples")
+dir.create(dir_out)
+gcims_read_mat(mat_samples_dir, dir_out)
 }
 \seealso{
 Other Reading functions: 

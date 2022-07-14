@@ -34,7 +34,6 @@ images / chromatograms / spectra to be obtained from
 \link{gcims_view_sample}, \link{gcims_plot_chrom} or \link{gcims_plot_spec}.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 3
@@ -49,7 +48,6 @@ gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NUL
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 }
 \seealso{
 Other Utility functions: 

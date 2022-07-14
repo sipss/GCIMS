@@ -12,6 +12,9 @@ gcims_read_mea(dir_in, dir_out)
 \item{dir_out}{Output directory. Where data files are stored as R
 objects.}
 }
+\value{
+The filenames that have been created in \code{dir_out}
+}
 \description{
 Read GC-IMS samples from .mea or .mea.gz files and save them as RDS list objects
 }
@@ -33,6 +36,14 @@ measurement.}
 of a GCIMS measurement of a sample. Each column in the dataset corresponds
 to a particular drift time, while each row to a different retention time.}
 }
+}
+\examples{
+dir_in <- system.file("extdata", "sample_formats", package = "GCIMS")
+dir_out <- tmpfile("dir_out")
+dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+gcims_read_mea(dir_in, dir_out)
+list.files(dir_out)
+
 }
 \seealso{
 Other Reading functions.: 

@@ -53,7 +53,6 @@ modifies substantially the value of (\code{p}) in the event of large
 intensity peaks.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- c(3, 7)
@@ -72,7 +71,6 @@ gcims_plot_spec(dir_out, samples, rt_value = 60, dt_range = NULL, colorby = "Cla
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 
 }
 \references{

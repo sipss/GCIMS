@@ -72,7 +72,6 @@
 #'
 #' @examples
 #' \donttest{
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- c(3, 7)
@@ -90,7 +89,6 @@
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #'}
 #'
 gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector) {
@@ -598,7 +596,7 @@ InterpCoeff <- function(n,nprime,offs) {
 #' drift_time_corr = Kcorr * drift_time
 #'
 #' Changes in pressure and temperature during measurements may lead to
-#' correction factors up to [0.9, 1.1].
+#' correction factors up to \eqn{[0.9, 1.1]}.
 #'
 #' This alignment technique can be used when the pressure and temperature
 #' measurements are not available.
@@ -608,6 +606,7 @@ InterpCoeff <- function(n,nprime,offs) {
 #' @param drift_time_rip_ref A function that will take the drift times of the RIP for each spectra
 #'                           and returns the expected RIP drift time (default: median).
 #'                           It can also be the theoretical drift time position.
+#' @noRd
 #'
 align_rip <- function(spectra, drift_time, drift_time_rip_ref=stats::median) {
   rip_position <- apply(spectra, MARGIN = 1, which.max)

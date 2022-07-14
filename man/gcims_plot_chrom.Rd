@@ -44,12 +44,10 @@ digital smoothing, baseline correction and signal alignment algorithms
 along the retention time axis.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 samples <- c(3, 7 ,8, 14, 20, 21)
 # Example without transforming data
 gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
-setwd(current_dir)
 
 }
 \references{

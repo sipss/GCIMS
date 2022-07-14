@@ -21,8 +21,27 @@ library(GCIMS)
 The GCIMS package allows you to import your Gas Chromatography - Ion Mobility Spectrometry samples,
 preprocess them, align them one to each other and build a peak table with the relevant features.
 
-This vignette will use a small dataset consisting of a mixture of FIXME ketones. The
-dataset is included with the package
+This vignette will use a small dataset consisting of a mixture of three ketones.
+
+## Downloading the dataset:
+
+```{r}
+# Download the ketones dataset:
+tryCatch({
+  download_three_ketones_dataset("threeketones")
+}, error = function(e) {
+  message("The download of the samples did not succeed. The vignette can't continue.")
+  message(conditionMessage(e))
+  knitr::knit_exit()
+})
+```
+
+```{r}
+# Check that the files are downloaded:
+list.files("threeketones")
+```
+
+
 
 ## Create work directories
 
@@ -31,7 +50,7 @@ The current working directory should be the folder where the raw data samples ar
 created.
 
 ```{r}
-wd <- getwd()
+wd <- "intermediate_files"
 data <- file.path(wd,'data')
 reshaped <- file.path(wd,'reshaped')
 cut <- file.path(wd,'cut')
@@ -41,7 +60,6 @@ bslnd <- file.path(wd,'bslnd')
 alignd <- file.path(wd,'alignd')
 interpr <- file.path(wd,'interpr')
 filtr <- file.path(wd,'filtr')
-bslnr <- file.path(wd,'bslnr')
 alignr <- file.path(wd,'alignr')
 ```
 
@@ -53,6 +71,7 @@ and the second column `Filename`.
 
 ```{r}
 ## We will directly define the data frame here:
+
 sample_annotations <- tibble::tribble(
   ~SampleID, ~Filename,
   "Ketone1", "ketone1.mea",
@@ -76,9 +95,7 @@ All the samples for the working directory are going to be read and convert into 
 ```{r}
 # READING SAMPLES
 # For mea or mea.gz files, use:
-#gcims_read_mea(dir_in = wd, dir_out = data)
-# For .csv files use:
-gcims_read_samples(dir_in = wd, dir_out = data, sftwr = 1)
+dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
 ```
 
 - Reading metadata: gcims_read_metadata
@@ -87,8 +104,12 @@ in the files
 
 ```{r}
 # READING METADATA
-samples <- 1:24
-file <- "Metadata.xlsx"
+samples <- seq_along(dataset)
+#file <- "Metadata.xlsx"
+file <- data.frame(
+  Name = c(1,2,3),
+  OriginalFileName = names(dataset)
+)
 gcims_read_metadata(dir_in = data, samples, file)
 ```
 
@@ -98,7 +119,6 @@ making very complicated working with them.
 
 ```{r}
 # RESHAPE SAMPLES
-samples <- 1:24
 gcims_reshape_samples(dir_in = data, dir_out = reshaped, samples)
 ```
 
@@ -107,7 +127,6 @@ A reference sample is created. This reference sample can be one selected sample,
 
 ```{r}
 # CREATE REFERENCE
-samples <- 1:24
 ref_number <- NULL
 gcims_create_reference(dir_in = reshaped, dir_out = reshaped, samples, ref_number)
 ```
@@ -118,7 +137,7 @@ The sample cut can be performed at the beginning, but also at the end after all 
 
 ```{r}
 #SAMPLES CUT
-samples <- 1:24
+samples <- c(0, seq_along(dataset))
 rt_range <- c(0, 850)
 dt_range <- c(7, 14)
 gcims_cut_samples(dir_in = reshaped, dir_out = cut, samples, rt_range, dt_range)
@@ -130,7 +149,7 @@ Pre-Processing in Drift Time:
 
 ```{r}
 # INTERPOLATING DRIFT TIME
-samples <- 1:24
+samples <- seq_along(dataset)
 time <- "Drift"
 gcims_interpolate(dir_in = cut, dir_out = interpd, samples, time)
 ```
@@ -140,7 +159,6 @@ gcims_interpolate(dir_in = cut, dir_out = interpd, samples, time)
 ```{r}
 # DRIFT TIME FILTERING
 time <- "Drift"
-samples <- 1:24
 gcims_smoothing(dir_in = interpd, dir_out = filtd, samples, time)
 ```
 
@@ -149,7 +167,6 @@ gcims_smoothing(dir_in = interpd, dir_out = filtd, samples, time)
 ```{r}
 # DRIFT TIME BASELINE REMOVAL
 time <- "Drift"
-samples <- 1:24
 gcims_baseline_removal(dir_in = filtd, dir_out = bslnd, samples, time)
 ```
 
@@ -158,7 +175,6 @@ COW Algorithm
 
 ```{r}
 #ALIGNMENT DRIFT TIME
-samples <- 1:24
 time <- "Drift"
 seg_vector <- seq(from = 10, to = 30, by = 5)
 slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
@@ -172,7 +188,6 @@ Pre-Processing in Retention Time:
 
 ```{r}
 # INTERPOLATING RETENTION TIME
-samples <- 1:24
 time <- "Retention"
 gcims_interpolate(dir_in = alignd, dir_out = interpr, samples, time)
 ```
@@ -182,7 +197,6 @@ gcims_interpolate(dir_in = alignd, dir_out = interpr, samples, time)
 ```{r}
 # RETENTION TIME FILTERING
 time <- "Retention"
-samples <- 1:24
 gcims_smoothing(dir_in = interpr, dir_out = filtr, samples, time)
 ```
 
@@ -192,9 +206,8 @@ PTW algorithm
 
 ```{r}
 #ALIGNMENT RETENTION TIME
-samples <- 1:24
 time <- "Retention"
-gcims_alignment(dir_in = bslnr, dir_out = alignr, samples, time)
+gcims_alignment(dir_in = filtr, dir_out = alignr, samples, time)
 ```
 
 
@@ -204,21 +217,19 @@ Data Visualization
 
 ```{r}
 # PLOT SPECTRA
-sample_num <- 1:24
 rt_value <- NULL
 dt_range <- NULL
 dir_in <- alignr
-gcims_plot_spec(dir_in = alignr, sample_num, rt_value, dt_range, colorby = "Name")
+gcims_plot_spec(dir_in = alignr, samples, rt_value, dt_range, colorby = "Name")
 ```
 
 - Chromatograms visualization: gcims_plot_chrom
 
 ```{r}
 # PLOT CHROMATOGRAMS
-sample_num <- 1:24
 dt_value <- NULL
 rt_range <- NULL
-gcims_plot_chrom(dir_in = alignr, sample_num, dt_value, rt_range, colorby = "Name")
+gcims_plot_chrom(dir_in = alignr, samples, dt_value, rt_range, colorby = "Name")
 ```
 
 - Sample image visualization: gcims_view_sample
@@ -237,7 +248,7 @@ Aligned data:
 
 ```{r}
 # ROIs DETECTION
-samples <- c(3, 8, 13, 5, 6, 9)
-noise_level <- 3
-gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, noise_level)
+#samples <- c(1, 3)
+#noise_level <- 3
+#gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, noise_level)
 ```

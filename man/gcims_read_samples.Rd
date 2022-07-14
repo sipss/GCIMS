@@ -47,7 +47,6 @@ LAV or VOCal software of G.A.S GmbH can be used by the function
 \code{gcims_read_samples}.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 gcims_read_samples(dir_in, dir_out, sftwr = 2)
