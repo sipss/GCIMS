@@ -31,7 +31,7 @@ obj <- list(
     data_df = matrix(1:12, nrow = 3, ncol = 4)
   )
 )
-R.matlab::write_mat(obj, matfile)
+R.matlab::writeMat(obj, matfile)
 dir_out <- tempfile("rds_samples")
 dir.create(dir_out)
 gcims_read_mat(mat_samples_dir, dir_out)
