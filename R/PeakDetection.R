@@ -214,7 +214,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
       }
     }
 
-    ROIs <- na.omit(ROIs)
+    ROIs <- stats::na.omit(ROIs)
     # Merging algorith
 
     thrOverlap <- 0.2
@@ -347,7 +347,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmcs, rtmcs, ROIs_overlap, area, volume, AsF, saturation)
     colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT", "Area", "Volume", "AsF", "Saturation")
     setwd(dir_out)
-    write.csv(peaktable, file = paste0("PeakTable", i, ".csv"))
+    utils::write.csv(peaktable, file = paste0("PeakTable", i, ".csv"))
     M <- aux_list
     saveRDS(M, file = paste0("M", i, ".rds"))
     setwd(dir_in)
