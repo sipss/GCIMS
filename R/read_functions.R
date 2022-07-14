@@ -151,7 +151,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #' @export
 #' @examples
 #' dir_in <- system.file("extdata", "sample_formats", package = "GCIMS")
-#' dir_out <- tmpfile("dir_out")
+#' dir_out <- tempfile("dir_out")
 #' dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 #' gcims_read_mea(dir_in, dir_out)
 #' list.files(dir_out)
