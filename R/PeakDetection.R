@@ -44,6 +44,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
   print("//////////////////////////")
   print(" ")
 
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   setwd(dir_in)
   s = 0
   for (i in samples){
