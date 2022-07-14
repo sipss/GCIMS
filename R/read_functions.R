@@ -146,8 +146,15 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #'        to a particular drift time, while each row to a different retention time.}
 #'   }
 #'
+#' @return The filenames that have been created in `dir_out`
 #' @family Reading functions.
 #' @export
+#' @examples
+#' dir_in <- system.file("extdata", "sample_formats", package = "GCIMS")
+#' dir_out <- tmpfile("dir_out")
+#' dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+#' gcims_read_mea(dir_in, dir_out)
+#' list.files(dir_out)
 #'
 gcims_read_mea <- function(dir_in, dir_out) {
   files <- list.files(path = dir_in, pattern = "(\\.mea(\\.gz)?)$", full.names = TRUE)
@@ -398,14 +405,14 @@ read_mea <- function(filename) {
 #' @return Nothing
 #' @export
 #' @examples
-#' \dontrun{
 #' obj <- GCIMSSample(
 #'  drift_time = 1:2,
 #'  retention_time = 1:3,
 #'  data = matrix(1:6, nrow = 2, ncol = 3),
-#'  )
-#'  write_mea(obj, "test.mea")
-#'  }
+#' )
+#' mea_file <- tempfile(fileext = ".mea")
+#' write_mea(obj, mea_file)
+#' file.remove(mea_file)
 write_mea <- function(object, filename) {
   if (!inherits(filename, "character")) {
     stop("filename should be a string")
@@ -482,21 +489,32 @@ write_mea <- function(object, filename) {
 #' @family Reading functions
 #' @export
 #' @examples
-#' \dontrun{
-#' gcims_read_mat("/path/to/dir/with/mat/files", "where_to_save_samples_in_rds/")
-#' }
-
+#' # We can create a mat file:
+#' mat_samples_dir <- tempfile("mat_samples")
+#' dir.create(mat_samples_dir)
+#' matfile <- file.path(mat_samples_dir, "sample.mat")
+#'
+#' obj <- list(
+#'   metadata = list(Name = 1),
+#'   data = list(
+#'     drift_time = 1:3,
+#'     retention_time = 1:4,
+#'     data_df = matrix(1:12, nrow = 3, ncol = 4)
+#'   )
+#' )
+#' R.matlab::write_mat(obj, matfile)
+#' dir_out <- tempfile("rds_samples")
+#' dir.create(dir_out)
+#' gcims_read_mat(mat_samples_dir, dir_out)
 gcims_read_mat <- function(dir_in, dir_out) {
-  if (!requireNamespace("R.matlab", quietly = TRUE)) {
-    stop("gcims_read_mat requires to have installed the R.matlab package")
-  }
+  require_pkgs("R.matlab")
   print(" ")
   print("  /////////////////////////")
   print(" /    Reading Samples    /")
   print("/////////////////////////")
   print(" ")
 
-  files <- list.files(path = dir_in, pattern = ".mat$")
+  files <- list.files(path = dir_in, pattern = "\\.mat$")
   if (length(files) == 0){
     stop("This folder does not contains any .mat file")
   }
