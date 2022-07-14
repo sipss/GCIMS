@@ -559,7 +559,7 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' samples <- 1
 #' file <- "Metadata.xlsx"
 #' gcims_read_metadata(dir_in, samples, file)
-#' M1 <- readRDS("M1.rds")
+#' M1 <- readRDS(file.path(dir_in, "M1.rds"))
 #' print(M1$metadata)
 #' M1$metadata$Class <- NULL
 #' M1$metadata$Bottle <- NULL
