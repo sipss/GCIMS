@@ -502,10 +502,11 @@ write_mea <- function(object, filename) {
 #'     data_df = matrix(1:12, nrow = 3, ncol = 4)
 #'   )
 #' )
-#' R.matlab::writeMat(obj, matfile)
+#' R.matlab::writeMat(matfile, dd = obj)
 #' dir_out <- tempfile("rds_samples")
 #' dir.create(dir_out)
 #' gcims_read_mat(mat_samples_dir, dir_out)
+#' list.files(dir_out, full.names = TRUE)
 gcims_read_mat <- function(dir_in, dir_out) {
   require_pkgs("R.matlab")
   print(" ")
