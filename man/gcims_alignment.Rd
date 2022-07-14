@@ -68,7 +68,6 @@ the retention time alignment.
 }
 \examples{
 \donttest{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- c(3, 7)
@@ -86,7 +85,6 @@ gcims_plot_spec(dir_out, samples, rt_value = NULL, dt_range = NULL, colorby = "C
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
-setwd(current_dir)
 }
 
 }

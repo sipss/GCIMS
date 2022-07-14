@@ -43,7 +43,6 @@ dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 
 # Before:
-setwd(dir_in)
 samples <- c(3, 7)
 gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
@@ -52,7 +51,6 @@ gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "C
 q_rt <- 5
 q_dt <- 2
 gcims_decimate(dir_in, dir_out, samples, q_rt, q_dt)
-setwd(dir_out)
 gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
 gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
 

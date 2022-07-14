@@ -30,7 +30,6 @@ function if you are interested in obtaining a final peak table for future
 classification techniques.
 }
 \examples{
-current_dir <- getwd()
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- 1:3
