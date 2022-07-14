@@ -598,7 +598,7 @@ InterpCoeff <- function(n,nprime,offs) {
 #' drift_time_corr = Kcorr * drift_time
 #'
 #' Changes in pressure and temperature during measurements may lead to
-#' correction factors up to [0.9, 1.1].
+#' correction factors up to \eqn{[0.9, 1.1]}.
 #'
 #' This alignment technique can be used when the pressure and temperature
 #' measurements are not available.
