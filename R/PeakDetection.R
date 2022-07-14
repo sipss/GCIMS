@@ -139,11 +139,11 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # For loop that iterates through all the columns
     for(j in seq_len(num_ims_chr)){
       # Find the max (peaks)
-      locs <- findpeaksRois(t(drt)[j, ], MinPeakHeight = noise_level*sigmaNoise, MinPeakDistance = 1)$loc
+      locs <- findpeaksRois(drt[, j], MinPeakHeight = noise_level*sigmaNoise, MinPeakDistance = 1)$loc
       #locs <- pracma::findpeaks(daux[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
 
       # Find the zero-crossing points
-      posdt <- findZeroCrossings(t(drt)[j, ])
+      posdt <- findZeroCrossings(drt[, j])
       #posdt <- findZeroCrossings(daux[j, ])
       tmp <- NULL
       locs_tmp <- NULL
