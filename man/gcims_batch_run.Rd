@@ -42,7 +42,7 @@ file.copy(
 )
 
 # We have a function we want to try on one sample first, and apply to
-all samples afterwards:
+# all samples afterwards:
 
 adds_n <- function(x, n) {
   x$data$data_df <- x$data$data_df + n
