@@ -60,6 +60,7 @@ one_sample <- adds_n(one_sample, n  = 4)
 print(one_sample$data$data_df[1:3,1:3])
 
 # We are satisfied with n=4. Apply to all samples:
+dir_out <- tempfile("dir_out")
 gcims_batch_run(dir_in, dir_out, adds_n, n=4)
 
 
