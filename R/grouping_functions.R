@@ -201,13 +201,12 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
   # 8) Save results
 
 
-  setwd(dir_in)
   print("Performing Peak Clustering among samples")
 
 
   # 0) Look for the number of ROIS in the reference sample
     aux_string <- paste0("M", 0, ".rds")
-    aux_list <- readRDS(aux_string)
+    aux_list <- readRDS(file.path(dir_in, aux_string))
     aux_df <- aux_list$data$roi_df
     ncluster_0 <-length(aux_df$roi_id)
     rows_df   <- nrow(aux_list$data$data_df)
@@ -222,7 +221,7 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
       m <- m + 1
       # 2.a) read data
       aux_string <- paste0("M", samples[m], ".rds")
-      aux_list <- readRDS(aux_string)
+      aux_list <- readRDS(file.path(dir_in, aux_string))
       # 2.b) update roi_list
       roi_list[[m]]   <- aux_list$data$roi_df
     }
@@ -246,9 +245,7 @@ gcims_peak_grouping <- function(dir_in, dir_out, samples){
     all_roi_df <- fine_clustering(all_roi_df, overlap_fine)
 
   # 8) Save results
-    setwd(dir_out)
-    saveRDS(all_roi_df, file = "all_roi_df.rds")
-    setwd(dir_in)
+    saveRDS(all_roi_df, file = file.path(dir_out, "all_roi_df.rds"))
 }
 
 

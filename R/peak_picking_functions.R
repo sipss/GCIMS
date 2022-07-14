@@ -34,7 +34,6 @@
 #' @importFrom purrr transpose
 #' @importFrom chemometrics sd_trim
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 3
@@ -43,13 +42,11 @@
 #'   gcims_peak_picking(dir_in, dir_out, samples,
 #'   min_length_tr = 50, min_length_td = 10, preprocess = TRUE)
 #'
-#' setwd(dir_out)
-#' M3 <- readRDS("M3.rds")
+#' M3 <- readRDS(file.path(dir_out, "M3.rds"))
 #' roi_df <- M3$data$roi_df
 #' head(roi_df)
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 gcims_peak_picking <- function(dir_in, dir_out, samples,
                                min_length_tr = 50, min_length_td = 10, preprocess = TRUE) {
 
@@ -336,7 +333,6 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
   # 10)  Generate ROI table
   # 11)  Save results
 
-  setwd(dir_in)
   m <- 0
   for (i in samples){
     m <- m + 1 # Increase by 1
@@ -344,7 +340,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
 
     # 1)   Read data
     aux_string <- paste0("M", samples[m], ".rds") # Generate file name
-    aux_list <- readRDS(aux_string) # Load RDS file
+    aux_list <- readRDS(file.path(dir_in, aux_string)) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
 
     # 2)  a. Search for RIP position
@@ -519,9 +515,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     M <- aux_list
 
     # 11)  Save results
-    setwd(dir_out)
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    saveRDS(M, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 

@@ -72,7 +72,6 @@
 #'
 #' @examples
 #' \donttest{
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- c(3, 7)
@@ -90,7 +89,6 @@
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #'}
 #'
 gcims_alignment <- function(dir_in, dir_out, samples, time, seg_vector, slack_vector) {

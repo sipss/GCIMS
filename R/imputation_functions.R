@@ -10,25 +10,13 @@
 #' @importFrom utils capture.output
 #' @importFrom tidyr spread
 #' @importFrom missForest missForest
-#' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-#'
-#' print(dataset_pos)
-#' }
-
 gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
   roi_cluster <- volume <- NULL
 
-  # 0) Set working directory
-  setwd(dir_in)
   print("Performing Peak Imputation")
 
   # 1) Read the roi table in long format
-  roi_table_long <- readRDS("all_roi_df.rds")
+  roi_table_long <- readRDS(file.path(dir_in, "all_roi_df.rds"))
 
   # 2) Select only the interesting roi variables:
   roi_table_long <- roi_table_long[c("roi_cluster", "sample_id", "volume")]
@@ -48,9 +36,5 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
   invisible(capture.output({roi_table_wide_imp <- missForest(roi_table_wide_mis)$ximp}))
 
   # 7) Save results
-  setwd(dir_out)
-  saveRDS(roi_table_wide_imp, file = "roi_table.rds")
-
-  # 8) Go to the input directory
-  setwd(dir_in)
+  saveRDS(roi_table_wide_imp, file = file.path(dir_out, "roi_table.rds"))
 }

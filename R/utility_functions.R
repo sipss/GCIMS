@@ -382,7 +382,6 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 #' dir_out <- tempdir()
 #'
 #' # Before:
-#' setwd(dir_in)
 #' samples <- c(3, 7)
 #' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 #' gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
@@ -391,7 +390,6 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 #' q_rt <- 5
 #' q_dt <- 2
 #' gcims_decimate(dir_in, dir_out, samples, q_rt, q_dt)
-#' setwd(dir_out)
 #' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(50, 226) , colorby = "Class")
 #' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.75, 9.6), colorby = "Class")
 #'
@@ -597,26 +595,22 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 #'   "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
 #'   Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #'
 #' # Before:
-#' setwd(dir_in)
 #' samples <- c(3, 7)
 #' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 #' gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
 #'
 #' # After:
 #' gcims_shifting(dir_in, dir_out, samples)
-#' setwd(dir_out)
 #' # c(50, 226)
 #' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(60, 98) , colorby = "Class")
 #' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.8, 9.0), colorby = "Class")
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #'
 
 gcims_shifting <- function(dir_in, dir_out, samples){
@@ -629,13 +623,12 @@ gcims_shifting <- function(dir_in, dir_out, samples){
   print(" ")
 
 
-  setwd(dir_in)
 
   tics <- NULL
   for (i in samples){
     print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(aux_string) #new
+    aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- as.matrix(aux_list$data$data_df)
     tic <- colSums(aux)
     tics <- rbind(tics, tic)
@@ -651,18 +644,18 @@ gcims_shifting <- function(dir_in, dir_out, samples){
   for (i in samples){
     if (i == referencetime) {
       file.copy(
-        from = paste0("M", referencetime, ".rds"),
+        from = file.path(dir_in, paste0("M", referencetime, ".rds")),
         to = file.path(dir_out, paste0("M", referencetime, ".rds"))
       )
     } else {
       print(paste0("Sample ", i, " of ", length(samples)))
-      reference <- readRDS(paste0("M", referencetime, ".rds"))
+      reference <- readRDS(file.path(dir_in, paste0("M", referencetime, ".rds")))
       reference <- reference$data$data_df
       referencetic <- colSums(reference)
       reference <- reference[,-c(1:abs(referenceindex - which.min(referencetic)))]
       dimension <- dim(reference)[2]
       aux_string <- paste0("M", i, ".rds")
-      aux_list <- readRDS(aux_string) #new
+      aux_list <- readRDS(file.path(dir_in, aux_string)) #new
       aux <- as.matrix(aux_list$data$data_df)
       auxtic <- colSums(aux)
       if (abs(referenceindex - which.min(auxtic)) > 0){
@@ -673,9 +666,7 @@ gcims_shifting <- function(dir_in, dir_out, samples){
       aux_list$data$retention_time <- aux_list$data$retention_time[1:dimension]
       aux_list$data$data_df <- aux[,c(1:dimension)]
       M <- aux_list
-      setwd(dir_out)
-      saveRDS(M, file = paste0("M", i, ".rds"))
-      setwd(dir_in)
+      saveRDS(M, file = file.path(dir_out, paste0("M", i, ".rds")))
       }
   }
 }

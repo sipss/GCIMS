@@ -17,7 +17,6 @@
 #' @importFrom cluster pam
 #' @importFrom rlang .data
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- 1:3

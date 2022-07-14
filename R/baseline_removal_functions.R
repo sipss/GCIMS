@@ -45,7 +45,6 @@
 #' Institute for Bioengineering of Catalonia. Signal and Information Processing for Sensing Systems group. Barcelona, Spain.
 #'
 #' @examples
-#' current_dir <- getwd()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
 #' samples <- c(3, 7)
@@ -64,7 +63,6 @@
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
-#' setwd(current_dir)
 #'
 gcims_baseline_removal <- function(dir_in, dir_out, samples,
                                    time,lambda = 1E7, p = 0.001, k = -1){
