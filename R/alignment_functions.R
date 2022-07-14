@@ -606,6 +606,7 @@ InterpCoeff <- function(n,nprime,offs) {
 #' @param drift_time_rip_ref A function that will take the drift times of the RIP for each spectra
 #'                           and returns the expected RIP drift time (default: median).
 #'                           It can also be the theoretical drift time position.
+#' @noRd
 #'
 align_rip <- function(spectra, drift_time, drift_time_rip_ref=stats::median) {
   rip_position <- apply(spectra, MARGIN = 1, which.max)
