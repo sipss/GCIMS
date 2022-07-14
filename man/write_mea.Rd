@@ -23,7 +23,7 @@ so it is not recommended in production environments.
 obj <- GCIMSSample(
  drift_time = 1:2,
  retention_time = 1:3,
- data = matrix(1:6, nrow = 2, ncol = 3),
+ data = matrix(1:6, nrow = 2, ncol = 3)
 )
 mea_file <- tempfile(fileext = ".mea")
 write_mea(obj, mea_file)
