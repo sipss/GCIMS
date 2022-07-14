@@ -41,10 +41,20 @@ all the samples of the dataset.
 The metadata file has to be in the same directory as the data samples.
 }
 \examples{
-dir_in <- system.file("extdata","add_meta", package = "GCIMS")
+# Prepare a directory:
+dir_in <- tempfile("dir_in")
+dir.create(dir_in, recursive = TRUE)
+file.copy(
+  system.file("extdata","add_meta", "Metadata.xlsx", package = "GCIMS"),
+  dir_in
+)
+file.copy(
+  system.file("extdata","add_meta", "M1.rds", package = "GCIMS"),
+  dir_in
+)
 M1 <- readRDS(file.path(dir_in, "M1.rds"))
-samples <- 1
 print(M1$metadata)
+samples <- 1
 file <- "Metadata.xlsx"
 gcims_read_metadata(dir_in, samples, file)
 M1 <- readRDS("M1.rds")
@@ -53,7 +63,6 @@ M1$metadata$Class <- NULL
 M1$metadata$Bottle <- NULL
 M1$metadata$Brand <- NULL
 print(M1$metadata)
-saveRDS(M1, "M1.rds")
 
 }
 \seealso{
