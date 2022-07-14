@@ -20,12 +20,12 @@ misses a lot of metadata, and may not be fully compliant with LAV or VOCal,
 so it is not recommended in production environments.
 }
 \examples{
-\dontrun{
 obj <- GCIMSSample(
  drift_time = 1:2,
  retention_time = 1:3,
  data = matrix(1:6, nrow = 2, ncol = 3),
- )
- write_mea(obj, "test.mea")
- }
+)
+mea_file <- tempfile(fileext = ".mea")
+write_mea(obj, mea_file)
+file.remove(mea_file)
 }
