@@ -294,7 +294,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
     mutate (Sample = as.factor(samples[Index])) %>%
     mutate (Class = as.factor(colorp[Index]))
 
-  p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Class)) +
+  p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Class, group = Sample)) +
     geom_line() +
     labs(x="Retention Time (s)",
          y= "Intensity (a.u.)",
@@ -448,7 +448,7 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
     mutate (Sample = as.factor(samples[Index])) %>%
     mutate (Class = as.factor(colorp[Index]))
 
-  p <- ggplot(moltspecs, aes(x = Drift_Time, y = Value, color = Class)) +
+  p <- ggplot(moltspecs, aes(x = Drift_Time, y = Value, color = Class, group = Sample)) +
     geom_line() +
     labs(x="Drift Time (ms)",
          y="Intensity (a.u.)",
