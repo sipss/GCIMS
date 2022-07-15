@@ -41,11 +41,18 @@ tryCatch({
 list.files("threeketones")
 ```
 
+Enable parallellization of the workflow, here we use three cores:
+
+```{r}
+library(BiocParallel)
+#register(SerialParam(progressbar = TRUE), default = TRUE)  # disable parallellization
+register(SnowParam(workers = 3, progressbar = TRUE), default = TRUE)  # enable parallellization with 3 workers
+```
 
 
 ## Create work directories
 
-The first steps, is to create all teh directories and folders where the samples are located and will be stored along all the process. 
+The first steps, is to create all the directories and folders where the samples are located and will be stored along all the process. 
 The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
 created.
 
@@ -61,6 +68,7 @@ alignd <- file.path(wd,'alignd')
 interpr <- file.path(wd,'interpr')
 filtr <- file.path(wd,'filtr')
 alignr <- file.path(wd,'alignr')
+roispp <- file.path(wd,'roispp')
 ```
 
 ## Import data
@@ -246,9 +254,18 @@ Aligned data:
 
 - ROIs detection: gcims_rois_selection
 
+
 ```{r}
 # ROIs DETECTION
-#samples <- c(1, 3)
-#noise_level <- 3
-#gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, noise_level)
+noise_level <- 3
+peak_list <- gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, noise_level)
+head(peak_list)
 ```
+
+
+# Session Info:
+
+```{r}
+sessionInfo()
+```
+
