@@ -4,7 +4,16 @@
 \alias{gcims_batch_run}
 \title{Apply a workflow step to all samples}
 \usage{
-gcims_batch_run(dir_in, dir_out, what, ..., batch_params = NULL)
+gcims_batch_run(
+  dir_in,
+  dir_out,
+  what,
+  ...,
+  .batch_samples = NULL,
+  .batch_returns = function(x) {
+     NULL
+ }
+)
 }
 \arguments{
 \item{dir_in}{Input directory where all .rds files to be processed are}
@@ -15,11 +24,14 @@ gcims_batch_run(dir_in, dir_out, what, ..., batch_params = NULL)
 
 \item{...}{Arguments to what}
 
-\item{batch_params}{Argument so we can pass parameters to \code{gcims_batch_run}.
-Ignored for now}
+\item{.batch_samples}{(deprecated) Sample numbers, as expected by other functions in the package, to build \code{paste0("M", i, ".rds")} functions.}
+
+\item{.batch_returns}{A function that takes a sample object. \code{NULL}, by default.}
 }
 \value{
-\code{NULL}. This function is called by its side effects
+A list as long as the number of .rds files in \code{dir_in}. Each list element
+is the output of \code{.batch_returns(obj)}, where obj is the corresponding rds sample
+(\code{NULL} by default).
 }
 \description{
 Apply a workflow step to all samples
