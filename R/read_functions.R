@@ -403,7 +403,7 @@ read_mea <- function(filename) {
 #' @param filename The filename to write it to (will have .mea appended if no extension is given)
 #'
 #' @return Nothing
-#' @export
+#' @noRd
 #' @examples
 #' obj <- GCIMSSample(
 #'  drift_time = 1:2,
