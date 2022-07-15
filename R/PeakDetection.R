@@ -41,17 +41,27 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
   print(" /    Selecting the ROIs  /")
   print("//////////////////////////")
   print(" ")
+  peak_lists <- gcims_batch_run(
+    dir_in,
+    dir_out,
+    gcims_rois_selection_one,
+    noise_level = noise_level,
+    .batch_samples = samples,
+    .batch_returns = function(x) {x$data$PeakList}
+  )
 
-  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
-  s = 0
-  for (i in samples) {
-    s = s + 1
-    print(paste0("Sample ", s, " of ", length(samples)))
+  purrr::imap(peak_lists, function(peak_list, sample_name) {
+    utils::write.csv(peak_list, file = file.path(dir_out, paste0("PeakTable", sample_name, ".csv")))
+  })
+
+  tibble::as_tibble(dplyr::bind_rows(!!!peak_lists, .id = "Sample"))
+}
+
+gcims_rois_selection_one <- function(x, noise_level){
+    aux_list <- x
 
     # 1. Data load
 
-    aux_string <- paste0("M", i, ".rds") # Generate file name
-    aux_list <- readRDS(file.path(dir_in, aux_string)) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
 
 
@@ -77,8 +87,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     # quantile(daux)
     # quantile(daux, c(0.25, 0.75))
 
-    patch <- daux[4100:4200, 100:200]
-    sigmaNoise <- sd(patch)
+    region <- find_region_without_peaks(aux, half_min_size = c(10, 10), noise_quantile = 0.25)
+    sigmaNoise <- stats::sd(daux[region$row_min:region$row_max, region$col_min:region$col_max])
 
     # tt <- aux < quantile(aux, 0.15)
     # indx_noise <- which(tt == TRUE, arr.ind = TRUE)
@@ -344,10 +354,11 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     aux_list$data$Parameters <- rbind(AsF, saturation, volume)
     peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmcs, rtmcs, ROIs_overlap, area, volume, AsF, saturation)
     colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT", "Area", "Volume", "AsF", "Saturation")
-    utils::write.csv(peaktable, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
-    M <- aux_list
-    saveRDS(M, file = file.path(dir_out, paste0("M", i, ".rds")))
-  }
+
+    rownames(peaktable) <- NULL
+    aux_list$data$PeakList <- as.data.frame(peaktable)
+
+    aux_list
 }
 
 
