@@ -22,23 +22,22 @@
 #' @importFrom stats median
 #' @importFrom signal interp1
 #' @importFrom pracma findpeaks
+#' @export
 #'
-gcims_align <- function(dir_in, dir_out,samples) {
+align_td <- function(dir_in, dir_out,samples) {
   aux_string <- paste0("M0.rds")
   aux_list <- readRDS(file.path(dir_in, aux_string))
   aux <- as.matrix(aux_list$data$data_df)
   drift_time <- aux_list$data$drift_time
-  print(length(drift_time))
   rip_position <- apply(aux, MARGIN = 2, which.max)
 
 
   dt_rip_position <- drift_time[rip_position]
   drift_time_rip_ref <- median(dt_rip_position, na.rm = TRUE)
   drift_time_rip_ref_pos <- which.min(abs(drift_time - drift_time_rip_ref))
-  print(drift_time_rip_ref_pos)
 
   m <- -1
-  for (i in  samples){
+  for (i in  c(0, samples)){
     m <- m + 1
     if (m != 0){
       print(paste0("Sample ", m, " of ", length(samples)))
@@ -84,3 +83,61 @@ gcims_align <- function(dir_in, dir_out,samples) {
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
+
+
+
+#' Correction of retention time axis using Parametric Time Warping (PTW)
+#'
+#' This chromatrogram computes the RIC of the reference samples and
+#' uses it to correct each of the EIC of a sample, for the all the selected
+#' samples on the dataset. The warping function that relates the
+#' retention time axes of the reference and the sample to be corrected
+#' is a polynomial of degree two.
+#'
+#' @param dir_in             Input directory. Where input data files are loaded
+#'  from.
+#' @param dir_out            Output directory. Where aligned data files are stored.
+#' @param samples            Numeric vector of integers. Identifies the set of
+#'                           sample to be visualized from the dataset.
+#' @export
+#' @importFrom ptw ptw
+#' @importFrom signal interp1
+#' @export
+#'
+#' @importFrom signal interp1
+align_tr <- function(dir_in, dir_out, samples) {
+
+  samples <- 1:7
+  aux_string <- paste0("M0.rds")
+  aux_list <- readRDS(file.path(dir_in, aux_string))
+  aux <- as.matrix(aux_list$data$data_df)
+
+  compute_ric <- function(x){
+    ric_pos <- which.max(rowSums(x))
+    ric <- x[ric_pos, ]
+    ric <- max(ric) - ric
+    ric <- ric/sum(ric)
+    return(ric)
+  }
+
+  ric_ref <- compute_ric(aux)
+
+  m <- -1
+  for (i in  c(0, samples)){
+    m <- m + 1
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(file.path(dir_in, aux_string))
+    aux <- as.matrix(aux_list$data$data_df)
+    ric_sample <- compute_ric(aux)
+    xi <- seq_len(dim(aux)[2])
+    x <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = c(0, 1, 0))$warp.fun[, xi]
+    aux <- t(apply(aux, MARGIN = 1, FUN = signal::interp1, x = x, xi = xi, extrap = "extrap"))
+    aux_list$data$data_df <- round(aux)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
+  }
+}
+
+
