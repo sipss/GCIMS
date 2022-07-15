@@ -361,7 +361,7 @@ read_mea <- function(filename) {
   } else {
     stop(sprintf("Expected Chunk trigger repetition to be in ms, found %s instead. Please open an issue to implement this", params[["Chunk sample rate"]][["unit"]]))
   }
-  ret_time_step <- (params[['Chunk averages']]+1)*retention_time_step_s
+  ret_time_step <- (params[['Chunk averages']] + 1)*retention_time_step_s
   ret_time <- seq(from = 0.0, by = ret_time_step, length.out = params[["Chunks count"]])
 
   drift_tube_length <- numeric(0)
@@ -439,7 +439,7 @@ write_mea <- function(object, filename) {
     "key_integer" = "%-31s= %d",
     "key_string" = '%-31s= "%s"'
   )
-  FAKE_CHUNK_AVGS <- 12
+  FAKE_CHUNK_AVGS <- 1
   FAKE_TIMESTAMP <- "1970-01-01T00:00:00"
   header <- c(
     sprintf(fmt["key_string"], "ADIO gpident no", "5551D615"), #fake
@@ -450,7 +450,7 @@ write_mea <- function(object, filename) {
     sprintf(fmt["key_integer"], "Chunk averages", FAKE_CHUNK_AVGS), #fake
     sprintf(fmt["key_integer"], "Chunk sample count", length(dt)),
     sprintf(fmt["key_value_unit"], "Chunk sample rate", dtime_rate_khz, "kHz"),
-    sprintf(fmt["key_value_unit"], "Chunk trigger duration", 100, "\u03BCs"), #fake
+    sprintf(fmt["key_value_unit"], "Chunk trigger duration", 100, "\u00B5s"), #fake
     sprintf(fmt["key_value_unit"], "Chunk trigger repetition", 1000/rtime_rate_hz/(FAKE_CHUNK_AVGS+1), "ms"),
     sprintf(fmt["key_value_unit"], "Chunk voltrange", 10.000, "V"),
     sprintf(fmt["key_integer"], "Chunks count", length(rt)),
@@ -472,7 +472,6 @@ write_mea <- function(object, filename) {
     sprintf(fmt["key_string"], "Timestamp", FAKE_TIMESTAMP),
     ""
   )
-
   binheader <- iconv(paste0(header, collapse = "\n"), from = "UTF-8", to = "windows-1252", toRaw = TRUE)[[1]]
   writeBin(binheader, con = con, useBytes = TRUE)
   writeBin(object = as.raw(0), con = con, size = 1)
