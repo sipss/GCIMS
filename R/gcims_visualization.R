@@ -64,7 +64,8 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
     } else{
       if(cond_1_rt | cond_2_rt){
-        stop("Retention time range out of bounds.")
+        info_message <- paste0("The selected retention time range to plot is out of bounds: [",retention_time[1],", ", retention_time[length(retention_time)],"].")
+        stop(info_message)
       }
       rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2])))
       if( rt_ind[1] == rt_ind[2]){
@@ -78,7 +79,8 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
       dt_ind <- c(1, dim(aux)[1]) #New
     } else{
       if(cond_1_dt | cond_2_dt){
-        stop("Drift time range out of bounds.")
+        info_message <- paste0("The selected drift time range to plot is out of bounds: [",drift_time[1],", ", drift_time[length(drift_time)],"].")
+        stop(info_message)
       }
       dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2]))) #New
       if( dt_ind[1] == dt_ind[2]){
@@ -227,11 +229,13 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
   } else{
     if(cond_1_rt | cond_2_rt){
-      stop("Retention time range out of bounds.")
+      info_message <- paste0("The selected retention time range to plot is out of bounds: [",retention_time[1],", ", retention_time[length(retention_time)],"].")
+      stop(info_message)
     }
     rt_ind  <- c(which.min(abs(retention_time - rt_range[1])), which.min(abs(retention_time - rt_range[2])))
     if( rt_ind[1] == rt_ind[2]){
-      stop("Initial and Final retention time values can't be equal in the variable rt_range.")
+      info_message <- paste0("The selected drift time range to plot is out of bounds: [",drift_time[1],", ", drift_time[length(drift_time)],"].")
+      stop(info_message)
     }#New
   }
 
@@ -242,7 +246,8 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
     sel_index_dt <- dt_ind[1]: dt_ind[2]#New
   } else{
     if(cond_1_dt | cond_2_dt){
-      stop("Drift time range out of bounds.")
+      info_message <- paste0("The selected drift value to plot is out of bounds: [",drift_time[1],", ", drift_time[length(drift_time)],"].")
+      stop(info_message)
     }
     dt_ind  <- which.min(abs(drift_time - dt_value)) #New
     sel_index_dt <- dt_ind
@@ -382,7 +387,8 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
 
   } else{
     if(cond_1_dt | cond_2_dt){
-      stop("Drift time range out of bounds.")
+      info_message <- paste0("The selected drift time range to plot is out of bounds: [",drift_time[1],", ", drift_time[length(drift_time)],"].")
+      stop(info_message)
     }
     dt_ind  <- c(which.min(abs(drift_time - dt_range[1])), which.min(abs(drift_time - dt_range[2]))) #New
     if( dt_ind[1] == dt_ind[2]){
@@ -397,7 +403,8 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
     sel_index_rt <- rt_ind[1]: rt_ind[2]#New
   } else{
     if(cond_1_rt | cond_2_rt){
-      stop("Retention time range out of bounds.")
+      info_message <- paste0("The selected retention value to plot is out of bounds: [",retention_time[1],", ", retention_time[length(retention_time)],"].")
+      stop(info_message)
     }
     rt_ind  <- which.min(abs(retention_time - rt_value)) #New
     sel_index_rt <- rt_ind
