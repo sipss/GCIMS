@@ -20,5 +20,5 @@ This chromatrogram computes the RIC of the reference samples and
 uses it to correct each of the EIC of a sample, for the all the selected
 samples on the dataset. The warping function that relates the
 retention time axes of the reference and the sample to be corrected
-is a polynomial of degree two.
+is linear.
 }

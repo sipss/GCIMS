@@ -92,7 +92,7 @@ align_td <- function(dir_in, dir_out,samples) {
 #' uses it to correct each of the EIC of a sample, for the all the selected
 #' samples on the dataset. The warping function that relates the
 #' retention time axes of the reference and the sample to be corrected
-#' is a polynomial of degree two.
+#' is linear.
 #'
 #' @param dir_in             Input directory. Where input data files are loaded
 #'  from.
@@ -107,7 +107,7 @@ align_td <- function(dir_in, dir_out,samples) {
 #' @importFrom signal interp1
 align_tr <- function(dir_in, dir_out, samples) {
 
-  samples <- 1:7
+
   aux_string <- paste0("M0.rds")
   aux_list <- readRDS(file.path(dir_in, aux_string))
   aux <- as.matrix(aux_list$data$data_df)
@@ -133,7 +133,12 @@ align_tr <- function(dir_in, dir_out, samples) {
     aux <- as.matrix(aux_list$data$data_df)
     ric_sample <- compute_ric(aux)
     xi <- seq_len(dim(aux)[2])
-    x <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = c(0, 1, 0))$warp.fun[, xi]
+    x <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = c(0, 1))$warp.fun[, xi]
+    # ric_corr <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef =c(0, 1))$warped.sample[, xi]
+    # plot(ric_ref, col = "black", type = "l")
+    # lines(ric_sample, col = "red")
+    # lines(ric_corr, col = "blue")
+    # Sys.sleep(2)
     aux <- t(apply(aux, MARGIN = 1, FUN = signal::interp1, x = x, xi = xi, extrap = "extrap"))
     aux_list$data$data_df <- round(aux)
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
