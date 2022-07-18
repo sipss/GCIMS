@@ -24,17 +24,6 @@
 #'   table. In such a case use `gcims_peak_imputation` to impute them.
 #' @export
 #' @importFrom pracma meshgrid eye
-#' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-#'
-#' print(dataset_pos)
-#' }
-
-
 gcims_peak_grouping <- function(dir_in, dir_out, samples){
 
 

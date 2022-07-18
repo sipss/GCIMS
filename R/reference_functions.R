@@ -9,16 +9,6 @@
 #'                        is the mean sample.
 #' @return A reference sample
 #' @export
-#' @examples
-#' \dontrun{
-#' dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-#'                                                      "dataset_metadata.rds",
-#'                                                      package = "NIHSlcms"))
-#' dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-#'
-#' print(dataset_pos)
-#' }
-
 gcims_create_reference <- function(dir_in, dir_out, samples, ref_number){
 
 

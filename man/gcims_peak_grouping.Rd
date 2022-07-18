@@ -39,14 +39,4 @@ of one roi of the reference. This process is repeated for all samples in
 The grouping process may produce missing values in the final peak/ROI
 table. In such a case use \code{gcims_peak_imputation} to impute them.
 }
-\examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-
-print(dataset_pos)
-}
-}
 \concept{Peak Grouping functions}

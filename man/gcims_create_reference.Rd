@@ -22,13 +22,3 @@ A reference sample
 \description{
 Select or create a reference sample
 }
-\examples{
-\dontrun{
-dataset_2_polarities <- lcms_dataset_load(system.file("extdata",
-                                                     "dataset_metadata.rds",
-                                                     package = "NIHSlcms"))
-dataset_pos <- lcms_filter_polarity(dataset_2_polarities, polarity. = 1)
-
-print(dataset_pos)
-}
-}
