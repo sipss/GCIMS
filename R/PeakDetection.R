@@ -50,7 +50,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     .batch_returns = function(x) {x$data$PeakList}
   )
 
-  purrr::imap(peak_lists, function(peak_list, sample_name) {
+  purrr::iwalk(peak_lists, function(peak_list, sample_name) {
     utils::write.csv(peak_list, file = file.path(dir_out, paste0("PeakTable", sample_name, ".csv")))
   })
 
