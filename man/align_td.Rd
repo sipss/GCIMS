@@ -18,8 +18,8 @@ sample to be visualized from the dataset.}
 \description{
 This spectra alignment function computes the largest peak from
 each spectrum, assuming it corresponds to the Reactant Ion Peak.
-Then it computes the median RIP position of all the samples and
-corrects the drift time for each sample.
+Then it computes the RIP position of all the samples and
+corrects the all the spectra, for each sample.
 The correction is multiplicative, meaning:
 drift_time_corr = Kcorr * drift_time
 }
