@@ -1,61 +1,9 @@
-#' ROIs Clustering
-
-#' @param dir_in          Input directory. Where input data files are loaded
-#'   from.
-#' @param dir_out         Output directory. Where peak table data file is
-#'   stored.
-#' @param samples         Numeric vector of integers. Identifies the set of
-#'   samples that are going to be included in the peak table.
-#' @details `gcims_peaks_clustering`  does a clustering along the ROIs
-#'   for a peak table creation. The Figures of merits of each ROI are also
-#'   reported. In this table are included all samples in `samples`. Use this
-#'   function if you are interested in obtaining a final peak table for future
-#'   classification techniques.
-#' @return A Set of S3 objects.
-#' @family Peaks CLustering function
-#' @export
-#' @importFrom cluster pam
-#' @importFrom rlang .data
-#' @examples
-#' dir_in <- system.file("extdata", package = "GCIMS")
-#' dir_out <- tempdir()
-#' samples <- 1:3
-#'
-#' # Example of ROIs Clustering for Peak Table Creation
-#' # Need a proper dataset with peaks detected in the pkg
-#' # (or maybe better a refactor the function arguments)
-#' #peak_table <- gcims_peaks_clustering(dir_in, dir_out, samples)
-gcims_peaks_clustering <- function(dir_in, dir_out, samples){
-  print(" ")
-  print("  ///////////////////////////")
-  print(" /    Clustering the ROIs  /")
-  print("///////////////////////////")
-  print(" ")
-
-
-  samples_fn <- stats::setNames(
-    object = file.path(dir_in, paste0("M", samples, ".rds")),
-    nm = paste0("M", samples)
-  )
-  peaks <- rds_samples_to_peak_list(samples_fn)
-  group_peak_list(
-    peaks = peaks,
-    filter_dt_width_criteria = "IQR",
-    filter_rt_width_criteria = "arnau",
-    distance_method = "mahalanobis",
-    distance_between_peaks_from_same_sample = Inf,
-    clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-    aggregate_conflicting_peaks = mean,
-    verbose = FALSE
-  )
-}
-
 #' Peak grouping function, exposing a lot of options useful for benchmarking
 #'
 #' @param peaks A data frame with at least the following columns:
 #'  - "UniqueID" A unique ID for each peak
 #'  - "SampleID" The sample ID the peak belongs to
-#'  - "dtapex_ms", "rtapex_s" The peak positions
+#'  - "dt_apex_ms", "rt_apex_s" The peak positions
 #'  - "volume" The size of the peak
 #'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
 #' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
@@ -71,11 +19,6 @@ gcims_peaks_clustering <- function(dir_in, dir_out, samples){
 #'   detected peaks per sample.
 #'
 #'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
-#' @param aggregate_conflicting_peaks `NULL` or a function. When we build the peak table, with peaks in rows, samples in
-#'  columns, `peak_table[i,j]` is the volume of the peak from sample `j` in cluster `i`. If the clustering process
-#'  clusters together two peaks form the same sample, those peaks will conflict in the peak table. `NULL` will error
-#'  in that case, another function will be applied on the conflicting volumes (e.g `mean` or `max` would be reasonable options)
-#'
 #' @param verbose logical, to control printing in the function
 #'
 #' @return A list with :
@@ -111,11 +54,10 @@ group_peak_list <- function(
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = Inf,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-  aggregate_conflicting_peaks = NULL,
   verbose = FALSE
 ) {
   # 0. Warn if peaks with NA positions, and remove them
-  peaks_with_na <- stats::complete.cases(peaks[,c("UniqueID", "SampleID", "dtapex_ms", "rtapex_s")])
+  peaks_with_na <- stats::complete.cases(peaks[,c("UniqueID", "SampleID", "dt_apex_ms", "rt_apex_s")])
   if (!all(peaks_with_na)) {
     rlang::warn("Some peaks in samples have wrong indexes leading to NA positions")
     print(peaks[!peaks_with_na,])
@@ -131,7 +73,7 @@ group_peak_list <- function(
   )
 
   # Compute the peak to peak distance:
-  peak_matrix <- as.matrix(peaks[,c("dtapex_ms", "rtapex_s")])
+  peak_matrix <- as.matrix(peaks[,c("dt_apex_ms", "rt_apex_s")])
   rownames(peak_matrix) <- peaks$UniqueID
 
   peak2peak_dist <- peak2peak_distance(
@@ -179,7 +121,6 @@ group_peak_list <- function(
     stop(sprintf("Unsupported clustering method %s", clustering$method))
   }
 
-
   median_roi_per_cluster <- peaks %>%
     dplyr::group_by(.data$cluster) %>%
     dplyr::summarise(
@@ -190,7 +131,33 @@ group_peak_list <- function(
     ) %>%
     dplyr::ungroup()
 
-  peak_table_duplicity <- peaks %>%
+
+  list(
+    peak_list_clustered = peaks,
+    clusters_median_roi = median_roi_per_cluster,
+    dist = peak2peak_dist,
+    extra_clustering_info = extra_clustering_info
+  )
+}
+
+#' Build a peak table
+#'
+#' @param peak_list_clustered The output of [group_peak_list]
+#' @param aggregate_conflicting_peaks `NULL` or a function. When we build the peak table, with peaks in rows, samples in
+#'  columns, `peak_table[i,j]` is the volume of the peak from sample `j` in cluster `i`. If the clustering process
+#'  clusters together two peaks form the same sample, those peaks will conflict in the peak table. `NULL` will error
+#'  in that case, another function will be applied on the conflicting volumes (e.g `mean` or `max` would be reasonable options)
+#'
+#'
+#' @return A list with the peak table and the ROI duplicity information
+#' @export
+#'
+build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
+  if (!"volume" %in% colnames(peak_list_clustered)) {
+    rlang::abort("Please compute a 'volume' column in peak_list_clustered")
+  }
+
+  peak_table_duplicity <- peak_list_clustered %>%
     dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
     tidyr::pivot_wider(
       names_from = dplyr::all_of("SampleID"),
@@ -198,88 +165,20 @@ group_peak_list <- function(
       values_fn = length
     )
 
-  peak_table <- peaks %>%
+  peak_table <- peak_list_clustered %>%
     dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
     tidyr::pivot_wider(
       names_from = dplyr::all_of("SampleID"),
       values_from = dplyr::all_of("volume"),
       values_fn = aggregate_conflicting_peaks
     )
-
-  peak_table_annotated <- dplyr::left_join(
-    median_roi_per_cluster,
-    peak_table,
-    by = "cluster"
-  )
   # Missing values still need to be filled
   list(
-    peak_table = peak_table_annotated,
-    peak_table_duplicity = peak_table_duplicity,
-    dist = peak2peak_dist,
-    peak_matrix = peak_matrix,
-    peak_list_with_cluster = peaks,
-    extra_clustering_info = extra_clustering_info
+    peak_table = peak_table,
+    peak_table_duplicity = peak_table_duplicity
   )
 }
 
-rds_samples_to_peak_list <- function(samples) {
-  pb <- new_progress_bar(total = length(samples))
-
-  peaks_df <- purrr::map_dfr(samples, function(sample_fn) {
-    pb$tick()
-    aux_list <- readRDS(sample_fn)
-
-    parameters_df_i <- as.data.frame(t(aux_list$data$Parameters))
-    rownames(parameters_df_i) <- sprintf("Peak%d", seq_len(nrow(parameters_df_i)))
-
-    rois_i <- aux_list$data$ROIs
-    rownames(rois_i) <- sprintf("Peak%d", seq_len(nrow(rois_i)))
-    colnames(rois_i) <- c("dtmin_idx", "dtmax_idx", "rtmin_idx", "rtmax_idx")
-
-    apex_i <- aux_list$data$Peaks
-    colnames(apex_i) <- c("dtapex_idx", "rtapex_idx")
-    rownames(rois_i) <- sprintf("Peak%d", seq_len(nrow(apex_i)))
-
-    # Maybe instead of the Peaks, ROIs and Parameters, we could just
-    # have one dataframe in the RDS:
-    peaks_i <- tibble::rownames_to_column(
-      cbind(apex_i, rois_i, parameters_df_i),
-      var = "PeakID"
-    )
-    dt <- aux_list$data$drift_time
-    rt <- aux_list$data$retention_time
-    peaks_i <- peaks_i %>%
-      dplyr::mutate(
-        dplyr::across(dplyr::starts_with("dt"), ~ dt[.], .names = "{.col}DTDELETEME"),
-        dplyr::across(dplyr::starts_with("rt"), ~ rt[.], .names = "{.col}RTDELETEME")
-      ) %>%
-      dplyr::rename_with(
-        .fn = ~gsub("_idxDTDELETEME", "_ms", .),
-        .cols = dplyr::ends_with("_idxDTDELETEME")
-      ) %>%
-      dplyr::rename_with(
-        .fn = ~gsub("_idxRTDELETEME", "_s", .),
-        .cols = dplyr::ends_with("_idxRTDELETEME")
-      ) %>%
-      dplyr::select(
-        dplyr::all_of(
-          c("PeakID", "dtapex_ms", "rtapex_s",
-            "rtmin_s", "rtmax_s", "dtmin_ms", "dtmax_ms")
-        ),
-        dplyr::ends_with("_idx"),
-        dplyr::everything()
-      )
-    peaks_i
-  }, .id = "SampleID")
-
-  # Add a unique peak ID, that combines Sample+Peak ids:
-  peaks_df <- tibble::add_column(
-    peaks_df,
-    UniqueID = paste0(peaks_df$SampleID, peaks_df$PeakID),
-    .before = 1
-  )
-  tibble::as_tibble(peaks_df)
-}
 
 #' @noRd
 #' @param peaks A data frame with one peak per row and at least the following columns:
@@ -303,8 +202,8 @@ remove_peaks_with_outlier_rois <- function(
   # 1. Filter peaks with weird width or height
   roi_sizes <- tibble::tibble(
     UniqueID = peaks$UniqueID,
-    dt_width_ms = peaks$dtmax_ms - peaks$dtmin_ms,
-    rt_width_s = peaks$rtmax_s - peaks$rtmin_s
+    dt_width_ms = peaks$dt_max_ms - peaks$dt_min_ms,
+    rt_width_s = peaks$rt_max_s - peaks$rt_min_s
   )
 
   peaks_to_exclude <- c()
