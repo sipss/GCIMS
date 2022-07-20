@@ -47,7 +47,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     gcims_rois_selection_one,
     noise_level = noise_level,
     .batch_samples = samples,
-    .batch_returns = function(x) {x$data$PeakList}
+    .batch_returns = function(x) {x$data$ROIs}
   )
 
   purrr::iwalk(peak_lists, function(peak_list, sample_name) {
@@ -285,13 +285,10 @@ gcims_rois_selection_one <- function(x, noise_level){
 
     peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmcs, rtmcs, ROIs_overlap)
     colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT")
-    aux_list$data$data_df <- round(aux)
+
     aux_list$data$ROIs <- peaktable
     aux_list$data$Peaks <- peaks_overlap
-    setwd(dir_out)
-    M <- aux_list
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    aux_list
 }
 
 
