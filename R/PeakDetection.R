@@ -20,6 +20,7 @@
 #' @importFrom signal sgolayfilt
 #' @importFrom pracma findpeaks
 #' @importFrom ggplot2 geom_rect
+#' @importFrom rlang .data
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
