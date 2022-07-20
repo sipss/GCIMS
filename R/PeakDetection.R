@@ -55,6 +55,12 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
 gcims_rois_selection_one <- function(x, noise_level){
     aux_list <- x
 
+    if (anyNA(aux_list$data$retention_time)) {
+      stop("The sample has missing values in the $data$retention_time vector")
+    }
+    if (anyNA(aux_list$data$drift_time)) {
+      stop("The sample has missing values in the $data$drift_time vector")
+    }
     # 1. Data load
 
     aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
@@ -267,6 +273,21 @@ gcims_rois_selection_one <- function(x, noise_level){
       c <- floor((idx-1) / nrow(aux)) + 1 # drift = x
       x <- R1[1] + c
       y <- R1[3] + r
+      if (y > length(aux_list$data$retention_time)) {
+        rlang::abort(
+          glue::glue(
+            "The maximum ROI is found at the retention time index {y} beyond the size of the retention time {length(aux_list$data$retention_time)}. This should not happen"
+          )
+        )
+      }
+      if (x > length(aux_list$data$drift_time)) {
+        rlang::abort(
+          glue::glue(
+            "The maximum ROI is found at the retention time index {x} beyond the size of the retention time {length(aux_list$data$drift_time)}. This should not happen"
+          )
+        )
+      }
+
       peaks_overlap <- rbind(peaks_overlap, c(x, y)) # Maximo del ROI
 
       # roi center of mass
