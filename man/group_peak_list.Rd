@@ -11,7 +11,6 @@ group_peak_list(
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = Inf,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-  aggregate_conflicting_peaks = NULL,
   verbose = FALSE
 )
 }
@@ -20,7 +19,7 @@ group_peak_list(
 \itemize{
 \item "UniqueID" A unique ID for each peak
 \item "SampleID" The sample ID the peak belongs to
-\item "dtapex_ms", "rtapex_s" The peak positions
+\item "dt_apex_ms", "rt_apex_s" The peak positions
 \item "volume" The size of the peak
 \item "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
 }}
@@ -43,11 +42,6 @@ to use in the kmedoids algorithm (\link[cluster:pam]{cluster::pam}) or the strin
 detected peaks per sample.
 
 For \code{method = "hclust"}, you can provide \code{hclust_method}, with the \code{method} passed to \link[stats:hclust]{stats::hclust}.}
-
-\item{aggregate_conflicting_peaks}{\code{NULL} or a function. When we build the peak table, with peaks in rows, samples in
-columns, \code{peak_table[i,j]} is the volume of the peak from sample \code{j} in cluster \code{i}. If the clustering process
-clusters together two peaks form the same sample, those peaks will conflict in the peak table. \code{NULL} will error
-in that case, another function will be applied on the conflicting volumes (e.g \code{mean} or \code{max} would be reasonable options)}
 
 \item{verbose}{logical, to control printing in the function}
 }
