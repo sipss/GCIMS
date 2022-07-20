@@ -47,7 +47,7 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     gcims_rois_selection_one,
     noise_level = noise_level,
     .batch_samples = samples,
-    .batch_returns = function(x) {x$data$ROIs}
+    .batch_returns = function(x) {as.data.frame(x$data$ROIs)}
   )
 
   purrr::iwalk(peak_lists, function(peak_list, sample_name) {
