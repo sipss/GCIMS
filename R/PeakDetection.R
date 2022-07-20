@@ -248,22 +248,10 @@ gcims_rois_selection_one <- function(x, noise_level){
     colnames(ROIs) <- c("minDT", "maxDT", "minRT", "maxRT")
     ROIs_overlap <- NULL
     peaks_overlap <- NULL
-    labels <- unique(aff)
-    AsF <- NULL
-    volume <- NULL
-    area <- NULL
     rtmcs <- NULL
     dtmcs <- NULL
-    saturation <- rep(0, length(labels))
 
-
-
-
-    # Search saturation regions
-    rip_chrom <- rowSums(aux[rip_start_index: rip_end_index, ]) / length(rip_start_index: rip_end_index)
-    max_rip_chrom <- max(rip_chrom)
-    saturation_threshold <- 0.1 * max_rip_chrom
-
+    labels <- unique(aff)
     for (n in seq_along(labels)){
       idx <- which(aff == labels[n])
       R1 <- ROIs[idx[1], ]
@@ -284,82 +272,29 @@ gcims_rois_selection_one <- function(x, noise_level){
       y <- R1[3] + r
       peaks_overlap <- rbind(peaks_overlap, c(x, y)) # Maximo del ROI
 
-      len_dt <- ROIs_overlap[n, 2] - ROIs_overlap[n, 1]
-      len_rt <- ROIs_overlap[n, 4] - ROIs_overlap[n, 3]
-
-      # roi area
-      area_roi <- len_rt * len_dt
-      area <- c(area, area_roi)
-
-      # roi volume
-      volume <- c(volume, sum(aux[R1[1]:R1[2], R1[3]:R1[4]]))
-
       # roi center of mass
-      ind <- arrayInd(which.max(aux[R1[1]:R1[2], R1[3]:R1[4]]),
-                      dim(aux[R1[1]:R1[2], R1[3]:R1[4]]))
-      x_cm <- R1[1] + ind[1,1] - 1L
-      y_cm <- R1[3] + ind[1,2] - 1L
-      x_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs_overlap[n, 2] - ROIs_overlap[n, 1])) / volume[n])
-      y_cm <- round(compute_integral2(aux[R1[1]:R1[2], R1[3]:R1[4]] * (ROIs_overlap[n, 4] - ROIs_overlap[n, 3])) / volume[n])
-      # dt_mc <- ROIs_overlap[n, 1] + x_cm - 1 #min_dt
-      # rt_mc <- ROIs_overlap[n, 3] + y_cm - 1 #min_rt
-      # rtmaxs <- c(rtmaxs, y_cm)
-      # dtmaxs <- c(dtmaxs, x_cm)
-
       v <- rowSums(aux[R1[1]:R1[2], R1[3]:R1[4]])
       dt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + R1[1]  - 1L
       v <- colSums(aux[R1[1]:R1[2], R1[3]:R1[4]])
       rt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + R1[3] - 1L
       rtmcs <- c(rtmcs, round(rt_cm1))
       dtmcs <- c(dtmcs, round(dt_cm1))
-
-
-      # roi asymmetries
-      half_down_area  <- length(1:y_cm) * len_rt
-      half_up_area    <- length(y_cm:len_dt) * len_rt
-      asymetry <- round(((half_down_area - half_up_area) / (area_roi)), 2)
-      AsF <- c(AsF, asymetry)
-
-      saturation_regions <- which(rip_chrom <= saturation_threshold)
-      if (length(saturation_regions) == 0){
-        saturation_minima <- NULL
-      } else {
-        saturation_list <- split(saturation_regions, cumsum(c(1, diff(saturation_regions)) != 1))
-        saturation_minima <- matrix(0, length(saturation_list), 2)
-        for (k in seq_along(saturation_list)){
-          saturation_minima[k, ] <- c(min(saturation_list[[k]]), max(saturation_list[[k]]))
-        }
-      }
-
-
-      # roi saturation
-      if (length(saturation_minima) == 0){
-        # No saturation. Do nothing
-      } else {
-        for (l in (1:dim(saturation_minima)[1])){
-          if ((saturation_minima[l, 1] < y_cm)
-              & (saturation_minima[l, 2] > y_cm)) {
-            saturation[n] <- 1
-            break
-          }
-        }
-      }
     }
 
     colnames(ROIs_overlap) <- c("minDT", "maxDT", "minRT", "maxRT")
 
+    peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmcs, rtmcs, ROIs_overlap)
+    colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT")
     aux_list$data$data_df <- round(aux)
-    aux_list$data$ROIs <- ROIs_overlap
+    aux_list$data$ROIs <- peaktable
     aux_list$data$Peaks <- peaks_overlap
-    aux_list$data$Parameters <- rbind(AsF, saturation, volume)
-    peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmcs, rtmcs, ROIs_overlap, area, volume, AsF, saturation)
-    colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT", "Area", "Volume", "AsF", "Saturation")
-
-    rownames(peaktable) <- NULL
-    aux_list$data$PeakList <- as.data.frame(peaktable)
-
-    aux_list
+    setwd(dir_out)
+    M <- aux_list
+    saveRDS(M, file = paste0("M", i, ".rds"))
+    setwd(dir_in)
 }
+
+
 
 
 #' Detect peaks
