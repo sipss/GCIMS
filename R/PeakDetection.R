@@ -49,7 +49,9 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     .batch_samples = samples,
     .batch_returns = function(x) {x$data$ROIs}
   )
-  tibble::as_tibble(dplyr::bind_rows(!!!peak_lists, .id = "Sample"))
+  out <- dplyr::bind_rows(!!!peak_lists, .id = "SampleID")
+  out$UniqueID <- sprintf("%s/%s", out$SampleID, out$PeakID)
+  out
 }
 
 gcims_rois_selection_one <- function(x, noise_level){
@@ -63,8 +65,10 @@ gcims_rois_selection_one <- function(x, noise_level){
     }
     # 1. Data load
 
-    aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
-
+    aux <- as.matrix(aux_list$data$data_df) # The data is in data_df
+    spec_length <- nrow(aux)
+    num_spec <- ncol(aux)
+    # aux[3, 4] # at drift time index 3, retention time index 4
 
     # 2. Search of RIP position
 
@@ -78,10 +82,13 @@ gcims_rois_selection_one <- function(x, noise_level){
     # Compute the 2nd derivative for both axes
     filter1 <- signal::sgolay(p = 2, n = 21, m = 2)
     filter2 <- signal::sgolay(p = 2, n = 11, m = 2)
-    drt <- apply(aux, 1, function(x) -signal::sgolayfilt(x, filter1))
+
+    drt <- t(apply(aux, 1, function(x) -signal::sgolayfilt(x, filter1)))
     ddt <- apply(aux, 2, function(x) -signal::sgolayfilt(x, filter2))
 
-    daux <- ddt + t(drt)
+    daux <- drt + ddt
+
+    stopifnot(dim(aux) == dim(daux))
 
     # Region without peaks: PROBAR CON ORINA
     # p1 <- hist(daux)
@@ -114,12 +121,12 @@ gcims_rois_selection_one <- function(x, noise_level){
     # 5. Peaks and Zero-crossings
     ## 5.a. Retention time
 
-    peaksrt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for peaks
-    zeros_rt <- vector(mode = "list", length = dim(daux)[2]) # Initialization of vector for zero crossings
+    # peaksrt[[j]] <- c(i) # At the ret_time[j] seconds we find a peak in drift_time[i] ms
+    peaksrt <- vector(mode = "list", length = num_spec) # Initialization of vector for peaks
+    zeros_rt <- vector(mode = "list", length = num_spec) # Initialization of vector for zero crossings
 
-    num_ims_spectra <- ncol(daux)
     # For each IMS Spectra:
-    for (j in seq_len(num_ims_spectra)) {
+    for (j in seq_len(num_spec)) {
       # Find the max (peaks)
       #locs <- pracma::findpeaks(daux[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
       locs <- pracma::findpeaks(ddt[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
@@ -145,27 +152,26 @@ gcims_rois_selection_one <- function(x, noise_level){
 
     ## 5.b. Peaks and Zero-Crossing for Drift Time
 
-    num_ims_chr <- nrow(daux)
-    peaksdt <- vector(mode = "list", length = num_ims_chr) # Initialization of vector for peaks
-    zeros_dt <- vector(mode = "list", length = num_ims_chr) # Initialization of vector for zero crossings
+    peaksdt <- vector(mode = "list", length = spec_length) # Initialization of vector for peaks
+    zeros_dt <- vector(mode = "list", length = spec_length) # Initialization of vector for zero crossings
 
     # For loop that iterates through all the columns
-    for(j in seq_len(num_ims_chr)){
+    for (j in seq_len(spec_length)) {
       # Find the max (peaks)
-      locs <- findpeaksRois(drt[, j], MinPeakHeight = noise_level*sigmaNoise, MinPeakDistance = 1)$loc
+      locs <- findpeaksRois(drt[j,], MinPeakHeight = noise_level*sigmaNoise, MinPeakDistance = 1)$loc
       #locs <- pracma::findpeaks(daux[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
 
       # Find the zero-crossing points
-      posdt <- findZeroCrossings(drt[, j])
+      posdt <- findZeroCrossings(drt[j, ])
       #posdt <- findZeroCrossings(daux[j, ])
       tmp <- NULL
       locs_tmp <- NULL
       for (k in seq_along(locs)){
         dist <- locs[k] - posdt
         peakaround <- findZeroCrossings(dist)
-        if (length(peakaround) >= 1){
+        if (length(peakaround) >= 1L) {
           idx1 <- posdt[peakaround]
-          idx2 <- posdt[peakaround+1]
+          idx2 <- posdt[peakaround + 1L]
           tmp <- cbind(tmp, rbind(idx1, idx2))
           locs_tmp <- rbind(locs_tmp, locs[k])
         }
@@ -174,69 +180,55 @@ gcims_rois_selection_one <- function(x, noise_level){
       peaksdt[[j]] <- locs_tmp
     }
 
-    length(peaksdt) <- num_ims_chr
-    length(zeros_dt) <- num_ims_chr
 
     # Compute intersection
 
     peaks <- NULL
     ROIs <- NULL
-    for (row in seq_along(peaksrt)){
-      columns <- peaksrt[[row]]
-      zeros_columns <- zeros_rt[[row]]
-      for (col in columns){
-        c <- peaksdt[[col]]
-        zeros_c <- zeros_dt[[col]]
+    for (spec_idx in seq_along(peaksrt)) {
+      dt_idx_peaks <- peaksrt[[spec_idx]]
+      dt_idx_zeros <- zeros_rt[[spec_idx]]
+      for (dt_idx_peak in dt_idx_peaks) {
+        rt_idx_peaks <- peaksdt[[dt_idx_peak]]
+        rt_idx_zeros <- zeros_dt[[dt_idx_peak]]
 
-        if(length(intersect(row,c)) >= 1 & (col > rip_end_index)) {
-          peaks <- rbind(peaks, c(row, col))
-          minY <- zeros_c[1, c == row]
-          maxY <- zeros_c[2, c == row]
+        if ( length(intersect(spec_idx,rt_idx_peaks)) >= 1 && (dt_idx_peak > rip_end_index)) {
+          peaks <- rbind(peaks, c(spec_idx, dt_idx_peak))
+          rt_idx_min <- rt_idx_zeros[1, rt_idx_peaks == spec_idx]
+          rt_idx_max <- rt_idx_zeros[2, rt_idx_peaks == spec_idx]
 
-          minX <- zeros_columns[1, columns == col]
-          maxX <- zeros_columns[2, columns == col]
+          dt_idx_min <- dt_idx_zeros[1, dt_idx_peaks == dt_idx_peak]
+          dt_idx_max <- dt_idx_zeros[2, dt_idx_peaks == dt_idx_peak]
 
-          width <- abs(maxX[1] - minX[1])
-          height <- abs(maxY[1] - minY[1])
+          dt_idx_length <- abs(dt_idx_max[1] - dt_idx_min[1])
+          rt_idx_length <- abs(rt_idx_max[1] - rt_idx_min[1])
+          dt_idx_half <- floor(dt_idx_length/2)
+          rt_idx_half <- floor(rt_idx_length/2)
 
-          if (minX[1] != maxX[1] & minY[1] != maxY[1] & minX[1] < maxX[1] & minY[1] < maxY[1]){
-            begindt <- minX[1] - round(0.5*width)
-            beginrt <- minY[1] - round(0.5*height)
-            endt <- maxX[1] + round(0.5*width)
-            endrt <- maxY[1] + round(0.5*height)
-            minX <- begindt*(begindt > 0) + 1
-            maxX <- endt*(endt <= dim(aux)[1]) + (dim(aux)[1] *(endt > dim(aux)[1]))
-            minY <- beginrt*(beginrt > 0) + 1
-            maxY <- endrt*(endrt <= dim(aux)[2]) + (dim(aux)[1] *(endrt > dim(aux)[2]) )
-            ROIs <- rbind(ROIs, c(minX, maxX, minY, maxY))
-            #ROIs <- rbind(ROIs, c(minX[1], maxX[1], minY[1], maxY[1]))
+          if (dt_idx_min[1] < dt_idx_max[1] && rt_idx_min[1] < rt_idx_max[1]) {
+            dt_idx_min <- max(dt_idx_min[1] - dt_idx_half, 1L)
+            rt_idx_min <- max(rt_idx_min[1] - rt_idx_half, 1L)
+            dt_idx_max <- min(dt_idx_max[1] + dt_idx_half, spec_length)
+            rt_idx_max <- min(rt_idx_max[1] + rt_idx_half, num_spec)
+            ROIs <- rbind(ROIs, c(dt_idx_min, dt_idx_max, rt_idx_min, rt_idx_max))
           }
         }
       }
     }
+    colnames(ROIs) <- c("dt_idx_min", "dt_idx_max", "rt_idx_min", "rt_idx_max")
 
 
-    for (n in c(1:dim(ROIs)[1])){
-      if (ROIs[n, 2] - ROIs[n, 1] < 0){
-        ROIs[n, ] <- NA
-      }
-      if (ROIs[n, 3] - ROIs[n, 3] < 0){
-        ROIs[n, ] <- NA
-      }
-    }
-
-    ROIs <- stats::na.omit(ROIs)
-    # Merging algorith
+    # Merging algorithm
 
     thrOverlap <- 0.2
-    if (dim(ROIs)[1] >= 1) {
-      aff <- c(1:dim(ROIs)[1])
+    if (nrow(ROIs) >= 1) {
+      aff <- 1:nrow(ROIs)
 
       done <- NULL
-      for (j in (1:dim(ROIs)[1])){
+      for (j in (1:nrow(ROIs))){
         done <- c(done, j)
         R1 <- ROIs[j, ]
-        for (k in c((1:dim(ROIs)[1])[- done])){
+        for (k in c((1:nrow(ROIs))[- done])){
           R2 <- ROIs[k, ]
           if (aff[k] != j){
             if (abs(overlapPercentage(R1,R2)) > thrOverlap){
@@ -248,7 +240,6 @@ gcims_rois_selection_one <- function(x, noise_level){
     }
 
 
-    colnames(ROIs) <- c("minDT", "maxDT", "minRT", "maxRT")
     ROIs_overlap <- NULL
     peaks_overlap <- NULL
     rtmcs <- NULL
@@ -261,56 +252,87 @@ gcims_rois_selection_one <- function(x, noise_level){
       if (length(idx) > 1) {
         for (m in (2:length(idx))){
           R2 <- ROIs[idx[m], ]
-          R1 <- c(min(R1[1], R2[1]), max(R1[2], R2[2]),
-                  min(R1[3], R2[3]), max(R1[4], R2[4]))
+          R1 <- c(dt_idx_min = min(R1["dt_idx_min"], R2["dt_idx_min"]),
+                  dt_idx_max = max(R1["dt_idx_max"], R2["dt_idx_max"]),
+                  rt_idx_min = min(R1["rt_idx_min"], R2["rt_idx_min"]),
+                  rt_idx_max = max(R1["rt_idx_max"], R2["rt_idx_max"])
+                  )
         }
       }
       ROIs_overlap <- rbind(ROIs_overlap, R1)
 
-      patch <- aux[R1[1]:R1[2], R1[3]:R1[4]]
-      idx <- which.max(patch)
-      r <- ((idx-1) %% nrow(aux)) + 1 # retention = y
-      c <- floor((idx-1) / nrow(aux)) + 1 # drift = x
-      x <- R1[1] + c
-      y <- R1[3] + r
-      if (y > length(aux_list$data$retention_time)) {
+      patch <- aux[
+        R1["dt_idx_min"]:R1["dt_idx_max"],
+        R1["rt_idx_min"]:R1["rt_idx_max"],
+        drop = FALSE
+      ]
+      idx_mat <- arrayInd(which.max(patch), dim(patch), dimnames(patch))
+      r <- idx_mat[1, 1]
+      c <- idx_mat[1, 2]
+      dt_idx_apex <- R1["dt_idx_min"] + r - 1L
+      rt_idx_apex <- R1["rt_idx_min"] + c - 1L
+      if (rt_idx_apex > length(aux_list$data$retention_time)) {
         rlang::abort(
           glue::glue(
-            "The maximum ROI is found at the retention time index {y} beyond the size of the retention time {length(aux_list$data$retention_time)}. This should not happen"
+            "The maximum ROI is found at the retention time index {rt_idx_apex} beyond the size of the retention time {length(aux_list$data$retention_time)}. This should not happen"
           )
         )
       }
-      if (x > length(aux_list$data$drift_time)) {
+      if (dt_idx_apex > length(aux_list$data$drift_time)) {
         rlang::abort(
           glue::glue(
-            "The maximum ROI is found at the retention time index {x} beyond the size of the retention time {length(aux_list$data$drift_time)}. This should not happen"
+            "The maximum ROI is found at the retention time index {dt_idx_apex} beyond the size of the retention time {length(aux_list$data$drift_time)}. This should not happen"
           )
         )
       }
 
-      peaks_overlap <- rbind(peaks_overlap, c(x, y)) # Maximo del ROI
+      peaks_overlap <- rbind(peaks_overlap, c(dt_idx_apex, rt_idx_apex)) # Maximo del ROI
 
       # roi center of mass
-      v <- rowSums(aux[R1[1]:R1[2], R1[3]:R1[4]])
-      dt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + R1[1]  - 1L
-      v <- colSums(aux[R1[1]:R1[2], R1[3]:R1[4]])
-      rt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + R1[3] - 1L
+      v <- rowSums(patch)
+      dt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + R1["dt_idx_min"]  - 1L
+      v <- colSums(patch)
+      rt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + R1["rt_idx_min"] - 1L
       rtmcs <- c(rtmcs, round(rt_cm1))
       dtmcs <- c(dtmcs, round(dt_cm1))
     }
 
-    colnames(ROIs_overlap) <- c("minDT", "maxDT", "minRT", "maxRT")
+    colnames(ROIs_overlap) <- c("dt_idx_min", "dt_idx_max", "rt_idx_min", "rt_idx_max")
+    colnames(peaks_overlap) <- c("dt_idx_apex", "rt_idx_apex")
+    rownames(peaks_overlap) <- NULL
+    rownames(ROIs_overlap) <- NULL
 
-    peaktable <- data.frame(
-      ID = seq_len(nrow(ROIs_overlap)),
-      ApexDT = peaks_overlap[,1],
-      ApexRT = peaks_overlap[,1],
-      minDT = ROIs_overlap[,"minDT"],
-      maxDT = ROIs_overlap[,"maxDT"],
-      minRT = ROIs_overlap[,"minRT"],
-      maxRT = ROIs_overlap[,"maxRT"],
-      CenterMassDT = dtmcs,
-      CenterMassRT = rtmcs
+
+    fmt <- paste0("%0", nchar(as.character(nrow(ROIs_overlap))), "d")
+    peaktable <- tibble::tibble(
+      PeakID = sprintf(fmt, seq_len(nrow(ROIs_overlap))),
+      dt_apex_ms = NA_real_,
+      rt_apex_s = NA_real_,
+      dt_min_ms = NA_real_,
+      dt_max_ms = NA_real_,
+      rt_min_s = NA_real_,
+      rt_max_s = NA_real_,
+      dt_cm_ms = NA_real_,
+      rt_cm_s = NA_real_,
+      dt_apex_idx = peaks_overlap[,"dt_idx_apex"],
+      rt_apex_idx = peaks_overlap[,"rt_idx_apex"],
+      dt_min_idx = ROIs_overlap[,"dt_idx_min"],
+      dt_max_idx = ROIs_overlap[,"dt_idx_max"],
+      rt_min_idx = ROIs_overlap[,"rt_idx_min"],
+      rt_max_idx = ROIs_overlap[,"rt_idx_max"],
+      dt_cm_idx = dtmcs,
+      rt_cm_idx = rtmcs
+    )
+    peaktable <- dplyr::mutate(
+      peaktable,
+      dt_apex_ms = aux_list$data$drift_time[.data$dt_apex_idx],
+      rt_apex_s = aux_list$data$retention_time[.data$rt_apex_idx],
+      dt_min_ms = aux_list$data$drift_time[.data$dt_min_idx],
+      dt_max_ms = aux_list$data$drift_time[.data$dt_max_idx],
+      rt_min_s = aux_list$data$retention_time[.data$rt_min_idx],
+      rt_max_s = aux_list$data$retention_time[.data$rt_max_idx],
+      dt_cm_ms = aux_list$data$drift_time[.data$dt_cm_idx],
+      rt_cm_s = aux_list$data$retention_time[.data$rt_cm_idx]
     )
     aux_list$data$ROIs <- peaktable
     aux_list
