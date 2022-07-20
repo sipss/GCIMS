@@ -262,6 +262,27 @@ peak_list <- gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, no
 head(peak_list)
 ```
 
+```{r}
+peak_clustering <- group_peak_list(peak_list)
+```
+
+```{r}
+peak_list_clustered <- peak_clustering$peak_list_clustered
+```
+
+```{r}
+peak_list_clustered$volume <- 1 # dummy: needs integration
+```
+
+
+```{r}
+peak_table <- build_peak_table(peak_list_clustered, mean)
+```
+
+```{r}
+peak_table$peak_table
+```
+
 
 # Session Info:
 
