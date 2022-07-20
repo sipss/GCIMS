@@ -47,13 +47,8 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
     gcims_rois_selection_one,
     noise_level = noise_level,
     .batch_samples = samples,
-    .batch_returns = function(x) {as.data.frame(x$data$ROIs)}
+    .batch_returns = function(x) {x$data$ROIs}
   )
-
-  purrr::iwalk(peak_lists, function(peak_list, sample_name) {
-    utils::write.csv(peak_list, file = file.path(dir_out, paste0("PeakTable", sample_name, ".csv")))
-  })
-
   tibble::as_tibble(dplyr::bind_rows(!!!peak_lists, .id = "Sample"))
 }
 
@@ -283,11 +278,18 @@ gcims_rois_selection_one <- function(x, noise_level){
 
     colnames(ROIs_overlap) <- c("minDT", "maxDT", "minRT", "maxRT")
 
-    peaktable <- cbind((1:dim(ROIs_overlap)[1]), dtmcs, rtmcs, ROIs_overlap)
-    colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT")
-
+    peaktable <- data.frame(
+      ID = seq_len(nrow(ROIs_overlap)),
+      ApexDT = peaks_overlap[,1],
+      ApexRT = peaks_overlap[,1],
+      minDT = ROIs_overlap[,"minDT"],
+      maxDT = ROIs_overlap[,"maxDT"],
+      minRT = ROIs_overlap[,"minRT"],
+      maxRT = ROIs_overlap[,"maxRT"],
+      CenterMassDT = dtmcs,
+      CenterMassRT = rtmcs
+    )
     aux_list$data$ROIs <- peaktable
-    aux_list$data$Peaks <- peaks_overlap
     aux_list
 }
 
