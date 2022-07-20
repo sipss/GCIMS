@@ -95,20 +95,21 @@ methods::setMethod(
   })
 
 methods::setMethod(
-  "smooth", "GCIMSSample",function(object, method = "savgol", dt_length = 19, rt_length, dt_order = 2, rt_order = 2){
+  "smooth", "GCIMSSample",
+  function(x, method = "savgol", dt_length = 19, rt_length, dt_order = 2, rt_order = 2){
 
     filter_rt <- signal::sgolay(p = rt_order, n = rt_length)
     filter_dt <- signal::sgolay(p = dt_order, n = dt_length)
 
-    mat <- object@data
+    mat <- x@data
     for (i in seq_len(ncol(mat))) {
       mat[, i] <- signal::sgolayfilt(mat[, i], filter_rt)
     }
     for (i in seq_len(nrow(mat))) {
       mat[i, ] <- signal::sgolayfilt(mat[i, ], filter_dt)
     }
-    object@data <- mat
-    object
+    x@data <- mat
+    x
 })
 
 #' Updates old saved GCIMSSample object to the latest version
