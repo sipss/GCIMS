@@ -70,8 +70,10 @@ gcims_rois_selection_one <- function(x, noise_level){
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
     # Compute the 2nd derivative for both axes
-    drt <- apply(aux, 1, function(x) -signal::sgolayfilt(x, p = 2, n = 21, m = 2))
-    ddt <- apply(aux, 2, function(x) -signal::sgolayfilt(x, p = 2, n = 11, m = 2))
+    filter1 <- signal::sgolay(p = 2, n = 21, m = 2)
+    filter2 <- signal::sgolay(p = 2, n = 11, m = 2)
+    drt <- apply(aux, 1, function(x) -signal::sgolayfilt(x, filter1))
+    ddt <- apply(aux, 2, function(x) -signal::sgolayfilt(x, filter2))
 
     daux <- ddt + t(drt)
 
