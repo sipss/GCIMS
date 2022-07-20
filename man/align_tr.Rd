@@ -4,7 +4,7 @@
 \alias{align_tr}
 \title{Correction of retention time axis using Parametric Time Warping (PTW)}
 \usage{
-align_tr(dir_in, dir_out, samples)
+align_tr(dir_in, dir_out, samples, correction_type)
 }
 \arguments{
 \item{dir_in}{Input directory. Where input data files are loaded
@@ -14,6 +14,10 @@ from.}
 
 \item{samples}{Numeric vector of integers. Identifies the set of
 sample to be visualized from the dataset.}
+
+\item{correction_type}{Numeric. Integer between 0 and 5. If zero, no correction
+in retention time is needed. Between 1 and 5 it indicates
+the polynomial degree of the warping function.}
 }
 \description{
 This chromatrogram computes the RIC of the reference samples and

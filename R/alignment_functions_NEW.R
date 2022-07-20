@@ -21,8 +21,10 @@
 #' @export
 #'
 align_td <- function(dir_in, dir_out,samples) {
+
   aux_string <- paste0("M0.rds")
   aux_list <- readRDS(file.path(dir_in, aux_string))
+  saveRDS(aux_list, file = file.path(dir_out, paste0("M0.rds")))
   aux <- as.matrix(aux_list$data$data_df)
   drift_time <- aux_list$data$drift_time
   #rip_position <- apply(aux, MARGIN = 2, which.max)
@@ -31,12 +33,10 @@ align_td <- function(dir_in, dir_out,samples) {
   rip_pos_ind_ref <- which.max(aux2)
   rip_pos_dt_ref <- drift_time[rip_pos_ind_ref]
 
-  m <- -1
-  for (i in  c(0, samples)){
+  m <- 0
+  for (i in  samples){
     m <- m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
+    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- as.matrix(aux_list$data$data_df)
@@ -84,15 +84,81 @@ align_td <- function(dir_in, dir_out,samples) {
 #' @param dir_out            Output directory. Where aligned data files are stored.
 #' @param samples            Numeric vector of integers. Identifies the set of
 #'                           sample to be visualized from the dataset.
+#' @param correction_type    Numeric. Integer between 0 and 5. If zero, no correction
+#'                           in retention time is needed. Between 1 and 5 it indicates
+#'                           the polynomial degree of the warping function.
+#'
 #' @export
 #' @importFrom ptw ptw
 #' @importFrom signal interp1
 #' @export
+align_tr <- function(dir_in, dir_out, samples, correction_type) {
+
+  init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
+
+  if(correction_type == 0){
+    stop("You don't need to align samples in retention time since they already are")
+  }else{
+    init_coeff <- init_coeff_list[[correction_type]]
+  }
+
+  aux_string <- paste0("M0.rds")
+  aux_list <- readRDS(file.path(dir_in, aux_string))
+  aux <- as.matrix(aux_list$data$data_df)
+  saveRDS(aux_list, file = file.path(dir_out, paste0("M0.rds")))
+
+  compute_ric <- function(x){
+    ric_pos <- which.max(rowSums(x))
+    ric <- x[ric_pos, ]
+    ric <- max(ric) - ric
+    ric <- ric/sum(ric)
+    return(ric)
+  }
+
+  ric_ref <- compute_ric(aux)
+
+  m <- 0
+  for (i in samples){
+    m <- m + 1
+    print(paste0("Sample ", m, " of ", length(samples)))
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(file.path(dir_in, aux_string))
+    aux <- as.matrix(aux_list$data$data_df)
+    ric_sample <- compute_ric(aux)
+    xi <- seq_len(dim(aux)[2])
+    x <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = init_coeff)$warp.fun[, xi]
+    # ric_corr <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef =c(0, 1))$warped.sample[, xi]
+    # plot(ric_ref, col = "black", type = "l")
+    # lines(ric_sample, col = "red")
+    # lines(ric_corr, col = "blue")
+    # Sys.sleep(2)
+    aux <- t(apply(aux, MARGIN = 1, FUN = signal::interp1, x = x, xi = xi, extrap = "extrap"))
+    aux_list$data$data_df <- round(aux)
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
+  }
+}
+
+
+
+#' This function finds the optimal polynomial degree to apply ptw to GMIMS data
+#' when correcting retention time axis. The figure of merit is the mean of the
+#' correlation between the reference RIC and samples RIC.
 #'
-#' @importFrom signal interp1
-align_tr <- function(dir_in, dir_out, samples) {
+#'
+#' @param dir_in             Input directory. Where input data files are loaded
+#'  from.
+#' @param samples            Numeric vector of integers. Identifies the set of
+#'                           sample to be visualized from the dataset.
+#' @export
+#' @importFrom ptw ptw
+#' @importFrom stats cor
+#' @return  An Integer between 0 and 5. If zero, no correction
+#'          in retention time is needed. Between 1 and 5 it indicates
+#'          the polynomial degree of the warping function.
+#' @export
 
-
+optimize_align_tr <- function(dir_in, samples) {
+  correction_type_vector <- c(0, 1, 2, 3, 4, 5)
   aux_string <- paste0("M0.rds")
   aux_list <- readRDS(file.path(dir_in, aux_string))
   aux <- as.matrix(aux_list$data$data_df)
@@ -106,9 +172,14 @@ align_tr <- function(dir_in, dir_out, samples) {
   }
 
   ric_ref <- compute_ric(aux)
+  init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
+  ##wcc <- matrix(0,nrow = length(samples), n = length(init_coeff_list))
+  corr <- matrix(0,nrow = length(samples), ncol = length(init_coeff_list) + 1)
 
-  m <- -1
-  for (i in  c(0, samples)){
+
+
+  m <- 0
+  for (i in  samples){
     m <- m + 1
     if (m != 0){
       print(paste0("Sample ", m, " of ", length(samples)))
@@ -118,16 +189,20 @@ align_tr <- function(dir_in, dir_out, samples) {
     aux <- as.matrix(aux_list$data$data_df)
     ric_sample <- compute_ric(aux)
     xi <- seq_len(dim(aux)[2])
-    x <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = c(0, 1))$warp.fun[, xi]
-    # ric_corr <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef =c(0, 1))$warped.sample[, xi]
-    # plot(ric_ref, col = "black", type = "l")
-    # lines(ric_sample, col = "red")
-    # lines(ric_corr, col = "blue")
-    # Sys.sleep(2)
-    aux <- t(apply(aux, MARGIN = 1, FUN = signal::interp1, x = x, xi = xi, extrap = "extrap"))
-    aux_list$data$data_df <- round(aux)
-    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
+    corr[m, 1] <- stats::cor(ric_ref, ric_sample, use ="complete.obs")
+    for (j in seq_along(init_coeff_list)){
+     corr[m,j + 1] <- stats::cor(ric_ref, ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = init_coeff_list[[j]])$warped.sample[, xi], use ="complete.obs")
+    }
   }
+
+  #print(wcc)
+
+  #plot(apply(wcc, MARGIN = 2, FUN = mean), type = "l")
+   correction_type_index <- which.max(apply(corr, MARGIN = 2, FUN = mean))
+   correction_type <- correction_type_vector[correction_type_index]
+   return(correction_type)
+
+
 }
 
 
