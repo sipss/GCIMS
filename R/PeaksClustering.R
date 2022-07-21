@@ -4,7 +4,6 @@
 #'  - "UniqueID" A unique ID for each peak
 #'  - "SampleID" The sample ID the peak belongs to
 #'  - "dt_apex_ms", "rt_apex_s" The peak positions
-#'  - "volume" The size of the peak
 #'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
 #' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
 #'   - "IQR": Remove peaks with widths more than 1.5 interquartile ranges above upper quartile or
@@ -28,15 +27,12 @@
 #' @export
 #'
 #' @examples
-#' peak_list_fn <- system.file(
-#'  "extdata",
-#'  "peak_lists",
-#'  "peak_list_6_peaks_15_samples_ketones.csv.gz",
-#'  package = "GCIMS"
+#' peak_list <- data.frame(
+#'   UniqueID = c("P1", "P2", "P3", "P4"),
+#'   SampleID = c("S1", "S1", "S2", "S2"),
+#'   dt_apex_ms = c(7, 10, 7.1, 10.2),
+#'   rt_apex_s = c(30, 250, 33, 247)
 #' )
-#'
-#' peak_list <- readr::read_csv(peak_list_fn, show_col_types = FALSE)
-#' peak_list$volume <- 1  # FIXME: peak_list_fn should include the volume as well
 #' peak_table_list <- group_peak_list(
 #'   peaks = peak_list,
 #'   filter_dt_width_criteria = NULL,
@@ -44,7 +40,6 @@
 #'   distance_method = "mahalanobis",
 #'   distance_between_peaks_from_same_sample = Inf,
 #'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-#'   aggregate_conflicting_peaks = NULL,
 #'   verbose = FALSE
 #' )
 group_peak_list <- function(
