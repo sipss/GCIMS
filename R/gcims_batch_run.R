@@ -60,7 +60,7 @@ gcims_batch_run <- function(dir_in, dir_out, what, ...,
     files <- paste0("M", .batch_samples, ".rds")
   }
   if (is.null(names(files))) {
-    files <- utils::setNames(files, basename(files))
+    files <- stats::setNames(files, basename(files))
   }
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   BiocParallel::bplapply(
