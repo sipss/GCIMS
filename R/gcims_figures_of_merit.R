@@ -54,7 +54,7 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     AsF <- NULL
     volume <- NULL
     area <- NULL
-    saturation <- rep(0, length(labels))
+    saturation <- rep(0, labels)
 
     # Search saturation regions
     rip_chrom <- rowSums(aux[rip_start_index: rip_end_index, ]) / length(rip_start_index: rip_end_index)
@@ -64,23 +64,26 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     for (n in seq_len(labels)){
       R1 <- ROIs[n, ]
 
-      len_dt <- R1[5] - R1[4]
-      len_rt <- R1[7] - R1[6]
+      len_dt <- as.numeric(R1["dt_max_idx"] - R1["dt_min_idx"])
+      len_rt <- as.numeric(R1["rt_max_idx"] - R1["rt_min_idx"])
 
       # roi area
       area_roi <- len_rt * len_dt
       area <- c(area, area_roi)
 
       # roi volume
-      volume <- c(volume, sum(aux[R1[4]:R1[5], R1[6]:R1[7]]))
+      patch <- aux[as.numeric(R1["dt_min_idx"]):as.numeric(R1["dt_max_idx"]),
+                   as.numeric(R1["rt_min_idx"]):as.numeric(R1["rt_max_idx"])]
+
+      volume <- c(volume, sum(patch))
+
 
       # roi center of mass
-      ind <- arrayInd(which.max(aux[R1[4]:R1[5], R1[6]:R1[7]]),
-                      dim(aux[R1[4]:R1[5], R1[6]:R1[7]]))
-      x_cm <- R1[4] + ind[1,1] - 1L
-      y_cm <- R1[6] + ind[1,2] - 1L
-      x_cm <- round(compute_integral2(aux[R1[4]:R1[5], R1[6]:R1[7]] * (R1[5] - R1[4])) / volume[n])
-      y_cm <- round(compute_integral2(aux[R1[4]:R1[5], R1[6]:R1[7]] * (R1[7] - R1[6])) / volume[n])
+      ind <- arrayInd(which.max(patch), dim(patch))
+      x_cm <- R1["dt_min_idx"] + ind[1,1] - 1L
+      y_cm <- R1["rt_min_idx"] + ind[1,2] - 1L
+      x_cm <- as.numeric(round(compute_integral2(patch * as.numeric(R1["dt_max_idx"] - R1["dt_min_idx"])) / volume[n]))
+      y_cm <- as.numeric(round(compute_integral2(patch * as.numeric(R1["rt_max_idx"] - R1["rt_min_idx"])) / volume[n]))
 
       # roi asymmetries
       half_down_area  <- length(1:y_cm) * len_rt
@@ -114,9 +117,8 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
       }
     }
 
-    saturation[is.na(saturation)] <- 0
     peaktable <- cbind(ROIs, area, volume, AsF, saturation)
-    colnames(peaktable) <- c("ID", "ApexDT", "ApexRT", "minDT", "maxDT", "minRT", "maxRT", "CenterMassDT", "CenterMassRT", "Area", "Volume", "AsF", "Saturation")
+    colnames(peaktable) <- c(colnames(ROIs), "Area", "Volume", "AsF", "Saturation")
     aux_list$data$FOM <- rbind(AsF, saturation, volume)
     aux_list$data$Peaktable <- peaktable
     setwd(dir_out)
@@ -126,6 +128,40 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     setwd(dir_in)
   }
 }
+
+
+#----------------------#
+#   compute_integral2  #
+#----------------------#
+
+compute_integral2 <- function(data){
+
+  # Set up dimensions and integral limits
+  n <- dim(data)[1]
+  m <- dim(data)[2]
+  xa <- 1
+  xb <- n
+  ya <- 1
+  yb <- m
+
+  # Set up Gauss-Legendre Method
+  cx <- pracma::gaussLegendre(n, xa, xb)
+  x <- cx$x
+  wx <- cx$w
+  cy <- pracma::gaussLegendre(m, ya, yb)
+  y <- cy$x
+  wy <- cy$w
+
+  # Compute the integral
+  I <- 0
+  for (i in 1:n) {
+    for (j in 1:m) {
+      I <- I + wx[i] * wy[j] * data[x[i], y[j]]
+    }
+  }
+  return(I)
+}
+
 
 
 
