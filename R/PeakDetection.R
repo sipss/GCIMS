@@ -147,8 +147,10 @@ gcims_rois_selection_one <- function(x, noise_level){
           locs_tmp <- rbind(locs_tmp, locs[k])
         }
       }
-      zeros_rt[[j]] <- tmp
-      peaksrt[[j]] <- locs_tmp
+      if (!is.null(locs_tmp)) {
+        zeros_rt[[j]] <- tmp
+        peaksrt[[j]] <- locs_tmp
+      }
     }
 
     ## 5.b. Peaks and Zero-Crossing for Drift Time
@@ -177,8 +179,10 @@ gcims_rois_selection_one <- function(x, noise_level){
           locs_tmp <- rbind(locs_tmp, locs[k])
         }
       }
-      zeros_dt[[j]] <- tmp
-      peaksdt[[j]] <- locs_tmp
+      if (!is.null(locs_tmp)) {
+        zeros_dt[[j]] <- tmp
+        peaksdt[[j]] <- locs_tmp
+      }
     }
 
 
