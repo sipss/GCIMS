@@ -121,6 +121,20 @@ file <- data.frame(
 gcims_read_metadata(dir_in = data, samples, file)
 ```
 
+- Cut samples: gcims_cut_samples
+The samples are cut for a better data manipulation. There are part of the data matrix that does not contain any information.
+The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+
+```{r}
+# CUT SAMPLES
+rt_range <-c(1, 1300)
+dt_range <- c(7, 17)
+samples <- 1:15
+dir_int <- data
+dir_out <- cut
+gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
+```
+
 - Reshape sample: reshape_samples
 An adjustment of the dimensions of the samples is performed. There are occasions where the samples do not measure exactly the same,
 making very complicated working with them.
@@ -130,92 +144,78 @@ making very complicated working with them.
 gcims_reshape_samples(dir_in = data, dir_out = reshaped, samples)
 ```
 
+- Prepare samples: gcims_prepare_data
+It does some pre-processing steps such as interpolation, digital filter and decimation.The paramaters needed for each function should be indicated by the user.
+
+```{r}
+#PREPARO TODO
+dir_in <- cut
+dir_out <- prepared
+samples <- 1:15
+params <-list()
+# filtering
+params$filter$do <- TRUE
+params$filter$order_rt <- 2
+params$filter$length_rt <- 19
+params$filter$order_dt <- 2
+params$filter$length_dt <- 19
+# decimation
+params$decimate$do <- TRUE
+params$decimate$factor_rt <- 2
+params$decimate$factor_dt <- 2
+
+gcims_prepare_data(dir_in, dir_out, samples, params)
+```
+
 - Create reference: gcims_create_reference
 A reference sample is created. This reference sample can be one selected sample, or just the mean of all the samples.
 
 ```{r}
 # CREATE REFERENCE
+dir_in <- prepared
+dir_out <- prepared
+samples <- 1:15
 ref_number <- NULL
-gcims_create_reference(dir_in = reshaped, dir_out = reshaped, samples, ref_number)
+gcims_create_reference (dir_in, dir_out, samples, ref_number)
 ```
 
-- Cut samples: gcims_cut_samples
-The samples are cut for a better data manipulation. There are part of the data matrix that does not contain any information.
-The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
-
-```{r}
-#SAMPLES CUT
-samples <- c(0, seq_along(dataset))
-rt_range <- c(0, 850)
-dt_range <- c(7, 14)
-gcims_cut_samples(dir_in = reshaped, dir_out = cut, samples, rt_range, dt_range)
-```
-
-Pre-Processing in Drift Time:
-
-- Interpolating drift time: gcims_interpolate
-
-```{r}
-# INTERPOLATING DRIFT TIME
-samples <- seq_along(dataset)
-time <- "Drift"
-gcims_interpolate(dir_in = cut, dir_out = interpd, samples, time)
-```
-
-- Smoothing drift time: gcims_smoothing
-
-```{r}
-# DRIFT TIME FILTERING
-time <- "Drift"
-gcims_smoothing(dir_in = interpd, dir_out = filtd, samples, time)
-```
-
-- Drift time baseline removal: gcims_baseline_removal
-
-```{r}
-# DRIFT TIME BASELINE REMOVAL
-time <- "Drift"
-gcims_baseline_removal(dir_in = filtd, dir_out = bslnd, samples, time)
-```
-
-- Drift time alignment: gcims_alignment
-COW Algorithm
+- Drift time alignment: align_td
 
 ```{r}
 #ALIGNMENT DRIFT TIME
-time <- "Drift"
-seg_vector <- seq(from = 10, to = 30, by = 5)
-slack_vector <- seq(from = 1, to = (seg_vector[length(seg_vector)] - 4), by = 3)
-gcims_alignment(dir_in = bslnd, dir_out = alignd, samples, time, seg_vector, slack_vector)
+library(pracma)
+dir_in <- prepared
+dir_out <- alignd
+samples <- 1:15
+align_td(dir_in, dir_out,samples)
 ```
 
-
-Pre-Processing in Retention Time:
-
-- Interpolating retention time: gcims_interpolate
+- Visualization 
 
 ```{r}
-# INTERPOLATING RETENTION TIME
-time <- "Retention"
-gcims_interpolate(dir_in = alignd, dir_out = interpr, samples, time)
+#VISUALIZO
+dir_in <- alignd
+sample_num <-1
+samples <- 1:15
+gcims_view_sample(alignd ,sample_num, rt_range = NULL, dt_range = NULL, transform = TRUE)
+gcims_plot_spec(alignd, samples, rt_value =NULL, dt_range = c(7.2,10), colorby = "Class")
+gcims_plot_chrom(alignd, samples, dt_value =NULL , rt_range =  NULL, colorby = "Class")
 ```
 
-- Smoothing retention time: gcims_smoothing
-
-```{r}
-# RETENTION TIME FILTERING
-time <- "Retention"
-gcims_smoothing(dir_in = interpr, dir_out = filtr, samples, time)
-```
-
-
-- Retention time alignment: gcims_alignment
+- Retention time alignment: align_tr
 PTW algorithm
 
 ```{r}
-#ALIGNMENT RETENTION TIME
-time <- "Retention"
-gcims_alignment(dir_in = filtr, dir_out = alignr, samples, time)
+# Optimization in retention
+dir_in <-  alignd
+samples <- 1:15
+correction_type <- optimize_align_tr(dir_in,  samples)
+
+# ALIGN IN RETENTION TIME
+dir_in <-  alignd
+dir_out <- alignr
+samples <- 1:15
+align_tr(dir_in, dir_out, samples, 1)
 ```
 
 
@@ -260,6 +260,9 @@ Aligned data:
 noise_level <- 3
 peak_list <- gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, noise_level)
 head(peak_list)
+
+ggplot() +
+  geom_rect(data = peak_list, mapping = aes(xmin=dt_min_idx, xmax=dt_max_idx, ymin=rt_min_idx, ymax=rt_max_idx), color=as.factor(peak_list$SampleID), alpha=0.5)
 ```
 
 ```{r}
@@ -268,6 +271,16 @@ peak_clustering <- group_peak_list(peak_list)
 
 ```{r}
 peak_list_clustered <- peak_clustering$peak_list_clustered
+```
+
+- ROIs Fusion: gcims_rois_fusion
+
+```{r}
+#ROIs Fusion
+tt <- gcims_rois_fusion(peak_clustering)
+samplestocheck <- tt$peak_list_clustered[which(tt$peak_list_clustered$cluster == 35), ]
+ggplot() +
+  geom_rect(data = samplestocheck, mapping = aes(xmin=dt_min_idx, xmax=dt_max_idx, ymin=rt_min_idx, ymax=rt_max_idx), color= as.factor(samplestocheck$SampleID), alpha=0.5)
 ```
 
 ```{r}
@@ -283,6 +296,12 @@ peak_table <- build_peak_table(peak_list_clustered, mean)
 peak_table$peak_table
 ```
 
+- Figure of Merit: gcims_figures_of_merit
+Calculation of the figures of merit: area, volume, asymmetry and saturation.It creates a ".csv" file with all the ROIs information 
+
+```{r}
+gcims_figures_of_merit(dir_in = roispp, dir_out = fom, samples = (1:15))
+```
 
 # Session Info:
 
