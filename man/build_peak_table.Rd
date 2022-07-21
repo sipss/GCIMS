@@ -20,3 +20,11 @@ A list with the peak table and the ROI duplicity information
 \description{
 Build a peak table
 }
+\examples{
+pl <- data.frame(
+  SampleID = c("S1", "S1", "S2", "S2"),
+  cluster = c(1, 2, 1, 2),
+  volume = c(10, 20, 8, 18)
+)
+build_peak_table(pl)
+}
