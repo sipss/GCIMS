@@ -183,7 +183,6 @@ gcims_create_reference (dir_in, dir_out, samples, ref_number)
 
 ```{r}
 #ALIGNMENT DRIFT TIME
-library(pracma)
 dir_in <- prepared
 dir_out <- alignd
 samples <- 1:15
