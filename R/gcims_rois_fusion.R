@@ -75,3 +75,16 @@ gcims_rois_fusion <- function(clustering_object){
   clustering_object$peak_list_clustered <- clusters_infor
   return(clustering_object)
 }
+
+
+###########################
+# CALCULUS OF THE MEDIAN #
+###########################
+
+medianvalues <- function(x) {
+  if(length(x) > 1){
+    sort(x)[round(length(x)/2)]
+  } else {
+    x
+  }
+}
