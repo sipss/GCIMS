@@ -87,6 +87,10 @@ Systems, Signals & Devices (SSD14) (pp. 1-5). IEEE.
 
 }
 }
+\seealso{
+Other Baseline removal functions: 
+\code{\link{gcims_remove_baseline}()}
+}
 \author{
 Sergio Oller-Moreno,  \email{soller@.ibecbarcelona.eu}
 

@@ -61,9 +61,11 @@ invisible(file.remove(files))
 \seealso{
 Other Utility functions: 
 \code{\link{gcims_decimate}()},
+\code{\link{gcims_figures_of_merit}()},
 \code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()},
+\code{\link{gcims_rois_fusion}()},
 \code{\link{gcims_rois_selection}()},
 \code{\link{gcims_shifting}()},
 \code{\link{gcims_unfold}()}
