@@ -1,4 +1,4 @@
-#' Remove baseline of a dataset using psalsa
+#' Remove baseline of a dataset
 #'
 #' @param dir_in          Input directory. Where input data files are
 #'   loaded from.

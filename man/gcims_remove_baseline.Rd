@@ -2,7 +2,7 @@
 % Please edit documentation in R/baseline_removal_functions_NEW.R
 \name{gcims_remove_baseline}
 \alias{gcims_remove_baseline}
-\title{Remove baseline of a dataset using psalsa}
+\title{Remove baseline of a dataset}
 \usage{
 gcims_remove_baseline(dir_in, dir_out, samples, peak_list_clustered)
 }
@@ -22,7 +22,7 @@ correction are stored.}
 A set of S3 objects.
 }
 \description{
-Remove baseline of a dataset using psalsa
+Remove baseline of a dataset
 }
 \details{
 \code{gcims_remove_baseline} performs baseline correction on sample
