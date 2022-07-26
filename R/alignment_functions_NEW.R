@@ -75,9 +75,10 @@ align_td <- function(dir_in, dir_out,samples) {
 #'
 #' This chromatrogram computes the RIC of the reference samples and
 #' uses it to correct each of the EIC of a sample, for the all the selected
-#' samples on the dataset. The warping function that relates the
+#' samples on the dataset. The degree ot the polynomial that relates the
 #' retention time axes of the reference and the sample to be corrected
-#' is linear.
+#' is optimized using the average correlation between samples and reference as a figure
+#' of merit.
 #'
 #' @param dir_in             Input directory. Where input data files are loaded
 #'  from.

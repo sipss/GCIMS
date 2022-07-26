@@ -4,7 +4,7 @@
 \alias{gcims_remove_baseline}
 \title{Remove baseline of a dataset}
 \usage{
-gcims_remove_baseline(dir_in, dir_out, samples, peak_list_clustered)
+gcims_remove_baseline(dir_in, dir_out, samples, peak_list)
 }
 \arguments{
 \item{dir_in}{Input directory. Where input data files are
@@ -16,7 +16,7 @@ correction are stored.}
 \item{samples}{A vector. Set of samples to which remove the baseline
 (e.g.: c(1, 2, 3)).}
 
-\item{peak_list_clustered}{A peak list after grouping by cluster.}
+\item{peak_list}{A peak list after containing information regarding the 2d peaks found in data.}
 }
 \value{
 A set of S3 objects.
@@ -33,7 +33,7 @@ linear interpolation is performed to create a baseline of the same length as the
 of data points per axis.The region width is estimated differently in each of the the axes:
 In drift time, it is computed as 12 times the standard deviation of the RIP width, while
 in retention time as the third quantile of peak width distributions in chromatograms (obtained
-from the clustered peak table). Take into account that when removing the baseline in retention
+from the peak table). Take into account that when removing the baseline in retention
 time, the shape of the Reactant Ion Peak is severely affected.
 }
 \seealso{

@@ -6,7 +6,7 @@
 #'   correction are stored.
 #' @param samples         A vector. Set of samples to which remove the baseline
 #'   (e.g.: c(1, 2, 3)).
-#' @param peak_list_clustered A peak list after grouping by cluster.
+#' @param peak_list       A peak list after containing information regarding the 2d peaks found in data.
 #'
 #' @details `gcims_remove_baseline` performs baseline correction on sample
 #'   spectra (in drift time) and chromatograms (in retention time) .This function corrects
@@ -16,7 +16,7 @@
 #'   of data points per axis.The region width is estimated differently in each of the the axes:
 #'   In drift time, it is computed as 12 times the standard deviation of the RIP width, while
 #'   in retention time as the third quantile of peak width distributions in chromatograms (obtained
-#'   from the clustered peak table). Take into account that when removing the baseline in retention
+#'   from the peak table). Take into account that when removing the baseline in retention
 #'   time, the shape of the Reactant Ion Peak is severely affected.
 #'
 #'
@@ -28,7 +28,7 @@
 #
 
 gcims_remove_baseline <- function(dir_in, dir_out, samples,
-                                  peak_list_clustered){
+                                  peak_list){
 
 
   #-------------#
@@ -54,7 +54,7 @@ gcims_remove_baseline <- function(dir_in, dir_out, samples,
     # correct drift time
     aux <- remove_bsln_td(aux)
     # correct retention time
-    aux <- remove_bsln_tr(aux, peak_list_clustered)
+    aux <- remove_bsln_tr(aux, peak_list)
     aux_list$data$data_df <- round(aux)
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
@@ -83,8 +83,8 @@ remove_bsln_td <- function(aux,sig_mult = 12){
   return(aux_corr)
 }
 
-remove_bsln_tr <- function(aux, peak_list_clustered){
-  peak_width <- peak_list_clustered$rt_max_idx - peak_list_clustered$rt_min_idx
+remove_bsln_tr <- function(aux, peak_list){
+  peak_width <- peak_list$rt_max_idx - peak_list$rt_min_idx
   # Estimate region
   region_size <- stats::quantile(peak_width, 0.75)
   # Transpose matrix
