@@ -42,12 +42,8 @@ gcims_remove_baseline <- function(dir_in, dir_out, samples,
   print("/////////////////////////")
   print(" ")
 
-  if (!dir.exists(dir_out)) {
-    dir.create(dir_out, recursive = TRUE)
-  }
-
-  m = -1;
-  for (i in c(0, samples)){
+  m = 0;
+  for (i in c(1, samples)){
     m = m + 1
     if (m != 0){
       print(paste0("Sample ", m, " of ", length(samples)))
