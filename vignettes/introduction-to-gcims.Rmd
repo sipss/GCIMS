@@ -295,11 +295,20 @@ peak_table <- build_peak_table(peak_list_clustered, mean)
 peak_table$peak_table
 ```
 
+- Baseline Correction: gcims_remove_baseline
+
+```{r}
+dir_in <-  roispp
+dir_out <-  bslnr
+samples <- c(1:15)
+gcims_remove_baseline(dir_in, dir_out, samples, peak_list_clustered)
+```
+
 - Figure of Merit: gcims_figures_of_merit
 Calculation of the figures of merit: area, volume, asymmetry and saturation.It creates a ".csv" file with all the ROIs information 
 
 ```{r}
-gcims_figures_of_merit(dir_in = roispp, dir_out = fom, samples = (1:15))
+gcims_figures_of_merit(dir_in = bslnr, dir_out = fom, samples = (1:15))
 ```
 
 # Session Info:
