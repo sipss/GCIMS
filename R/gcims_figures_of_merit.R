@@ -16,11 +16,12 @@
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' roi_selection <- tempfile("dir")
-#' fom <- tempfile("dir)
+#' fom <- tempfile("dir")
 #'
 #' # Example of Calculating the Figures of Merit
 #' gcims_roi_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
-#' gcims_figures_of_merit(dir_in = roi_selection, dir_out = fom, samples = 3)
+#' peak_list_fom <- gcims_figures_of_merit(dir_in = roi_selection, dir_out = fom, samples = 3)
+#' head(peak_list_fom)
 gcims_figures_of_merit <- function(dir_in, dir_out, samples){
   print(" ")
   print("  ////////////////////////////////////////")
