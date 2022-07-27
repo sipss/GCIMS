@@ -299,17 +299,19 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
   colorp <- as.vector(as.factor(colorp))
   moltchroms <- moltchroms %>%
-    mutate (Sample = as.factor(samples[Index])) %>%
-    mutate (Class = as.factor(colorp[Index]))
+    mutate(Sample = as.factor(samples[Index]))
 
-  p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = Class, group = Sample)) +
+  moltchroms[[colorby]] <- as.factor(colorp[moltchroms$Index])
+  colorby_sym <- rlang::sym(colorby)
+
+  p <- ggplot(moltchroms, aes(x = Retention_Time, y = Value, color = !!colorby_sym, group = Sample)) +
     geom_line() +
     labs(x="Retention Time (s)",
          y= "Intensity (a.u.)",
-         color = "Class",
+         color = colorby,
          title = plot_title) +
     theme_minimal()
-  print(p)
+  p
 }
 
 
@@ -458,16 +460,18 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
 
   colorp <- as.vector(as.factor(colorp))
   moltspecs <- moltspecs %>%
-    mutate (Sample = as.factor(samples[Index])) %>%
-    mutate (Class = as.factor(colorp[Index]))
+    mutate(Sample = as.factor(samples[Index]))
 
-  p <- ggplot(moltspecs, aes(x = Drift_Time, y = Value, color = Class, group = Sample)) +
+  moltspecs[[colorby]] <- as.factor(colorp[moltspecs$Index])
+  colorby_sym <- rlang::sym(colorby)
+
+  p <- ggplot(moltspecs, aes(x = Drift_Time, y = Value, color = !!colorby_sym, group = Sample)) +
     geom_line() +
     labs(x="Drift Time (ms)",
          y="Intensity (a.u.)",
-         color = "Class",
+         color = colorby,
          title = plot_title) +
     theme_minimal()
-  print(p)
+  p
 }
 
