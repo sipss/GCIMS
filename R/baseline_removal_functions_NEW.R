@@ -43,12 +43,7 @@ gcims_remove_baseline <- function(dir_in, dir_out, samples,
   print(" ")
 
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
-  m = 0;
-  for (i in c(1, samples)){
-    m = m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
+  for (i in samples) {
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- as.matrix(aux_list$data$data_df)
