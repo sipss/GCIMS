@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+library(ggplot2)
 library(GCIMS)
 ```
 
@@ -61,6 +62,7 @@ wd <- "intermediate_files"
 data <- file.path(wd,'data')
 reshaped <- file.path(wd,'reshaped')
 cut <- file.path(wd,'cut')
+prepared <- file.path(wd,'prepared')
 interpd <- file.path(wd,'interpd')
 filtd <- file.path(wd,'filtd')
 bslnd <- file.path(wd,'bslnd')
@@ -69,6 +71,8 @@ interpr <- file.path(wd,'interpr')
 filtr <- file.path(wd,'filtr')
 alignr <- file.path(wd,'alignr')
 roispp <- file.path(wd,'roispp')
+bsln <- file.path(wd, 'bsln')
+fom <- file.path(wd, 'fom')
 ```
 
 ## Import data
@@ -82,9 +86,9 @@ and the second column `Filename`.
 
 sample_annotations <- tibble::tribble(
   ~SampleID, ~Filename,
-  "Ketone1", "ketone1.mea",
-  "Ketone2", "ketone2.mea",
-  "Ketone3", "ketone3.mea",
+  "Ketone1", "211105_095453.mea.gz",
+  "Ketone2", "211105_135744.mea.gz",
+  "Ketone3", "211108_141524.mea.gz",
 )
 ## But you can use the following code:
 ## Use this for excel spreadsheets:
@@ -126,13 +130,13 @@ The samples are cut for a better data manipulation. There are part of the data m
 The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
 
 ```{r}
-# CUT SAMPLES
-rt_range <-c(1, 1300)
-dt_range <- c(7, 17)
-samples <- 1:15
-dir_in <- data
-dir_out <- cut
-gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
+gcims_cut_samples(
+  dir_in = data,
+  dir_out = cut,
+  samples = 1:3,
+  rt_range = c(1, 1300), # in seconds 
+  dt_range = c(7, 17) # in ms
+)
 ```
 
 - Reshape sample: reshape_samples
@@ -149,22 +153,25 @@ It does some pre-processing steps such as interpolation, digital filter and deci
 
 ```{r}
 #PREPARO TODO
-dir_in <- cut
-dir_out <- prepared
-samples <- 1:15
-params <-list()
-# filtering
-params$filter$do <- TRUE
-params$filter$order_rt <- 2
-params$filter$length_rt <- 19
-params$filter$order_dt <- 2
-params$filter$length_dt <- 19
-# decimation
-params$decimate$do <- TRUE
-params$decimate$factor_rt <- 2
-params$decimate$factor_dt <- 2
-
-gcims_prepare_data(dir_in, dir_out, samples, params)
+gcims_prepare_data(
+  dir_in = cut,
+  dir_out = prepared,
+  samples = 1:3,
+  params = list(
+    filter = list(
+      do = TRUE,
+      order_rt = 2,
+      length_rt = 19,
+      order_dt = 2,
+      length_dt = 19
+    ),
+    decimate = list(
+      do = TRUE,
+      factor_rt = 2,
+      factor_dt = 2
+    )
+  )
+)
 ```
 
 - Create reference: gcims_create_reference
@@ -172,33 +179,31 @@ A reference sample is created. This reference sample can be one selected sample,
 
 ```{r}
 # CREATE REFERENCE
-dir_in <- prepared
-dir_out <- prepared
-samples <- 1:15
-ref_number <- NULL
-gcims_create_reference (dir_in, dir_out, samples, ref_number)
+gcims_create_reference(
+  dir_in = prepared,
+  dir_out = prepared,
+  samples = 1:3,
+  ref_number = NULL
+)
 ```
 
 - Drift time alignment: align_td
 
 ```{r}
-#ALIGNMENT DRIFT TIME
-dir_in <- prepared
-dir_out <- alignd
-samples <- 1:15
-align_td(dir_in, dir_out,samples)
+align_td(
+  dir_in = prepared,
+  dir_out = alignd,
+  samples = 1:3
+)
 ```
 
 - Visualization 
 
 ```{r}
 #VISUALIZO
-dir_in <- alignd
-sample_num <-1
-samples <- 1:15
-gcims_view_sample(alignd ,sample_num, rt_range = NULL, dt_range = NULL, transform = TRUE)
-gcims_plot_spec(alignd, samples, rt_value =NULL, dt_range = c(7.2,10), colorby = "Class")
-gcims_plot_chrom(alignd, samples, dt_value =NULL , rt_range =  NULL, colorby = "Class")
+gcims_view_sample(alignd ,sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
+gcims_plot_spec(alignd, samples = 1:3, rt_value =NULL, dt_range = c(7.2,10), colorby = "Name")
+gcims_plot_chrom(alignd, samples = 1:3, dt_value =NULL , rt_range =  NULL, colorby = "Name")
 ```
 
 - Retention time alignment: align_tr
@@ -206,15 +211,10 @@ PTW algorithm
 
 ```{r}
 # Optimization in retention
-dir_in <-  alignd
-samples <- 1:15
-correction_type <- optimize_align_tr(dir_in,  samples)
+correction_type <- optimize_align_tr(dir_in = alignd,  samples = 1:3)
 
 # ALIGN IN RETENTION TIME
-dir_in <-  alignd
-dir_out <- alignr
-samples <- 1:15
-align_tr(dir_in, dir_out, samples, 1)
+align_tr(dir_in = alignd, dir_out = alignr, samples = 1:3, 1)
 ```
 
 
@@ -224,29 +224,21 @@ Data Visualization
 
 ```{r}
 # PLOT SPECTRA
-rt_value <- NULL
-dt_range <- NULL
-dir_in <- alignr
-gcims_plot_spec(dir_in = alignr, samples, rt_value, dt_range, colorby = "Name")
+gcims_plot_spec(dir_in = alignr, samples = 1:3, rt_value = NULL, dt_range = NULL, colorby = "Name")
 ```
 
 - Chromatograms visualization: gcims_plot_chrom
 
 ```{r}
 # PLOT CHROMATOGRAMS
-dt_value <- NULL
-rt_range <- NULL
-gcims_plot_chrom(dir_in = alignr, samples, dt_value, rt_range, colorby = "Name")
+gcims_plot_chrom(dir_in = alignr, samples = 1:3, dt_value = NULL, rt_range = NULL, colorby = "Name")
 ```
 
 - Sample image visualization: gcims_view_sample
 
 ```{r}
 # SAMPLE VISUALIZATION
-sample_num <- 1
-dt_value <- NULL
-rt_range <- NULL
-gcims_view_sample(dir_in = alignr, sample_num, rt_value, dt_range)
+gcims_view_sample(dir_in = alignr, sample_num = 1, rt_range = NULL, dt_range = NULL)
 ```
 
 Aligned data:
@@ -256,12 +248,19 @@ Aligned data:
 
 ```{r}
 # ROIs DETECTION
-noise_level <- 3
-peak_list <- gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples, noise_level)
+peak_list <- gcims_rois_selection(dir_in = alignr, dir_out = roispp, samples = 1:3, noise_level = 3)
 head(peak_list)
 
 ggplot() +
-  geom_rect(data = peak_list, mapping = aes(xmin=dt_min_idx, xmax=dt_max_idx, ymin=rt_min_idx, ymax=rt_max_idx), color=as.factor(peak_list$SampleID), alpha=0.5)
+  geom_rect(
+    data = peak_list,
+    mapping = aes(
+      xmin = dt_min_idx, xmax = dt_max_idx, ymin = rt_min_idx, ymax = rt_max_idx,
+      color = SampleID,
+      fill = SampleID
+    ),
+    alpha = 0.5
+  )
 ```
 
 ```{r}
@@ -277,10 +276,42 @@ peak_list_clustered <- peak_clustering$peak_list_clustered
 ```{r}
 #ROIs Fusion
 tt <- gcims_rois_fusion(peak_clustering)
-samplestocheck <- tt$peak_list_clustered[which(tt$peak_list_clustered$cluster == 35), ]
+samplestocheck <- dplyr::filter(tt$peak_list_clustered, cluster == 7)
 ggplot() +
-  geom_rect(data = samplestocheck, mapping = aes(xmin=dt_min_idx, xmax=dt_max_idx, ymin=rt_min_idx, ymax=rt_max_idx), color= as.factor(samplestocheck$SampleID), alpha=0.5)
+  geom_rect(
+    data = samplestocheck,
+    mapping = aes(
+      xmin=dt_min_ms,
+      xmax=dt_max_ms,
+      ymin=rt_min_s,
+      ymax=rt_max_s,
+      fill = SampleID,
+      color = SampleID
+    ),
+    alpha=0.5
+  ) +
+  labs(x = "Drift time (ms)", "Retention time (s)")
 ```
+
+- Baseline Correction: gcims_remove_baseline
+
+```{r}
+gcims_remove_baseline(
+  dir_in = roispp,
+  dir_out = bsln,
+  samples = 1:3,
+  peak_list_clustered
+)
+```
+
+- Figure of Merit: gcims_figures_of_merit
+Calculation of the figures of merit: area, volume, asymmetry and saturation.
+It creates a ".csv" file with all the ROIs information 
+
+```{r}
+gcims_figures_of_merit(dir_in = bsln, dir_out = fom, samples = 1:3)
+```
+
 
 ```{r}
 peak_list_clustered$volume <- 1 # dummy: needs integration
@@ -288,28 +319,13 @@ peak_list_clustered$volume <- 1 # dummy: needs integration
 
 
 ```{r}
-peak_table <- build_peak_table(peak_list_clustered, mean)
+peak_table <- build_peak_table(peak_list_clustered, aggregate_conflicting_peaks = max)
 ```
 
 ```{r}
 peak_table$peak_table
 ```
 
-- Baseline Correction: gcims_remove_baseline
-
-```{r}
-dir_in <-  roispp
-dir_out <-  bslnr
-samples <- c(1:15)
-gcims_remove_baseline(dir_in, dir_out, samples, peak_list_clustered)
-```
-
-- Figure of Merit: gcims_figures_of_merit
-Calculation of the figures of merit: area, volume, asymmetry and saturation.It creates a ".csv" file with all the ROIs information 
-
-```{r}
-gcims_figures_of_merit(dir_in = bslnr, dir_out = fom, samples = (1:15))
-```
 
 # Session Info:
 
