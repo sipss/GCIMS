@@ -28,7 +28,8 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
   print("/////////////////////////////////////////")
   print(" ")
 
-  setwd(dir_in)
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+
   s = 0
   for (i in samples){
     s = s + 1
@@ -37,7 +38,7 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     # 1. Data load
 
     aux_string <- paste0("M", i, ".rds") # Generate file name
-    aux_list <- readRDS(aux_string) # Load RDS file
+    aux_list <- readRDS(file.path(dir_in, aux_string)) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df))
     ROIs <- aux_list$data$ROIs
 
@@ -121,11 +122,8 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     colnames(peaktable) <- c(colnames(ROIs), "Area", "Volume", "AsF", "Saturation")
     aux_list$data$FOM <- rbind(AsF, saturation, volume)
     aux_list$data$Peaktable <- peaktable
-    setwd(dir_out)
-    write.csv(peaktable, file = paste0("PeakTable", i, ".csv"))
-    M <- aux_list
-    saveRDS(M, file = paste0("M", i, ".rds"))
-    setwd(dir_in)
+    utils::write.csv(peaktable, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
+    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
 }
 
