@@ -73,12 +73,61 @@ gcims_rois_selection_one <- function(x, noise_level){
 
     # 2. Search of RIP position
 
-    total_ion_spectrum <- rowSums(aux) # Sum per rows
-    rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
-    rt_idx_with_max_rip <- which.max(aux[rip_position,])
-    minima <- pracma::findpeaks(-total_ion_spectrum)[, 2] # Find local minima
-    rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
-    rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
+    estimate_min_peak_distance_in_dt <- function(aux) {
+      total_ion_spectrum <- rowSums(aux) # Sum per rows
+      rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
+      rt_idx_with_max_rip <- which.max(aux[rip_position,])
+      minima <- c(1, pracma::findpeaks(-total_ion_spectrum)[, 2L], length(total_ion_spectrum)) # Find local minima
+      rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
+      rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
+
+      half_max <- max(total_ion_spectrum)/2
+      last_cross_of_half_max_before_the_ripapex <- which(diff(sign(total_ion_spectrum[1:rip_position] - half_max)) == 2)
+      if (length(last_cross_of_half_max_before_the_ripapex) == 0) {
+        half_max_left_idx <- NA
+      } else {
+        half_max_left_idx <- last_cross_of_half_max_before_the_ripapex[length(last_cross_of_half_max_before_the_ripapex)]
+      }
+      first_cross_of_half_max_after_the_ripapex <- rip_position - 1L + which(diff(sign(total_ion_spectrum[rip_position:length(total_ion_spectrum)] - half_max)) == -2)
+      if (length(first_cross_of_half_max_after_the_ripapex) == 0) {
+        half_max_right_idx <- NA
+      } else {
+        half_max_right_idx <- first_cross_of_half_max_after_the_ripapex[1]
+      }
+      half_max <- mean(c(half_max_left_idx, half_max_right_idx), na.rm = TRUE)
+      if (is.na(half_max)) {
+        rlang::abort(
+          message = c(
+            "The ROI selection could not locate the RIP width",
+            "i" = "Please contact the GCIMS authors at https://github.com/sipss/GCIMS/issues and if possible submit them your sample")
+        )
+      }
+      rip_start_index <- max(rip_start_index, rip_position - 2*half_max)
+      rip_end_index <- min(rip_end_index, rip_position + 2*half_max)
+
+
+      # Curve fitting of RIP
+
+      signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
+      if (length(signal) > 21) {
+        filter_length <- 21
+      } else {
+        filter_length <- length(signal) - (length(signal) %% 2 == 0)
+      }
+      template <- -signal::sgolayfilt(signal, p = 2, n = filter_length, m = 2) # Compute 2nd derivative of RIP
+
+      sigma0 <- estimate_stddev_peak_width(template)
+      minpeakdistance <- 2*sqrt(2)*sigma0
+      list(
+        minpeakdistance = minpeakdistance,
+        rip_end_index = rip_end_index
+      )
+    }
+    tmp <- estimate_min_peak_distance_in_dt(aux)
+    minpeakdistance <- tmp$minpeakdistance
+    rip_end_index <- tmp$rip_end_index
+    print(minpeakdistance)
+
 
     # Compute the 2nd derivative for both axes
     filter1 <- signal::sgolay(p = 2, n = 21, m = 2)
@@ -106,17 +155,6 @@ gcims_rois_selection_one <- function(x, noise_level){
     # sd(daux[indx_noise])
 
 
-    # Curve fitting of RIP
-
-    signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
-    if (length(signal) > 21) {
-      filter_length <- 21
-    } else {
-      filter_length <- length(signal) - (length(signal) %% 2 == 0)
-    }
-    template <- -signal::sgolayfilt(signal, p = 2, n = filter_length, m = 2) # Compute 2nd derivative of RIP
-
-    sigma0 <- estimate_stddev_peak_width(template)
     #gaussianDistr = f.a1*exp(-((tgauss-f.b1)/f.c1).^2) + f.a2*exp(-((tgauss-f.b2)/f.c2).^2) # Fitted Gaussian
 
     # 5. Peaks and Zero-crossings
@@ -129,8 +167,10 @@ gcims_rois_selection_one <- function(x, noise_level){
     # For each IMS Spectra:
     for (j in seq_len(num_spec)) {
       # Find the max (peaks)
+      # cero segunda deriv gaussiana = 1/sqrt(2)*sigma = sqrt(2)/2 sigma
+      #
       #locs <- pracma::findpeaks(daux[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
-      locs <- pracma::findpeaks(ddt[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = 4*sqrt(2)*sigma0)[ ,2]
+      locs <- pracma::findpeaks(ddt[,j], minpeakheight = noise_level*sigmaNoise, minpeakdistance = minpeakdistance)[ ,2]
 
       # Find the zero-crossing points
       posrt <- findZeroCrossings(ddt[,j])
