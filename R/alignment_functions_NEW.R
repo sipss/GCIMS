@@ -23,7 +23,6 @@
 align_td <- function(dir_in, dir_out,samples) {
 
   aux_string <- paste0("M0.rds")
-  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   aux_list <- readRDS(file.path(dir_in, aux_string))
   saveRDS(aux_list, file = file.path(dir_out, paste0("M0.rds")))
   aux <- as.matrix(aux_list$data$data_df)
@@ -104,7 +103,6 @@ align_tr <- function(dir_in, dir_out, samples, correction_type) {
     init_coeff <- init_coeff_list[[correction_type]]
   }
 
-  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   aux_string <- paste0("M0.rds")
   aux_list <- readRDS(file.path(dir_in, aux_string))
   aux <- as.matrix(aux_list$data$data_df)
@@ -207,5 +205,53 @@ optimize_align_tr <- function(dir_in, samples) {
 
 
 }
+
+
+
+#' This function finds the reference sample to use in the retention time alignment.
+#' It finds the best sample that can be used as reference accorsinf to the Reactant
+#' ion chromatograms(RIC) of each sample
+#'
+#' @param dir_in             Input directory. Where input data files are loaded
+#'  from.
+#' @param samples            Numeric vector of integers. Identifies the set of
+#'                           sample to be visualized from the dataset.
+#' @export
+#' @importFrom ptw bestref
+#' @return  An Integer number that indicnates the reference sample.
+#' @export
+
+
+referenfe_sample <- function(dir_in, samples){
+  RICS <- NULL
+  m <- 0
+
+  for (i in c(1, samples)){
+    m = m + 1
+    if (m != 0){
+      print(paste0("Sample ", m, " of ", length(samples)))
+    }
+    aux_string <- paste0("M", i, ".rds")
+    aux_list <- readRDS(file.path(dir_in, aux_string)) #new
+    # 1. Data load
+    aux <- as.matrix(aux_list$data$data_df) # The data is in data_df
+
+    # 2. Search of RIP position
+
+    total_ion_spectrum <- rowSums(aux) # Sum per rows
+    rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
+    rt_idx_with_max_rip <- which.max(aux[rip_position,])
+    minima <- pracma::findpeaks(-total_ion_spectrum)[, 2] # Find local minima
+    rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
+    rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
+    maxRIP <- max(aux[(rip_start_index: rip_end_index), rt_idx_with_max_rip])
+    RICsample <- maxRIP - aux[(rip_start_index: rip_end_index), rt_idx_with_max_rip]
+
+    RICS <- rbind(RICS,RICsample )
+  }
+  ref_sample <- bestref(RICS)$best.ref
+  return(ref_sample)
+}
+
 
 
