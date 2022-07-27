@@ -219,8 +219,8 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
   drift_time <- aux_list$data$drift_time
   cond_1_rt <- (rt_range[1] - retention_time[1]) < 0
   cond_2_rt <- (rt_range[2] - retention_time[length(retention_time)]) > 0
-  cond_1_dt <-(dt_value - drift_time[1]) < 0
-  cond_2_dt <-(dt_value - drift_time[length(drift_time)]) > 0
+  cond_1_dt <- (dt_value - drift_time[1]) < 0
+  cond_2_dt <- (dt_value - drift_time[length(drift_time)]) > 0
 
 
 
