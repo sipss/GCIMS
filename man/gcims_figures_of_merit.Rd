@@ -30,11 +30,13 @@ and the saturation.
 }
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
-fom <- tempdir()
-samples <- 3
+roi_selection <- tempfile("dir")
+fom <- tempfile("dir")
 
 # Example of Calculating the Figures of Merit
-gcims_figures_of_merit(dir_in = dir_in, dir_out = fom, samples = 3)
+gcims_roi_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+peak_list_fom <- gcims_figures_of_merit(dir_in = roi_selection, dir_out = fom, samples = 3)
+head(peak_list_fom)
 }
 \seealso{
 Other Utility functions: 
