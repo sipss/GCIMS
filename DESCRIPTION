@@ -86,6 +86,7 @@ Suggests:
     curl,
     httr,
     testthat (>= 3.0.0),
+    BiocStyle,
     knitr,
     multiway,
     progress,

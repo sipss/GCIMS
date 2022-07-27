@@ -1,8 +1,17 @@
 ---
 title: "Introduction to GCIMS"
-output: rmarkdown::html_vignette
+output: BiocStyle::html_document
+package: GCIMS
+author: "GCIMS authors"
+date: "`r format(Sys.Date(), '%F')`"
+abstract: >
+  An introduction to the GCIMS package, showing the most relevant functions and
+  a proposed workflow. This includes loading demo samples, adding sample
+  annotations, preprocessing the spectra, alignment, detecting peaks and regions
+  of interest (ROIs), clustering of ROIs across samples, peak integration and
+  building a peak table.
 vignette: >
-  %\VignetteIndexEntry{introduction-to-gcims}
+  %\VignetteIndexEntry{Introduction to GCIMS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
