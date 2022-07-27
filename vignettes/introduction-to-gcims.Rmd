@@ -264,7 +264,7 @@ ggplot() +
   geom_rect(
     data = peak_list,
     mapping = aes(
-      xmin = dt_min_idx, xmax = dt_max_idx, ymin = rt_min_idx, ymax = rt_max_idx,
+      xmin = dt_min_ms, xmax = dt_max_ms, ymin = rt_min_s, ymax = rt_max_s,
       color = SampleID,
       fill = SampleID
     ),
