@@ -15,11 +15,12 @@
 #' @export
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
-#' fom <- tempdir()
-#' samples <- 3
+#' roi_selection <- tempfile("dir")
+#' fom <- tempfile("dir)
 #'
 #' # Example of Calculating the Figures of Merit
-#' gcims_figures_of_merit(dir_in = dir_in, dir_out = fom, samples = 3)
+#' gcims_roi_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+#' gcims_figures_of_merit(dir_in = roi_selection, dir_out = fom, samples = 3)
 gcims_figures_of_merit <- function(dir_in, dir_out, samples){
   print(" ")
   print("  ////////////////////////////////////////")
@@ -30,6 +31,8 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 
   s = 0
+
+  peaktables <- list()
   for (i in samples){
     s = s + 1
     print(paste0("Sample ", s, " of ", length(samples)))
@@ -39,6 +42,9 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     aux_string <- paste0("M", i, ".rds") # Generate file name
     aux_list <- readRDS(file.path(dir_in, aux_string)) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df))
+    if (!"ROIs" %in% names(aux_list$data)) {
+      rlang::abort("Please run gcims_rois_selection step first. Check the vignette")
+    }
     ROIs <- aux_list$data$ROIs
 
     # 2. Search of RIP position
@@ -50,11 +56,11 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
     rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
-    labels <- dim(ROIs)[1]
-    AsF <- NULL
-    volume <- NULL
-    area <- NULL
-    saturation <- rep(0, labels)
+    labels <- nrow(ROIs)
+    AsF <- numeric(nrow(ROIs))
+    volume <- numeric(nrow(ROIs))
+    area <- numeric(nrow(ROIs))
+    saturation <- logical(nrow(ROIs))
 
     # Search saturation regions
     rip_chrom <- rowSums(aux[rip_start_index: rip_end_index, ]) / length(rip_start_index: rip_end_index)
@@ -69,13 +75,13 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
 
       # roi area
       area_roi <- len_rt * len_dt
-      area <- c(area, area_roi)
+      area[n] <- area_roi
 
       # roi volume
       patch <- aux[as.numeric(R1["dt_min_idx"]):as.numeric(R1["dt_max_idx"]),
                    as.numeric(R1["rt_min_idx"]):as.numeric(R1["rt_max_idx"])]
 
-      volume <- c(volume, sum(patch))
+      volume[n] <- sum(patch)
 
 
       # roi center of mass
@@ -89,7 +95,7 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
       half_down_area  <- length(1:y_cm) * len_rt
       half_up_area    <- length(y_cm:len_dt) * len_rt
       asymetry <- round(((half_down_area - half_up_area) / (area_roi)), 2)
-      AsF <- c(AsF, asymetry)
+      AsF[n] <- asymetry
 
       saturation_regions <- which(rip_chrom <= saturation_threshold)
       if (length(saturation_regions) == 0){
@@ -105,25 +111,26 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
       # roi saturation
       if (length(saturation_minima) == 0){
         # No saturation. Do nothing
-        saturation[n] <- 0
+        saturation[n] <- FALSE
       } else {
-        for (l in (1:dim(saturation_minima)[1])){
+        for (l in (1:nrow(saturation_minima))){
           if ((saturation_minima[l, 1] < y_cm)
               & (saturation_minima[l, 2] > y_cm)) {
-            saturation[n] <- 1
+            saturation[n] <- TRUE
             break
           }
         }
       }
     }
 
-    peaktable <- cbind(ROIs, area, volume, AsF, saturation)
-    colnames(peaktable) <- c(colnames(ROIs), "Area", "Volume", "AsF", "Saturation")
-    aux_list$data$FOM <- rbind(AsF, saturation, volume)
+    peaktable <- cbind(ROIs, Area = area, Volume = volume, AsF = AsF, Saturation = saturation)
     aux_list$data$Peaktable <- peaktable
+    peaktables <- c(peaktables, list(peaktable))
     utils::write.csv(peaktable, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
+  names(peaktables) <- samples
+  dplyr::bind_rows(peaktables, .id = "SampleID")
 }
 
 
