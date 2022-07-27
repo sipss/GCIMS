@@ -23,6 +23,7 @@
 align_td <- function(dir_in, dir_out,samples) {
 
   aux_string <- paste0("M0.rds")
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   aux_list <- readRDS(file.path(dir_in, aux_string))
   saveRDS(aux_list, file = file.path(dir_out, paste0("M0.rds")))
   aux <- as.matrix(aux_list$data$data_df)
@@ -103,6 +104,7 @@ align_tr <- function(dir_in, dir_out, samples, correction_type) {
     init_coeff <- init_coeff_list[[correction_type]]
   }
 
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   aux_string <- paste0("M0.rds")
   aux_list <- readRDS(file.path(dir_in, aux_string))
   aux <- as.matrix(aux_list$data$data_df)
