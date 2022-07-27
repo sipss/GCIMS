@@ -278,6 +278,9 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
     } else {
       chroms[, m] <- aux[sel_index_dt,  sel_index_rt]
     }
+    if (!colorby %in% colnames(aux_list$metadata)) {
+      rlang::abort(paste0("colorby is not a column in metadata for sample ", i))
+    }
     colorp <- c(colorp, as.character(aux_list$metadata[,colorby]))
     rm(aux_string, aux)
   }
@@ -434,6 +437,9 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
       specs[, m] <- rowSums(aux[sel_index_dt, sel_index_rt])
     } else {
       specs[, m] <- aux[sel_index_dt, sel_index_rt]
+    }
+    if (!colorby %in% colnames(aux_list$metadata)) {
+      rlang::abort(paste0("colorby is not a column in metadata for sample ", i))
     }
     colorp <- c(colorp, as.character(aux_list$metadata[,colorby]))
     rm(aux_string, aux)
