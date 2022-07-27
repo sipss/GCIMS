@@ -70,25 +70,25 @@ Methods for the GCIMSSample class
 }
 \section{Functions}{
 \itemize{
-\item \code{dtime,GCIMSSample-method}: Get the drift time vector
+\item \code{dtime(GCIMSSample)}: Get the drift time vector
 
-\item \code{rtime,GCIMSSample-method}: Get the retention time vector
+\item \code{rtime(GCIMSSample)}: Get the retention time vector
 
-\item \code{intensity,GCIMSSample-method}: Get the intensity matrix
+\item \code{intensity(GCIMSSample)}: Get the intensity matrix
 
-\item \code{[.GCIMSSample}: Simple subsetter for \linkS4class{GCIMSSample} objects
+\item \code{[}: Simple subsetter for \linkS4class{GCIMSSample} objects
 
-\item \code{[.GCIMSSample}: Simple subsetter for \linkS4class{GCIMSSample} objects
+\item \code{[}: Simple subsetter for \linkS4class{GCIMSSample} objects
 
-\item \code{dim.GCIMSSample}: Dimension of the data matrix
+\item \code{dim(GCIMSSample)}: Dimension of the data matrix
 
-\item \code{subset.GCIMSSample}: Subset a \linkS4class{GCIMSSample} object
+\item \code{subset(GCIMSSample)}: Subset a \linkS4class{GCIMSSample} object
 
-\item \code{getEIC,GCIMSSample-method}: Get the extracted ion chromatogram
+\item \code{getEIC(GCIMSSample)}: Get the extracted ion chromatogram
 
-\item \code{getIMSScan,GCIMSSample-method}: Get IMS spectrum
+\item \code{getIMSScan(GCIMSSample)}: Get IMS spectrum
+
 }}
-
 \examples{
 mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 gcims_sample <- read_mea(mea_file)

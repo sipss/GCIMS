@@ -32,11 +32,11 @@ second to retention times (columns).
 }
 \section{Functions}{
 \itemize{
-\item \code{GCIMSSample}: Create a GCIMSSample object
+\item \code{GCIMSSample()}: Create a GCIMSSample object
 
-\item \code{image.GCIMSSample}: Topographical plot of a GC-IMS Sample
+\item \code{image(GCIMSSample)}: Topographical plot of a GC-IMS Sample
+
 }}
-
 \section{Slots}{
 
 \describe{
