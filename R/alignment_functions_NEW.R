@@ -21,7 +21,7 @@
 #' @export
 #'
 align_td <- function(dir_in, dir_out,samples) {
-
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   aux_string <- paste0("M0.rds")
   aux_list <- readRDS(file.path(dir_in, aux_string))
   saveRDS(aux_list, file = file.path(dir_out, paste0("M0.rds")))
@@ -94,7 +94,7 @@ align_td <- function(dir_in, dir_out,samples) {
 #' @importFrom signal interp1
 #' @export
 align_tr <- function(dir_in, dir_out, samples, correction_type) {
-
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
 
   if(correction_type == 0){
