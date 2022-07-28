@@ -162,7 +162,7 @@ It does some pre-processing steps such as interpolation, digital filter and deci
 
 ```{r}
 #PREPARO TODO
-gcims_prepare_data(
+aligment_data <- gcims_prepare_data(
   dir_in = cut,
   dir_out = prepared,
   samples = 1:3,

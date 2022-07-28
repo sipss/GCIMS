@@ -11,7 +11,7 @@
 #' @param params           A list of lists with parameter values to perform
 #'                         filtering and decimation in retention and drift time axes.
 #' @details Description of the parameters found in the variable `params`.
-##' \itemize{
+#' \itemize{
 #'   \item{`params$filter$do_filter`}{ is a Boolean variable. If TRUE a Savitzky-Golay filters are applied.}
 #'   \item{`params$filter$order_rt`}{ is a positive integer. Polynomial order in retention time.}
 #'   \item{`params$filter$length_rt`}{ is a positive integer. Filter length in retention time.}
@@ -161,7 +161,7 @@ gcims_prepare_data <- function (dir_in, dir_out, samples, params){
     }
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
-    aux <- as.matrix(aux_list$data$data_df)
+
     aux_list <- interpolate(aux_list,m)
     if(do_filter == TRUE){
       aux_list <- smoothing(aux_list, m,order_rt, length_rt, order_dt, length_dt)
@@ -170,6 +170,7 @@ gcims_prepare_data <- function (dir_in, dir_out, samples, params){
       aux_list <- decimate(aux_list, m, factor_rt, factor_dt)
     }
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
+
     # Create reference information for alignment
     if (m == 1){
       # Compute the dimensions of aux after the first pre-processing stage
@@ -182,8 +183,10 @@ gcims_prepare_data <- function (dir_in, dir_out, samples, params){
     rics[m, ] <- compute_ric(aux_list)
     tis[m, ]  <- compute_tis(aux_list)
   }
-  alignment_data <- list(rics = rics, tis = tis)
-  return(alignment_data)
+
+    alignment_data <- list(rics = rics, tis = tis)
+    return(alignment_data)
+
 }
 
 interpolate <- function(aux_list, sample_index){
@@ -246,10 +249,8 @@ smoothing <- function (aux_list, sample_index,
 
 decimate <- function(aux_list, sample_index, factor_rt, factor_dt){
   aux <- as.matrix(aux_list$data$data_df)
-
   rt_index <- seq(from = 1, to = dim(aux)[2], by = factor_rt)
   dt_index <- seq(from = 1, to = dim(aux)[1], by = factor_dt)
-
   aux_list$data$retention_time <-aux_list$data$retention_time[rt_index]
   aux_list$data$drift_time <-aux_list$data$drift_time[dt_index]
   aux_list$data$data_df<- aux[dt_index,rt_index]
@@ -270,5 +271,7 @@ compute_tis <- function(aux_list){
   aux <- as.matrix(aux_list$data$data_df)
   tis <- rowSums(aux)
 }
+
+
 
 

@@ -19,7 +19,7 @@
 #' @param dir_out            Output directory. Where aligned data files are stored.
 #' @param samples            Numeric vector of integers. Identifies the set of
 #'                           sample to be visualized from the dataset.
-#' @param alignment_data    A list containing two matrices: tis and rics, the Total
+#' @param alignment_data     A list containing two matrices: tis and rics, the Total
 #'                           Ion Spectra and Reactant Ion Chromatograns of data.
 #' @importFrom signal interp1
 #' @importFrom ptw ptw bestref
@@ -44,7 +44,6 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
   # Reference position of rip in drift time (in indexes)
   tis <- alignment_data$tis
   rip_ref_idx <- round(stats::median(apply(X = tis, MARGIN = 1, FUN = which.max), na.rm = TRUE))
-  print(rip_ref_idx)
   Kcorr_samples <- 0 * samples
 
   # For retention time:
@@ -65,6 +64,7 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
 
     # First, we correct drift time:
     # Compute the multiplicative correction factor:
+
     Kcorr_samples[m] <- gcims_compute_Kcorr(aux_list, rip_ref_idx)
     # Apply the correction to data:
     aux_list <- gcims_align_dt(aux_list, Kcorr_samples[m])
@@ -76,13 +76,13 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
     # Finally, we save data
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
-  aligment_info <- list(Kcorr_samples = Kcorr_samples, ric_ref = ric_ref, correction_type = correction_type)
+  alignment_info <- list(Kcorr_samples = Kcorr_samples, ric_ref = ric_ref, correction_type = correction_type)
 }
 
 
 # DRIFT TIME
-gcims_compute_Kcorr <- function(aux_list,  rip_ref_idx) {
 
+gcims_compute_Kcorr <- function(aux_list, rip_ref_idx) {
   # Extract drift time axis
   drift_time <- aux_list$data$drift_time
   # Compute the position of reference RIP in drift time (ms)
