@@ -313,26 +313,29 @@ gcims_remove_baseline(
 )
 ```
 
-- Figure of Merit: gcims_figures_of_merit
+- Figures of Merit: gcims_figures_of_merit
 Calculation of the figures of merit: area, volume, asymmetry and saturation.
 It creates a ".csv" file with all the ROIs information 
 
 ```{r}
-gcims_figures_of_merit(dir_in = bsln, dir_out = fom, samples = 1:3)
+peak_list_foms <- gcims_figures_of_merit(dir_in = bslnr, dir_out = fom, samples = (1:3), peak_list = tt$peak_list_clustered)
+head(peak_list_foms)
 ```
 
-
-```{r}
-peak_list_clustered$volume <- 1 # dummy: needs integration
-```
-
+- Build Peak Table: build_peak_table
 
 ```{r}
 peak_table <- build_peak_table(peak_list_clustered, aggregate_conflicting_peaks = max)
+peak_table_with_na <- peak_table$peak_table
 ```
 
+- Imput Missing Values: gcims_missing_imputation
+Imputation of the missing values found in the peak table. 
+It calculates the volume in the region of the reference ROI for each cluster for 
+each sample having a missing value for the cluster.
 ```{r}
-peak_table$peak_table
+peak_table_imputed <- gcims_missing_imputation(dir_in = bslnr, peak_table_with_na, peak_list_foms)
+head(peak_table_imputed)
 ```
 
 
