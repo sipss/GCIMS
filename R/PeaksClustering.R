@@ -21,8 +21,8 @@
 #' @param verbose logical, to control printing in the function
 #'
 #' @return A list with :
-#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak volume for each sample
-#' - peak_table_duplicity: How many volume values have been aggregated. Should be 1 for each sample/peak
+#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
+#' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
 #' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
 #' @export
 #'
@@ -154,27 +154,27 @@ group_peak_list <- function(
 #' pl <- data.frame(
 #'   SampleID = c("S1", "S1", "S2", "S2"),
 #'   cluster = c(1, 2, 1, 2),
-#'   volume = c(10, 20, 8, 18)
+#'   Volume = c(10, 20, 8, 18)
 #' )
 #' build_peak_table(pl)
 build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
-  if (!"volume" %in% colnames(peak_list_clustered)) {
-    rlang::abort("Please compute a 'volume' column in peak_list_clustered")
+  if (!"Volume" %in% colnames(peak_list_clustered)) {
+    rlang::abort("Please compute a 'Volume' column in peak_list_clustered")
   }
 
   peak_table_duplicity <- peak_list_clustered %>%
-    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
+    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) %>%
     tidyr::pivot_wider(
       names_from = dplyr::all_of("SampleID"),
-      values_from = dplyr::all_of("volume"),
+      values_from = dplyr::all_of("Volume"),
       values_fn = length
     )
 
   peak_table <- peak_list_clustered %>%
-    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "volume"))) %>%
+    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) %>%
     tidyr::pivot_wider(
       names_from = dplyr::all_of("SampleID"),
-      values_from = dplyr::all_of("volume"),
+      values_from = dplyr::all_of("Volume"),
       values_fn = aggregate_conflicting_peaks
     )
   # Missing values still need to be filled
