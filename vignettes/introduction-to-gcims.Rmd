@@ -273,7 +273,7 @@ ggplot() +
 ```
 
 ```{r}
-peak_clustering <- group_peak_list(peak_list)
+peak_clustering <- group_peak_list(peak_list, distance_method = "sd_scaled_euclidean", clustering = list(method = "kmedoids", Nclusters = 250))
 ```
 
 ```{r}
@@ -325,7 +325,7 @@ head(peak_list_foms)
 - Build Peak Table: build_peak_table
 
 ```{r}
-peak_table <- build_peak_table(peak_list_clustered, aggregate_conflicting_peaks = max)
+peak_table <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
 peak_table_with_na <- peak_table$peak_table
 ```
 
