@@ -98,3 +98,37 @@ gcims_missing_imputation <- function(dir_in, peak_table_with_na, peak_list_foms)
   return(peak_table)
 }
 
+
+#----------------------#
+#   compute_integral2  #
+#----------------------#
+
+compute_integral2 <- function(data){
+
+  # Set up dimensions and integral limits
+  n <- dim(data)[1]
+  m <- dim(data)[2]
+  xa <- 1
+  xb <- n
+  ya <- 1
+  yb <- m
+
+  # Set up Gauss-Legendre Method
+  cx <- pracma::gaussLegendre(n, xa, xb)
+  x <- cx$x
+  wx <- cx$w
+  cy <- pracma::gaussLegendre(m, ya, yb)
+  y <- cy$x
+  wy <- cy$w
+
+  # Compute the integral
+  I <- 0
+  for (i in 1:n) {
+    for (j in 1:m) {
+      I <- I + wx[i] * wy[j] * data[x[i], y[j]]
+    }
+  }
+  return(I)
+}
+
+
