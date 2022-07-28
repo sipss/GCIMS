@@ -157,7 +157,7 @@ find_reference_ric <- function(rics){
 gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
 
   # Select the reference RIC
-  ric_ref <- rics[ref_ric_sample_idx]
+  ric_ref <- rics[ref_ric_sample_idx, ]
   # Type of correction
   correction_type_vector <- c(0, 1, 2, 3, 4, 5)
   # List of initial values fo the polynomial coefficients
@@ -174,6 +174,8 @@ gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
       corr[i,j + 1] <- stats::cor(ric_ref, ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = init_coeff_list[[j]])$warped.sample[, xi], use ="complete.obs")
     }
   }
+  #matplot(t(corr),type = "l")
+  #points(apply(corr, MARGIN = 2, FUN = mean), col ="orange")
   # Look for the global warping function that corrects the set of sample RICs with respect the reference
   correction_type_index <- which.max(apply(corr, MARGIN = 2, FUN = mean))
   correction_type <- correction_type_vector[correction_type_index]
@@ -211,7 +213,7 @@ gcims_align_rt <- function(aux_list, ric_ref, correction_type) {
     # Select the starting coefficients of the polynomial for the optimal case
     init_coeff <- init_coeff_list[[correction_type]]
     # Compute sample RIC
-    ric_sample <- compute_ric(aux) # This function is found in data_preparation_functions.R file
+    ric_sample <- compute_ric(aux_list) # This function is found in data_preparation_functions.R file
     # Correct retention time axis usic the reference RIC and sample RIC.
     xi <- seq_len(dim(aux)[2])
     x <- ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = init_coeff)$warp.fun[, xi]
@@ -219,6 +221,7 @@ gcims_align_rt <- function(aux_list, ric_ref, correction_type) {
     aux <- t(apply(aux, MARGIN = 1, FUN = signal::interp1, x = x, xi = xi, extrap = "extrap"))
     aux_list$data$data_df <- round(aux)
   }
+  return(aux_list)
 }
 
 
