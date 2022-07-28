@@ -38,3 +38,63 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
   # 7) Save results
   saveRDS(roi_table_wide_imp, file = file.path(dir_out, "roi_table.rds"))
 }
+
+
+
+#' Missing Values Imputation
+
+#' @param dir_in              Input directory. Where input data files are loaded
+#'   from. It should be the one with the baseline removed.
+#' @param peak_table_with_na  Peak table that contains missing values
+#' @param peak_list_foms      Peak list containing all the figures of merit.
+#' @details `gcims_missing_imputation` calculates the volume of the ROIs that
+#' have missing values. It uses the coordinates of the reference ROI for each
+#' cluster and subistitue the missing value by the volume in this region without
+#' baseline.
+#' @return A Set of S3 objects.
+#' @family Imputation functions
+#' @examples
+#' peak_table_imputed <- gcims_missing_imputation(dir_in = bslnr,
+#' peak_table_with_na, peak_list_foms)
+#' head(peak_table_imputed)
+
+gcims_missing_imputation <- function(dir_in, peak_table_with_na, peak_list_foms){
+
+  #-------------#
+  #     MAIN    #
+  #-------------#
+
+
+  print(" ")
+  print("  /////////////////////////////////")
+  print(" /    Missing Values Imputation   /")
+  print("///////////////////////////////////")
+  print(" ")
+
+  peaktable <- peak_table_with_na
+  clusters_infor <- peak_list_foms
+  num_clusts <- dim(peaktable)[1]
+  num_samps <- dim(peaktable)[2] - 1
+  setwd(dir_in)
+
+  for(i in seq_len(num_samps)){
+    missing_value <- which(is.na(peaktable[, i+1]) == TRUE)
+    if (length(missing_value) >= 1){
+      aux_list <- readRDS(paste0("M", i, ".rds")) # Load RDS file
+      aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
+      for(j in missing_value) {
+        #4 corrdinates
+        dtmin_clust <- clusters_infor$ref_roi_dt_min_idx[j]
+        dtmax_clust <- clusters_infor$ref_roi_dt_max_idx[j]
+        rtmin_clust <- clusters_infor$ref_roi_rt_min_idx[j]
+        rtmax_clust <- clusters_infor$ref_roi_rt_max_idx[j]
+        patch <- aux[dtmin_clust:dtmax_clust, rtmin_clust:rtmax_clust]
+        value2imput <- round(compute_integral2(patch), digits = 0)
+        peaktable[j, i+1] <- value2imput
+      }
+    }
+  }
+  peak_table<- peaktable
+  return(peak_table)
+}
+
