@@ -20,7 +20,9 @@ stored.}
 filtering and decimation in retention and drift time axes.}
 }
 \value{
-A set of S3 objects.
+A set of S3 objects.Additionally, it returns a list with two variables needed to perform sample alignment in drift
+and retention time axes: \code{tis} and \code{rics}. First variable (a matrix) corresponds to the Total Ion Spectra of
+samples, while second one (a matrix) to their Reactive Ion Chromatograms, respectively.
 }
 \description{
 Data preparation for individual samples.

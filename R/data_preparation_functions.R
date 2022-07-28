@@ -27,7 +27,9 @@
 #'  and decimated (optional).
 #'  Note that filter length must be an odd number bigger than the
 #'  polynomial order of the filter.
-#' @return A set of S3 objects.
+#' @return A set of S3 objects.Additionally, it returns a list with two variables needed to perform sample alignment in drift
+#'  and retention time axes: `tis` and `rics`. First variable (a matrix) corresponds to the Total Ion Spectra of
+#'  samples, while second one (a matrix) to their Reactive Ion Chromatograms, respectively.
 #' @family Data preparation functions
 #' @export
 #' @references { García, S., Luengo, J. and Herrera, F., 2015. Data preprocessing
@@ -37,6 +39,7 @@
 #'   }
 #'
 #' @importFrom signal sgolayfilt
+#' @importFrom signal interp1
 #'
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -167,7 +170,20 @@ gcims_prepare_data <- function (dir_in, dir_out, samples, params){
       aux_list <- decimate(aux_list, m, factor_rt, factor_dt)
     }
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
+    # Create reference information for alignment
+    if (m == 1){
+      # Compute the dimensions of aux after the first pre-processing stage
+      aux <- as.matrix(aux_list$data$data_df)
+      # Create the variables rics and tis
+      dimensions <- dim(aux)
+      rics <- matrix(0, nrow = length(samples) , ncol = dimensions[2])
+      tis <- matrix(0, nrow = length(samples) , ncol = dimensions[1])
+    }
+    rics[m, ] <- compute_ric(aux_list)
+    tis[m, ]  <- compute_tis(aux_list)
   }
+  alignment_data <- list(rics = rics, tis = tis)
+  return(alignment_data)
 }
 
 interpolate <- function(aux_list, sample_index){
@@ -239,6 +255,20 @@ decimate <- function(aux_list, sample_index, factor_rt, factor_dt){
   aux_list$data$data_df<- aux[dt_index,rt_index]
   return(aux_list)
 
+}
+
+compute_ric <- function(aux_list){
+  aux <-aux_list$data$data_df
+  ric_pos <- which.max(rowSums(aux))
+  ric <- aux[ric_pos, ]
+  ric <- max(ric) - ric
+  ric <- ric/sum(ric)
+  return(ric)
+}
+
+compute_tis <- function(aux_list){
+  aux <- as.matrix(aux_list$data$data_df)
+  tis <- rowSums(aux)
 }
 
 
