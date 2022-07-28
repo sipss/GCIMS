@@ -115,8 +115,8 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples, peak_list){
         saturation[n] <- FALSE
       } else {
         for (l in (1:nrow(saturation_minima))){
-          if ((saturation_minima[l, 1] < y_cm)
-              & (saturation_minima[l, 2] > y_cm)) {
+          if ((saturation_minima[l, 1] < R1["rt_cm_s"])
+              & (saturation_minima[l, 2] > R1["rt_cm_s"])) {
             saturation[n] <- TRUE
             break
           }
