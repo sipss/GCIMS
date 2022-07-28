@@ -20,4 +20,8 @@ A roi table for the whole dataset.
 \description{
 Peak Table imputation using RF
 }
+\seealso{
+Other Imputation functions: 
+\code{\link{gcims_missing_imputation}()}
+}
 \concept{Imputation functions}

@@ -47,8 +47,8 @@ For \code{method = "hclust"}, you can provide \code{hclust_method}, with the \co
 \value{
 A list with :
 \itemize{
-\item peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak volume for each sample
-\item peak_table_duplicity: How many volume values have been aggregated. Should be 1 for each sample/peak
+\item peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
+\item peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
 \item extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
 }
 }

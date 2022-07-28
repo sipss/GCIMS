@@ -4,7 +4,7 @@
 \alias{gcims_figures_of_merit}
 \title{Figures Of Merit Calculation}
 \usage{
-gcims_figures_of_merit(dir_in, dir_out, samples)
+gcims_figures_of_merit(dir_in, dir_out, samples, peak_list)
 }
 \arguments{
 \item{dir_in}{Input directory. Where input data files are loaded
