@@ -273,7 +273,7 @@ ggplot() +
 ```
 
 ```{r}
-peak_clustering <- group_peak_list(peak_list, distance_method = "sd_scaled_euclidean", clustering = list(method = "kmedoids", Nclusters = 90))
+peak_clustering <- group_peak_list(peak_list, distance_method = "sd_scaled_euclidean", clustering = list(method = "kmedoids", Nclusters = 13))
 ```
 
 ```{r}
