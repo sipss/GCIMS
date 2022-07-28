@@ -22,7 +22,7 @@
 #' gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
 #' peak_list_fom <- gcims_figures_of_merit(dir_in = roi_selection, dir_out = fom, samples = 3)
 #' head(peak_list_fom)
-gcims_figures_of_merit <- function(dir_in, dir_out, samples){
+gcims_figures_of_merit <- function(dir_in, dir_out, samples, peak_list){
   print(" ")
   print("  ////////////////////////////////////////")
   print(" /    Calculating the Figures of Merit  /")
@@ -30,6 +30,12 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
   print(" ")
 
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+
+  peak_list$Area <- rep(0, dim(peak_list)[1])
+  peak_list$Volume <- rep(0, dim(peak_list)[1])
+  peak_list$AsF <- rep(0, dim(peak_list)[1])
+  peak_list$Saturation <- rep(0, dim(peak_list)[1])
+
 
   s = 0
 
@@ -43,10 +49,11 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     aux_string <- paste0("M", i, ".rds") # Generate file name
     aux_list <- readRDS(file.path(dir_in, aux_string)) # Load RDS file
     aux <- (as.matrix(aux_list$data$data_df))
+    ROIs <- peak_list[(peak_list$SampleID == aux_string), ]
     if (!"ROIs" %in% names(aux_list$data)) {
       rlang::abort("Please run gcims_rois_selection step first. Check the vignette")
     }
-    ROIs <- aux_list$data$ROIs
+
 
     # 2. Search of RIP position
 
@@ -82,20 +89,13 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
       patch <- aux[as.numeric(R1["dt_min_idx"]):as.numeric(R1["dt_max_idx"]),
                    as.numeric(R1["rt_min_idx"]):as.numeric(R1["rt_max_idx"])]
 
-      volume[n] <- sum(patch)
+      volume[n] <- round(compute_integral2(patch), digits = 0)
 
-
-      # roi center of mass
-      ind <- arrayInd(which.max(patch), dim(patch))
-      x_cm <- R1["dt_min_idx"] + ind[1,1] - 1L
-      y_cm <- R1["rt_min_idx"] + ind[1,2] - 1L
-      x_cm <- as.numeric(round(compute_integral2(patch * as.numeric(R1["dt_max_idx"] - R1["dt_min_idx"])) / volume[n]))
-      y_cm <- as.numeric(round(compute_integral2(patch * as.numeric(R1["rt_max_idx"] - R1["rt_min_idx"])) / volume[n]))
 
       # roi asymmetries
-      half_down_area  <- length(1:y_cm) * len_rt
-      half_up_area    <- length(y_cm:len_dt) * len_rt
-      asymetry <- round(((half_down_area - half_up_area) / (area_roi)), 2)
+      half_down_area  <- as.numeric(R1["rt_cm_s"] - R1["rt_min_s"])
+      half_up_area    <- as.numeric(R1["rt_max_s"] - R1["rt_cm_s"])
+      asymetry <- round(((half_down_area - half_up_area) - 1 ), 2)
       AsF[n] <- asymetry
 
       saturation_regions <- which(rip_chrom <= saturation_threshold)
@@ -129,7 +129,13 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples){
     peaktables <- c(peaktables, list(peaktable))
     utils::write.csv(peaktable, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
+    peak_list[(peak_list$SampleID == aux_string), "Area"] <- area
+    peak_list[(peak_list$SampleID == aux_string), "Volume"] <- volume
+    peak_list[(peak_list$SampleID == aux_string), "AsF"] <- AsF
+    peak_list[(peak_list$SampleID == aux_string), "Saturation"] <- saturation
+
   }
+  return(peak_list)
   names(peaktables) <- samples
   dplyr::bind_rows(peaktables, .id = "SampleID")
 }
