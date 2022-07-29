@@ -50,7 +50,7 @@ group_peak_list <- function(
   filter_dt_width_criteria = "IQR",
   filter_rt_width_criteria = "arnau",
   distance_method = "mahalanobis",
-  distance_between_peaks_from_same_sample = Inf,
+  distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
   verbose = FALSE
 ) {
