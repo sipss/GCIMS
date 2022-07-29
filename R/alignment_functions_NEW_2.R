@@ -159,11 +159,12 @@ gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
   # Select the reference RIC
   ric_ref <- rics[ref_ric_sample_idx, ]
   # Type of correction
-  correction_type_vector <- c(0, 1, 2, 3, 4, 5)
+  correction_type_options <- c(0, 1, 2, 3, 4, 5)
   # List of initial values fo the polynomial coefficients
   init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
   # Initialization of the correlation matrix
   corr <- matrix(0,nrow = length(samples), ncol = length(init_coeff_list) + 1)
+  correction_type <- 0 * seq_along(samples)
 
   # Compute correlation between each sample RIC and reference RIC, for the different initial value coefficients
   xi <- seq_len(dim(rics)[2])
@@ -173,12 +174,21 @@ gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
     for (j in seq_along(init_coeff_list)){
       corr[i,j + 1] <- stats::cor(ric_ref, ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = init_coeff_list[[j]])$warped.sample[, xi], use ="complete.obs")
     }
+    # Check when correlation decreases for the first time or does not change when increasing degree of the polynomial
+    diff_corr_i <- diff(corr[, i])
+    idx_sign <- which(sign((diff_corr_i == -1)))[1]
+    idx_zero <- which(diff_corr_i == 0)[1]
+    # The minimum of this two values is selected
+    idx_sel <- min(c(idx_sign, idx_zero))
+    correction_type[i] <- correction_type_options[ind_sel]
+
   }
-  #matplot(t(corr),type = "l")
-  #points(apply(corr, MARGIN = 2, FUN = mean), col ="orange")
+  matplot(t(corr),type = "l")
+  points(apply(corr, MARGIN = 2, FUN = mean), col ="orange")
+  lines(apply(corr, MARGIN = 2, FUN = mean), col ="orange")
   # Look for the global warping function that corrects the set of sample RICs with respect the reference
-  correction_type_index <- which.max(apply(corr, MARGIN = 2, FUN = mean))
-  correction_type <- correction_type_vector[correction_type_index]
+  # correction_type_index <- which.max(apply(corr, MARGIN = 2, FUN = mean))
+  #correction_type <- correction_type_options[correction_type_index]
   return(correction_type)
 }
 
