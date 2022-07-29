@@ -104,7 +104,7 @@ group_peak_list <- function(
     } else {
       stop("When clustering$method is kmedoids, clustering$Nclusters must be an integer or the string 'max_peaks_sample'")
     }
-    cluster <- cluster::pam(x = peak2peak_dist, k = N_clusters)
+    cluster <- cluster::pam(x = peak2peak_dist, k = N_clusters, pamonce = 3)
     peaks$cluster <- cluster$clustering
     extra_clustering_info$cluster_result <- cluster
     extra_clustering_info$silhouette <- cluster::silhouette(cluster, dist = peak2peak_dist)
