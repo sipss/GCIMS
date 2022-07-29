@@ -25,7 +25,6 @@
 #' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
 #' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
 #' @export
-#'
 #' @examples
 #' peak_list <- data.frame(
 #'   UniqueID = c("P1", "P2", "P3", "P4"),
