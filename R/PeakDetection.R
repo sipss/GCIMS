@@ -55,7 +55,115 @@ gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
   out
 }
 
-gcims_rois_selection_one <- function(x, noise_level){
+
+#' Find half max boundaries and FWHM metrics
+#'
+#' @noRd
+#' @param x A numeric vector with ONE peak
+#'
+#' @return A list with the left and right half maximum limits of the peak,
+#' the apex and widths according to the half max criteria.
+find_half_max_boundaries <- function(x) {
+  max_idx <- which.max(x)
+  half_max <- x[max_idx]/2
+  #
+
+  left_bound_idx <- findZeroCrossings(x[1:max_idx] - half_max, direction = "up")
+  if (length(left_bound_idx) == 0L) {
+    left_bound_idx <- NA_integer_
+  } else if (length(left_bound_idx) > 1L) {
+    left_bound_idx <- left_bound_idx[length(left_bound_idx)]
+  }
+
+  right_bound_idx <- max_idx - 1L + findZeroCrossings(x[max_idx:length(x)] - half_max, direction = "down")
+  if (length(right_bound_idx) == 0L) {
+    right_bound_idx <- NA_integer_
+  } else if (length(right_bound_idx) > 1L) {
+    right_bound_idx <- right_bound_idx[1L]
+  }
+
+  half_width_left <- max_idx - left_bound_idx
+  half_width_right <- right_bound_idx - max_idx
+  list(
+    left_bound_idx = left_bound_idx,
+    apex_idx = max_idx,
+    right_bound_idx = right_bound_idx,
+    half_width_left = half_width_left,
+    half_width_right = half_width_right,
+    fwhm = half_width_left + half_width_right,
+    fwhm_sym = 2*mean(c(half_width_left, half_width_right), na.rm = TRUE)
+  )
+}
+
+#' Estimates RIP region
+#'
+#'
+#' Estimate RIP region, including the indices where the RIP starts and ends in drift time and
+#' the index in retention time where the RIP has a higher intensity
+#' @noRd
+#' @param intensity_mat A matrix of intensities of shape (drift, retention).
+#' @return A named list with the positions where the RIP starts and ends in drift time indices,
+#' and the positions of the RIP apex.
+find_rip <- function(intensity_mat) {
+  total_ion_spectrum <- rowSums(intensity_mat)
+  # In most rows the RIP will be the higher peak, so it will also be the maximum in the TIS
+  dt_idx_rip <- which.max(total_ion_spectrum)
+  # The retention time where the RIP is maximum:
+  rt_idx_apex <- which.max(intensity_mat[dt_idx_rip,])
+  # The valleys of the TIS. We bound them by the TIS limits:
+  dt_idx_valleys <- c(1L, pracma::findpeaks(-total_ion_spectrum)[, 2L], length(total_ion_spectrum))
+  # The RIP
+  dt_idx_start <- dt_idx_valleys[max(which(dt_idx_rip - dt_idx_valleys > 0))] # Find starting index of RIP
+  dt_idx_end <- dt_idx_valleys[min(which(dt_idx_valleys - dt_idx_rip > 0))] # Find ending index of RIP
+
+  # The valley detection is not perfect. Sometimes the actual peak boundary is missed
+  # To workaround this, we estimate the FWHM and we clip the boundaries at the apex +- 2*FWHM
+  bounds_and_widths <- find_half_max_boundaries(total_ion_spectrum)
+  if (is.na(bounds_and_widths$fwhm_sym)) {
+    rlang::abort(
+      message = c(
+        "The ROI selection could not locate the RIP width",
+        "i" = "Please contact the GCIMS authors at https://github.com/sipss/GCIMS/issues and if possible submit them your sample")
+    )
+  }
+  # Clip the peak boundaries:
+  dt_idx_start <- max(dt_idx_start, dt_idx_rip - 3*bounds_and_widths$fwhm_sym)
+  dt_idx_end <- min(dt_idx_end, dt_idx_rip + 3*bounds_and_widths$fwhm_sym)
+
+  list(
+    dt_idx_start = dt_idx_start,
+    dt_idx_apex = dt_idx_rip,
+    dt_idx_end = dt_idx_end,
+    rt_idx_apex = rt_idx_apex,
+    rip = intensity_mat[dt_idx_start:dt_idx_end, rt_idx_apex]
+  )
+}
+
+#' Estimate the minimum distance between two peaks
+#'
+#' The criteria to determine this threshold is as follows:
+#'
+#' 1. Take the RIP
+#' 2. Compute its second derivative
+#' 3. Estimate the standard deviation of the
+#'
+#' @noRd
+#' @param rip A numeric vector with the RIP shape
+#'
+#' @return A number, measured in indices, which can be used as the minimum peak distance when finding peaks
+estimate_minpeakdistance <- function(rip) {
+  filter_length <- min(21L, round(length(rip)/3))
+  if (filter_length %% 2 == 0) {
+    filter_length <- filter_length - 1L
+  }
+  rip_2nd_deriv <- signal::sgolayfilt(rip, p = 2, n = filter_length, m = 2)
+  bounds_and_widths <- find_half_max_boundaries(-rip_2nd_deriv)
+  fwhm <- bounds_and_widths$fwhm
+  # Magic:
+  fwhm/sqrt(log(2))
+}
+
+gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE){
     aux_list <- x
 
     if (anyNA(aux_list$data$retention_time)) {
@@ -72,61 +180,9 @@ gcims_rois_selection_one <- function(x, noise_level){
     # aux[3, 4] # at drift time index 3, retention time index 4
 
     # 2. Search of RIP position
-
-    estimate_min_peak_distance_in_dt <- function(aux) {
-      total_ion_spectrum <- rowSums(aux) # Sum per rows
-      rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
-      rt_idx_with_max_rip <- which.max(aux[rip_position,])
-      minima <- c(1, pracma::findpeaks(-total_ion_spectrum)[, 2L], length(total_ion_spectrum)) # Find local minima
-      rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
-      rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
-
-      half_max <- max(total_ion_spectrum)/2
-      last_cross_of_half_max_before_the_ripapex <- which(diff(sign(total_ion_spectrum[1:rip_position] - half_max)) == 2)
-      if (length(last_cross_of_half_max_before_the_ripapex) == 0) {
-        half_max_left_idx <- NA
-      } else {
-        half_max_left_idx <- last_cross_of_half_max_before_the_ripapex[length(last_cross_of_half_max_before_the_ripapex)]
-      }
-      first_cross_of_half_max_after_the_ripapex <- rip_position - 1L + which(diff(sign(total_ion_spectrum[rip_position:length(total_ion_spectrum)] - half_max)) == -2)
-      if (length(first_cross_of_half_max_after_the_ripapex) == 0) {
-        half_max_right_idx <- NA
-      } else {
-        half_max_right_idx <- first_cross_of_half_max_after_the_ripapex[1]
-      }
-      half_max <- mean(c(half_max_left_idx, half_max_right_idx), na.rm = TRUE)
-      if (is.na(half_max)) {
-        rlang::abort(
-          message = c(
-            "The ROI selection could not locate the RIP width",
-            "i" = "Please contact the GCIMS authors at https://github.com/sipss/GCIMS/issues and if possible submit them your sample")
-        )
-      }
-      rip_start_index <- max(rip_start_index, rip_position - 2*half_max)
-      rip_end_index <- min(rip_end_index, rip_position + 2*half_max)
-
-
-      # Curve fitting of RIP
-
-      signal <- aux[rip_start_index:rip_end_index, rt_idx_with_max_rip] # Take RIP
-      if (length(signal) > 21) {
-        filter_length <- 21
-      } else {
-        filter_length <- length(signal) - (length(signal) %% 2 == 0)
-      }
-      template <- -signal::sgolayfilt(signal, p = 2, n = filter_length, m = 2) # Compute 2nd derivative of RIP
-
-      sigma0 <- estimate_stddev_peak_width(template)
-      minpeakdistance <- 2*sqrt(2)*sigma0
-      list(
-        minpeakdistance = minpeakdistance,
-        rip_end_index = rip_end_index
-      )
-    }
-    tmp <- estimate_min_peak_distance_in_dt(aux)
-    minpeakdistance <- tmp$minpeakdistance
-    rip_end_index <- tmp$rip_end_index
-    print(minpeakdistance)
+    the_rip <- find_rip(aux)
+    plot(the_rip$rip)
+    minpeakdistance <- estimate_minpeakdistance(the_rip$rip)
 
 
     # Compute the 2nd derivative for both axes
@@ -237,7 +293,7 @@ gcims_rois_selection_one <- function(x, noise_level){
         rt_idx_peaks <- peaksdt[[dt_idx_peak]]
         rt_idx_zeros <- zeros_dt[[dt_idx_peak]]
 
-        if ( length(intersect(spec_idx,rt_idx_peaks)) >= 1 && (dt_idx_peak > rip_end_index)) {
+        if ( length(intersect(spec_idx,rt_idx_peaks)) >= 1 && (dt_idx_peak > the_rip$dt_idx_end)) {
           peaks <- rbind(peaks, c(spec_idx, dt_idx_peak))
           rt_idx_min <- rt_idx_zeros[1, rt_idx_peaks == spec_idx]
           rt_idx_max <- rt_idx_zeros[2, rt_idx_peaks == spec_idx]
@@ -753,11 +809,20 @@ find_region_without_peaks <- function(intens, half_min_size = c(10, 10), noise_q
 #   findZeroCrossings  #
 #----------------------#
 
-findZeroCrossings <- function(x){
+findZeroCrossings <- function(x, direction = c("both", "up", "down")) {
+  direction <- match.arg(direction)
   signs <- sign(x)
   dsigns <- diff(signs)
-  pos_plus <- which(dsigns == 2)
-  pos_minus <- which(dsigns == -2)
+  if (direction == "up" || direction == "both") {
+    pos_plus <- which(dsigns == 2)
+  } else {
+    pos_plus <- integer(0L)
+  }
+  if (direction == "down" || direction == "both") {
+    pos_minus <- which(dsigns == -2)
+  } else {
+    pos_minus <- integer(0L)
+  }
   pos <- sort(union(pos_plus + 1L, pos_minus))
   return(pos)
 }
