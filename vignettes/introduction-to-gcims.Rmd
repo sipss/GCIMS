@@ -55,12 +55,12 @@ Enable parallellization of the workflow, here we use three cores:
 
 ```{r}
 library(BiocParallel)
-#register(SerialParam(progressbar = TRUE), default = TRUE)  # disable parallellization
-register(SnowParam(workers = 3, progressbar = TRUE), default = TRUE)  # enable parallellization with 3 workers
+#register(SerialParam(progressbar = TRUE, exportglobals = FALSE), default = TRUE)  # disable parallellization
+register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)  # enable parallellization with 3 workers
 ```
 
 
-## Create work directories
+# Create work directories
 
 The first steps, is to create all the directories and folders where the samples are located and will be stored along all the process. 
 The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
