@@ -54,6 +54,7 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 #' baseline.
 #' @return A Set of S3 objects.
 #' @family Imputation functions
+#' @export
 #' @examples
 #' peak_table_imputed <- gcims_missing_imputation(dir_in = bslnr,
 #' peak_table_with_na, peak_list_foms)
