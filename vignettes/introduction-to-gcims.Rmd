@@ -33,7 +33,7 @@ preprocess them, align them one to each other and build a peak table with the re
 
 This vignette will use a small dataset consisting of a mixture of three ketones.
 
-## Downloading the dataset:
+# Downloading the dataset:
 
 ```{r}
 # Download the ketones dataset:
@@ -78,7 +78,7 @@ bsln <- file.path(wd, 'bsln')
 fom <- file.path(wd, 'fom')
 ```
 
-## Import data
+# Import data
 
 Please start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
 with your samples and their annotations. Please name the first column `SampleID`
