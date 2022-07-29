@@ -179,7 +179,6 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #'  }
 #' @export
 #' @importFrom dplyr mutate
-#' @importFrom magrittr '%>%'
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
@@ -343,7 +342,6 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #'  }
 #' @export
 #' @importFrom dplyr mutate
-#' @importFrom magrittr '%>%'
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
