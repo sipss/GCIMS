@@ -39,7 +39,8 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
   print("////////////////////////")
   print(" ")
 
-
+  # Crete folder to store data
+  dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   # For drift time:
   # Reference position of rip in drift time (in indexes)
   tis <- alignment_data$tis
