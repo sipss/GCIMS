@@ -11,7 +11,7 @@ gcims_optimize_polynomial(rics, ref_ric_sample_idx)
 \arguments{
 \item{rics}{Matrix. One Reactant Ion Chromatogram per row.}
 
-\item{ref_ric_sample_idx}{A scalar. It indicates the sample that is choosen
+\item{ref_ric_sample_idx}{A scalar. It indicates the sample that is chosen
 as reference for aligning in retention time.}
 }
 \value{

@@ -145,7 +145,7 @@ find_reference_ric <- function(rics){
 #'
 #'
 #' @param rics                         Matrix. One Reactant Ion Chromatogram per row.
-#' @param ref_ric_sample_idx           A scalar. It indicates the sample that is choosen
+#' @param ref_ric_sample_idx           A scalar. It indicates the sample that is chosen
 #'                                     as reference for aligning in retention time.
 #' @export
 #' @importFrom ptw ptw
@@ -165,8 +165,8 @@ gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
   # List of initial values fo the polynomial coefficients
   init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
   # Initialization of the correlation matrix
-  corr <- matrix(1, nrow = length(samples), ncol = length(init_coeff_list) + 1)
-  correction_type_vector <- 0 * seq_along(samples)
+  corr <- matrix(1, nrow = dim(rics)[1], ncol = length(init_coeff_list) + 1)
+  correction_type_vector <- 0 * seq_along(dim(rics)[1])
 
   # Compute correlation between each sample RIC and reference RIC, for the different initial value coefficients
   xi <- seq_len(dim(rics)[2])
