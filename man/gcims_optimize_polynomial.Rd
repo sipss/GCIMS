@@ -15,8 +15,9 @@ gcims_optimize_polynomial(rics, ref_ric_sample_idx)
 as reference for aligning in retention time.}
 }
 \value{
-An Integer between 0 and 5. If zero, no correction
-in retention time is needed. Between 1 and 5 it indicates
+A vector of integers with as many components as samples to be corrected, with values
+between 0 and 5. If zero, no correction
+in retention time is needed. Between 1 and 5, it indicates
 the polynomial degree of the warping function.
 }
 \description{

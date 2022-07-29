@@ -51,7 +51,7 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
   rics <- alignment_data$rics
   ref_ric_sample_idx <- find_reference_ric(rics)
   # Search for the optimal polynomial degree of the warping function:
-  correction_type <- gcims_optimize_polynomial(rics, ref_ric_sample_idx)
+  correction_type_vector <- gcims_optimize_polynomial(rics, ref_ric_sample_idx)
   # Select reference RIC
   ric_ref <- rics[ref_ric_sample_idx, ]
 
@@ -71,12 +71,12 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
 
     # Then, we correct retention time
     # Apply the correction to data:
-    aux_list <- gcims_align_rt(aux_list, ric_ref, correction_type)
+    aux_list <- gcims_align_rt(aux_list, ric_ref, correction_type_vector[m])
 
     # Finally, we save data
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
   }
-  alignment_info <- list(Kcorr_samples = Kcorr_samples, ric_ref = ric_ref, correction_type = correction_type)
+  alignment_info <- list(rip_ref_idx = rip_ref_idx, Kcorr_samples = Kcorr_samples, ref_ric_sample_idx = ref_ric_sample_idx, correction_type_vector = correction_type_vector)
 }
 
 
@@ -149,8 +149,9 @@ find_reference_ric <- function(rics){
 #' @export
 #' @importFrom ptw ptw
 #' @importFrom stats cor
-#' @return  An Integer between 0 and 5. If zero, no correction
-#'          in retention time is needed. Between 1 and 5 it indicates
+#' @return  A vector of integers with as many components as samples to be corrected, with values
+#'          between 0 and 5. If zero, no correction
+#'          in retention time is needed. Between 1 and 5, it indicates
 #'          the polynomial degree of the warping function.
 #' @export
 
@@ -163,33 +164,42 @@ gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
   # List of initial values fo the polynomial coefficients
   init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
   # Initialization of the correlation matrix
-  corr <- matrix(0,nrow = length(samples), ncol = length(init_coeff_list) + 1)
-  correction_type <- 0 * seq_along(samples)
+  corr <- matrix(1, nrow = length(samples), ncol = length(init_coeff_list) + 1)
+  correction_type_vector <- 0 * seq_along(samples)
 
   # Compute correlation between each sample RIC and reference RIC, for the different initial value coefficients
   xi <- seq_len(dim(rics)[2])
-  for (i in seq_len(dim(rics)[1])){
+  # This is done to avoid computing the correlation of the reference againt itself
+  samples_to_correct <- setdiff(seq_len(dim(rics)[1]),ref_ric_sample_idx)
+  for (i in samples_to_correct){
     ric_sample <- rics[i, ]
     corr[i, 1] <- stats::cor(ric_ref, ric_sample, use ="complete.obs")
     for (j in seq_along(init_coeff_list)){
       corr[i,j + 1] <- stats::cor(ric_ref, ptw::ptw(ref = ric_ref, samp = ric_sample, init.coef = init_coeff_list[[j]])$warped.sample[, xi], use ="complete.obs")
     }
-    # Check when correlation decreases for the first time or does not change when increasing degree of the polynomial
-    diff_corr_i <- diff(corr[, i])
-    idx_sign <- which(sign((diff_corr_i == -1)))[1]
-    idx_zero <- which(diff_corr_i == 0)[1]
-    # The minimum of this two values is selected
-    idx_sel <- min(c(idx_sign, idx_zero))
-    correction_type[i] <- correction_type_options[ind_sel]
+    # Initialize index:
+    idx_max <- idx_sel <- idx_zero <- idx_sign <- (length(init_coeff_list)) + 1
+    # Check when correlation decreases for the first time or does not change when increasing degree of the polynomial.
+    diff_corr_i <- diff(corr[i, ])
+    if (all(sign(diff_corr_i) == 1)){
+      # Correlation is always increasing (don't do anything)
+    } else if (any(diff_corr_i == 0)){
+      # Correlation is equal for at least for  different degrees of the polynomial.
+      idx_zero <- which(diff_corr_i == 0)[1]
+    } else if (any(sign(diff_corr_i) == -1)){
+      # Correlation decreases at least for two consecutive degrees of the polynomial.
+      idx_sign <- which(sign(diff_corr_i) == -1)[1]
+    }
+    # Combine indexes and look for the minimum
+    idx_combine <- c(idx_sign, idx_zero)
+    if(any(idx_combine < idx_max)){
+      # Select the minimum index in which the correlation is still increasing
+      idx_sel <- min(idx_combine)
+    }
+    correction_type_vector[i] <- correction_type_options[idx_sel]
 
   }
-  matplot(t(corr),type = "l")
-  points(apply(corr, MARGIN = 2, FUN = mean), col ="orange")
-  lines(apply(corr, MARGIN = 2, FUN = mean), col ="orange")
-  # Look for the global warping function that corrects the set of sample RICs with respect the reference
-  # correction_type_index <- which.max(apply(corr, MARGIN = 2, FUN = mean))
-  #correction_type <- correction_type_options[correction_type_index]
-  return(correction_type)
+  return(correction_type_vector)
 }
 
 
