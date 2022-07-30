@@ -135,7 +135,7 @@ setMethod(
     } else {
       rt_idx <- seq_along(rt)
     }
-    out <- object@data[dt_idx, rt_idx]
+    out <- object$data$data_df[dt_idx, rt_idx]
     dimnames(out) <- list(dt_ms = dt[dt_idx], rt_s = rt[rt_idx])
     out
   }
