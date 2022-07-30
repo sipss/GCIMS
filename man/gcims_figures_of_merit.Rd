@@ -29,9 +29,6 @@ the integration size can be set individually for each sample or use the referenc
 
 \item{rip_saturation_threshold}{A number. The fraction of the maximum RIP. If the RIP at the ROI is below that
 fraction, we will consider the peak to be saturated.}
-
-\item{samples}{Numeric vector of integers. Identifies the set of
-samples to which their Figures of Merit (FOM) have to be caulated.}
 }
 \value{
 The given peak list, with the added columns

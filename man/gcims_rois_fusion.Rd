@@ -64,5 +64,4 @@ ggplot() +
    ),
    alpha=0.5
 )
-invisible(file.remove(files))
 }
