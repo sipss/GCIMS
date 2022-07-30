@@ -29,12 +29,22 @@
 #' peak_list <- data.frame(
 #'   UniqueID = c("P1", "P2", "P3", "P4"),
 #'   SampleID = c("S1", "S1", "S2", "S2"),
+#'   dt_apex_idx = c(140, 340, 180, 380),
 #'   dt_apex_ms = c(7, 10, 7.1, 10.2),
+#'   rt_apex_idx = c(30, 250, 33, 247),
 #'   rt_apex_s = c(30, 250, 33, 247),
+#'   dt_min_idx = c(100, 300, 120, 320),
 #'   dt_min_ms = c(6.5, 9.4, 6.6, 9.7),
+#'   dt_max_idx = c(200, 400, 250, 440),
 #'   dt_max_ms = c(7.7, 10.8, 7.6, 11.1),
+#'   rt_min_idx = c(27, 246, 30, 245),
 #'   rt_min_s = c(27, 246, 30, 245),
-#'   rt_max_s = c(36, 260, 37, 255)
+#'   rt_max_idx = c(36, 260, 37, 255),
+#'   rt_max_s = c(36, 260, 37, 255),
+#'   dt_cm_idx = c(140, 340, 180, 380),
+#'   dt_cm_ms = c(7, 10, 7.1, 10.2),
+#'   rt_cm_idx = c(30, 250, 33, 247),
+#'   rt_cm_s = c(30, 250, 33, 247)
 #' )
 #' peak_table_list <- group_peak_list(
 #'   peaks = peak_list,
