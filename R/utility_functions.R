@@ -318,7 +318,6 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 
   dimensions <- list(NULL)
   for (i in seq_along(samples)) {
-    print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- as.matrix(aux_list$data$data_df)

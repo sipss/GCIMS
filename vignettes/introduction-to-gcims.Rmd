@@ -201,7 +201,7 @@ gcims_view_sample(prepared, sample_num = 1, rt_range = NULL, dt_range = NULL, tr
 gcims_view_sample(aligned, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
 ```
 
-Note tha sample 1, was essentially unchanged.
+Note that sample 1, was essentially unchanged.
 Then, we will compare the Total Ion Spectra (TISs) of all samples:
 ```{r}
 # VISUALIZE THE EFFECT OF ALIGNMENT (TOTAL ION SPECTRUM)
