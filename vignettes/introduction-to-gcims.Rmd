@@ -248,26 +248,8 @@ peak_clustering <- group_peak_list(peak_list, distance_method = "sd_scaled_eucli
 peak_list_clustered <- peak_clustering$peak_list_clustered
 ```
 
-- ROIs Fusion: gcims_rois_fusion
-
 ```{r}
-#ROIs Fusion
-tt <- gcims_rois_fusion(peak_clustering)
-samplestocheck <- dplyr::filter(tt$peak_list_clustered, cluster == 7)
-ggplot() +
-  geom_rect(
-    data = samplestocheck,
-    mapping = aes(
-      xmin=dt_min_ms,
-      xmax=dt_max_ms,
-      ymin=rt_min_s,
-      ymax=rt_max_s,
-      fill = SampleID,
-      color = SampleID
-    ),
-    alpha=0.5
-  ) +
-  labs(x = "Drift time (ms)", "Retention time (s)")
+peak_clustering$cluster_stats
 ```
 
 - Baseline Correction: gcims_remove_baseline
@@ -281,20 +263,52 @@ gcims_remove_baseline(
 )
 ```
 
+
+- ROIs Fusion: gcims_rois_fusion
+
+```{r}
+# ROIs Fusion
+fusion_res <- gcims_rois_fusion(
+  peak_clustering$peak_list_clustered,
+  peak_clustering$cluster_stats
+)
+
+ggplot() +
+  geom_rect(
+    data = dplyr::filter(fusion_res$peak_list_clustered, cluster == "Cluster07"),
+    mapping = aes(
+      xmin=ref_roi_dt_min_idx,
+      xmax=ref_roi_dt_max_idx,
+      ymin=ref_roi_rt_min_idx,
+      ymax=ref_roi_rt_max_idx,
+      fill = SampleID,
+      color = SampleID
+    ),
+    alpha=0.5
+  ) +
+  labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster07")
+```
+
+
 - Figures of Merit: gcims_figures_of_merit
 Calculation of the figures of merit: area, volume, asymmetry and saturation.
 It creates a ".csv" file with all the ROIs information 
 
 ```{r}
-peak_list_foms <- gcims_figures_of_merit(dir_in = bsln, dir_out = fom, samples = (1:3), peak_list = tt$peak_list_clustered)
-head(peak_list_foms)
+peak_list_fom <- gcims_figures_of_merit(
+  dir_in = bsln,
+  dir_out = fom,
+  peak_list = fusion_res$peak_list_clustered,
+  cluster_stats = fusion_res$cluster_stats
+)
+head(peak_list_fom)
 ```
 
 - Build Peak Table: build_peak_table
 
 ```{r}
-peak_table <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
-peak_table_with_na <- peak_table$peak_table
+peak_table <- build_peak_table(peak_list_fom, aggregate_conflicting_peaks = max)
+peak_table$peak_table_matrix
 ```
 
 - Imput Missing Values: gcims_missing_imputation
@@ -302,8 +316,12 @@ Imputation of the missing values found in the peak table.
 It calculates the volume in the region of the reference ROI for each cluster for 
 each sample having a missing value for the cluster.
 ```{r}
-peak_table_imputed <- gcims_missing_imputation(dir_in = bsln, peak_table_with_na, peak_list_foms)
-head(peak_table_imputed)
+peak_table_imputed <- gcims_missing_imputation(
+  peak_table = peak_table$peak_table_matrix,
+  dir_in = bsln,
+  cluster_stats = fusion_res$cluster_stats
+)
+peak_table_imputed
 ```
 
 
@@ -312,4 +330,5 @@ head(peak_table_imputed)
 ```{r}
 sessionInfo()
 ```
+
 
