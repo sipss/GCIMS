@@ -132,6 +132,13 @@ gcims_align_dt <- function(aux_list, Kcorr) {
 #' @importFrom ptw bestref
 #' @return  An Integer number that indicates the reference sample.
 #' @export
+#' @examples
+#' rics <- rbind(
+#'   dnorm(1:100, mean=50, sd =1),
+#'   dnorm(1:100, mean=51, sd =1),
+#'   dnorm(1:100, mean=52, sd =1)
+#' )
+#' find_reference_ric(rics) == 2L
 #'
 find_reference_ric <- function(rics){
   ref_ric_sample_idx <- ptw::bestref(rics)$best.ref
