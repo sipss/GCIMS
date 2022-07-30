@@ -50,7 +50,9 @@ clustering <- group_peak_list(
   verbose = FALSE
 )
 roi_fusion_out <- gcims_rois_fusion(clustering$peak_list_clustered, clustering$cluster_stats)
-samplestocheck <- roi_fusion_out$peak_list_clustered[which(roi_fusion_out$peak_list_clustered$cluster == "Cluster02"), ]
+samplestocheck <- roi_fusion_out$peak_list_clustered[
+  which(roi_fusion_out$peak_list_clustered$cluster == "Cluster02"),
+]
 library(ggplot2)
 ggplot() +
  geom_rect(
