@@ -9,6 +9,10 @@
 #'                        is the mean sample.
 #' @return A reference sample
 #' @export
+#' @examples
+#' input_samples <- system.file("extdata", package = "GCIMS")
+#' to_align <- tempfile("dir")
+#' gcims_create_reference(input_samples, to_align, samples = c(3, 7), ref_number = 3)
 gcims_create_reference <- function(dir_in, dir_out, samples, ref_number){
 
 
