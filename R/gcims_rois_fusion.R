@@ -54,7 +54,6 @@
 #'    ),
 #'    alpha=0.5
 #' )
-#' invisible(file.remove(files))
 gcims_rois_fusion <- function(peak_list_clustered, cluster_stats) {
   # FIXME: Provide these columns in physical units as well.
   # We will do this afterwards, when we have a dataset object that has
