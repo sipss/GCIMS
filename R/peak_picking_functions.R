@@ -27,12 +27,8 @@
 #'
 #' @family Peak Peaking functions
 #' @export
-#' @importFrom chemometrics sd_trim
 #' @importFrom stats sd
-#' @importFrom dbscan dbscan kNNdist
 #' @importFrom pracma meshgrid findpeaks gaussLegendre
-#' @importFrom purrr transpose
-#' @importFrom chemometrics sd_trim
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
@@ -50,6 +46,7 @@
 gcims_peak_picking <- function(dir_in, dir_out, samples,
                                min_length_tr = 50, min_length_td = 10, preprocess = TRUE) {
 
+  require_pkgs(c("dbscan", "chemometrics"))
 
   #---------------#
   #   FUNCTIONS   #
@@ -120,7 +117,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     # Compute robust estimation
     # of noise present in a sample
     mu = mean(x, trim = 0.2)
-    sigma = sd_trim(x, const = TRUE)
+    sigma = chemometrics::sd_trim(x, const = TRUE)
     threshold <- mu + (3 * sigma)
     return(threshold)
   }
@@ -418,9 +415,9 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
     rm(corr_2d)
 
     # 8)   Cluster data in ROIs
-    sorted_distances <-sort(kNNdist(coord_mat, k = neighbors))
+    sorted_distances <-sort(dbscan::kNNdist(coord_mat, k = neighbors))
     eps <- sorted_distances[findknee(1:length(sorted_distances), sorted_distances)[3]]
-    out <- dbscan(coord_mat, eps, neighbors)$cluster
+    out <- dbscan::dbscan(coord_mat, eps, neighbors)$cluster
     if(any(out == 0)){
       out <- out[-which(out ==0)]
     }
@@ -442,7 +439,7 @@ gcims_peak_picking <- function(dir_in, dir_out, samples,
       outer_rectangles[h, ] <- compute_outer_border(aux, inner_rectangles[indexes,])
     }
 
-    roi_coord_list <- transpose(lapply(split(outer_rectangles, row(outer_rectangles)), find_indexes))
+    roi_coord_list <- purrr::transpose(lapply(split(outer_rectangles, row(outer_rectangles)), find_indexes))
     roi_coord_sub <- cbind(unlist(roi_coord_list$X), unlist(roi_coord_list$Y))
     n <- dim(aux)[1]
     roi_coord_ind <- apply(roi_coord_sub, sub2ind, n, MARGIN = 1)
