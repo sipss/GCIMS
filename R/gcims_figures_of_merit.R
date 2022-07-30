@@ -61,14 +61,6 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples, peak_list){
     }
 
 
-    # 2. Search of RIP position
-
-    total_ion_spectrum <- rowSums(aux) # Sum per rows
-    rip_position <- which.max(total_ion_spectrum) # Find maximum for every column
-    rt_idx_with_max_rip <- which.max(aux[rip_position,])
-    minima <- pracma::findpeaks(-total_ion_spectrum)[, 2] # Find local minima
-    rip_end_index <- minima[min(which((minima - rip_position) > 0))] # Find ending index of RIP
-    rip_start_index <- minima[max(which((rip_position - minima) > 0))] # Find starting index of RIP
 
     labels <- nrow(ROIs)
     AsF <- numeric(nrow(ROIs))
@@ -76,8 +68,11 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples, peak_list){
     area <- numeric(nrow(ROIs))
     saturation <- logical(nrow(ROIs))
 
+    # 2. Search of RIP position
+    the_rip <- find_rip(aux)
     # Search saturation regions
-    rip_chrom <- rowSums(aux[rip_start_index: rip_end_index, ]) / length(rip_start_index: rip_end_index)
+    rip_region <- aux[the_rip$dt_idx_start:the_rip$dt_idx_end, , drop = FALSE]
+    rip_chrom <- rowSums(rip_region) / nrow(rip_region)
     max_rip_chrom <- max(rip_chrom)
     saturation_threshold <- 0.1 * max_rip_chrom
 
