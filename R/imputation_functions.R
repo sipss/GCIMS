@@ -56,8 +56,30 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 #' @family Imputation functions
 #' @export
 #' @examples
-#' peak_table_imputed <- gcims_missing_imputation(dir_in = bslnr,
-#' peak_table_with_na, peak_list_foms)
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' roi_selection <- tempfile("dir")
+#' fom <- tempfile("dir")
+#' pl <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+#' clust <- group_peak_list(
+#'   pl,
+#'   distance_method = "sd_scaled_euclidean",
+#'   clustering = list(method = "kmedoids", Nclusters = 13)
+#' )
+#' peak_list_foms <- gcims_figures_of_merit(
+#'   dir_in = roi_selection,
+#'   dir_out = fom,
+#'   samples = 3,
+#'   peak_list = clust$peak_list_clustered
+#' )
+#' peak_table <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
+#' # Ideally dir_in should point to baseline corrected, but we skip this
+#' # here for brevity.
+#' peak_table_with_na <- peak_table$peak_table
+#' peak_table_imputed <- gcims_missing_imputation(
+#'   dir_in = fom,
+#'   peak_table_with_na = peak_table_with_na,
+#'   peak_list_foms = peak_list_foms
+#' )
 #' head(peak_table_imputed)
 gcims_missing_imputation <- function(dir_in, peak_table_with_na, peak_list_foms){
 
