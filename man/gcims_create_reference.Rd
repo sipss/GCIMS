@@ -22,3 +22,8 @@ A reference sample
 \description{
 Select or create a reference sample
 }
+\examples{
+input_samples <- system.file("extdata", package = "GCIMS")
+to_align <- tempfile("dir")
+gcims_create_reference(input_samples, to_align, samples = c(3, 7), ref_number = 3)
+}

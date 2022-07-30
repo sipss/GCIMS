@@ -17,4 +17,8 @@ The result of calling \code{rhs(lhs)}.
 \description{
 See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
 }
+\examples{
+fun1 <- function(x) {x+1}
+1 \%>\% fun1(1)
+}
 \keyword{internal}

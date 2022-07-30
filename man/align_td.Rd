@@ -30,3 +30,22 @@ correction factors between 0.9 and 1.1.
 This alignment technique can be used when the pressure and temperature
 measurements are not available.
 }
+\examples{
+input_samples <- system.file("extdata", package = "GCIMS")
+to_align <- tempfile("dir")
+dir.create(to_align, recursive = TRUE, showWarnings = FALSE)
+file.copy(
+  file.path(input_samples, "M3.rds"),
+  file.path(to_align, "M0.rds")
+)
+file.copy(
+  file.path(input_samples, "M7.rds"),
+  file.path(to_align, "M7.rds")
+)
+aligned <- tempfile("dir")
+align_td(
+  dir_in = to_align,
+  dir_out = aligned,
+  samples = 7
+)
+}

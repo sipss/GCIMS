@@ -17,3 +17,12 @@ An Integer number that indicates the reference sample.
 This function provides the index corresponding to the reference Reactant Ion Chromatogram (RIC) to correct
 misalignments in retention time.
 }
+\examples{
+rics <- rbind(
+  dnorm(1:100, mean=50, sd =1),
+  dnorm(1:100, mean=51, sd =1),
+  dnorm(1:100, mean=52, sd =1)
+)
+find_reference_ric(rics) == 2L
+
+}

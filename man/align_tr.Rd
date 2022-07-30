@@ -27,3 +27,23 @@ retention time axes of the reference and the sample to be corrected
 is optimized using the average correlation between samples and reference as a figure
 of merit.
 }
+\examples{
+input_samples <- system.file("extdata", package = "GCIMS")
+to_align <- tempfile("dir")
+dir.create(to_align, recursive = TRUE, showWarnings = FALSE)
+file.copy(
+  file.path(input_samples, "M3.rds"),
+  file.path(to_align, "M0.rds")
+)
+file.copy(
+  file.path(input_samples, "M7.rds"),
+  file.path(to_align, "M7.rds")
+)
+aligned <- tempfile("dir")
+align_tr(
+  dir_in = to_align,
+  dir_out = aligned,
+  samples = 7,
+  correction_type = 1L
+)
+}
