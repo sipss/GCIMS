@@ -119,20 +119,42 @@ group_peak_list <- function(
     stop(sprintf("Unsupported clustering method %s", clustering$method))
   }
 
-  median_roi_per_cluster <- peaks %>%
+  # Turn numeric peak clusters into IDs
+  if (is.numeric(peaks$cluster)) {
+    ndigits_print <- paste0("Cluster%0", nchar(max(peaks$cluster)), "d")
+    peaks$cluster <- sprintf(ndigits_print, peaks$cluster)
+  }
+
+  cluster_stats <- peaks %>%
     dplyr::group_by(.data$cluster) %>%
     dplyr::summarise(
       dplyr::across(
-        c(dplyr::starts_with("dt"), dplyr::starts_with("rt")),
+        dplyr::all_of(
+          c(
+            "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms",
+            "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s"
+          )
+        ),
         stats::median
-      )
+      ),
+      dplyr::across(
+        dplyr::all_of(c("dt_min_idx", "rt_min_idx")),
+        ~ floor(stats::median(.))
+      ),
+      dplyr::across(
+        dplyr::all_of(c("dt_max_idx", "rt_max_idx")),
+        ~ ceiling(stats::median(.))
+      ),
+      dplyr::across(
+        dplyr::all_of(c("dt_apex_idx", "dt_cm_idx", "rt_apex_idx", "rt_cm_idx")),
+        ~ round(stats::median(.))
+      ),
     ) %>%
     dplyr::ungroup()
 
-
   list(
     peak_list_clustered = peaks,
-    clusters_median_roi = median_roi_per_cluster,
+    cluster_stats = cluster_stats,
     dist = peak2peak_dist,
     extra_clustering_info = extra_clustering_info
   )
