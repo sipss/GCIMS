@@ -4,18 +4,18 @@
 \alias{gcims_missing_imputation}
 \title{Missing Values Imputation}
 \usage{
-gcims_missing_imputation(dir_in, peak_table_with_na, peak_list_foms)
+gcims_missing_imputation(peak_table, dir_in, cluster_stats)
 }
 \arguments{
-\item{dir_in}{Input directory. Where input data files are loaded
-from. It should be the one with the baseline removed.}
+\item{peak_table}{The matrix to be imputed, with samples in rows (see example)}
 
-\item{peak_table_with_na}{Peak table that contains missing values}
+\item{dir_in}{Directory with baseline removed samples}
 
-\item{peak_list_foms}{Peak list containing all the figures of merit.}
+\item{cluster_stats}{Cluster statistics (reference ROI limits)}
 }
 \value{
-A Set of S3 objects.
+A matrix with samples in rows, clusters in columns and volumes
+as values, without missing values
 }
 \description{
 Missing Values Imputation
@@ -36,20 +36,33 @@ clust <- group_peak_list(
   distance_method = "sd_scaled_euclidean",
   clustering = list(method = "kmedoids", Nclusters = 13)
 )
-peak_list_foms <- gcims_figures_of_merit(
-  dir_in = roi_selection,
-  dir_out = fom,
-  samples = 3,
-  peak_list = clust$peak_list_clustered
+# Baseline removal should be here, disabled for speed
+# bsln <- tempfile("dir)
+# gcims_remove_baseline(
+#   dir_in = roi_selection,
+#   dir_out = bsln,
+#   samples = c(3, 7),
+#   clust$peak_list_clustered
+# )
+#
+fusion_res <- gcims_rois_fusion(
+  clust$peak_list_clustered,
+  clust$cluster_stats
 )
-peak_table <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
+peak_list_foms <- gcims_figures_of_merit(
+  dir_in = roi_selection, # use bsln
+  dir_out = fom,
+  peak_list = fusion_res$peak_list_clustered,
+  cluster_stats = fusion_res$cluster_stats
+)
+peak_table_obj <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
 # Ideally dir_in should point to baseline corrected, but we skip this
 # here for brevity.
-peak_table_with_na <- peak_table$peak_table
+peak_table_to_impute <- peak_table_obj$peak_table_mat
 peak_table_imputed <- gcims_missing_imputation(
-  dir_in = fom,
-  peak_table_with_na = peak_table_with_na,
-  peak_list_foms = peak_list_foms
+  peak_table = peak_table_to_impute,
+  dir_in = fom, # use bsln
+  cluster_stats = fusion_res$cluster_stats
 )
 head(peak_table_imputed)
 }

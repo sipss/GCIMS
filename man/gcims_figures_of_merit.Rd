@@ -4,7 +4,14 @@
 \alias{gcims_figures_of_merit}
 \title{Figures Of Merit Calculation}
 \usage{
-gcims_figures_of_merit(dir_in, dir_out, samples, peak_list)
+gcims_figures_of_merit(
+  dir_in,
+  dir_out,
+  peak_list,
+  cluster_stats,
+  integration_size = c("cluster_roi", "individual_roi"),
+  rip_saturation_threshold = 0.1
+)
 }
 \arguments{
 \item{dir_in}{Input directory. Where input data files are loaded
@@ -13,22 +20,24 @@ from.}
 \item{dir_out}{Output directory. Where files containing the Figures of Meir of each ROI are
 stored.}
 
+\item{peak_list}{A data frame. The peak list where we will add the figures of merit.}
+
+\item{cluster_stats}{A data frame with cluster statistics (ROI limits...)}
+
+\item{integration_size}{Either "cluster_roi" or "individual_roi". When computing the volume,
+the integration size can be set individually for each sample or use the reference cluster size given by \code{cluster_stats}.}
+
+\item{rip_saturation_threshold}{A number. The fraction of the maximum RIP. If the RIP at the ROI is below that
+fraction, we will consider the peak to be saturated.}
+
 \item{samples}{Numeric vector of integers. Identifies the set of
 samples to which their Figures of Merit (FOM) have to be caulated.}
-
-\item{peak_list}{A data frame. The peak list where we will add the figures of merit.}
 }
 \value{
-A Set of S3 objects and a ".csv" file with a table that contains the figures
-of merit for each ROI and the ROI information.
+The given peak list, with the added columns
 }
 \description{
-Figures Of Merit Calculation
-}
-\details{
-\code{gcims_figures_of_merit} calculates a set of figures of merit for each
-ROI of the sample. The FOMs calculated are: the area, the volume, the assymetry
-and the saturation.
+Calculates the area, volume asymmetry and saturation of each peak roi in \code{peak_list}
 }
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
@@ -36,12 +45,18 @@ roi_selection <- tempfile("dir")
 fom <- tempfile("dir")
 
 # Example of Calculating the Figures of Merit'
-pl <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+peak_list <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+clustering <- group_peak_list(
+  peak_list,
+  distance_method = "sd_scaled_euclidean",
+  clustering = list(method = "kmedoids", Nclusters = 13)
+)
+roi_fusion_out <- gcims_rois_fusion(clustering$peak_list_clustered, clustering$cluster_stats)
 peak_list_fom <- gcims_figures_of_merit(
   dir_in = roi_selection,
   dir_out = fom,
-  samples = 3,
-  peak_list = pl
+  peak_list = roi_fusion_out$peak_list_clustered,
+  cluster_stats = roi_fusion_out$cluster_stats
 )
 head(peak_list_fom)
 }
@@ -52,7 +67,6 @@ Other Utility functions:
 \code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()},
-\code{\link{gcims_rois_fusion}()},
 \code{\link{gcims_rois_selection}()},
 \code{\link{gcims_shifting}()},
 \code{\link{gcims_unfold}()}

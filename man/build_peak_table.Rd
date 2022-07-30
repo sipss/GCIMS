@@ -7,15 +7,15 @@
 build_peak_table(peak_list_clustered, aggregate_conflicting_peaks = NULL)
 }
 \arguments{
-\item{peak_list_clustered}{The output of \link{group_peak_list}}
+\item{peak_list_clustered}{The output of \link{gcims_figures_of_merit}.}
 
-\item{aggregate_conflicting_peaks}{\code{NULL} or a function. When we build the peak table, with peaks in rows, samples in
-columns, \code{peak_table[i,j]} is the volume of the peak from sample \code{j} in cluster \code{i}. If the clustering process
-clusters together two peaks form the same sample, those peaks will conflict in the peak table. \code{NULL} will error
-in that case, another function will be applied on the conflicting volumes (e.g \code{mean} or \code{max} would be reasonable options)}
+\item{aggregate_conflicting_peaks}{\code{NULL} or a function. What to do, in case two peaks from the same sample
+have been assigned to the same cluster. If \code{NULL}, throw an error. If \code{mean}, \code{max} or any other function,
+we will summarize all the conflicting volumes into that number (e.g. "take the maximum of the peaks")}
 }
 \value{
-A list with the peak table and the ROI duplicity information
+A list with the peak table and the ROI duplicity information. The peak table
+is a data frame with
 }
 \description{
 Build a peak table
