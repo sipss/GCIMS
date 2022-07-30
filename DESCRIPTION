@@ -65,7 +65,6 @@ Imports:
     dplyr(>= 1.0.2),
     ggplot2 (>= 3.3.2),
     glue,
-    magick,
     magrittr(>= 1.5),
     methods,
     missForest (>= 1.4),
