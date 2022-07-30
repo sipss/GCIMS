@@ -44,15 +44,15 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 
 #' Missing Values Imputation
 
-#' @param dir_in              Input directory. Where input data files are loaded
-#'   from. It should be the one with the baseline removed.
-#' @param peak_table_with_na  Peak table that contains missing values
-#' @param peak_list_foms      Peak list containing all the figures of merit.
+#' @param peak_table The matrix to be imputed, with samples in rows (see example)
+#' @param dir_in Directory with baseline removed samples
+#' @param cluster_stats Cluster statistics (reference ROI limits)
 #' @details `gcims_missing_imputation` calculates the volume of the ROIs that
 #' have missing values. It uses the coordinates of the reference ROI for each
 #' cluster and subistitue the missing value by the volume in this region without
 #' baseline.
-#' @return A Set of S3 objects.
+#' @return A matrix with samples in rows, clusters in columns and volumes
+#'  as values, without missing values
 #' @family Imputation functions
 #' @export
 #' @examples
@@ -65,23 +65,32 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 #'   distance_method = "sd_scaled_euclidean",
 #'   clustering = list(method = "kmedoids", Nclusters = 13)
 #' )
+#' # Baseline removal should be here, disabled for speed
+#' # bsln <- tempfile("dir)
+#' # gcims_remove_baseline(
+#' #   dir_in = roi_selection,
+#' #   dir_out = bsln,
+#' #   samples = c(3, 7),
+#' #   clust$peak_list_clustered
+#' # )
+#' #
 #' peak_list_foms <- gcims_figures_of_merit(
-#'   dir_in = roi_selection,
+#'   dir_in = roi_selection, # use bsln
 #'   dir_out = fom,
-#'   samples = 3,
+#'   samples = c(3, 7),
 #'   peak_list = clust$peak_list_clustered
 #' )
-#' peak_table <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
+#' peak_table_obj <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
 #' # Ideally dir_in should point to baseline corrected, but we skip this
 #' # here for brevity.
-#' peak_table_with_na <- peak_table$peak_table
+#' peak_table_to_impute <- peak_table_obj$peak_table_mat
 #' peak_table_imputed <- gcims_missing_imputation(
-#'   dir_in = fom,
-#'   peak_table_with_na = peak_table_with_na,
-#'   peak_list_foms = peak_list_foms
+#'   peak_table = peak_table_to_impute,
+#'   dir_in = fom, # use bsln
+#'   cluster_stats = clust$cluster_stats
 #' )
 #' head(peak_table_imputed)
-gcims_missing_imputation <- function(dir_in, peak_table_with_na, peak_list_foms){
+gcims_missing_imputation <- function(peak_table, dir_in, cluster_stats){
 
   #-------------#
   #     MAIN    #
@@ -94,30 +103,29 @@ gcims_missing_imputation <- function(dir_in, peak_table_with_na, peak_list_foms)
   print("///////////////////////////////////")
   print(" ")
 
-  peaktable <- peak_table_with_na
-  clusters_infor <- peak_list_foms
-  num_clusts <- dim(peaktable)[1]
-  num_samps <- dim(peaktable)[2] - 1
+
+  num_samps <- nrow(peak_table)
 
   for(i in seq_len(num_samps)){
-    missing_value <- which(is.na(peaktable[, i+1]) == TRUE)
-    if (length(missing_value) >= 1){
-      aux_list <- readRDS(file.path(dir_in, paste0("M", i, ".rds"))) # Load RDS file
-      aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
-      for(j in missing_value) {
-        #4 corrdinates
-        dtmin_clust <- clusters_infor$ref_roi_dt_min_idx[j]
-        dtmax_clust <- clusters_infor$ref_roi_dt_max_idx[j]
-        rtmin_clust <- clusters_infor$ref_roi_rt_min_idx[j]
-        rtmax_clust <- clusters_infor$ref_roi_rt_max_idx[j]
+    sample_name <- rownames(peak_table)[i]
+    missing_values <- which(is.na(peak_table[i,]))
+    if (length(missing_values) >= 1) {
+      aux_list <- readRDS(file.path(dir_in, sample_name)) # Load RDS file
+      aux <- as.matrix(aux_list$data$data_df) # The data is in data_df
+      for (j in missing_values) {
+        #4 coordinates
+        cluster_name <- colnames(peak_table)[j]
+        cluster_info_row <- which(cluster_stats$cluster == cluster_name)
+        dtmin_clust <- cluster_stats$dt_min_idx[cluster_info_row]
+        dtmax_clust <- cluster_stats$dt_max_idx[cluster_info_row]
+        rtmin_clust <- cluster_stats$rt_min_idx[cluster_info_row]
+        rtmax_clust <- cluster_stats$rt_max_idx[cluster_info_row]
         patch <- aux[dtmin_clust:dtmax_clust, rtmin_clust:rtmax_clust]
-        value2imput <- round(compute_integral2(patch), digits = 0)
-        peaktable[j, i+1] <- value2imput
+        peak_table[i, j] <- round(compute_integral2(patch), digits = 0)
       }
     }
   }
-  peak_table<- peaktable
-  return(peak_table)
+  peak_table
 }
 
 
@@ -152,5 +160,4 @@ compute_integral2 <- function(data){
   }
   return(I)
 }
-
 
