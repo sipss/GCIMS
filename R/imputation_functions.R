@@ -74,11 +74,15 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 #' #   clust$peak_list_clustered
 #' # )
 #' #
+#' fusion_res <- gcims_rois_fusion(
+#'   clust$peak_list_clustered,
+#'   clust$cluster_stats
+#' )
 #' peak_list_foms <- gcims_figures_of_merit(
 #'   dir_in = roi_selection, # use bsln
 #'   dir_out = fom,
-#'   samples = c(3, 7),
-#'   peak_list = clust$peak_list_clustered
+#'   peak_list = fusion_res$peak_list_clustered,
+#'   cluster_stats = fusion_res$cluster_stats
 #' )
 #' peak_table_obj <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
 #' # Ideally dir_in should point to baseline corrected, but we skip this
@@ -87,7 +91,7 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 #' peak_table_imputed <- gcims_missing_imputation(
 #'   peak_table = peak_table_to_impute,
 #'   dir_in = fom, # use bsln
-#'   cluster_stats = clust$cluster_stats
+#'   cluster_stats = fusion_res$cluster_stats
 #' )
 #' head(peak_table_imputed)
 gcims_missing_imputation <- function(peak_table, dir_in, cluster_stats){
