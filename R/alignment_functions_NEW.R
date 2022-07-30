@@ -19,7 +19,24 @@
 #' @param samples            Numeric vector of integers. Identifies the set of
 #'                           sample to be visualized from the dataset.
 #' @export
-#'
+#' @examples
+#' input_samples <- system.file("extdata", package = "GCIMS")
+#' to_align <- tempfile("dir")
+#' dir.create(to_align, recursive = TRUE, showWarnings = FALSE)
+#' file.copy(
+#'   file.path(input_samples, "M3.rds"),
+#'   file.path(to_align, "M0.rds")
+#' )
+#' file.copy(
+#'   file.path(input_samples, "M7.rds"),
+#'   file.path(to_align, "M7.rds")
+#' )
+#' aligned <- tempfile("dir")
+#' align_td(
+#'   dir_in = to_align,
+#'   dir_out = aligned,
+#'   samples = 7
+#' )
 align_td <- function(dir_in, dir_out,samples) {
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   aux_string <- paste0("M0.rds")
@@ -93,6 +110,25 @@ align_td <- function(dir_in, dir_out,samples) {
 #' @importFrom ptw ptw
 #' @importFrom signal interp1
 #' @export
+#' @examples
+#' input_samples <- system.file("extdata", package = "GCIMS")
+#' to_align <- tempfile("dir")
+#' dir.create(to_align, recursive = TRUE, showWarnings = FALSE)
+#' file.copy(
+#'   file.path(input_samples, "M3.rds"),
+#'   file.path(to_align, "M0.rds")
+#' )
+#' file.copy(
+#'   file.path(input_samples, "M7.rds"),
+#'   file.path(to_align, "M7.rds")
+#' )
+#' aligned <- tempfile("dir")
+#' align_tr(
+#'   dir_in = to_align,
+#'   dir_out = aligned,
+#'   samples = 7,
+#'   correction_type = 1L
+#' )
 align_tr <- function(dir_in, dir_out, samples, correction_type) {
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
