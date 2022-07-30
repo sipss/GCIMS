@@ -1,5 +1,7 @@
 #' Figures Of Merit Calculation
-
+#'
+#' Calculates the area, volume asymmetry and saturation of each peak roi in `peak_list`
+#'
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
 #' @param dir_out         Output directory. Where files containing the Figures of Meir of each ROI are
@@ -7,11 +9,12 @@
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their Figures of Merit (FOM) have to be caulated.
 #' @param peak_list A data frame. The peak list where we will add the figures of merit.
-#' @details `gcims_figures_of_merit` calculates a set of figures of merit for each
-#' ROI of the sample. The FOMs calculated are: the area, the volume, the assymetry
-#' and the saturation.
-#' @return A Set of S3 objects and a ".csv" file with a table that contains the figures
-#' of merit for each ROI and the ROI information.
+#' @param cluster_stats A data frame with cluster statistics (ROI limits...)
+#' @param integration_limits Either "cluster_roi" or "individual_roi". When computing the area and the volume,
+#' the integration limits can be set individually for each sample or use the reference given by `cluster_stats`.
+#' @param rip_saturation_threshold A number. The fraction of the maximum RIP. If the RIP at the ROI is below that
+#' fraction, we will consider the peak to be saturated.
+#' @return The given peak list, with the added columns
 #' @family Utility functions
 #' @export
 #' @examples
@@ -20,15 +23,28 @@
 #' fom <- tempfile("dir")
 #'
 #' # Example of Calculating the Figures of Merit'
-#' pl <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+#' peak_list <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+#' peak_clustering <- group_peak_list(
+#'   peak_list,
+#'   distance_method = "sd_scaled_euclidean",
+#'   clustering = list(method = "kmedoids", Nclusters = 13)
+#' )
 #' peak_list_fom <- gcims_figures_of_merit(
 #'   dir_in = roi_selection,
 #'   dir_out = fom,
-#'   samples = 3,
-#'   peak_list = pl
+#'   samples = c(3, 7),
+#'   peak_list = peak_clustering$peak_list_clustered,
+#'   cluster_stats = peak_clustering$cluster_stats
 #' )
 #' head(peak_list_fom)
-gcims_figures_of_merit <- function(dir_in, dir_out, samples, peak_list){
+gcims_figures_of_merit <- function(
+    dir_in,
+    dir_out,
+    peak_list,
+    cluster_stats,
+    integration_limits = c("cluster_roi", "individual_roi"),
+    rip_saturation_threshold = 0.1
+) {
   print(" ")
   print("  ////////////////////////////////////////")
   print(" /    Calculating the Figures of Merit  /")
@@ -37,108 +53,99 @@ gcims_figures_of_merit <- function(dir_in, dir_out, samples, peak_list){
 
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 
-  peak_list$Area <- rep(0, dim(peak_list)[1])
-  peak_list$Volume <- rep(0, dim(peak_list)[1])
-  peak_list$AsF <- rep(0, dim(peak_list)[1])
-  peak_list$Saturation <- rep(0, dim(peak_list)[1])
+  integration_limits <- match.arg(integration_limits)
+
+  peak_list$Area <- 0
+  peak_list$Volume <- 0
+  peak_list$Asymmetry <- 0
+  peak_list$Saturation <- 0
 
 
   s = 0
 
-  peaktables <- list()
-  for (i in samples){
+  sample_names <- unique(peak_list$SampleID)
+
+  for (sample_name in sample_names) {
     s = s + 1
-    print(paste0("Sample ", s, " of ", length(samples)))
+    print(paste0("Sample ", s, " of ", length(sample_names)))
 
     # 1. Data load
 
-    aux_string <- paste0("M", i, ".rds") # Generate file name
+    aux_string <- sample_name
     aux_list <- readRDS(file.path(dir_in, aux_string)) # Load RDS file
-    aux <- (as.matrix(aux_list$data$data_df))
-    ROIs <- peak_list[(peak_list$SampleID == aux_string), ]
-    if (!"ROIs" %in% names(aux_list$data)) {
-      rlang::abort("Please run gcims_rois_selection step first. Check the vignette")
+    aux <- as.matrix(aux_list$data$data_df)
+    peak_list_rows <- which(peak_list$SampleID == sample_name)
+
+    # 2. Find the retention time regions where the RIP is saturated:
+    find_regions_rip_saturated <- function(aux) {
+      the_rip <- find_rip(aux)
+      # Search saturation regions
+      rip_region <- aux[the_rip$dt_idx_start:the_rip$dt_idx_end, , drop = FALSE]
+      rip_chrom <- rowSums(rip_region) / nrow(rip_region)
+      rt_rip_saturated_indices <- which(rip_chrom <= rip_saturation_threshold * max(rip_chrom))
+      if (length(rt_rip_saturated_indices) == 0L) {
+        rt_saturated_regions <- matrix(nrow = 0L, ncol = 2L)
+      } else {
+        saturation_list <- split(rt_rip_saturated_indices, cumsum(c(1, diff(rt_rip_saturated_indices)) != 1))
+        rt_saturated_regions <- matrix(0, nrow = length(saturation_list), ncol = 2)
+        for (k in seq_along(saturation_list)) {
+          rt_saturated_regions[k, 1L] <- min(saturation_list[[k]])
+          rt_saturated_regions[k, 2L] <- max(saturation_list[[k]])
+        }
+      }
+      colnames(rt_saturated_regions) <- c("begin", "end")
+      rt_saturated_regions
     }
+    rt_saturated_regions <- find_regions_rip_saturated(aux)
 
+    for (peak_list_row in peak_list_rows) {
+      roi_prop <- as.list(peak_list[peak_list_row,])
+      cluster_id <- roi_prop$cluster
+      cluster_prop <- as.list(cluster_stats[cluster_stats$cluster == cluster_id,])
 
-
-    labels <- nrow(ROIs)
-    AsF <- numeric(nrow(ROIs))
-    volume <- numeric(nrow(ROIs))
-    area <- numeric(nrow(ROIs))
-    saturation <- logical(nrow(ROIs))
-
-    # 2. Search of RIP position
-    the_rip <- find_rip(aux)
-    # Search saturation regions
-    rip_region <- aux[the_rip$dt_idx_start:the_rip$dt_idx_end, , drop = FALSE]
-    rip_chrom <- rowSums(rip_region) / nrow(rip_region)
-    max_rip_chrom <- max(rip_chrom)
-    saturation_threshold <- 0.1 * max_rip_chrom
-
-    for (n in seq_len(labels)){
-      R1 <- ROIs[n, ]
-
-      len_dt <- as.numeric(R1["dt_max_idx"] - R1["dt_min_idx"])
-      len_rt <- as.numeric(R1["rt_max_idx"] - R1["rt_min_idx"])
-
-      # roi area
-      area_roi <- len_rt * len_dt
-      area[n] <- area_roi
+      if (integration_limits == "cluster_roi") {
+        len_dt <- cluster_prop$dt_max_idx - cluster_prop$dt_min_idx
+        len_rt <- cluster_prop$rt_max_idx - cluster_prop$rt_min_idx
+      } else if (integration_limits == "individual_roi") {
+        len_dt <- roi_prop$dt_max_idx - roi_prop$dt_min_idx
+        len_rt <- roi_prop$rt_max_idx - roi_prop$rt_min_idx
+      } else {
+        stop("Invalid integration_limits parameter")
+      }
+      peak_list$Area[peak_list_row] <- len_dt * len_rt
 
       # roi volume
-      patch <- aux[as.numeric(R1["dt_min_idx"]):as.numeric(R1["dt_max_idx"]),
-                   as.numeric(R1["rt_min_idx"]):as.numeric(R1["rt_max_idx"])]
-
-      volume[n] <- round(compute_integral2(patch), digits = 0)
-
+      if (integration_limits == "cluster_roi") {
+        patch <- aux[cluster_prop$dt_min_idx:cluster_prop$dt_max_idx,
+                     cluster_prop$rt_min_idx:cluster_prop$rt_max_idx]
+      } else if (integration_limits == "individual_roi") {
+        patch <- aux[roi_prop$dt_min_idx:roi_prop$dt_max_idx,
+                     roi_prop$rt_min_idx:roi_prop$rt_max_idx]
+      } else {
+        stop("Invalid integration_limits parameter")
+      }
+      peak_list$Volume[peak_list_row] <- compute_integral2(patch)
 
       # roi asymmetries
-      half_down_area  <- as.numeric(R1["rt_cm_s"] - R1["rt_min_s"])
-      half_up_area    <- as.numeric(R1["rt_max_s"] - R1["rt_cm_s"])
-      asymetry <- round(((half_down_area - half_up_area) - 1 ), 2)
-      AsF[n] <- asymetry
+      rt_rising_length <- roi_prop$rt_apex_s - roi_prop$rt_min_s
+      rt_falling_length <- roi_prop$rt_max_s - roi_prop$rt_apex_s
+      peak_list$Asymmetry[peak_list_row] <- round(rt_falling_length/rt_rising_length - 1, digits = 2)
 
-      saturation_regions <- which(rip_chrom <= saturation_threshold)
-      if (length(saturation_regions) == 0){
-        saturation_minima <- NULL
-      } else {
-        saturation_list <- split(saturation_regions, cumsum(c(1, diff(saturation_regions)) != 1))
-        saturation_minima <- matrix(0, length(saturation_list), 2)
-        for (k in seq_along(saturation_list)){
-          saturation_minima[k, ] <- c(min(saturation_list[[k]]), max(saturation_list[[k]]))
-        }
-      }
 
-      # roi saturation
-      if (length(saturation_minima) == 0){
-        # No saturation. Do nothing
-        saturation[n] <- FALSE
-      } else {
-        for (l in (1:nrow(saturation_minima))){
-          if ((saturation_minima[l, 1] < R1["rt_cm_s"])
-              & (saturation_minima[l, 2] > R1["rt_cm_s"])) {
-            saturation[n] <- TRUE
-            break
-          }
+      # ROI saturation
+      for (l in seq_len(nrow(rt_saturated_regions))) {
+        if (rt_saturated_regions[l, 1L] < roi_prop$rt_cm_idx && rt_saturated_regions[l, 2L] > roi_prop$rt_cm_idx) {
+          peak_list$Saturation[peak_list_row] <- TRUE
+          break
         }
       }
     }
-
-    peaktable <- cbind(ROIs, Area = area, Volume = volume, AsF = AsF, Saturation = saturation)
-    aux_list$data$Peaktable <- peaktable
-    peaktables <- c(peaktables, list(peaktable))
-    utils::write.csv(peaktable, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
-    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
-    peak_list[(peak_list$SampleID == aux_string), "Area"] <- area
-    peak_list[(peak_list$SampleID == aux_string), "Volume"] <- volume
-    peak_list[(peak_list$SampleID == aux_string), "AsF"] <- AsF
-    peak_list[(peak_list$SampleID == aux_string), "Saturation"] <- saturation
-
+    peak_list_this_sample <- peak_list[peak_list_rows, , drop = FALSE]
+    aux_list$data$Peaktable <- peak_list_this_sample
+    utils::write.csv(peak_list_this_sample, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
+    saveRDS(aux_list, file = file.path(dir_out, sample_name))
   }
   return(peak_list)
-  names(peaktables) <- samples
-  dplyr::bind_rows(peaktables, .id = "SampleID")
 }
 
 
@@ -173,6 +180,7 @@ compute_integral2 <- function(data){
   }
   return(I)
 }
+
 
 
 
