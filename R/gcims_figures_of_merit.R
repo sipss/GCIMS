@@ -6,8 +6,6 @@
 #'   from.
 #' @param dir_out         Output directory. Where files containing the Figures of Meir of each ROI are
 #'   stored.
-#' @param samples         Numeric vector of integers. Identifies the set of
-#'   samples to which their Figures of Merit (FOM) have to be caulated.
 #' @param peak_list A data frame. The peak list where we will add the figures of merit.
 #' @param cluster_stats A data frame with cluster statistics (ROI limits...)
 #' @param integration_size Either "cluster_roi" or "individual_roi". When computing the volume,
