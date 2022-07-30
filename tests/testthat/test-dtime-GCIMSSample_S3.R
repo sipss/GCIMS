@@ -5,5 +5,5 @@ test_that("dtime works on GCIMSSampleS3", {
     intensity = matrix(1:15, nrow = 3, ncol = 5),
     metadata = list(Name = "Sample1")
   )
-  all(dtime(obj) == 1:3)
+  expect_true(all(dtime(obj) == 1:3))
 })
