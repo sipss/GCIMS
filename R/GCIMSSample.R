@@ -523,15 +523,6 @@ subset.GCIMSSample <- function(
 #' @describeIn GCIMSSample-methods Get the extracted ion chromatogram
 #' @export
 setMethod("getEIC", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL) {
-  rlang::warn(
-    message = c(
-      "Deprecation warning",
-      "x" = "getEIC will be deprecated",
-      "i" = "We will provide a chromatogram() method, aligned with xcms, MSnbase and ProtGenerics"
-    ),
-    .frequency = "once",
-    .frequency_id = "GCIMS::getEIC deprecation"
-  )
   intens <- intensity(object, rt_range = rt_range, dt_range = dt_range)
   colSums(intens)
 })
