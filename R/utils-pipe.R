@@ -13,5 +13,5 @@
 #' @return The result of calling `rhs(lhs)`.
 #' @examples
 #' fun1 <- function(x) {x+1}
-#' 1 %>% fun1(1)
+#' 1 %>% fun1()
 NULL

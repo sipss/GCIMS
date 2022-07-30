@@ -19,6 +19,6 @@ See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
 }
 \examples{
 fun1 <- function(x) {x+1}
-1 \%>\% fun1(1)
+1 \%>\% fun1()
 }
 \keyword{internal}
