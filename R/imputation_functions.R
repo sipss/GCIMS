@@ -76,12 +76,11 @@ gcims_missing_imputation <- function(dir_in, peak_table_with_na, peak_list_foms)
   clusters_infor <- peak_list_foms
   num_clusts <- dim(peaktable)[1]
   num_samps <- dim(peaktable)[2] - 1
-  setwd(dir_in)
 
   for(i in seq_len(num_samps)){
     missing_value <- which(is.na(peaktable[, i+1]) == TRUE)
     if (length(missing_value) >= 1){
-      aux_list <- readRDS(paste0("M", i, ".rds")) # Load RDS file
+      aux_list <- readRDS(file.path(dir_in, paste0("M", i, ".rds"))) # Load RDS file
       aux <- (as.matrix(aux_list$data$data_df)) # The data is in data_df
       for(j in missing_value) {
         #4 corrdinates
