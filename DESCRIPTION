@@ -59,9 +59,7 @@ Depends:
 License: GPL-2
 Imports: 
     BiocParallel,
-    chemometrics(>= 1.4.2),
     cluster,
-    dbscan(>= 1.1-5),
     dplyr(>= 1.0.2),
     ggplot2 (>= 3.3.2),
     glue,
@@ -83,7 +81,9 @@ Imports:
     utils (>= 4.0.2),
     viridis(>= 0.5.1)
 Suggests:
+    chemometrics(>= 1.4.2),
     curl,
+    dbscan(>= 1.1-5),
     httr,
     testthat (>= 3.0.0),
     BiocStyle,
