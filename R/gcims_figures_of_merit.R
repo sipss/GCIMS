@@ -6,6 +6,7 @@
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to which their Figures of Merit (FOM) have to be caulated.
+#' @param peak_list A data frame. The peak list where we will add the figures of merit.
 #' @details `gcims_figures_of_merit` calculates a set of figures of merit for each
 #' ROI of the sample. The FOMs calculated are: the area, the volume, the assymetry
 #' and the saturation.
@@ -18,9 +19,14 @@
 #' roi_selection <- tempfile("dir")
 #' fom <- tempfile("dir")
 #'
-#' # Example of Calculating the Figures of Merit
-#' gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
-#' peak_list_fom <- gcims_figures_of_merit(dir_in = roi_selection, dir_out = fom, samples = 3)
+#' # Example of Calculating the Figures of Merit'
+#' pl <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+#' peak_list_fom <- gcims_figures_of_merit(
+#'   dir_in = roi_selection,
+#'   dir_out = fom,
+#'   samples = 3,
+#'   peak_list = pl
+#' )
 #' head(peak_list_fom)
 gcims_figures_of_merit <- function(dir_in, dir_out, samples, peak_list){
   print(" ")
