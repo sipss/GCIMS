@@ -10,8 +10,8 @@
 #'   samples to which their Figures of Merit (FOM) have to be caulated.
 #' @param peak_list A data frame. The peak list where we will add the figures of merit.
 #' @param cluster_stats A data frame with cluster statistics (ROI limits...)
-#' @param integration_limits Either "cluster_roi" or "individual_roi". When computing the area and the volume,
-#' the integration limits can be set individually for each sample or use the reference given by `cluster_stats`.
+#' @param integration_size Either "cluster_roi" or "individual_roi". When computing the volume,
+#' the integration size can be set individually for each sample or use the reference cluster size given by `cluster_stats`.
 #' @param rip_saturation_threshold A number. The fraction of the maximum RIP. If the RIP at the ROI is below that
 #' fraction, we will consider the peak to be saturated.
 #' @return The given peak list, with the added columns
@@ -24,17 +24,17 @@
 #'
 #' # Example of Calculating the Figures of Merit'
 #' peak_list <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
-#' peak_clustering <- group_peak_list(
+#' clustering <- group_peak_list(
 #'   peak_list,
 #'   distance_method = "sd_scaled_euclidean",
 #'   clustering = list(method = "kmedoids", Nclusters = 13)
 #' )
+#' roi_fusion_out <- gcims_rois_fusion(clustering$peak_list_clustered, clustering$cluster_stats)
 #' peak_list_fom <- gcims_figures_of_merit(
 #'   dir_in = roi_selection,
 #'   dir_out = fom,
-#'   samples = c(3, 7),
-#'   peak_list = peak_clustering$peak_list_clustered,
-#'   cluster_stats = peak_clustering$cluster_stats
+#'   peak_list = roi_fusion_out$peak_list_clustered,
+#'   cluster_stats = roi_fusion_out$cluster_stats
 #' )
 #' head(peak_list_fom)
 gcims_figures_of_merit <- function(
@@ -42,7 +42,7 @@ gcims_figures_of_merit <- function(
     dir_out,
     peak_list,
     cluster_stats,
-    integration_limits = c("cluster_roi", "individual_roi"),
+    integration_size = c("cluster_roi", "individual_roi"),
     rip_saturation_threshold = 0.1
 ) {
   print(" ")
@@ -53,7 +53,7 @@ gcims_figures_of_merit <- function(
 
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 
-  integration_limits <- match.arg(integration_limits)
+  integration_size <- match.arg(integration_size)
 
   peak_list$Area <- 0
   peak_list$Volume <- 0
@@ -103,22 +103,22 @@ gcims_figures_of_merit <- function(
       cluster_id <- roi_prop$cluster
       cluster_prop <- as.list(cluster_stats[cluster_stats$cluster == cluster_id,])
 
-      if (integration_limits == "cluster_roi") {
-        len_dt <- cluster_prop$dt_max_idx - cluster_prop$dt_min_idx
-        len_rt <- cluster_prop$rt_max_idx - cluster_prop$rt_min_idx
-      } else if (integration_limits == "individual_roi") {
-        len_dt <- roi_prop$dt_max_idx - roi_prop$dt_min_idx
-        len_rt <- roi_prop$rt_max_idx - roi_prop$rt_min_idx
-      } else {
-        stop("Invalid integration_limits parameter")
-      }
+      len_dt <- roi_prop$dt_max_idx - roi_prop$dt_min_idx
+      len_rt <- roi_prop$rt_max_idx - roi_prop$rt_min_idx
       peak_list$Area[peak_list_row] <- len_dt * len_rt
 
-      # roi volume
-      if (integration_limits == "cluster_roi") {
-        patch <- aux[cluster_prop$dt_min_idx:cluster_prop$dt_max_idx,
-                     cluster_prop$rt_min_idx:cluster_prop$rt_max_idx]
-      } else if (integration_limits == "individual_roi") {
+      # ROI volume
+      if (integration_size == "cluster_roi") {
+        # Coordinates to integrate:
+        # FIXME: The minmax stuff here should not be needed when fusion_rois
+        # is able to verify the original index limits.
+        dt_min_idx <- max(1L,        roi_prop$ref_roi_dt_min_idx)
+        dt_max_idx <- min(nrow(aux), roi_prop$ref_roi_dt_max_idx)
+        rt_min_idx <- max(1L,        roi_prop$ref_roi_rt_min_idx)
+        rt_max_idx <- min(ncol(aux), roi_prop$ref_roi_rt_max_idx)
+        patch <- aux[dt_min_idx:dt_max_idx,
+                     rt_min_idx:rt_max_idx]
+      } else if (integration_size == "individual_roi") {
         patch <- aux[roi_prop$dt_min_idx:roi_prop$dt_max_idx,
                      roi_prop$rt_min_idx:roi_prop$rt_max_idx]
       } else {
@@ -126,7 +126,7 @@ gcims_figures_of_merit <- function(
       }
       peak_list$Volume[peak_list_row] <- compute_integral2(patch)
 
-      # roi asymmetries
+      # ROI asymmetries
       rt_rising_length <- roi_prop$rt_apex_s - roi_prop$rt_min_s
       rt_falling_length <- roi_prop$rt_max_s - roi_prop$rt_apex_s
       peak_list$Asymmetry[peak_list_row] <- round(rt_falling_length/rt_rising_length - 1, digits = 2)
@@ -142,7 +142,10 @@ gcims_figures_of_merit <- function(
     }
     peak_list_this_sample <- peak_list[peak_list_rows, , drop = FALSE]
     aux_list$data$Peaktable <- peak_list_this_sample
-    utils::write.csv(peak_list_this_sample, file = file.path(dir_out, paste0("PeakTable", i, ".csv")))
+    utils::write.csv(
+      peak_list_this_sample,
+      file = file.path(dir_out, paste0("PeakTable", tools::file_path_sans_ext(sample_name), ".csv"))
+    )
     saveRDS(aux_list, file = file.path(dir_out, sample_name))
   }
   return(peak_list)
