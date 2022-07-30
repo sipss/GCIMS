@@ -162,14 +162,13 @@ group_peak_list <- function(
 
 #' Build a peak table
 #'
-#' @param peak_list_clustered The output of [group_peak_list]
-#' @param aggregate_conflicting_peaks `NULL` or a function. When we build the peak table, with peaks in rows, samples in
-#'  columns, `peak_table[i,j]` is the volume of the peak from sample `j` in cluster `i`. If the clustering process
-#'  clusters together two peaks form the same sample, those peaks will conflict in the peak table. `NULL` will error
-#'  in that case, another function will be applied on the conflicting volumes (e.g `mean` or `max` would be reasonable options)
+#' @param peak_list_clustered The output of [gcims_figures_of_merit].
+#' @param aggregate_conflicting_peaks `NULL` or a function. What to do, in case two peaks from the same sample
+#' have been assigned to the same cluster. If `NULL`, throw an error. If `mean`, `max` or any other function,
+#' we will summarize all the conflicting volumes into that number (e.g. "take the maximum of the peaks")
 #'
-#'
-#' @return A list with the peak table and the ROI duplicity information
+#' @return A list with the peak table and the ROI duplicity information. The peak table
+#' is a data frame with
 #' @export
 #' @examples
 #' pl <- data.frame(
@@ -198,9 +197,18 @@ build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = 
       values_from = dplyr::all_of("Volume"),
       values_fn = aggregate_conflicting_peaks
     )
+
+  peak_table_mat <- peak_table %>%
+    tidyr::pivot_longer(cols = -1, names_to = "SampleID", values_to = "Volume") %>%
+    tidyr::pivot_wider(names_from = "cluster", values_from = "Volume") %>%
+    tibble::column_to_rownames("SampleID") %>%
+    as.matrix()
+
+
   # Missing values still need to be filled
   list(
     peak_table = peak_table,
+    peak_table_matrix = peak_table_mat,
     peak_table_duplicity = peak_table_duplicity
   )
 }
