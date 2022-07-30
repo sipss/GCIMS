@@ -156,12 +156,9 @@ gcims_prepare_data <- function (dir_in, dir_out, samples, params){
   m = 0
   for (i in  samples){
     m = m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
+    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
-
     aux_list <- interpolate(aux_list,m)
     if(do_filter == TRUE){
       aux_list <- smoothing(aux_list, m,order_rt, length_rt, order_dt, length_dt)
