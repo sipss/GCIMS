@@ -28,10 +28,10 @@ gcims_rois_fusion <- function(clustering_object){
   for(i in num_clusts){
     # 4 corrdinates
     ROIs2Fusion <- which(clusters_infor$cluster == i)
-    median_dtmin_clust <- medianvalues(clusters_infor$dt_min_idx[ROIs2Fusion])
-    median_dtmax_clust <- medianvalues(clusters_infor$dt_max_idx[ROIs2Fusion])
-    median_rtmin_clust <- medianvalues(clusters_infor$rt_min_idx[ROIs2Fusion])
-    median_rtmax_clust <- medianvalues(clusters_infor$rt_max_idx[ROIs2Fusion])
+    median_dtmin_clust <- floor(stats::median(clusters_infor$dt_min_idx[ROIs2Fusion]))
+    median_dtmax_clust <- ceiling(stats::median(clusters_infor$dt_max_idx[ROIs2Fusion]))
+    median_rtmin_clust <- floor(stats::median(clusters_infor$rt_min_idx[ROIs2Fusion]))
+    median_rtmax_clust <- ceiling(stats::median(clusters_infor$rt_max_idx[ROIs2Fusion]))
 
     medianROI <- c(median_dtmin_clust, median_dtmax_clust, median_rtmin_clust, median_rtmax_clust)
 
@@ -76,15 +76,3 @@ gcims_rois_fusion <- function(clustering_object){
   return(clustering_object)
 }
 
-
-###########################
-# CALCULUS OF THE MEDIAN #
-###########################
-
-medianvalues <- function(x) {
-  if(length(x) > 1){
-    sort(x)[round(length(x)/2)]
-  } else {
-    x
-  }
-}
