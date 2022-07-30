@@ -1,6 +1,7 @@
 ---
 title: "Introduction to GCIMS"
-output: BiocStyle::pdf_document
+output: BiocStyle::html_document
+
 package: GCIMS
 author: "GCIMS authors"
 date: "`r format(Sys.Date(), '%F')`"
