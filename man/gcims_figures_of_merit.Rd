@@ -15,6 +15,8 @@ stored.}
 
 \item{samples}{Numeric vector of integers. Identifies the set of
 samples to which their Figures of Merit (FOM) have to be caulated.}
+
+\item{peak_list}{A data frame. The peak list where we will add the figures of merit.}
 }
 \value{
 A Set of S3 objects and a ".csv" file with a table that contains the figures
@@ -33,9 +35,14 @@ dir_in <- system.file("extdata", package = "GCIMS")
 roi_selection <- tempfile("dir")
 fom <- tempfile("dir")
 
-# Example of Calculating the Figures of Merit
-gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
-peak_list_fom <- gcims_figures_of_merit(dir_in = roi_selection, dir_out = fom, samples = 3)
+# Example of Calculating the Figures of Merit'
+pl <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
+peak_list_fom <- gcims_figures_of_merit(
+  dir_in = roi_selection,
+  dir_out = fom,
+  samples = 3,
+  peak_list = pl
+)
 head(peak_list_fom)
 }
 \seealso{
