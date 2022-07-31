@@ -264,7 +264,13 @@ gcims_remove_baseline(
 )
 ```
 
-
+- Effect of Baseline removal:
+```{r}
+# VISUALIZE THE EFFECT OF Baseline Removal 
+gcims_view_sample(bsln, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
+gcims_plot_spec(bsln, samples = 1:3, rt_value = NULL, dt_range = c(7.2,10), colorby = "Name")
+gcims_plot_chrom(bsln, samples = 1:3, dt_value =NULL , rt_range =  NULL, colorby = "Name")
+```
 - ROIs Fusion: gcims_rois_fusion
 
 ```{r}
