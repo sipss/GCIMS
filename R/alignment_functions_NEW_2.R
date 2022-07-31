@@ -173,7 +173,7 @@ gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
   init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
   # Initialization of the correlation matrix
   corr <- matrix(1, nrow = dim(rics)[1], ncol = length(init_coeff_list) + 1)
-  correction_type_vector <- 0 * seq_along(dim(rics)[1])
+  correction_type_vector <- 0 * seq_len(dim(rics)[1])
 
   # Compute correlation between each sample RIC and reference RIC, for the different initial value coefficients
   xi <- seq_len(dim(rics)[2])
