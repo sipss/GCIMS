@@ -117,10 +117,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
     #scale intensity
     if(transform == TRUE){
-      neg_val_idx <- aux < 0
-      aux[neg_val_idx] <- - aux[neg_val_idx]
-      aux <- (aux)^(1/3)
-      aux[neg_val_idx] <- - aux[neg_val_idx]
+      aux <- sign(aux) * abs(aux)^(1/3)
       i_label <- parse(text="Intensity^(1/3)")
     } else {
       i_label <- "Intensity"
