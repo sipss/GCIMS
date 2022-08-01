@@ -363,3 +363,66 @@ peak2peak_distance <- function(peak_matrix, distance_method = "mahalanobis") {
   }
   peak2peak_dist
 }
+
+
+
+#' Identify ROIs our of the Cluster
+#'
+#' This function receives a clustering object and identifies, for each cluster,
+#' if there is one ROI that do not belong to the cluster.
+#' @noRd
+#'
+#' @param clustering_object The result of the clustering function.
+#' @return A clustering object where, in the peak_list, some samples are identified
+#' to check on them the clustering process.
+#'
+removing_outsiders <- function(clustering_object){
+  clusters_infor <- clustering_object$peak_list_clustered
+  num_clusts <- unique(clusters_infor$cluster)
+  threshold <- 0.6
+  for(i in num_clusts){
+    # 4 corrdinates
+    ROIs2Fusion <- which(clusters_infor$cluster == i)
+    ioverumatriz <- matrix(0, nrow = length(ROIs2Fusion), ncol = length(ROIs2Fusion))
+    r <- 0
+    for (j in ROIs2Fusion){
+      r <- r + 1
+      R1 <- clusters_infor[j, c(13:16)]
+      c <- 0
+      for (k in ROIs2Fusion){
+        c <- c + 1
+        R2 <- clusters_infor[k, c(13:16)]
+        thrOverlap <- round(as.numeric(intersection_over_union(R1, R2)), digits = 2)
+        ioverumatriz[r,c] <- thrOverlap
+      }
+    }
+    median_overlaps <- apply(ioverumatriz, 1, medianvalues)
+    samples_out_cluster <- which(median_overlaps <= threshold)
+    samples_to_recluster <- ROIs2Fusion[samples_out_cluster]
+    clusters_infor$cluster[samples_to_recluster] <- "Re-Cluster"
+  }
+  clustering_object$peak_list_clustered <- clusters_infor
+  return(clustering_object)
+}
+
+
+medianvalues <- function(x) {
+  if(length(x) > 1){
+    sort(x)[round(length(x)/2)]
+  } else {
+    x
+  }
+}
+
+intersection_over_union <- function(ROI1, ROI2){
+  area1 <- (ROI1[2] - ROI1[1])*(ROI1[4] - ROI1[3])
+  area2 <- (ROI2[2] - ROI2[1])*(ROI2[4] - ROI2[3])
+  x_left <- max(ROI1[1], ROI2[1])
+  y_top <- min(ROI1[4], ROI2[4])
+  x_right <- min(ROI1[2], ROI2[2])
+  y_bottom <- max(ROI1[3], ROI2[3])
+  intersection_area <- (x_right - x_left)*(y_top - y_bottom)
+  union_area <- (area1 + area2) - intersection_area
+  iou_area <- intersection_area / union_area
+  return(iou_area)
+}
