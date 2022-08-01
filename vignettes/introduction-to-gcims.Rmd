@@ -324,7 +324,7 @@ each sample having a missing value for the cluster.
 ```{r}
 peak_table_imputed <- gcims_missing_imputation(
   peak_table = peak_table$peak_table_matrix,
-  dir_in = bsln,
+  dir_in = fom,
   cluster_stats = fusion_res$cluster_stats
 )
 peak_table_imputed
