@@ -375,6 +375,28 @@ peak2peak_distance <- function(peak_matrix, distance_method = "mahalanobis") {
 #' @param clustering_object The result of the clustering function.
 #' @return A clustering object where, in the peak_list, some samples are identified
 #' to check on them the clustering process.
+#' @examples
+#' peak_clustering$peak_list_clustered <- data.frame(
+#' SampleID = c("S1", "S2", "S3", "S4"),
+#' PeakID = c(1, 2, 1, 3),
+#' dt_apex_ms = c(7, 7.2, 7.1, 10.2),
+#' rt_apex_s = c(30, 33, 35, 255),
+#' dt_min_ms = c(6.5, 6.9, 6.8, 9.9),
+#' dt_max_ms = c(7.7, 8.3, 8.2, 12.1),
+#' rt_min_s = c(27, 28, 30, 250),
+#' rt_max_s = c(36, 36, 37, 265),
+#' dt_cm_ms = c(7, 7.2, 7.2, 10.2),
+#' rt_cm_s = c(30, 33, 35, 256),
+#' dt_apex_idx = c(140, 160, 180, 395),
+#' rt_apex_idx = c(30, 33, 33, 247),
+#' dt_min_idx = c(100, 110, 110, 350),
+#' dt_max_idx = c(200, 200, 205, 450),
+#' rt_min_idx = c(27, 28, 27, 255),
+#' rt_max_idx = c(36, 36, 37, 267),
+#' dt_cm_idx = c(140, 150, 160, 395),
+#' rt_cm_idx = c(30, 33, 33, 247),
+#' uniqueID = c("S1", "S2", "S3", "S4"),
+#' cluster = c(1, 1, 1, 1))
 #'
 removing_outsiders <- function(clustering_object){
   clusters_infor <- clustering_object$peak_list_clustered
@@ -415,14 +437,24 @@ medianvalues <- function(x) {
 }
 
 intersection_over_union <- function(ROI1, ROI2){
-  area1 <- (ROI1[2] - ROI1[1])*(ROI1[4] - ROI1[3])
-  area2 <- (ROI2[2] - ROI2[1])*(ROI2[4] - ROI2[3])
-  x_left <- max(ROI1[1], ROI2[1])
-  y_top <- min(ROI1[4], ROI2[4])
-  x_right <- min(ROI1[2], ROI2[2])
-  y_bottom <- max(ROI1[3], ROI2[3])
-  intersection_area <- (x_right - x_left)*(y_top - y_bottom)
-  union_area <- (area1 + area2) - intersection_area
-  iou_area <- intersection_area / union_area
-  return(iou_area)
+  if (!(ROI1[1] >= ROI2[2] | ROI1[2] <= ROI2[1] | ROI1[3] >= ROI2[4] | ROI1[4] <= ROI2[3])){
+    area1 <- (ROI1[2] - ROI1[1])*(ROI1[4] - ROI1[3])
+    area2 <- (ROI2[2] - ROI2[1])*(ROI2[4] - ROI2[3])
+    x_left <- max(ROI1[1], ROI2[1])
+    y_top <- min(ROI1[4], ROI2[4])
+    x_right <- min(ROI1[2], ROI2[2])
+    y_bottom <- max(ROI1[3], ROI2[3])
+    overlapping_area <- (x_right - x_left)*(y_top - y_bottom)
+    if (area1 == overlapping_area | area2 == overlapping_area){
+      p <- 1
+    } else {
+      p <- overlapping_area / (area1 + area2 - overlapping_area)
+    }
+  } else {
+    p <- 0
+  }
+  return(p)
 }
+
+
+
