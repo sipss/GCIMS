@@ -50,7 +50,7 @@ build_site_and_coverage:
     - apt-get update
     - apt-get install -y qpdf ghostscript texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
     - Rscript -e 'remotes::install_cran("BiocManager")'
-    - Rscript -e 'remotes::install_cran(c("covr", "pkgdown"))'
+    - Rscript -e 'remotes::install_cran(c("covr", "pkgdown", "DT"))'
   script:
     - Rscript -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
     - Rscript -e 'pkgdown::build_site()'
