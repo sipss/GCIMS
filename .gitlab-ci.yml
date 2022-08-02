@@ -17,11 +17,21 @@ check_pkg:
     - sipss
   before_script:
     - apt-get update
-    - apt-get install -y qpdf ghostscript
+    - apt-get install -y qpdf ghostscript texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
   script:
     - Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager"))'
     - Rscript -e 'remotes::install_deps(dependencies = TRUE)'
     - Rscript -e 'rcmdcheck::rcmdcheck()'
+
+biocheck:
+  stage: check
+  image: "bioconductor/bioconductor_docker:RELEASE_3_15"
+  tags:
+    - sipss
+  script:
+    - Rscript -e 'BiocCheck::BiocCheck(`quit-with-status` = TRUE, `no-check-R-ver` = TRUE, `no-check-bioc-help` = TRUE)'
+  allow_failure: true
+
 
 # To produce a code coverage report as a GitLab page see
 # https://about.gitlab.com/2016/11/03/publish-code-coverage-report-with-gitlab-pages/
@@ -35,7 +45,6 @@ build_site_and_coverage:
     - master
   before_script:
     - apt-get update
-    - apt-get install -y qpdf ghostscript
   script:
     - Rscript -e 'remotes::install_cran("BiocManager")'
     - Rscript -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
