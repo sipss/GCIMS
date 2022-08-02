@@ -23,7 +23,7 @@ check_pkg:
     - Rscript -e 'remotes::install_deps(dependencies = TRUE)'
     - Rscript -e 'rcmdcheck::rcmdcheck()'
 
-biocheck:
+BiocCheck:
   stage: check
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
   tags:
@@ -47,10 +47,11 @@ build_site_and_coverage:
     - master
   before_script:
     - apt-get update
-  script:
+    - apt-get install -y qpdf ghostscript texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
     - Rscript -e 'remotes::install_cran("BiocManager")'
-    - Rscript -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
     - Rscript -e 'remotes::install_cran(c("covr", "pkgdown"))'
+  script:
+    - Rscript -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
     - Rscript -e 'pkgdown::build_site()'
     - Rscript -e 'covr::gitlab(quiet = FALSE)'
   artifacts:
