@@ -3,8 +3,6 @@ stages:
   - build_website
   - deploy
 
-tags:
-  - sipss
 
 # To have the coverage percentage appear as a gitlab badge follow these
 # instructions:
@@ -15,6 +13,8 @@ tags:
 check_pkg:
   stage: check
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
+  tags:
+    - sipss
   before_script:
     - apt-get update
     - apt-get install -y qpdf ghostscript
@@ -29,6 +29,8 @@ check_pkg:
 build_site_and_coverage:
   stage: build_website
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
+  tags:
+    - sipss
   only:
     - master
   before_script:
