@@ -1,0 +1,6 @@
+url: https://sipss.gitlab.io/research/GCIMS
+destination: public
+template:
+  params:
+    bootstrap: 5
+    bootswatch: cerulean
