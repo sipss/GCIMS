@@ -1,6 +1,10 @@
 stages:
-  - test
+  - check
+  - build_website
   - deploy
+
+tags:
+  - sipss
 
 # To have the coverage percentage appear as a gitlab badge follow these
 # instructions:
@@ -9,21 +13,21 @@ stages:
 # Coverage: \d+\.\d+
 
 check_pkg:
-  stage: test
+  stage: check
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
   before_script:
     - apt-get update
     - apt-get install -y qpdf ghostscript
   script:
-    - R -e 'remotes::install_cran("BiocManager")'
-    - R -e 'remotes::install_deps(dependencies = TRUE)'
-    - R -e 'devtools::check()'
+    - Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager"))'
+    - Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+    - Rscript -e 'rcmdcheck::rcmdcheck()'
 
 # To produce a code coverage report as a GitLab page see
 # https://about.gitlab.com/2016/11/03/publish-code-coverage-report-with-gitlab-pages/
 
 build_site_and_coverage:
-  stage: test
+  stage: build_website
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
   only:
     - master
@@ -31,9 +35,9 @@ build_site_and_coverage:
     - apt-get update
     - apt-get install -y qpdf ghostscript
   script:
-    - R -e 'remotes::install_cran("BiocManager")'
-    - R -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
-    - R -e 'remotes::install_cran("covr")'
+    - Rscript -e 'remotes::install_cran("BiocManager")'
+    - Rscript -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
+    - Rscript -e 'remotes::install_cran(c("covr", "pkgdown"))'
     - Rscript -e 'pkgdown::build_site()'
     - Rscript -e 'covr::gitlab(quiet = FALSE)'
   artifacts:
