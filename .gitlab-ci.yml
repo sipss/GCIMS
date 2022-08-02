@@ -18,8 +18,8 @@ check_pkg:
   before_script:
     - apt-get update
     - apt-get install -y qpdf ghostscript texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
-  script:
     - Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager"))'
+  script:
     - Rscript -e 'remotes::install_deps(dependencies = TRUE)'
     - Rscript -e 'rcmdcheck::rcmdcheck()'
 
@@ -28,6 +28,8 @@ biocheck:
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
   tags:
     - sipss
+  before_script:
+    - Rscript -e 'BiocManager::install("BiocCheck")'
   script:
     - Rscript -e 'BiocCheck::BiocCheck(`quit-with-status` = TRUE, `no-check-R-ver` = TRUE, `no-check-bioc-help` = TRUE)'
   allow_failure: true
