@@ -31,6 +31,7 @@ BiocCheck:
   before_script:
     - Rscript -e 'BiocManager::install("BiocCheck")'
   script:
+    - Rscript -e 'remotes::install_local(dependencies=TRUE, upgrade=TRUE)'
     - Rscript -e 'BiocCheck::BiocCheck(`quit-with-status` = TRUE, `no-check-R-ver` = TRUE, `no-check-bioc-help` = TRUE)'
   allow_failure: true
 
