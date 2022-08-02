@@ -11,6 +11,9 @@ stages:
 check_pkg:
   stage: test
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
+  before_script:
+    - apt-get update
+    - apt-get install -y qpdf ghostscript
   script:
     - R -e 'remotes::install_cran("BiocManager")'
     - R -e 'remotes::install_deps(dependencies = TRUE)'
@@ -24,6 +27,9 @@ build_site_and_coverage:
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
   only:
     - master
+  before_script:
+    - apt-get update
+    - apt-get install -y qpdf ghostscript
   script:
     - R -e 'remotes::install_cran("BiocManager")'
     - R -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
