@@ -62,7 +62,7 @@ register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), defa
 
 # Create working directories
 
-The first steps, is to create all the directories and folders where the samples are located and will be stored along all the process. 
+The first step is to create all directories and folders where samples will be located and stored along all the process. 
 The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
 created.
 
@@ -102,9 +102,8 @@ sample_annotations <- tibble::tribble(
 sample_annotations
 ```
 
-Raw data:
+## Reading raw data 
 
-- Reading samples: gcims_read_samples
 All the samples of the working directory are going to be read and converted to the format needed for working with this package.
 
 ```{r}
@@ -113,7 +112,8 @@ All the samples of the working directory are going to be read and converted to t
 dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
 ```
 
-- Reading metadata: gcims_read_metadata
+## Reading metadata 
+
 An excel file containing all the metadata information needed is going to be read and all the metadata information will be included 
 in the files.
 
@@ -136,13 +136,13 @@ Visualize data is useful to understand data and their changes due to the pre-pro
 gcims_view_sample(data, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
 ```
 
-# Reducing the size of GCIMS samples:
+# Reducing sample size
 
 Data samples are cut for a better manipulation. The package provides two different function two perform this task: `gcims_cut_samples()` and `gcims_reshape_samples()`.
 
-## gcims_cut_samples()
+## Cut samples
 
-This function cuts all samples in a rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+The function gcims_cut_samples()` cuts all samples in a rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
 
 ```{r}
 gcims_cut_samples(
@@ -159,7 +159,7 @@ Let's visualize sample 1 after cutting it:
 gcims_view_sample(cut, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
 ```
 
-## reshape_samples()
+## Reshape samples
 
 An adjustment of the dimensions of the samples is performed. There are occasions where the samples do not measure exactly the same,
 making very complicated working with them. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
@@ -173,8 +173,9 @@ gcims_reshape_samples(dir_in = cut, dir_out = reshaped, samples)
 
 GCIMS data usually suffers from noisy, drift and retention time axes misalignment and baseline problems.  Data pre-processing corrects this non-indelilties of data. Use the functions `gcims_prepare_data()`, `gcims_align_data()`, and `gcims_remove_baseline()`to solve each of theses problems, respectively.
 
-- Prepare samples: gcims_prepare_data
-It does some pre-processing steps such as interpolation, digital filter and decimation. The parameters needed for each function should be indicated by the user.
+## Prepare samples
+
+The function  `gcims_prepare_data()` performs the first set of data pre-processing steps: interpolation, digital filtering (Savitzky-Golay filters), and decimation, both in drift and retention time axes. The parameters needed for each function should be indicated by the user.
 
 ```{r}
 #PREPARE DATA
@@ -199,8 +200,9 @@ alignment_data <- gcims_prepare_data(
 )
 ```
 
-- Align data: gcims_align_data
-Data is aligned in drift and retention time axes. 
+## Align data
+
+Data is aligned in drift and retention time axes by applying the function `gcims_alingn_data()`. The correction in drift time axis is multiplicative, that is a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
 
 ```{r}
 # ALIGN SAMPLES
@@ -230,10 +232,14 @@ Finally, we do the same, but showing the chromatoagrams of all samples at drift 
 gcims_plot_chrom(prepared, samples = 1:3, dt_value = 11.1, rt_range =  NULL, colorby = "Name")
 gcims_plot_chrom(aligned, samples = 1:3, dt_value = 11.1, rt_range =  NULL, colorby = "Name")
 ```
-The resulting TICs become aligned, as expected. 
+The resulting chromatograms become aligned, as expected. After this pre-processing stage, regions with peaks in data will be detected. Since several peaks may be convoluted in these regions we will call them Regions Of Interest (ROIs).
 
 
-- ROIs detection: gcims_rois_selection
+# Feature Extraction
+
+Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions 'gcims_rois_selection()' and 'group_peak_list()', respectively.
+
+## ROIs detection
 
 
 ```{r}
@@ -252,6 +258,8 @@ ggplot() +
     alpha = 0.5
   )
 ```
+
+## ROIs clustering
 
 ```{r}
 peak_clustering <- group_peak_list(peak_list, distance_method = "sd_scaled_euclidean", clustering = list(method = "kmedoids", Nclusters = 13))
