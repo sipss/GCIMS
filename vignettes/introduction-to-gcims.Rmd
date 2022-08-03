@@ -60,7 +60,7 @@ register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), defa
 ```
 
 
-# Create work directories
+# Create working directories
 
 The first steps, is to create all the directories and folders where the samples are located and will be stored along all the process. 
 The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
@@ -80,7 +80,7 @@ fom <- file.path(wd, 'fom')
 
 # Import data
 
-Please start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
+Please, start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
 with your samples and their annotations. Please name the first column `SampleID`
 and the second column `Filename`.
 
@@ -105,7 +105,7 @@ sample_annotations
 Raw data:
 
 - Reading samples: gcims_read_samples
-All the samples for the working directory are going to be read and convert into the format needed for working with this package
+All the samples of the working directory are going to be read and converted to the format needed for working with this package.
 
 ```{r}
 # READING SAMPLES
@@ -115,7 +115,7 @@ dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
 
 - Reading metadata: gcims_read_metadata
 An excel file containing all the metadata information needed is going to be read and all the metadata information will be included 
-in the files
+in the files.
 
 ```{r}
 # READING METADATA
@@ -128,17 +128,21 @@ file <- data.frame(
 gcims_read_metadata(dir_in = data, samples, file)
 ```
 
-- Data Visualization
-Visualize data is useful to understand data and their changes due to the pre-processing stage. The packages provides three main data visualization functions to perform this task: 'gcims_view_sample()', 'gcims_plot_spec()', and 'gcims_plot_chrom()'. By the moment, we will use the function 'gcims_view_sample()' to inspect one sample. By doing this, we will figure out the region in which chemical information is concentrated in such a sample.
+# Data Visualization
+
+Visualize data is useful to understand data and their changes due to the pre-processing stage. The packages provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. By the moment, we will use the function `gcims_view_sample()` to inspect one sample. By doing this, we will figure out the region in which chemical information is concentrated in such a sample.
 
 ```{r}
 gcims_view_sample(data, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
 ```
 
+# Reducing the size of GCIMS samples:
 
-- Cut samples: gcims_cut_samples
-The samples are cut for a better data manipulation. There are part of the data matrix that does not contain any information.
-The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+Data samples are cut for a better manipulation. The package provides two different function two perform this task: `gcims_cut_samples()` and `gcims_reshape_samples()`.
+
+## gcims_cut_samples()
+
+This function cuts all samples in a rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
 
 ```{r}
 gcims_cut_samples(
@@ -155,14 +159,19 @@ Let's visualize sample 1 after cutting it:
 gcims_view_sample(cut, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
 ```
 
-- Reshape sample: reshape_samples
+## reshape_samples()
+
 An adjustment of the dimensions of the samples is performed. There are occasions where the samples do not measure exactly the same,
-making very complicated working with them. Take into account that gcims_cut_samples() and gcims_reshape_samples() perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function 'gcims_reshape_samples()' works:
+making very complicated working with them. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
 
 ```{r}
 # RESHAPE SAMPLES
 gcims_reshape_samples(dir_in = cut, dir_out = reshaped, samples)
 ```
+
+# Pre-processing
+
+GCIMS data usually suffers from noisy, drift and retention time axes misalignment and baseline problems.  Data pre-processing corrects this non-indelilties of data. Use the functions `gcims_prepare_data()`, `gcims_align_data()`, and `gcims_remove_baseline()`to solve each of theses problems, respectively.
 
 - Prepare samples: gcims_prepare_data
 It does some pre-processing steps such as interpolation, digital filter and decimation. The parameters needed for each function should be indicated by the user.
