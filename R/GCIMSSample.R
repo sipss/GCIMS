@@ -262,8 +262,8 @@ setMethod(
   "GCIMSSample",
   function(object) {
     axes <- list(
-      "drift time" = list(value=dtime(object), unit="ms"),
-      "retention time" = list(value=rtime(object), unit="s")
+      "drift time" = list(value = dtime(object), unit = "ms"),
+      "retention time" = list(value = rtime(object), unit = "s")
     )
     outstring <- "A GCIMS Sample"
     for (axis_name in  names(axes)) {
@@ -333,15 +333,10 @@ setValidity("GCIMSSample", function(object) {
 
 #' @describeIn GCIMSSample Topographical plot of a GC-IMS Sample
 #'
-#' @return The outcome of [graphics::filled.contour]. Although this function is called for its side effect (the plot)
-#'
 #' @param x A GCIMSSample object
-#' @param ... passed to [graphics::filled.contour]
+#' @return A plot of the GCIMSSample
 #' @export
-#' @method image GCIMSSample
-#'
 #' @examples
-#'
 #' dummy_obj <-GCIMSSample(
 #'   drift_time = 1:2,
 #'   retention_time = 1:3,
@@ -350,26 +345,49 @@ setValidity("GCIMSSample", function(object) {
 #'   drift_gas = "nitrogen",
 #'   drift_tube_length = 98.0 # in mm
 #' )
-#' image(dummy_obj)
-"image.GCIMSSample" <- function(x, ...) {
-  # filled.contour includes a legend
-  dots <- list(...)
-  if (!"main" %in% names(dots)) {
-    dots[["main"]] <- basename(methods::slot(x, "filepath"))
+#' plotRaw(dummy_obj)
+setMethod(
+  "plotRaw",
+  "GCIMSSample",
+  function(object, dt_range, rt_range) {
+    intmat <- intensity(object, dt_range = dt_range, rt_range = rt_range)
+    intens_long <- reshape2::melt(intmat, value.name = "Intensity")
+
+    cubic_root_trans <- scales::trans_new(
+      name = "cubic_root",
+      transform = function(x) sign(x)*abs(x)^(1/3),
+      inverse = function(x) sign(x)*abs(x)^3,
+      breaks = function(x, n = 5) {
+        x <- x[is.finite(x)]
+        if (length(x) == 0) {
+          return(numeric())
+        }
+        rng <- range(x)
+        rng <- sign(rng)*abs(rng)^(1/3)
+        out <- labeling::extended(rng[1], rng[2], n)
+        out <- sign(out)*abs(out)^3
+        out
+      }
+    )
+
+
+
+    p <- ggplot2::ggplot(
+      intens_long,
+      mapping = ggplot2::aes(x = .data$dt_ms, y = .data$rt_s, fill = .data$Intensity)) +
+      ggplot2::geom_raster(interpolate = FALSE) +
+      viridis::scale_fill_viridis(discrete = FALSE, option = "A", direction = -1, trans = cubic_root_trans) +
+      ggplot2::labs(
+        x = "Drift Time (ms)",
+        y = "Retention Time (s)",
+        fill = "Intensity"
+      ) +
+      ggplot2::theme_minimal()
+    p
   }
-  rlang::exec(
-    graphics::filled.contour,
-    x=x@drift_time,
-    y = x@retention_time/60.0,
-    z=x@data,
-    xlab = "Drift time (ms)",
-    ylab = "Retention time (min)",
-    !!!dots
-  )
-}
+)
 
-
-#' @describeIn GCIMSSample-methods Simple subsetter for [GCIMSSample-class] objects
+  #' @describeIn GCIMSSample-methods Simple subsetter for [GCIMSSample-class] objects
 #'
 #' @return `[`: object `x` with features `i` and cells `j`
 #'
@@ -534,4 +552,3 @@ setMethod("getIMSScan", "GCIMSSample", function(object, dt_range = NULL, rt_rang
   intens <- intensity(object, rt_range = rt_range, dt_range = dt_range)
   rowSums(intens)
 })
-

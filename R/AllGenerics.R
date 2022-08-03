@@ -57,3 +57,10 @@ setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
 #' )
 #' getIMSScan(x) # c(`1` = 9, `2` = 12)
 setGeneric("getIMSScan", function(object, ...) standardGeneric("getIMSScan"))
+#' Plot raw data
+#'
+#' @return A plot
+#' @param object An object to plot raw data
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @export
+setGeneric("plotRaw", function(object, ...) standardGeneric("plotRaw"))
