@@ -64,6 +64,7 @@ Imports:
     ggplot2 (>= 3.3.2),
     glue,
     magrittr(>= 1.5),
+    lifecycle,
     methods,
     missForest (>= 1.4),
     pracma(>= 2.2.9),
