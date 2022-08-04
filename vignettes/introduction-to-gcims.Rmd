@@ -35,8 +35,9 @@ This vignette will use a small dataset consisting of a mixture of three ketones.
 
 # Downloading the dataset:
 
+Download the "threeketones" dataset:
+
 ```{r}
-# Download the ketones dataset:
 tryCatch({
   download_three_ketones_dataset("threeketones")
 }, error = function(e) {
@@ -45,9 +46,9 @@ tryCatch({
   knitr::knit_exit()
 })
 ```
+Check that the files are downloaded:
 
 ```{r}
-# Check that the files are downloaded:
 list.files("threeketones")
 ```
 
@@ -60,9 +61,9 @@ register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), defa
 ```
 
 
-# Create work directories
+# Create working directories
 
-The first steps, is to create all the directories and folders where the samples are located and will be stored along all the process. 
+The first step is to create all directories and folders where samples will be located and stored along all the process. 
 The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
 created.
 
@@ -80,7 +81,7 @@ fom <- file.path(wd, 'fom')
 
 # Import data
 
-Please start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
+Please, start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
 with your samples and their annotations. Please name the first column `SampleID`
 and the second column `Filename`.
 
@@ -102,23 +103,21 @@ sample_annotations <- tibble::tribble(
 sample_annotations
 ```
 
-Raw data:
+- Reading raw data 
 
-- Reading samples: gcims_read_samples
-All the samples for the working directory are going to be read and convert into the format needed for working with this package
+All samples of the working directory are going to be read and converted to the format needed for working with this package.
 
 ```{r}
-# READING SAMPLES
 # For mea or mea.gz files, use:
 dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
 ```
 
-- Reading metadata: gcims_read_metadata
+- Reading metadata 
+
 An excel file containing all the metadata information needed is going to be read and all the metadata information will be included 
-in the files
+in the files.
 
 ```{r}
-# READING METADATA
 samples <- seq_along(dataset)
 #file <- "Metadata.xlsx"
 file <- data.frame(
@@ -128,47 +127,63 @@ file <- data.frame(
 gcims_read_metadata(dir_in = data, samples, file)
 ```
 
-- Data Visualization
-Visualize data is useful to understand data and their changes due to the pre-processing stage. The packages provides three main data visualization functions to perform this task: 'gcims_view_sample()', 'gcims_plot_spec()', and 'gcims_plot_chrom()'. By the moment, we will use the function 'gcims_view_sample()' to inspect one sample. By doing this, we will figure out the region in which chemical information is concentrated in such a sample.
+# Data Visualization
+
+Visualize data is useful to understand data and their changes due to the pre-processing stage. The packages provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. By the moment, we will use the function `gcims_view_sample()` to inspect one sample. By doing this, we will figure out the region in which chemical information is concentrated in such a sample.
 
 ```{r}
-gcims_view_sample(data, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
+gcims_view_sample(data, 
+                  sample_num = 1,
+                  rt_range = NULL, 
+                  dt_range = NULL, transform = TRUE)
 ```
 
+# Reducing sample size
 
-- Cut samples: gcims_cut_samples
-The samples are cut for a better data manipulation. There are part of the data matrix that does not contain any information.
-The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+Data samples are cut for a better manipulation. The package provides two different function two perform this task: `gcims_cut_samples()` and `gcims_reshape_samples()`.
+
+- Cut samples
+
+The function gcims_cut_samples()` cuts all samples in a rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
 
 ```{r}
-gcims_cut_samples(
-  dir_in = data,
-  dir_out = cut,
-  samples = 1:3,
-  rt_range = c(1, 1300), # in seconds 
-  dt_range = c(7, 17) # in ms
+gcims_cut_samples(dir_in = data,
+                  dir_out = cut,
+                  samples = 1:3,
+                  rt_range = c(1, 1300), # in seconds 
+                  dt_range = c(7, 17) # in ms
 )
 ```
 
 Let's visualize sample 1 after cutting it:
 ```{r}
-gcims_view_sample(cut, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
+gcims_view_sample(cut, 
+                  sample_num = 1, 
+                  rt_range = NULL, 
+                  dt_range = NULL, 
+                  transform = TRUE)
 ```
 
-- Reshape sample: reshape_samples
+- Reshape samples
+
 An adjustment of the dimensions of the samples is performed. There are occasions where the samples do not measure exactly the same,
-making very complicated working with them. Take into account that gcims_cut_samples() and gcims_reshape_samples() perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function 'gcims_reshape_samples()' works:
+making very complicated working with them. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
 
 ```{r}
-# RESHAPE SAMPLES
-gcims_reshape_samples(dir_in = cut, dir_out = reshaped, samples)
+gcims_reshape_samples(dir_in = cut,
+                      dir_out = reshaped,
+                      samples)
 ```
 
-- Prepare samples: gcims_prepare_data
-It does some pre-processing steps such as interpolation, digital filter and decimation. The parameters needed for each function should be indicated by the user.
+# Pre-processing
+
+GCIMS data usually suffers from noise, drift and retention time axes misalignment.  Data pre-processing corrects this non-idealities of data. Use the functions `gcims_prepare_data()`ans `gcims_align_data()` to solve these problems, respectively.
+
+- Prepare samples
+
+The function  `gcims_prepare_data()` performs the first set of data pre-processing steps: interpolation, digital filtering (Savitzky-Golay filters), and decimation, both in drift and retention time axes. The parameters needed for each function should be indicated by the user.
 
 ```{r}
-#PREPARE DATA
 alignment_data <- gcims_prepare_data(
   dir_in = reshaped,
   dir_out = prepared,
@@ -190,46 +205,71 @@ alignment_data <- gcims_prepare_data(
 )
 ```
 
-- Align data: gcims_align_data
-Data is aligned in drift and retention time axes. 
+The plot for samples' spectra at retention time rt_value = 90 s, after preparing data is:
+```{r}
+gcims_plot_spec(prepared,
+                samples = 1:3, 
+                rt_value = 90, 
+                dt_range = c(7.2,10),
+                colorby = "Name")
+```
+
+Similarly, the chromatoagrams of all samples at drift time dt_value = 11.1 ms is:
+```{r}
+gcims_plot_chrom(prepared, 
+                 samples = 1:3,
+                 dt_value = 11.1,
+                 rt_range =  NULL, 
+                 colorby = "Name")
+```
+
+- Align data
+
+Data is aligned in drift and retention time axes by applying the function `gcims_alingn_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
 
 ```{r}
-# ALIGN SAMPLES
 aligment_info <- gcims_align_data(
   dir_in = prepared, 
   dir_out = aligned,
   samples = 1:3,
   alignment_data = alignment_data)
-
 ```
 
 
-Let'show  gcims data before and after sample alignment. To show particular spectrum/chromatogram for different samples use the functions 'gcims_plot_spec()' and 'gcims_plot_chrom()', respectively.
-
-
-Compare the spectra of all samples at retention time rt_value = 90 s:
+Let's show gcims after sample alignment. Compare the spectra of all samples at retention time rt_value = 90 s, before and after the alignment:
 ```{r}
-gcims_plot_spec(prepared, samples = 1:3, rt_value = 90, dt_range = c(7.2,10), colorby = "Name")
-gcims_plot_spec(aligned, samples = 1:3, rt_value = 90, dt_range = c(7.2,10), colorby = "Name")
-
+gcims_plot_spec(aligned,
+                samples = 1:3,
+                rt_value = 90, 
+                dt_range = c(7.2,10), 
+                colorby = "Name")
 ```
 
-In this case, is evident that sample 3 needed to be aligned properly and that the job was properly done by the function 'gcims_align_data()'.
-Finally, we do the same, but showing the chromatoagrams of all samples at drift time dt_value = 11.1 ms.
+In this case, is evident that sample 3 needed to be aligned and that the job was properly done by the function 'gcims_align_data()'.
+We can do the same for the chromatograms of all samples at drift time dt_value = 11.1 ms:
 ```{r}
-# VISUALIZE THE EFFECT OF ALIGNMENT (TOTAL ION CHROMATOGRAM)
-gcims_plot_chrom(prepared, samples = 1:3, dt_value = 11.1, rt_range =  NULL, colorby = "Name")
-gcims_plot_chrom(aligned, samples = 1:3, dt_value = 11.1, rt_range =  NULL, colorby = "Name")
+gcims_plot_chrom(aligned, 
+                 samples = 1:3,
+                 dt_value = 11.1, 
+                 rt_range =  NULL, 
+                 colorby = "Name")
 ```
-The resulting TICs become aligned, as expected. 
+The resulting chromatograms become aligned, as expected. After this pre-processing stage, regions with peaks in data will be detected. Since several peaks may be convoluted in these regions we will call them Regions Of Interest, or ROI for short.
 
 
-- ROIs detection: gcims_rois_selection
+# Feature Extraction
 
+Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions 'gcims_rois_selection()' and 'group_peak_list()', respectively. 
+
+- ROI detection
+
+The following piece of code shows how to detect all ROI in a dataset. Also, it shows in an image where these ROI are located in data. Each rectangle corresponds to a different ROI. ROI are colored by sample.
 
 ```{r}
-# ROIs DETECTION
-peak_list <- gcims_rois_selection(dir_in = aligned, dir_out = roispp, samples = 1:3, noise_level = 3)
+peak_list <- gcims_rois_selection(dir_in = aligned,
+                                  dir_out = roispp, 
+                                  samples = 1:3,
+                                  noise_level = 3)
 head(peak_list)
 
 ggplot() +
@@ -243,21 +283,35 @@ ggplot() +
     alpha = 0.5
   )
 ```
+You can see that some ROI are common across samples, while other not.
+
+
+- ROI clustering
+
+We clustered the ROI of dataset using the kmedoids method and the scaled Euclidean distance. Please consult the documentation of function
+'group_peak_list()' to select other methods and distances. At the end of this process, an R object is obtained (a list):
 
 ```{r}
-peak_clustering <- group_peak_list(peak_list, distance_method = "sd_scaled_euclidean", clustering = list(method = "kmedoids", Nclusters = 13))
+peak_clustering <- group_peak_list(peak_list, 
+                                   distance_method = "sd_scaled_euclidean", 
+                                   clustering = list(method = "kmedoids", Nclusters = 13))
 ```
+
+From this list you can extract a peak list:
 
 ```{r}
 peak_list_clustered <- peak_clustering$peak_list_clustered
 ```
 
+Also, some statistics of the clustering:
+
 ```{r}
 peak_clustering$cluster_stats
 ```
 
-- Baseline Correction: gcims_remove_baseline
+- Baseline Correction
 
+Each ROI is characterized by its volume and other figures of merit. To calculate properly the volume, one must first subtract the baseline of data, in both drift and retention time axes. This is done by the function `gcims_remove_baseline()`.
 ```{r}
 gcims_remove_baseline(
   dir_in = roispp,
@@ -267,16 +321,26 @@ gcims_remove_baseline(
 )
 ```
 
-- Effect of Baseline removal:
+- Effect of Baseline removal
+
+The following plots show the images of sample 1, before and after baseline correction. A side effect of this correction is the destrcuion of Reactant Ion Peack Chromatograma along retention time axis.
 ```{r}
-# VISUALIZE THE EFFECT OF Baseline Removal
-gcims_view_sample(cut, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
-gcims_view_sample(bsln, sample_num = 1, rt_range = NULL, dt_range = NULL, transform = TRUE)
+gcims_view_sample(cut,
+                  sample_num = 1,
+                  rt_range = NULL, 
+                  dt_range = NULL, 
+                  transform = TRUE)
+gcims_view_sample(bsln,
+                  sample_num = 1,
+                  rt_range = NULL, 
+                  dt_range = NULL, 
+                  transform = TRUE)
 ```
-- ROIs Fusion: gcims_rois_fusion
+- ROI Fusion
+
+It may happen that ROI belonging to the same cluster are detected more than once in the same sample. The function `gcims_rois_fusion()` fuses the repeated ROI into one.
 
 ```{r}
-# ROIs Fusion
 fusion_res <- gcims_rois_fusion(
   peak_clustering$peak_list_clustered,
   peak_clustering$cluster_stats
@@ -298,10 +362,12 @@ ggplot() +
   labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster07")
 ```
 
+Example: Observe that the number of  ROI corresponding cluster 7 equals the number of samples.
 
-- Figures of Merit: gcims_figures_of_merit
-Calculation of the figures of merit: area, volume, asymmetry and saturation.
-It creates a ".csv" file with all the ROIs information 
+- Figures of Merit
+
+The function of `gcims_figures_of_merit()` calculates several of figures of merit of ROI: area, volume, asymmetry and saturation. 
+It creates a ".csv" file with all ROI information.
 
 ```{r}
 peak_list_fom <- gcims_figures_of_merit(
@@ -313,17 +379,21 @@ peak_list_fom <- gcims_figures_of_merit(
 head(peak_list_fom)
 ```
 
-- Build Peak Table: build_peak_table
+- Build the peak table: 
+
+You can extract the volume of each sample across samples using the function `build_peak_table()` in the form of a peak table. This will be useful  for in case you want perform machine learning on these data.
 
 ```{r}
-peak_table <- build_peak_table(peak_list_fom, aggregate_conflicting_peaks = max)
+peak_table <- build_peak_table(peak_list_fom,
+                               aggregate_conflicting_peaks = max)
 peak_table$peak_table_matrix
 ```
 
-- Imput Missing Values: gcims_missing_imputation
-Imputation of the missing values found in the peak table. 
-It calculates the volume in the region of the reference ROI for each cluster for 
-each sample having a missing value for the cluster.
+Note that the peak table obtained present missing values (NA) for clusters 12 and 13, in sample 1.
+
+- Imput Missing Values: 
+
+To input missing values of the peak table, use the function `gcims_missing_imputation()`. It computes the volume in the region of the reference ROI for each cluster for each sample having a missing value for the cluster.
 ```{r}
 peak_table_imputed <- gcims_missing_imputation(
   peak_table = peak_table$peak_table_matrix,
@@ -334,7 +404,7 @@ peak_table_imputed
 ```
 
 
-# Session Info:
+# Session Info
 
 ```{r}
 sessionInfo()
