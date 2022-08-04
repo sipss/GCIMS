@@ -49,7 +49,6 @@ tryCatch({
 Check that the files are downloaded:
 
 ```{r}
-
 list.files("threeketones")
 ```
 
@@ -109,7 +108,6 @@ sample_annotations
 All samples of the working directory are going to be read and converted to the format needed for working with this package.
 
 ```{r}
-# READING SAMPLES
 # For mea or mea.gz files, use:
 dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
 ```
@@ -120,7 +118,6 @@ An excel file containing all the metadata information needed is going to be read
 in the files.
 
 ```{r}
-# READING METADATA
 samples <- seq_along(dataset)
 #file <- "Metadata.xlsx"
 file <- data.frame(
@@ -173,7 +170,6 @@ An adjustment of the dimensions of the samples is performed. There are occasions
 making very complicated working with them. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
 
 ```{r}
-# RESHAPE SAMPLES
 gcims_reshape_samples(dir_in = cut,
                       dir_out = reshaped,
                       samples)
@@ -181,14 +177,13 @@ gcims_reshape_samples(dir_in = cut,
 
 # Pre-processing
 
-GCIMS data usually suffers from noise, drift and retention time axes misalignment.  Data pre-processing corrects this non-idelilties of data. Use the functions `gcims_prepare_data()`ans `gcims_align_data()` to solve these problems, respectively.
+GCIMS data usually suffers from noise, drift and retention time axes misalignment.  Data pre-processing corrects this non-idealities of data. Use the functions `gcims_prepare_data()`ans `gcims_align_data()` to solve these problems, respectively.
 
 - Prepare samples
 
 The function  `gcims_prepare_data()` performs the first set of data pre-processing steps: interpolation, digital filtering (Savitzky-Golay filters), and decimation, both in drift and retention time axes. The parameters needed for each function should be indicated by the user.
 
 ```{r}
-#PREPARE DATA
 alignment_data <- gcims_prepare_data(
   dir_in = reshaped,
   dir_out = prepared,
@@ -233,13 +228,11 @@ gcims_plot_chrom(prepared,
 Data is aligned in drift and retention time axes by applying the function `gcims_alingn_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
 
 ```{r}
-# ALIGN SAMPLES
 aligment_info <- gcims_align_data(
   dir_in = prepared, 
   dir_out = aligned,
   samples = 1:3,
   alignment_data = alignment_data)
-
 ```
 
 
@@ -273,7 +266,6 @@ Chemical information is GCIMS data is found in peaks. To characterize a sample, 
 The following piece of code shows how to detect all ROI in a dataset. Also, it shows in an image where these ROI are located in data. Each rectangle corresponds to a different ROI. ROI are colored by sample.
 
 ```{r}
-# ROIs DETECTION
 peak_list <- gcims_rois_selection(dir_in = aligned,
                                   dir_out = roispp, 
                                   samples = 1:3,
@@ -333,7 +325,6 @@ gcims_remove_baseline(
 
 The following plots show the images of sample 1, before and after baseline correction. A side effect of this correction is the destrcuion of Reactant Ion Peack Chromatograma along retention time axis.
 ```{r}
-# VISUALIZE THE EFFECT OF Baseline Removal
 gcims_view_sample(cut,
                   sample_num = 1,
                   rt_range = NULL, 
