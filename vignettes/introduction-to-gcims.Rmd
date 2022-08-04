@@ -271,7 +271,7 @@ Chemical information is GCIMS data is found in peaks. To characterize a sample, 
 
 - ROI detection
 
-The following piece of code shows how to detect all ROI in a dataset. Also, it shows in an image where these ROI are located in data. Each rectangle corresponds to a different ROI. ROI are coloured by sample.
+The following piece of code shows how to detect all ROI in a dataset. Also, it shows in an image where these ROI are located in data. Each rectangle corresponds to a different ROI. ROI are colored by sample.
 
 ```{r}
 # ROIs DETECTION
@@ -297,15 +297,22 @@ You can see that some ROI are common across samples, while other not.
 
 - ROI clustering
 
+We clustered the ROI of dataset using the kmedoids method and the scaled Euclidean distance. Please consult the documentation of function
+'group_peak_list()' to select other methods and distances. At the end of this process, an R object is obtained (a list):
+
 ```{r}
 peak_clustering <- group_peak_list(peak_list, 
                                    distance_method = "sd_scaled_euclidean", 
                                    clustering = list(method = "kmedoids", Nclusters = 13))
 ```
 
+From this list you can extract a peak list:
+
 ```{r}
 peak_list_clustered <- peak_clustering$peak_list_clustered
 ```
+
+Also, some statistics of the clustering:
 
 ```{r}
 peak_clustering$cluster_stats
@@ -313,7 +320,7 @@ peak_clustering$cluster_stats
 
 - Baseline Correction
 
-Each ROI is characterized by its volume and other figures of merit. To properly calculate the volume, one must first subtract the baseline of data, in both drift and retention time axes. This is done by the function `gcims_remove_baseline()`
+Each ROI is characterized by its volume and other figures of merit. To calculate properly the volume, one must first subtract the baseline of data, in both drift and retention time axes. This is done by the function `gcims_remove_baseline()`.
 ```{r}
 gcims_remove_baseline(
   dir_in = roispp,
@@ -324,6 +331,8 @@ gcims_remove_baseline(
 ```
 
 - Effect of Baseline removal
+
+The following plots show the images of sample 1, before and after baseline correction. A side effect of this correction is the destrcuion of Reactant Ion Peack Chromatograma along retention time axis.
 ```{r}
 # VISUALIZE THE EFFECT OF Baseline Removal
 gcims_view_sample(cut,
@@ -337,10 +346,11 @@ gcims_view_sample(bsln,
                   dt_range = NULL, 
                   transform = TRUE)
 ```
-- ROIs Fusion: gcims_rois_fusion
+- ROI Fusion
+
+It may happen that ROI belonging to the same cluster are detected more than once in the same sample. The function `gcims_rois_fusion()` fuses the repeated ROI into one.
 
 ```{r}
-# ROIs Fusion
 fusion_res <- gcims_rois_fusion(
   peak_clustering$peak_list_clustered,
   peak_clustering$cluster_stats
@@ -362,10 +372,12 @@ ggplot() +
   labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster07")
 ```
 
+Example: Observe that the number of  ROI corresponding cluster 7 equals the number of samples.
 
-- Figures of Merit: gcims_figures_of_merit
-Calculation of the figures of merit: area, volume, asymmetry and saturation.
-It creates a ".csv" file with all the ROIs information 
+- Figures of Merit
+
+The function of `gcims_figures_of_merit()` calculates several of figures of merit of ROI: area, volume, asymmetry and saturation. 
+It creates a ".csv" file with all ROI information.
 
 ```{r}
 peak_list_fom <- gcims_figures_of_merit(
@@ -377,7 +389,9 @@ peak_list_fom <- gcims_figures_of_merit(
 head(peak_list_fom)
 ```
 
-- Build Peak Table: build_peak_table
+- Build the peak table: 
+
+You can extract the volume of each sample across samples using the function `build_peak_table()` in the form of a peak table. This will be useful  for in case you want perform machine learning on these data.
 
 ```{r}
 peak_table <- build_peak_table(peak_list_fom,
@@ -385,10 +399,11 @@ peak_table <- build_peak_table(peak_list_fom,
 peak_table$peak_table_matrix
 ```
 
-- Imput Missing Values: gcims_missing_imputation
-Imputation of the missing values found in the peak table. 
-It calculates the volume in the region of the reference ROI for each cluster for 
-each sample having a missing value for the cluster.
+Note that the peak table obtained present missing values (NA) for clusters 12 and 13, in sample 1.
+
+- Imput Missing Values: 
+
+To input missing values of the peak table, use the function `gcims_missing_imputation()`. It computes the volume in the region of the reference ROI for each cluster for each sample having a missing value for the cluster.
 ```{r}
 peak_table_imputed <- gcims_missing_imputation(
   peak_table = peak_table$peak_table_matrix,
@@ -399,7 +414,7 @@ peak_table_imputed
 ```
 
 
-# Session Info:
+# Session Info
 
 ```{r}
 sessionInfo()
