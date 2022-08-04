@@ -323,7 +323,7 @@ gcims_remove_baseline(
 
 - Effect of Baseline removal
 
-The following plots show the images of sample 1, before and after baseline correction. A side effect of this correction is the destruction of Reactant Ion Peack Chromatograma along retention time axis.
+The following plots show the images of sample 1, before and after baseline correction. A side effect of this correction is the destruction of Reactant Ion Peack Chromatogram along retention time axis.
 ```{r}
 gcims_view_sample(cut,
                   sample_num = 1,
