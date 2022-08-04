@@ -37,11 +37,6 @@
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
-  print(" ")
-  print("  //////////////////////////")
-  print(" /    Selecting the ROIs  /")
-  print("//////////////////////////")
-  print(" ")
   peak_lists <- gcims_batch_run(
     dir_in,
     dir_out,

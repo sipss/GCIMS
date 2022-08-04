@@ -33,11 +33,6 @@
 #'
 gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
 
-  print(" ")
-  print("  ////////////////////////")
-  print(" /    Aligning data    /")
-  print("////////////////////////")
-  print(" ")
 
   # Crete folder to store data
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
@@ -55,11 +50,9 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
   correction_type_vector <- gcims_optimize_polynomial(rics, ref_ric_sample_idx)
   # Select reference RIC
   ric_ref <- rics[ref_ric_sample_idx, ]
-
   m <- 0
   for (i in  samples){
     m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
 

@@ -13,7 +13,7 @@
 gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
   roi_cluster <- volume <- NULL
 
-  print("Performing Peak Imputation")
+
 
   # 1) Read the roi table in long format
   roi_table_long <- readRDS(file.path(dir_in, "all_roi_df.rds"))
@@ -100,12 +100,6 @@ gcims_missing_imputation <- function(peak_table, dir_in, cluster_stats){
   #     MAIN    #
   #-------------#
 
-
-  print(" ")
-  print("  /////////////////////////////////")
-  print(" /    Missing Values Imputation   /")
-  print("///////////////////////////////////")
-  print(" ")
 
 
   num_samps <- nrow(peak_table)

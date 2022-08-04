@@ -36,13 +36,8 @@ gcims_remove_baseline <- function(dir_in, dir_out, samples,
   #-------------#
 
 
-  print(" ")
-  print("  /////////////////////////")
-  print(" /    Baseline removal   /")
-  print("/////////////////////////")
-  print(" ")
-
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+
   for (i in samples) {
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string)) #new

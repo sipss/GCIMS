@@ -73,11 +73,6 @@
 #' invisible(file.remove(files))
 #'
 gcims_prepare_data <- function (dir_in, dir_out, samples, params){
-  print(" ")
-  print("  ////////////////////////")
-  print(" /    Preparing data    /")
-  print("////////////////////////")
-  print(" ")
 
   # Function to know if a number is integer
   is.wholenumber <- function(x, tol = .Machine$double.eps^0.5){
@@ -153,10 +148,9 @@ gcims_prepare_data <- function (dir_in, dir_out, samples, params){
     dir.create(dir_out, recursive = TRUE)
   }
 
-  m = 0
+  m <- 0
   for (i in  samples){
-    m = m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
+    m <- m + 1
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux_list <- interpolate(aux_list,m)
