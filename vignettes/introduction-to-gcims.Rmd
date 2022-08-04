@@ -35,8 +35,9 @@ This vignette will use a small dataset consisting of a mixture of three ketones.
 
 # Downloading the dataset:
 
+Download the "threeketones" dataset:
+
 ```{r}
-# Download the ketones dataset:
 tryCatch({
   download_three_ketones_dataset("threeketones")
 }, error = function(e) {
@@ -45,9 +46,10 @@ tryCatch({
   knitr::knit_exit()
 })
 ```
+Check that the files are downloaded:
 
 ```{r}
-# Check that the files are downloaded:
+
 list.files("threeketones")
 ```
 
@@ -143,7 +145,7 @@ gcims_view_sample(data,
 
 Data samples are cut for a better manipulation. The package provides two different function two perform this task: `gcims_cut_samples()` and `gcims_reshape_samples()`.
 
--Cut samples
+- Cut samples
 
 The function gcims_cut_samples()` cuts all samples in a rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
 
@@ -208,7 +210,7 @@ alignment_data <- gcims_prepare_data(
 )
 ```
 
-The plot for sammple's spectra at retention time rt_value = 90 s, after preparing data is:
+The plot for samples' spectra at retention time rt_value = 90 s, after preparing data is:
 ```{r}
 gcims_plot_spec(prepared,
                 samples = 1:3, 
@@ -241,10 +243,7 @@ aligment_info <- gcims_align_data(
 ```
 
 
-Let'show  gcims data before and after sample alignment. To show particular spectrum/chromatogram for different samples use the functions 'gcims_plot_spec()' and 'gcims_plot_chrom()', respectively.
-
-
-Compare the spectra of all samples at retention time rt_value = 90 s, after aligment:
+Let's show gcims after sample alignment. Compare the spectra of all samples at retention time rt_value = 90 s, before and after the alignment:
 ```{r}
 gcims_plot_spec(aligned,
                 samples = 1:3,
