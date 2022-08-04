@@ -212,7 +212,7 @@ setMethod("intensity", "GCIMSSample", function(object, dt_range = NULL, rt_range
   if (!is.null(dt_range)) {
     dtmin <- min(dt_range)
     dtmax <- max(dt_range)
-    dt_idx <- dt >= dtmin & dt < dtmax
+    dt_idx <- dt >= dtmin & dt <= dtmax
   } else if (!is.null(dt_idx)) {
     if (is.logical(dt_idx) && length(dt_idx) != length(dt)) {
       rlang::abort(
@@ -236,7 +236,7 @@ setMethod("intensity", "GCIMSSample", function(object, dt_range = NULL, rt_range
   if (!is.null(rt_range)) {
     rtmin <- min(rt_range)
     rtmax <- max(rt_range)
-    rt_idx <- rt >= rtmin & rt < rtmax
+    rt_idx <- rt >= rtmin & rt <= rtmax
   } else if (!is.null(rt_idx)) {
     if (is.logical(rt_idx) && length(rt_idx) != length(rt)) {
       rlang::abort(
@@ -511,11 +511,11 @@ subset.GCIMSSample <- function(
   rt <- rtime(x)
 
   if (!is.null(dt_range)) {
-    dt_idx <- which(dt >= min(dt_range) & dt < max(dt_range))
+    dt_idx <- which(dt >= min(dt_range) & dt <= max(dt_range))
   }
 
   if (!is.null(rt_range)) {
-    rt_idx <- which(rt >= min(rt_range) & rt < max(rt_range))
+    rt_idx <- which(rt >= min(rt_range) & rt <= max(rt_range))
   }
 
   if (is.null(dt_idx)) {
