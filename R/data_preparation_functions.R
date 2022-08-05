@@ -4,7 +4,7 @@
 
 #' @param dir_in           Input directory. Where input data files are loaded
 #'   from.
-#' @param dir_out          Output directory. Where smoothed data files are
+#' @param dir_out          Output directory. Where prepared data files are
 #'   stored.
 #' @param samples          A vector. Set of samples to which remove the baseline
 #'   (e.g.: c(1, 2, 3)).
@@ -27,7 +27,7 @@
 #'  and decimated (optional).
 #'  Note that filter length must be an odd number bigger than the
 #'  polynomial order of the filter.
-#' @return A set of S3 objects.Additionally, it returns a list with two variables needed to perform sample alignment in drift
+#' @return A set of S3 objects. Additionally, it returns a list with two variables needed to perform sample alignment in drift
 #'  and retention time axes: `tis` and `rics`. First variable (a matrix) corresponds to the Total Ion Spectra of
 #'  samples, while second one (a matrix) to their Reactive Ion Chromatograms, respectively.
 #' @family Data preparation functions
@@ -42,9 +42,10 @@
 #' @importFrom signal interp1
 #'
 #' @examples
+#' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
-#' samples <- 3
+#' samples <- c(3,7)
 #'
 #' # Example of digital smoothing and decimation, in both axes:
 #' # Before:
@@ -59,18 +60,21 @@
 #' params$filter$length_rt <- 19
 #' params$filter$order_dt <- 2
 #' params$filter$length_dt <- 19
-#'
+#
 #' # Decimation
 #' params$decimate$do <- TRUE
 #' params$decimate$factor_rt <- 2
 #' params$decimate$factor_dt <- 2
 #'
+#' # Data preparation
+#' alignment_data <- gcims_prepare_data(dir_in, dir_out, samples, params)
+#'
 #' # After:
-#' gcims_prepare_data(dir_in, dir_out, samples, params)
 #' gcims_plot_chrom(dir_out, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
+#' }
 #'
 gcims_prepare_data <- function (dir_in, dir_out, samples, params){
 

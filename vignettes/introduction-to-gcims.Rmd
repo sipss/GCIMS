@@ -228,7 +228,7 @@ gcims_plot_chrom(prepared,
 Data is aligned in drift and retention time axes by applying the function `gcims_alingn_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
 
 ```{r}
-aligment_info <- gcims_align_data(
+alignment_info <- gcims_align_data(
   dir_in = prepared, 
   dir_out = aligned,
   samples = 1:3,
