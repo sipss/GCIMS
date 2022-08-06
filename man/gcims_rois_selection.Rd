@@ -10,54 +10,37 @@ gcims_rois_selection(dir_in, dir_out, samples, noise_level)
 \item{dir_in}{Input directory. Where input data files are loaded
 from.}
 
-\item{dir_out}{Output directory. Where RIP removed data files are
-stored.}
+\item{dir_out}{Output directory. Where ouput data files are stored.}
 
 \item{samples}{Numeric vector of integers. Identifies the set of
-samples to which their RIP has to be removed.}
+samples to which peaks must be detected.}
 
 \item{noise_level}{Scalar number. The number of times the standard deviation
 above the noise level needed to detect a peak. IUPAC recommends \code{noise_level = 3} for detection.}
 }
 \value{
-A Set of S3 objects.
+A set of S3 objects. Additionally, a peak/roi list.
 }
 \description{
 ROIs Selection
 }
-\details{
-\code{gcims_remove_rip} substitutes the RIP by its corresponding
-linear approximation to the RIP baseline, for every spectrum in a sample.
-This process is repeated for all samples in \code{samples}. Use this
-function if you are interested in enhancing the contrast of peaks of sample
-images / chromatograms / spectra to be obtained from
-\link{gcims_view_sample}, \link{gcims_plot_chrom} or \link{gcims_plot_spec}.
-}
 \examples{
+\donttest{
+# Use BiocParallel library for parallelization
+library(BiocParallel)
+register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)
+
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
-samples <- 3
+samples <- c(3,7)
 
-# Example of Reactant Ion Peak removal
-# Before:
-gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
-
-# After:
-gcims_remove_rip(dir_in, dir_out, samples)
-gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+# Example of Peak Picking
+peak_list <- gcims_rois_selection(dir_in, dir_out, samples , noise_level = 3)
+head(peak_list)
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
 }
-\seealso{
-Other Utility functions: 
-\code{\link{gcims_cut_samples}()},
-\code{\link{gcims_decimate}()},
-\code{\link{gcims_figures_of_merit}()},
-\code{\link{gcims_interpolate}()},
-\code{\link{gcims_remove_rip}()},
-\code{\link{gcims_reshape_samples}()},
-\code{\link{gcims_shifting}()},
-\code{\link{gcims_unfold}()}
+
 }
-\concept{Utility functions}
+\concept{Peak detection functions}

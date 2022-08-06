@@ -43,11 +43,6 @@ gcims_figures_of_merit <- function(
     integration_size = c("cluster_roi", "individual_roi"),
     rip_saturation_threshold = 0.1
 ) {
-  print(" ")
-  print("  ////////////////////////////////////////")
-  print(" /    Calculating the Figures of Merit  /")
-  print("/////////////////////////////////////////")
-  print(" ")
 
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 
@@ -59,13 +54,12 @@ gcims_figures_of_merit <- function(
   peak_list$Saturation <- 0
 
 
-  s = 0
+ # s = 0
 
   sample_names <- unique(peak_list$SampleID)
 
   for (sample_name in sample_names) {
-    s = s + 1
-    print(paste0("Sample ", s, " of ", length(sample_names)))
+    #s = s + 1
 
     # 1. Data load
 

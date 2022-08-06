@@ -38,14 +38,6 @@
 gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NULL, transform = FALSE){
 
     Retention_Time <- Drift_Time <- Value <- NULL
-
-    print(" ")
-    print("  /////////////////////////////////////")
-    print(" /    Sample Matrix Visualization    /")
-    print("/////////////////////////////////////")
-    print(" ")
-
-    print(paste0("Visualizing sample ", sample_num))
     aux_string <- paste0("M", sample_num, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new
@@ -191,12 +183,6 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
   Retention_Time <- Index <- Value <- Sample <- Class <- NULL
 
-  print(" ")
-  print("  ///////////////////////////////")
-  print(" /     Plotting Chromatograms  /")
-  print("///////////////////////////////")
-  print(" ")
-
   # Some checks
   if(is.null(dt_value)){
     #it's OK if it's null
@@ -261,12 +247,11 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
   rm(aux_string, aux_list, aux)
 
-  m <- 0
   colorp <- NULL
   chroms <- matrix(0, nrow = length(sel_index_rt), ncol = length(samples))
+  m <- 0
   for (i in samples){
     m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new
@@ -353,13 +338,6 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
 
   Drift_Time <- Index <- Value <- Sample <- Class <- NULL
 
-  print(" ")
-  print("  ///////////////////////////")
-  print(" /     Plotting Spectra    /")
-  print("///////////////////////////")
-  print(" ")
-
-
   if(is.null(rt_value)){
     #it's OK if it's null
   } else if((is.numeric(rt_value)) & (length(rt_value) == 1)){ #MODIFICAR ESTO PARA TIEMPOS NO PARA INDICES (O ANTES)
@@ -423,12 +401,12 @@ gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, c
   rm(aux_string, aux_list, aux)
 
 
-  m <- 0
+
   colorp <- NULL
   specs <- matrix(0, nrow = length(sel_index_dt), ncol = length(samples))
+  m <- 0
   for (i in samples){
     m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- (as.matrix(aux_list$data$data_df)) #new

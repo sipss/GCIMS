@@ -46,18 +46,8 @@
 #' invisible(file.remove(files))
 #'
 gcims_unfold <- function(dir_in, dir_out, samples){
-  print(" ")
-  print("  //////////////////////////////////")
-  print("  / Creation of the Feature Vector /")
-  print("  //////////////////////////////////")
-  print(" ")
 
-  m = -1
-  for (i in c(0, samples)){
-    m = m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
+  for (i in samples){
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- aux_list$data$data_df
@@ -105,22 +95,12 @@ gcims_unfold <- function(dir_in, dir_out, samples){
 #' invisible(file.remove(files))
 #'
 gcims_interpolate <- function(dir_in, dir_out, samples, time){
-  print(" ")
-  print("  ////////////////////////")
-  print(" /   Interpolating data /")
-  print("////////////////////////")
-  print(" ")
 
   if (!dir.exists(dir_out)) {
     dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   }
 
-  m = -1
-  for (i in c(0, samples)){
-    m = m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
+  for (i in samples){
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- as.matrix(aux_list$data$data_df)
@@ -196,22 +176,12 @@ gcims_interpolate <- function(dir_in, dir_out, samples, time){
 #' invisible(file.remove(files))
 #'
 gcims_remove_rip <- function(dir_in, dir_out, samples){
-  print(" ")
-  print("  ////////////////////////")
-  print(" /    Removing the RIP  /")
-  print("////////////////////////")
-  print(" ")
 
   if (!dir.exists(dir_out)) {
     dir.create(dir_out, recursive = TRUE)
   }
 
-  m = -1
-  for (i in c(0, samples)){
-    m = m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
+  for (i in samples){
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- (as.matrix(aux_list$data$data_df))
@@ -310,12 +280,6 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' invisible(file.remove(files))
 gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 
-  print(" ")
-  print("  ///////////////////////////////")
-  print(" /    Sample Matrix Reshape    /")
-  print("///////////////////////////////")
-  print(" ")
-
   dimensions <- list(NULL)
   for (i in seq_along(samples)) {
     aux_string <- paste0("M", samples[i], ".rds")
@@ -337,9 +301,7 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
   if (!dir.exists(dir_out)) {
     dir.create(dir_out, recursive = TRUE)
   }
-
   for (i in seq_along(samples)) {
-    print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- as.matrix(aux_list$data$data_df)
@@ -397,20 +359,11 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 #'
 
 gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
-  print(" ")
-  print("  ///////////////////////")
-  print("  / Samples Decimation /")
-  print("  //////////////////////")
-  print(" ")
 
   p_rt <- 1
   p_dt <- 1
-  m = -1
-  for (i in c(0, samples)){
-    m = m + 1
-    if (m != 0){
-      print(paste0("Sample ", m, " of ", length(samples)))
-    }
+  m <- 0
+  for (i in samples){
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     aux <- aux_list$data$data_df
@@ -469,8 +422,6 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 #' invisible(file.remove(files))
 #
 gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
-
-
 
   #---------------#
   #   FUNCTIONS   #
@@ -548,21 +499,12 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
   }
 
 
-
-  print(" ")
-  print("  /////////////////////")
-  print(" /    Cut Samples    /")
-  print("/////////////////////")
-  print(" ")
-
-
   #-------------#
   #     MAIN    #
   #-------------#
 
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
   for (i in seq_along(samples)) {
-    print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", samples[i], ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
     M <- cut_samples(aux_list, rt_range, dt_range)
@@ -614,18 +556,8 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
 gcims_shifting <- function(dir_in, dir_out, samples){
 
-
-  print(" ")
-  print("  /////////////////////////")
-  print(" /      Peaks Shifting   /")
-  print("/////////////////////////")
-  print(" ")
-
-
-
   tics <- NULL
   for (i in samples){
-    print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string)) #new
     aux <- as.matrix(aux_list$data$data_df)
