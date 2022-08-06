@@ -36,6 +36,27 @@ in retention time as the third quantile of peak width distributions in chromatog
 from the peak table). Take into account that when removing the baseline in retention
 time, the shape of the Reactant Ion Peak is severely affected.
 }
+\examples{
+\donttest{
+dir_in <- system.file("extdata", package = "GCIMS")
+peak_list <- readRDS(file.path(dir_in, "peak_list.rds"))
+dir_out <- tempdir()
+samples <- sample_num <- 3
+
+# Before:
+gcims_view_sample(dir_in, sample_num = samples, rt_range = c(155, 175), dt_range = c(8.75, 9.1), transform = FALSE)
+
+# Example of baseline removal:
+gcims_remove_baseline(dir_in, dir_out, samples, peak_list)
+
+# After:
+gcims_view_sample(dir_out, sample_num = samples, rt_range = c(155, 175), dt_range = c(8.75, 9.1), transform = FALSE)
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+}
+
+}
 \seealso{
 Other Baseline removal functions: 
 \code{\link{gcims_baseline_removal}()}

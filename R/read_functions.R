@@ -43,12 +43,6 @@
 gcims_read_samples <- function(dir_in, dir_out, sftwr) {
   stopifnot(is.character(dir_out), length(dir_out) == 1)
 
-  print(" ")
-  print("  /////////////////////////")
-  print(" /    Reading Samples    /")
-  print("/////////////////////////")
-  print(" ")
-
   metadata <- list(Name = NULL)
   data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
 
@@ -61,10 +55,8 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
     if (!dir.exists(dir_out)) {
       dir.create(dir_out, recursive = TRUE)
     }
-    m <- 0
+
     for (i in seq_along(files)){
-      m <- m + 1
-      print(paste0("Sample ", m, " of ", length(files)))
       aux_string <- paste0("M", i, ".rds")
       # METADATA
       metadata$Name <- i
@@ -93,10 +85,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
       stop("This folder does not contains any .csv file")
     }
 
-    m <- 0
     for (i in seq_along(files)){
-      m <- m + 1
-      print(paste0("Sample ", m, " of ", length(files)))
       aux_string <- paste0("M", i, ".rds")
 
       # METADATA
@@ -160,11 +149,11 @@ gcims_read_mea <- function(dir_in, dir_out) {
   files <- list.files(path = dir_in, pattern = "(\\.mea(\\.gz)?)$", full.names = TRUE)
   outfiles <- c()
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+
   for (i in seq_along(files)) {
     metadata <- list(Name = NULL)
     data <- list(retention_time = NULL, drift_time = NULL, data_df = NULL)
 
-    print(paste0("Sample ", i, " of ", length(files)))
     aux_string <- paste0("M", i, ".rds")
     single_mea <- read_mea(files[i])
 
@@ -515,18 +504,14 @@ write_mea <- function(object, filename) {
 #' list.files(dir_out, full.names = TRUE)
 gcims_read_mat <- function(dir_in, dir_out) {
   require_pkgs("R.matlab")
-  print(" ")
-  print("  /////////////////////////")
-  print(" /    Reading Samples    /")
-  print("/////////////////////////")
-  print(" ")
 
   files <- list.files(path = dir_in, pattern = "\\.mat$")
   if (length(files) == 0){
     stop("This folder does not contains any .mat file")
   }
+
   for (i in seq_along(files)) {
-    print(paste0("Sample ", i, " of ", length(files)))
+
     dd <- R.matlab::readMat(file.path(dir_in, files[i]))[[1]]
     dd <- list(
       metadata = list(Name = i),
@@ -591,11 +576,6 @@ gcims_read_mat <- function(dir_in, dir_out) {
 #' print(M1$metadata)
 #'
 gcims_read_metadata <- function(dir_in, samples, file) {
-  print(" ")
-  print("  //////////////////////////")
-  print(" /    Reading Metadata    /")
-  print("//////////////////////////")
-  print(" ")
 
   if (is.character(file)) {
     Metadatafile <- readxl::read_excel(file.path(dir_in, file))
@@ -607,7 +587,6 @@ gcims_read_metadata <- function(dir_in, samples, file) {
 
   metadata <- NULL
   for (i in seq_along(samples)){
-    print(paste0("Sample ", i, " of ", length(samples)))
     aux_string <- file.path(dir_in, paste0("M", samples[i], ".rds"))
     aux_list <- readRDS(aux_string)
     metadata <- Metadatafile[which(Metadatafile$Name == aux_list$metadata$Name),]

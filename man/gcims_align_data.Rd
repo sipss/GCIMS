@@ -15,14 +15,14 @@ from.}
 \item{samples}{Numeric vector of integers. Identifies the set of
 sample to be visualized from the dataset.}
 
-\item{alignment_data}{A list containing two matrices: tis and rics, the Total
-Ion Spectra and Reactant Ion Chromatograns of data.}
+\item{alignment_data}{A list containing two matrices: \code{tis} and \code{rics}, the Total
+Ion Spectra and Reactant Ion Chromatograms of data, respectively.}
 }
 \value{
 A set of S3 objects. Additionally, it returns a list containing the correction
-factors in drift time (Kcorr_samples, a vector with as many components as samples), the reference
-Reactant Ion Chromatogram (ric_ref), and correction type for retention time alignment (correction_type).
-The output a variable correction_type is a whole number between 0 and 5. If 0, no correction is applied.
+factors in drift time (\code{Kcorr_samples}, a vector with as many components as samples), the reference
+Reactant Ion Chromatogram (\code{ric_ref}), and correction type for retention time alignment (\code{correction_type}).
+The output a variable \verb{correction_type i}s a whole number between 0 and 5. If 0, no correction is applied.
 Between 1 and 5 it the optimal degree of the polynomial that corrects retention time axis.
 }
 \description{
@@ -33,9 +33,33 @@ by correcting the position of the Reactant Ion Peak (RIP) in a sample
 to make it coincide with the reference position of the RIP (the median position
 of all RIPs in the dataset). Changes in pressure and temperature
 during measurements may lead to correction factors between 0.9 and 1.1.
+This alignment technique can be used when the pressure and temperature
 measurements are not available. The correction in retention time performed
 using parametric time warping. The warping function is optimized by searching
 the polynomial degree (between 1 and 5) that maximizes the average
 correlation between the reference RIC (Reactant Ion Chromatogram) and each of
 the individual samples.
+}
+\examples{
+\donttest{
+dir_in <- system.file("extdata", package = "GCIMS")
+alignment_data <- readRDS(file.path(dir_in, "alignment_data.rds"))
+dir_out <- tempdir()
+samples <- c(3, 7)
+
+# Before:
+gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby = "Class")
+
+# Example of Data alignment:
+alignment_info <- gcims_align_data(dir_in, dir_out, samples, alignment_data)
+
+# After:
+gcims_plot_spec(dir_out, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+gcims_plot_chrom(dir_out, samples, dt_value = NULL, rt_range = NULL, colorby = "Class")
+
+files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files))
+}
+
 }

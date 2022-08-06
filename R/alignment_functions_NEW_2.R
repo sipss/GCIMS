@@ -7,7 +7,7 @@
 #' to make it coincide with the reference position of the RIP (the median position
 #' of all RIPs in the dataset). Changes in pressure and temperature
 #' during measurements may lead to correction factors between 0.9 and 1.1.
-#  This alignment technique can be used when the pressure and temperature
+#' This alignment technique can be used when the pressure and temperature
 #' measurements are not available. The correction in retention time performed
 #' using parametric time warping. The warping function is optimized by searching
 #' the polynomial degree (between 1 and 5) that maximizes the average
@@ -19,25 +19,42 @@
 #' @param dir_out            Output directory. Where aligned data files are stored.
 #' @param samples            Numeric vector of integers. Identifies the set of
 #'                           sample to be visualized from the dataset.
-#' @param alignment_data     A list containing two matrices: tis and rics, the Total
-#'                           Ion Spectra and Reactant Ion Chromatograns of data.
+#' @param alignment_data     A list containing two matrices: `tis` and `rics`, the Total
+#'                           Ion Spectra and Reactant Ion Chromatograms of data, respectively.
 #' @importFrom signal interp1
 #' @importFrom ptw ptw bestref
 #' @importFrom stats cor median
 #' @export
 #' @return A set of S3 objects. Additionally, it returns a list containing the correction
-#' factors in drift time (Kcorr_samples, a vector with as many components as samples), the reference
-#' Reactant Ion Chromatogram (ric_ref), and correction type for retention time alignment (correction_type).
-#' The output a variable correction_type is a whole number between 0 and 5. If 0, no correction is applied.
+#' factors in drift time (`Kcorr_samples`, a vector with as many components as samples), the reference
+#' Reactant Ion Chromatogram (`ric_ref`), and correction type for retention time alignment (`correction_type`).
+#' The output a variable `correction_type i`s a whole number between 0 and 5. If 0, no correction is applied.
 #' Between 1 and 5 it the optimal degree of the polynomial that corrects retention time axis.
+#'
+##' @examples
+#' \donttest{
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' alignment_data <- readRDS(file.path(dir_in, "alignment_data.rds"))
+#' dir_out <- tempdir()
+#' samples <- c(3, 7)
+#'
+#' # Before:
+#' gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+#' gcims_plot_chrom(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby = "Class")
+#'
+#' # Example of Data alignment:
+#' alignment_info <- gcims_align_data(dir_in, dir_out, samples, alignment_data)
+#'
+#' # After:
+#' gcims_plot_spec(dir_out, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
+#' gcims_plot_chrom(dir_out, samples, dt_value = NULL, rt_range = NULL, colorby = "Class")
+#'
+#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+#' invisible(file.remove(files))
+#'}
 #'
 gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
 
-  print(" ")
-  print("  ////////////////////////")
-  print(" /    Aligning data    /")
-  print("////////////////////////")
-  print(" ")
 
   # Crete folder to store data
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
@@ -55,11 +72,9 @@ gcims_align_data <- function(dir_in, dir_out, samples, alignment_data){
   correction_type_vector <- gcims_optimize_polynomial(rics, ref_ric_sample_idx)
   # Select reference RIC
   ric_ref <- rics[ref_ric_sample_idx, ]
-
   m <- 0
   for (i in  samples){
     m <- m + 1
-    print(paste0("Sample ", m, " of ", length(samples)))
     aux_string <- paste0("M", i, ".rds")
     aux_list <- readRDS(file.path(dir_in, aux_string))
 

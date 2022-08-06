@@ -63,7 +63,6 @@ Other Utility functions:
 \code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()},
-\code{\link{gcims_rois_selection}()},
 \code{\link{gcims_unfold}()}
 }
 \concept{Utility functions}
