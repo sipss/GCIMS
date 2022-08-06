@@ -55,8 +55,37 @@ setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
 #'   retention_time = 1:3,
 #'   data = matrix(1:6, nrow = 2, ncol = 3)
 #' )
-#' getIMSScan(x) # c(`1` = 9, `2` = 12)
-setGeneric("getIMSScan", function(object, ...) standardGeneric("getIMSScan"))
+#' getIMS(x, rt_idx = 2)
+setGeneric("getIMS", function(object, ...) standardGeneric("getIMS"))
+
+
+#' Get a GCIMSSample
+#'
+#' @return A [GCIMSSample] object
+#' @param object An object where we can extract GCIMSSamples from
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @export
+setGeneric("getGCIMSSample", function(object, ...) standardGeneric("getGCIMSSample"))
+
+#' Get the Total Ion Spectrum
+#'
+#' @return The Total Ion Spectrum as a numeric vector or a matrix
+#' (depending if the object is one sample or several)
+#' @param object An object to extract its total ion spectrum
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @export
+setGeneric("getTIS", function(object, ...) standardGeneric("getTIS"))
+
+#' Get the Reverse Ion Chromatogram
+#'
+#' @return The Reverse Ion Chromatogram, as a numeric vector or a
+#' matrix (depending if the object is one sample or several)
+#' @param object An object to extract its reverse ion chromatogram
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @export
+setGeneric("getRIC", function(object, ...) standardGeneric("getRIC"))
+
+
 #' Plot raw data
 #'
 #' @return A plot
@@ -64,3 +93,34 @@ setGeneric("getIMSScan", function(object, ...) standardGeneric("getIMSScan"))
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
 setGeneric("plotRaw", function(object, ...) standardGeneric("plotRaw"))
+
+#' Plot total ion spectrum
+#'
+#' @return A plot
+#' @param object An object to plot the total ion spectrum
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @export
+setGeneric("plotTIS", function(object, ...) standardGeneric("plotTIS"))
+
+#' Plot Reverse Ion Chromatogram
+#'
+#' @return A plot
+#' @param object An object to plot its reverse ion chromatogram
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @export
+setGeneric("plotRIC", function(object, ...) standardGeneric("plotRIC"))
+
+
+#' Filter in Drift time
+#' @return The object, modified
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @export
+setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))
+
+
+#' This function returns a list of relevant object-related information to be
+#' used when printing.
+#'
+#' @keywords internal
+setGeneric("describeAsList", function(object, ...) standardGeneric("describeAsList"))
+

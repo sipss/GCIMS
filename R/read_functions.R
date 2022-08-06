@@ -379,6 +379,12 @@ read_mea <- function(filename) {
   gc_column <- ifelse(!is.null(params[["GC Column"]]), params[["GC Column"]], character(0L))
   drift_gas <- ifelse(!is.null(params[["Drift Gas"]]), params[["Drift Gas"]], character(0L))
 
+  if (!is.null(names(filename))) {
+    description <- names(filename)
+  } else {
+    description <- tools::file_path_sans_ext(basename(filename), compression = TRUE)
+  }
+
   GCIMSSample(
     drift_time = drift_time,
     retention_time = ret_time,
@@ -388,6 +394,7 @@ read_mea <- function(filename) {
     drift_gas = drift_gas,
     history = sprintf("Sample loaded from %s", filename),
     filepath = filename,
+    description = description,
     params = params
   )
 }

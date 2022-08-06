@@ -720,3 +720,12 @@ require_pkgs <- function(pkg, msgs = NULL, ...) {
     )
   }
 }
+
+
+units_to_points <- function(length_phys, step_phys, must_odd = FALSE) {
+  length_pts <- round(length_phys/step_phys)
+  if (must_odd) {
+    length_pts <- length_pts + (length_pts %% 2 == 0) # the filter length in points
+  }
+  length_pts
+}

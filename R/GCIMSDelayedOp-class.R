@@ -14,7 +14,6 @@ setClassUnion("functionOrNULL", c("function", "NULL"))
 #' @slot name A named for de delayed operation, only used for printing.
 #' @slot fun A function that takes a [GCIMSSample] and returns a [GCIMSSample] (modified)
 #' @slot params A named list with additional arguments to be passed to function
-#' @slot changes_sample A logical value. If `fun` doesn't change sample, set it to `FALSE` so we avoid re-saving it.
 #' @slot fun_extract A function that takes a modified [GCIMSSample] and returns an extracted object.
 #' @slot fun_aggregate A function that takes a [GCIMSDataset] and a list of extracted objects and returns a modified [GCIMSDataset].
 #'
@@ -23,9 +22,8 @@ methods::setClass(
   Class = "GCIMSDelayedOp",
   slots = c(
     name = "character",
-    fun = "function",
+    fun = "functionOrNULL",
     params = "list",
-    changes_sample = "logical",
     fun_extract = "functionOrNULL",
     fun_aggregate = "functionOrNULL"
   )
@@ -41,25 +39,79 @@ GCIMSDelayedOp <- function(...) {
 
 methods::setMethod(
   "initialize", "GCIMSDelayedOp",
-  function(.Object, name, fun, params, changes_sample = TRUE, fun_extract = NULL, fun_aggregate = NULL) {
+  function(.Object, name, fun = NULL, params = list(), fun_extract = NULL, fun_aggregate = NULL) {
     .Object@name <- name
     .Object@fun <- fun
     .Object@params <- params
-    .Object@changes_sample <- changes_sample
     .Object@fun_extract <- fun_extract
     .Object@fun_aggregate <- fun_aggregate
     .Object
   }
 )
 
+aggregate_result <- function(delayed_op, extracted_result, dataset) {
+  if (is.null(delayed_op@fun_aggregate)) {
+    return(dataset)
+  }
+  dataset_class <- class(dataset)
+  f <- delayed_op@fun_aggregate
+  dataset <- f(dataset, extracted_result)
+  if (!is(dataset, dataset_class)) {
+    rlang::abort(
+      message = c(
+        "Delayed operation contract was broken",
+        "x" = glue("The delayed action {delayed_op@name} has a `fun_aggregate` slot that does not return a {dataset_class} object"),
+        "i" = "If you did not write the delayed action, this is not your fault. Please report this error at https://github.com/sipss/GCIMS."
+      )
+    )
+  }
+  dataset
+}
+
+modifiesSample <- function(delayed_op) {
+  # If there is a fun, we assume it modifies the sample
+  !is.null(delayed_op@fun)
+}
+
+apply_op_to_sample <- function(delayed_op, sample) {
+  fun <- delayed_op@fun
+  extracted_obj <- NULL
+  if (!is.null(fun)) {
+    params <- delayed_op@params
+    sample <- do.call(
+      fun,
+      c(list(sample), params)
+    )
+  }
+  if (!is.null(delayed_op@fun_extract)) {
+    f <- delayed_op@fun_extract
+    extracted_obj <- f(sample)
+  }
+  list(
+    sample = sample,
+    needs_resaving = !is.null(fun),
+    extracted_obj = extracted_obj
+  )
+}
+
+methods::setMethod(
+  "describeAsList", "GCIMSDelayedOp",
+  function(object) {
+    num_params <- length(object@params)
+    txt <- object@name
+    if (num_params == 0) {
+      return(txt)
+    }
+    out <- list()
+    out[[txt]] <- object@params
+    return(out)
+  }
+)
+
 methods::setMethod(
   "show", "GCIMSDelayedOp",
   function(object) {
-    outstring <- c(
-      glue("- Delayed op {object@name}{ifelse(length(object@params) > 0, ' with parameters', '')}:"),
-      paste0(purrr::imap_chr(object@params, function(v, n) glue(" - {n} = {v}")), collapse = "\n"),
-    )
-    cat(paste0(outstring, collapse = "\n"))
+    cat(yaml::as.yaml(describeAsList(object)))
     invisible(NULL)
   }
 )
