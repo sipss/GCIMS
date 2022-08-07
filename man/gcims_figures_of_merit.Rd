@@ -37,9 +37,15 @@ The given peak list, with the added columns
 Calculates the area, volume asymmetry and saturation of each peak roi in \code{peak_list}
 }
 \examples{
+\donttest{
 dir_in <- system.file("extdata", package = "GCIMS")
-roi_selection <- tempfile("dir")
-fom <- tempfile("dir")
+roi_selection <- tempdir()
+fom <- tempdir()
+
+# Use BiocParallel for pararellization
+library(BiocParallel)
+# Enable parallellization with 3 workers
+register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)
 
 # Example of Calculating the Figures of Merit'
 peak_list <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
@@ -56,6 +62,13 @@ peak_list_fom <- gcims_figures_of_merit(
   cluster_stats = roi_fusion_out$cluster_stats
 )
 head(peak_list_fom)
+
+files_roi <- list.files(path = roi_selection, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files_roi))
+
+files_fom <- list.files(path = fom, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files_fom))
+}
 }
 \seealso{
 Other Utility functions: 
