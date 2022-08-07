@@ -7,8 +7,6 @@
 \alias{GCIMSDataset}
 \alias{getGCIMSSample,GCIMSDataset-method}
 \alias{getTIS,GCIMSDataset-method}
-\alias{getRIC,GCIMSDataset-method}
-\alias{plotTIS,GCIMSDataset-method}
 \alias{plotRIC,GCIMSDataset-method}
 \title{GCIMSDataset class}
 \usage{
@@ -17,10 +15,6 @@ GCIMSDataset(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"))
 \S4method{getGCIMSSample}{GCIMSDataset}(object, sample)
 
 \S4method{getTIS}{GCIMSDataset}(object)
-
-\S4method{getRIC}{GCIMSDataset}(object)
-
-\S4method{plotTIS}{GCIMSDataset}(object)
 
 \S4method{plotRIC}{GCIMSDataset}(object)
 }
@@ -42,10 +36,6 @@ The corresponding \link{GCIMSSample}
 
 A matrix with samples in rows and the drift time in columns
 
-The RIC matrix
-
-A plot
-
 A plot
 }
 \description{
@@ -59,11 +49,7 @@ needed, so the dataset object scales with large number of samples.
 \itemize{
 \item \code{getGCIMSSample(GCIMSDataset)}: class
 
-\item \code{getTIS(GCIMSDataset)}: Plot Total Ion Spectra
-
-\item \code{getRIC(GCIMSDataset)}: Plot Total Ion Spectra
-
-\item \code{plotTIS(GCIMSDataset)}: Plot Total Ion Spectra
+\item \code{getTIS(GCIMSDataset)}: Get Total Ion Spectra matrix
 
 \item \code{plotRIC(GCIMSDataset)}: Plot Reverse Ion Chromatograms
 

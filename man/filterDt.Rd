@@ -7,6 +7,8 @@
 filterDt(object, ...)
 }
 \arguments{
+\item{object}{An object to filter}
+
 \item{...}{Further arguments, possibly used by downstream methods.}
 }
 \value{

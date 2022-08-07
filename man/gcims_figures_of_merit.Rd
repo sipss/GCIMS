@@ -54,7 +54,10 @@ clustering <- group_peak_list(
   distance_method = "sd_scaled_euclidean",
   clustering = list(method = "kmedoids", Nclusters = 13)
 )
-roi_fusion_out <- gcims_rois_fusion(clustering$peak_list_clustered, clustering$cluster_stats)
+roi_fusion_out <- gcims_rois_fusion(
+  clustering$peak_list_clustered,
+  clustering$cluster_stats
+)
 peak_list_fom <- gcims_figures_of_merit(
   dir_in = roi_selection,
   dir_out = fom,
@@ -63,10 +66,20 @@ peak_list_fom <- gcims_figures_of_merit(
 )
 head(peak_list_fom)
 
-files_roi <- list.files(path = roi_selection, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+files_roi <- list.files(
+  path = roi_selection,
+  pattern = ".rds",
+  all.files = FALSE,
+  full.names = TRUE
+)
 invisible(file.remove(files_roi))
 
-files_fom <- list.files(path = fom, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+files_fom <- list.files(
+  path = fom,
+  pattern = ".rds",
+  all.files = FALSE,
+  full.names = TRUE
+)
 invisible(file.remove(files_fom))
 }
 }

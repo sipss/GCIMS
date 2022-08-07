@@ -21,6 +21,8 @@ GCIMSSpectrum(...)
 \arguments{
 \item{...}{See the slots section in this page}
 
+\item{object}{A \link{GCIMSSpectrum} object}
+
 \item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 
 \item{dt_idx}{A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)}
