@@ -1,10 +1,15 @@
+#' Smoothing a GCIMS sample using a Savitzky-Golay filter
+#' @param x A [GCIMSSample] object
+#' @param dt_length_ms the length of the filter in drift time (in ms)
+#' @param dt_order The order of the filter in drift time
+#' @param rt_length_s The length of the filter in retention time (in s)
+#' @param rt_order The order of the filter in retention time
+#' @return The modified [GCIMSSample]
+#' @importMethodsFrom ProtGenerics smooth
+#' @export
 methods::setMethod(
   "smooth", "GCIMSSample",
-  function(x, method = "savgol", dt_length_ms, rt_length_s, dt_order = 2, rt_order = 2){
-    if (method != "savgol") {
-      stop("Smoothing only implemented with the Savitzky-Golay filter")
-    }
-
+  function(x, dt_length_ms, rt_length_s, dt_order = 2, rt_order = 2){
     dt <- dtime(x)
     rt <- rtime(x)
 

@@ -23,7 +23,7 @@ setMethod(
       rlang::abort(glue("File not found: {sample_file} should have been created"))
     }
     gcimssample <- readRDS(sample_file)
-    if (!is(gcimssample, "GCIMSSample")) {
+    if (!methods::is(gcimssample, "GCIMSSample")) {
       rlang::abort("Expected a GCIMSSample object, but it was not found")
     }
     gcimssample

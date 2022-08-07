@@ -135,9 +135,6 @@ GCIMSSample <- function(
 #'
 #' @examples
 #' obj <- GCIMSSample(drift_time=1:2, retention_time=1:3, data = matrix(1:6, nrow=2, ncol=3))
-#' # Here we modify the object as if it was older:
-#' attr(obj, 'history') <- NULL
-#' attr(obj, "class_version") <- numeric_version("0.0.1")
 #' # Update the object:
 #' newobj <- UpdateGCIMSSample(obj)
 #'

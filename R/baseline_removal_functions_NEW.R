@@ -33,13 +33,25 @@
 #' samples <- sample_num <- 3
 #'
 #' # Before:
-#' gcims_view_sample(dir_in, sample_num = samples, rt_range = c(155, 175), dt_range = c(8.75, 9.1), transform = FALSE)
+#' gcims_view_sample(
+#'   dir_in,
+#'   sample_num = samples,
+#'   rt_range = c(155, 175),
+#'   dt_range = c(8.75, 9.1),
+#'   transform = FALSE
+#' )
 #'
 #' # Example of baseline removal:
 #' gcims_remove_baseline(dir_in, dir_out, samples, peak_list)
 #'
 #' # After:
-#' gcims_view_sample(dir_out, sample_num = samples, rt_range = c(155, 175), dt_range = c(8.75, 9.1), transform = FALSE)
+#' gcims_view_sample(
+#'   dir_out,
+#'   sample_num = samples,
+#'   rt_range = c(155, 175),
+#'   dt_range = c(8.75, 9.1),
+#'   transform = FALSE
+#' )
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))

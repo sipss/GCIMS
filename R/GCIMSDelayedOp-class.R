@@ -56,7 +56,7 @@ aggregate_result <- function(delayed_op, extracted_result, dataset) {
   dataset_class <- class(dataset)
   f <- delayed_op@fun_aggregate
   dataset <- f(dataset, extracted_result)
-  if (!is(dataset, dataset_class)) {
+  if (!methods::is(dataset, dataset_class)) {
     rlang::abort(
       message = c(
         "Delayed operation contract was broken",

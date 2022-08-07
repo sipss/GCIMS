@@ -1,3 +1,4 @@
+#' @importMethodsFrom Biobase pData
 setMethod(
   "pData",
   "GCIMSDataset",
@@ -12,7 +13,7 @@ setReplaceMethod(
   "GCIMSDataset",
   function(object, value) {
     value <- validate_pData(value)
-    current_pData <- pData(object)
+    current_pData <- Biobase::pData(object)
     if (nrow(value) != nrow(current_pData)) {
       rlang::abort(
         message = c(

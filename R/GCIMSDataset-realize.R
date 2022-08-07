@@ -72,10 +72,10 @@ realize_one_sample <- function(sample_name, prev_dir, current_dir, delayed_ops, 
 }
 
 
-#' Calls all pending operations on the object
-#' @noRd
-#' @param object GCIMSDataset object
-#' @return A GCIMSDataset object, without pending operations
+#' Runs all delayed operations on the object
+#'
+#' @param object A [GCIMSDataset] object, modified in-place
+#' @return The same [GCIMSDataset] object, without pending operations
 #' @export
 #' @examples
 #' base_dir <- system.file("extdata", "sample_formats", package = "GCIMS")
@@ -96,7 +96,7 @@ realize <- function(object) {
   sample_names <- sampleNames(object)
   names(sample_names) <- sample_names
 
-  pdata <- pData(object)
+  pdata <- Biobase::pData(object)
   orig_filenames <- pdata$FileName
   names(orig_filenames) <- sample_names
 

@@ -1,18 +1,30 @@
-#' @describeIn GCIMSSample-methods Get the drift time vector
+#' Drift time, Retention time, Intensity of GCIMSSamples
+#'
+#' Functions to extract the drift time, the retention time and
+#' the intensity.
+#'
+#' @name GCIMSSample-rtime-dtime-intensity
+#' @param object A [GCIMSSample] object
+NULL
+
+#' @describeIn GCIMSSample-rtime-dtime-intensity Get the drift time vector
+#' @return The drift time of the sample
 #' @export
 setMethod("dtime", "GCIMSSample", function(object) object@drift_time)
 
-#' @describeIn GCIMSSample-methods Get the retention time vector
-#' @import ProtGenerics
+#' @describeIn GCIMSSample-rtime-dtime-intensity Get the retention time vector
+#' @importMethodsFrom ProtGenerics rtime
+#' @return The retention time of the sample
 #' @export
 setMethod("rtime", "GCIMSSample", function(object) object@retention_time)
 
-#' @describeIn GCIMSSample-methods Get the intensity matrix
-#' @import ProtGenerics
+#' @describeIn GCIMSSample-rtime-dtime-intensity Get the intensity matrix
+#' @importMethodsFrom ProtGenerics intensity
 #' @param dt_range The minimum and maximum drift times to extract (length 2 vector)
 #' @param rt_range The minimum and maximum retention times to extract (length 2 vector)
 #' @param dt_idx A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)
 #' @param rt_idx A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)
+#' @export
 #' @examples
 #' mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 #' gcims_sample <- read_mea(mea_file)

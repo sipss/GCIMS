@@ -1,8 +1,9 @@
-#' @describeIn GCIMSSample Topographical plot of a GC-IMS Sample
+#' Topographical plot of a GCIMSSample object
 #'
-#' @param x A GCIMSSample object
+#' @param object A [GCIMSSample] object
+#' @param dt_range The drift time range to plot (in milliseconds)
+#' @param rt_range The retention time range to plot (in seconds)
 #' @return A plot of the GCIMSSample
-#' @export
 #' @examples
 #' dummy_obj <-GCIMSSample(
 #'   drift_time = 1:2,
@@ -13,6 +14,7 @@
 #'   drift_tube_length = 98.0 # in mm
 #' )
 #' plotRaw(dummy_obj)
+#' @export
 setMethod(
   "plotRaw",
   "GCIMSSample",

@@ -68,7 +68,7 @@ extract_RIC_and_TIS <- function(object) {
   invisible(object)
 }
 
-#' @describeIn GCIMSDataset Plot Total Ion Spectra
+#' @describeIn GCIMSDataset Get Total Ion Spectra matrix
 #'
 #' @param object A [GCIMSDataset] object
 #'
@@ -88,7 +88,7 @@ setMethod("getTIS", "GCIMSDataset", function(object) {
   out
 })
 
-#' @describeIn GCIMSDataset Plot Total Ion Spectra
+#' Get Reverse Ion Chromatogram
 #'
 #' @param object A [GCIMSDataset] object
 #'
@@ -109,7 +109,7 @@ setMethod("getRIC", "GCIMSDataset", function(object) {
 })
 
 
-#' @describeIn GCIMSDataset Plot Total Ion Spectra
+#' Plot Total Ion Spectra
 #'
 #' @param object A [GCIMSDataset] object
 #'
@@ -120,7 +120,7 @@ setMethod(
   "GCIMSDataset",
   function(object) {
     tis <- getTIS(object)
-    matplot(
+    graphics::matplot(
       x = object@envir$dt_ref,
       y = t(tis),
       type = "l",
@@ -141,7 +141,7 @@ setMethod(
   "GCIMSDataset",
   function(object) {
     ric <- getRIC(object)
-    matplot(
+    graphics::matplot(
       x = object@envir$rt_ref,
       y = t(ric),
       type = "l",

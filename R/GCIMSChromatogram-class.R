@@ -7,7 +7,7 @@
 #' @slot retention_time A numeric vector with retention times
 #' @slot intensity A numeric vector with the corresponding intensities
 #' @slot drift_time_idx The index or indices used to get the intensity
-#' @slot drift_time_s The drift times corresponding to the retention time indices.
+#' @slot drift_time_ms The drift times corresponding to `drift_time_idx`.
 #' @slot description A string with a description (used as plot title, useful e.g. to know the sample it came from)
 #'
 #' @export
@@ -43,9 +43,16 @@ GCIMSChromatogram <- function(...) {
   methods::new("GCIMSChromatogram", ...)
 }
 
+#' Smoothing a GCIMS chromatogram using a Savitzky-Golay filter
+#' @param x A [GCIMSChromatogram] object
+#' @param rt_length_s The length of the filter in retention time (in s)
+#' @param rt_order The order of the filter in retention time
+#' @return The modified [GCIMSChromatogram]
+#' @importMethodsFrom ProtGenerics smooth
+#' @export
 methods::setMethod(
   "smooth", "GCIMSChromatogram",
-  function(x, method = "savgol", rt_length_s = 3, rt_order = 2L) {
+  function(x, rt_length_s = 3, rt_order = 2L) {
     rt <- rtime(x)
     rt_length_pts <- units_to_points(rt_length_s, rt[2] - rt[1], must_odd = TRUE)
     if (rt_length_pts >= 1L) {
@@ -56,7 +63,7 @@ methods::setMethod(
 )
 
 #' @export
-as.data.frame.GCIMSChromatogram <- function(x) {
+as.data.frame.GCIMSChromatogram <- function(x, ...) {
   data.frame(
     retention_time_s = rtime(x),
     intensity = intensity(x)
@@ -65,7 +72,7 @@ as.data.frame.GCIMSChromatogram <- function(x) {
 
 
 #' @export
-plot.GCIMSChromatogram <- function(x) {
+plot.GCIMSChromatogram <- function(x, ...) {
   dt_ms <- x@drift_time_ms
   if (length(dt_ms) == 1) {
     subtitle <- glue("Drift time {dt_ms} ms")

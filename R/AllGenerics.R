@@ -113,6 +113,7 @@ setGeneric("plotRIC", function(object, ...) standardGeneric("plotRIC"))
 
 #' Filter in Drift time
 #' @return The object, modified
+#' @param object An object to filter
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
 setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))

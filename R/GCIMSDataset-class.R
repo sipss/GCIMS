@@ -136,7 +136,7 @@ validate_scratch_dir <- function(scratch_dir) {
 
 methods::setMethod(
   "initialize", "GCIMSDataset",
-  function(.Object, pData, base_dir, scratch_dir) {
+  function(.Object, pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_")) {
     pData <- validate_pData(pData)
     base_dir <- validate_base_dir(base_dir)
     check_files(pData$FileName, base_dir)

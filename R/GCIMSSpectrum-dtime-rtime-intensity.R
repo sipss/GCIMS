@@ -9,6 +9,7 @@ setMethod("rtime", "GCIMSSpectrum", function(object) object@retention_time_s)
 
 #' @describeIn GCIMSSpectrum-class Get the intensity matrix
 #' @import ProtGenerics
+#' @param object A [GCIMSSpectrum] object
 #' @param dt_range The minimum and maximum drift times to extract (length 2 vector)
 #' @param dt_idx A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)
 setMethod("intensity", "GCIMSSpectrum", function(object, dt_range = NULL, dt_idx = NULL) {

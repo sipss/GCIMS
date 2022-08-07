@@ -1,5 +1,5 @@
 phenos_to_string <- function(object) {
-  phenotypes <- pData(object)
+  phenotypes <- Biobase::pData(object)
   only_phenotypes <- phenotypes[,c(-1, -2)]
   num_of_phenotypes <- length(colnames(only_phenotypes))
   if (num_of_phenotypes > 10) {
