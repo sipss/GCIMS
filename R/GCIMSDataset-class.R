@@ -140,10 +140,11 @@ methods::setMethod(
     pData <- validate_pData(pData)
     base_dir <- validate_base_dir(base_dir)
     check_files(pData$FileName, base_dir)
+    scratch_dir <- validate_scratch_dir(scratch_dir)
     .Object@envir <- rlang::new_environment()
     .Object@envir$pData <- pData
-    .Object@envir$base_dir <- as.character(base_dir)
-    .Object@envir$scratch_dir <- as.character(scratch_dir)
+    .Object@envir$base_dir <- base_dir
+    .Object@envir$scratch_dir <- scratch_dir
     .Object@envir$dt_rt_metrics <- NULL
     .Object@envir$dt_ref <- NULL
     .Object@envir$rt_ref <- NULL
