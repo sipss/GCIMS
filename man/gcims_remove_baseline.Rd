@@ -57,8 +57,4 @@ invisible(file.remove(files))
 }
 
 }
-\seealso{
-Other Baseline removal functions: 
-\code{\link{gcims_baseline_removal}()}
-}
 \concept{Baseline removal functions}
