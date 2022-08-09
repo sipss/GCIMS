@@ -377,7 +377,7 @@ head(peak_list_fom)
 
 - Build the peak table: 
 
-You can extract the volume of each sample across samples using the function `build_peak_table()` in the form of a peak table. This will be useful  for in case you want perform machine learning on these data.
+You can extract the volume of each sample across samples to create a peak table using the function `build_peak_table()`. This will be useful in case you want perform qualitative and quantative analysis from these data.
 
 ```{r}
 peak_table <- build_peak_table(peak_list_fom,
