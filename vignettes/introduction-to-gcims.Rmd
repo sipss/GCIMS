@@ -29,7 +29,7 @@ library(GCIMS)
 ```
 
 The GCIMS package allows you to import your Gas Chromatography - Ion Mobility Spectrometry samples,
-preprocess them, align them one to each other and build a peak table with the relevant features.
+preprocess them and build a peak table of their relevant features.
 
 This vignette will use a small dataset consisting of a mixture of three ketones.
 
