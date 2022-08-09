@@ -112,8 +112,7 @@ dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
 
 - Reading metadata 
 
-An excel file containing all the metadata information needed is going to be read and all the metadata information will be included 
-in the files.
+An excel file containing sample metadata is going to be read and all the metadata information will be included  in the files.
 
 ```{r}
 samples <- seq_along(dataset)
