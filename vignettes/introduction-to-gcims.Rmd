@@ -163,8 +163,7 @@ gcims_view_sample(cut,
 
 - Reshape samples
 
-An adjustment of the dimensions of the samples is performed. There are occasions where the samples do not measure exactly the same,
-making very complicated working with them. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
+There are occasions where all samples in a dataset do not have the same size. When this happens, an adjustment of the dimensions of samples is performed using `gcims_reshape_samples()`. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
 
 ```{r}
 gcims_reshape_samples(dir_in = cut,
