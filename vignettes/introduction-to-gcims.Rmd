@@ -126,7 +126,7 @@ gcims_read_metadata(dir_in = data, samples, file)
 
 # Data Visualization
 
-Visualize data is useful to understand data. The package provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. By the moment, we will use the function `gcims_view_sample()` to inspect one sample. 
+Data visualization functions are useful to understand data structure. The package provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. Let's use function `gcims_view_sample()` to inspect sample 1. 
 
 ```{r}
 gcims_view_sample(data, 
@@ -221,7 +221,7 @@ gcims_plot_chrom(prepared,
 
 - Align data
 
-Data is aligned in drift and retention time axes applying the function `gcims_alingn_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
+Data is aligned in drift and retention time axes applying the function `gcims_align_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
 
 ```{r}
 alignment_info <- gcims_align_data(
@@ -241,7 +241,7 @@ gcims_plot_spec(aligned,
                 colorby = "Name")
 ```
 
-In this case, is evident that sample 3 needed to be aligned and that the job was properly done by the function 'gcims_align_data()'.
+In this case, is evident that sample 3 needed to be aligned and that the job was properly done by the function `gcims_align_data()`.
 We can do the same for the chromatograms of all samples at drift time dt_value = 11.1 ms:
 ```{r}
 gcims_plot_chrom(aligned, 
@@ -255,7 +255,7 @@ The resulting chromatograms become aligned, as expected. After this pre-processi
 
 # Feature Extraction
 
-Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions 'gcims_rois_selection()' and 'group_peak_list()', respectively. 
+Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions `gcims_rois_selection()` and `group_peak_list()`, respectively. 
 
 - ROI detection
 
@@ -284,8 +284,7 @@ You can see that some ROI are common across samples, while other not.
 
 - ROI clustering
 
-We clustered the ROI of dataset using the kmedoids method and the scaled Euclidean distance. Please consult the documentation of function
-'group_peak_list()' to select other methods and distances. At the end of this process, an R object is obtained (a list):
+We clustered the ROI of dataset using the kmedoids method and the scaled Euclidean distance. Please consult the documentation of function `group_peak_list()` to select other methods and distances. At the end of this process, an R object is obtained (a list):
 
 ```{r}
 peak_clustering <- group_peak_list(peak_list, 
