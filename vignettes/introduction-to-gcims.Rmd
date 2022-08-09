@@ -33,7 +33,7 @@ preprocess them, align them one to each other and build a peak table with the re
 
 This vignette will use a small dataset consisting of a mixture of three ketones.
 
-# Downloading the dataset:
+# Downloading the dataset
 
 Download the "threeketones" dataset:
 
