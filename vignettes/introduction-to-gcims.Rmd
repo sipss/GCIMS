@@ -126,7 +126,7 @@ gcims_read_metadata(dir_in = data, samples, file)
 
 # Data Visualization
 
-Visualize data is useful to understand data and their changes due to the pre-processing stage. The packages provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. By the moment, we will use the function `gcims_view_sample()` to inspect one sample. By doing this, we will figure out the region in which chemical information is concentrated in such a sample.
+Visualize data is useful to understand data. The package provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. By the moment, we will use the function `gcims_view_sample()` to inspect one sample. 
 
 ```{r}
 gcims_view_sample(data, 
@@ -141,7 +141,7 @@ Data samples are cut for a better manipulation. The package provides two differe
 
 - Cut samples
 
-The function gcims_cut_samples()` cuts all samples in a rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+The function `gcims_cut_samples()` cuts all samples in a retention time - drift time rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
 
 ```{r}
 gcims_cut_samples(dir_in = data,
