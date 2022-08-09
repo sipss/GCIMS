@@ -63,9 +63,7 @@ register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), defa
 
 # Create working directories
 
-The first step is to create all directories and folders where samples will be located and stored along all the process. 
-The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
-created.
+The first step is to create all directories and folders where samples will be stored. The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be created.
 
 ```{r}
 wd <- "intermediate_files"
