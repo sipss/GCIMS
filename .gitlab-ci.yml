@@ -41,6 +41,7 @@ BiocCheck:
 
 build_site_and_coverage:
   stage: build_website
+  coverage: '/Coverage: \d+\.\d+/'
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
   tags:
     - sipss
