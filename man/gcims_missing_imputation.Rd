@@ -23,13 +23,19 @@ Missing Values Imputation
 \details{
 \code{gcims_missing_imputation} calculates the volume of the ROIs that
 have missing values. It uses the coordinates of the reference ROI for each
-cluster and subistitue the missing value by the volume in this region without
+cluster and substitute the missing value by the volume in this region without
 baseline.
 }
 \examples{
+\donttest{
+# Use BiocParallel library for parallelization
+library(BiocParallel)
+register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)
+
 dir_in <- system.file("extdata", package = "GCIMS")
-roi_selection <- tempfile("dir")
-fom <- tempfile("dir")
+roi_selection  <- tempdir()
+fom <- tempdir()
+
 pl <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
 clust <- group_peak_list(
   pl,
@@ -65,6 +71,14 @@ peak_table_imputed <- gcims_missing_imputation(
   cluster_stats = fusion_res$cluster_stats
 )
 head(peak_table_imputed)
+
+
+files_roi <- list.files(path = roi_selection, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files_roi))
+files_fom <- list.files(path = fom, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+invisible(file.remove(files_fom))
+}
+
 }
 \seealso{
 Other Imputation functions: 

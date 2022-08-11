@@ -29,11 +29,11 @@ library(GCIMS)
 ```
 
 The GCIMS package allows you to import your Gas Chromatography - Ion Mobility Spectrometry samples,
-preprocess them, align them one to each other and build a peak table with the relevant features.
+preprocess them and build a peak table of their relevant features.
 
 This vignette will use a small dataset consisting of a mixture of three ketones.
 
-# Downloading the dataset:
+# Downloading the dataset
 
 Download the "threeketones" dataset:
 
@@ -63,9 +63,7 @@ register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), defa
 
 # Create working directories
 
-The first step is to create all directories and folders where samples will be located and stored along all the process. 
-The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be 
-created.
+The first step is to create all directories and folders where samples will be stored. The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be created.
 
 ```{r}
 wd <- "intermediate_files"
@@ -114,8 +112,7 @@ dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
 
 - Reading metadata 
 
-An excel file containing all the metadata information needed is going to be read and all the metadata information will be included 
-in the files.
+An excel file containing sample metadata is going to be read and all the metadata information will be included  in the files.
 
 ```{r}
 samples <- seq_along(dataset)
@@ -129,7 +126,7 @@ gcims_read_metadata(dir_in = data, samples, file)
 
 # Data Visualization
 
-Visualize data is useful to understand data and their changes due to the pre-processing stage. The packages provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. By the moment, we will use the function `gcims_view_sample()` to inspect one sample. By doing this, we will figure out the region in which chemical information is concentrated in such a sample.
+Data visualization functions are useful to understand data structure. The package provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. Let's use function `gcims_view_sample()` to inspect sample 1. 
 
 ```{r}
 gcims_view_sample(data, 
@@ -144,7 +141,7 @@ Data samples are cut for a better manipulation. The package provides two differe
 
 - Cut samples
 
-The function gcims_cut_samples()` cuts all samples in a rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+The function `gcims_cut_samples()` cuts all samples in a retention time - drift time rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
 
 ```{r}
 gcims_cut_samples(dir_in = data,
@@ -166,8 +163,7 @@ gcims_view_sample(cut,
 
 - Reshape samples
 
-An adjustment of the dimensions of the samples is performed. There are occasions where the samples do not measure exactly the same,
-making very complicated working with them. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
+There are occasions where all samples in a dataset do not have the same size. When this happens, an adjustment of the dimensions of samples is performed using `gcims_reshape_samples()`. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
 
 ```{r}
 gcims_reshape_samples(dir_in = cut,
@@ -225,7 +221,7 @@ gcims_plot_chrom(prepared,
 
 - Align data
 
-Data is aligned in drift and retention time axes by applying the function `gcims_alingn_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
+Data is aligned in drift and retention time axes applying the function `gcims_align_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
 
 ```{r}
 alignment_info <- gcims_align_data(
@@ -245,7 +241,7 @@ gcims_plot_spec(aligned,
                 colorby = "Name")
 ```
 
-In this case, is evident that sample 3 needed to be aligned and that the job was properly done by the function 'gcims_align_data()'.
+In this case, is evident that sample 3 needed to be aligned and that the job was properly done by the function `gcims_align_data()`.
 We can do the same for the chromatograms of all samples at drift time dt_value = 11.1 ms:
 ```{r}
 gcims_plot_chrom(aligned, 
@@ -259,7 +255,7 @@ The resulting chromatograms become aligned, as expected. After this pre-processi
 
 # Feature Extraction
 
-Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions 'gcims_rois_selection()' and 'group_peak_list()', respectively. 
+Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions `gcims_rois_selection()` and `group_peak_list()`, respectively. 
 
 - ROI detection
 
@@ -288,8 +284,7 @@ You can see that some ROI are common across samples, while other not.
 
 - ROI clustering
 
-We clustered the ROI of dataset using the kmedoids method and the scaled Euclidean distance. Please consult the documentation of function
-'group_peak_list()' to select other methods and distances. At the end of this process, an R object is obtained (a list):
+We clustered the ROI of dataset using the kmedoids method and the scaled Euclidean distance. Please consult the documentation of function `group_peak_list()` to select other methods and distances. At the end of this process, an R object is obtained (a list):
 
 ```{r}
 peak_clustering <- group_peak_list(peak_list, 
@@ -381,7 +376,7 @@ head(peak_list_fom)
 
 - Build the peak table: 
 
-You can extract the volume of each sample across samples using the function `build_peak_table()` in the form of a peak table. This will be useful  for in case you want perform machine learning on these data.
+You can extract the volume of each sample across samples to create a peak table using the function `build_peak_table()`. This will be useful in case you want perform qualitative and quantative analysis from these data.
 
 ```{r}
 peak_table <- build_peak_table(peak_list_fom,
