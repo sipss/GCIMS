@@ -73,7 +73,12 @@ peak_table_imputed <- gcims_missing_imputation(
 head(peak_table_imputed)
 
 
-files_roi <- list.files(path = roi_selection, pattern = ".rds", all.files = FALSE, full.names = TRUE)
+files_roi <- list.files(
+  path = roi_selection,
+  pattern = ".rds",
+  all.files = FALSE,
+  full.names = TRUE
+)
 invisible(file.remove(files_roi))
 files_fom <- list.files(path = fom, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files_fom))
