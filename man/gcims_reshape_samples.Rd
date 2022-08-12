@@ -59,7 +59,7 @@ for (i in seq_along(samples)){
 
 reshaping_info <- cbind(nrow_before, ncol_before, nrow_after, ncol_after)
 colnames(reshaping_info) <- c("rows_before", "columns_before", "rows_after", "columns_after")
-rownames(reshaping_info) <- c("M3", "M7", "M8", "M14", "M20", "M21", "M22")
+rownames(reshaping_info) <- c("M3", "M7")
 
 print(reshaping_info)
 
