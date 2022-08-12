@@ -21,10 +21,22 @@ is a data frame with
 Build a peak table
 }
 \examples{
+\donttest{
+
+# Create your peak table from scratch:
 pl <- data.frame(
   SampleID = c("S1", "S1", "S2", "S2"),
   cluster = c(1, 2, 1, 2),
   Volume = c(10, 20, 8, 18)
 )
 build_peak_table(pl)
+
+# Create a peak table from the output of the function gcims_figure_of_merit()
+dir_in <- system.file("extdata", package = "GCIMS")
+peak_list_fom <- readRDS(file.path(dir_in, "peak_list_fom.rds"))
+peak_table <- build_peak_table(peak_list_fom, aggregate_conflicting_peaks = max)
+
+peak_table$peak_table_matrix
+}
+
 }
