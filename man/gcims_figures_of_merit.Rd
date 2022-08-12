@@ -60,7 +60,6 @@ Other Utility functions:
 \code{\link{gcims_decimate}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()},
-\code{\link{gcims_shifting}()},
-\code{\link{gcims_unfold}()}
+\code{\link{gcims_shifting}()}
 }
 \concept{Utility functions}
