@@ -45,7 +45,7 @@ along the retention time axis.
 }
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
-samples <- c(3, 7 ,8, 14, 20, 21)
+samples <- c(3, 7)
 # Example without transforming data
 gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 

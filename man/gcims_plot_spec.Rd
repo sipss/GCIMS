@@ -45,7 +45,7 @@ axis.
 }
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
-samples <- c(3, 7 ,8, 14, 20, 21)
+samples <- c(3, 7)
 gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
 
 }
