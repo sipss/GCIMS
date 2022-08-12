@@ -162,7 +162,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
-#' samples <- c(3, 7, 8, 14, 20, 21, 22)
+#' samples <- c(3, 7)
 #'
 #' # Example of reshaping samples
 #' # (all samples must have the same
