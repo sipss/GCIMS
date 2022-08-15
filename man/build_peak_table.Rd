@@ -27,7 +27,6 @@ Extract the volume of each ROI across samples to create a peak table.
 }
 \examples{
 \donttest{
-
 # Create your peak table from scratch:
 pl <- data.frame(
   SampleID = c("S1", "S1", "S2", "S2"),

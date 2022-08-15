@@ -172,11 +172,9 @@ group_peak_list <- function(
 #' clusters and rows samples. Finally, `peak_table_duplicity` is a dataframe that shows ROI duplicity information
 #' among clusters. Ideally, only one peak per sample should belong to a cluster.
 #'
-#'
 #' @export
 #' @examples
 #' \donttest{
-#'
 #' # Create your peak table from scratch:
 #' pl <- data.frame(
 #'   SampleID = c("S1", "S1", "S2", "S2"),
