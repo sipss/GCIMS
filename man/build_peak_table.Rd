@@ -7,18 +7,23 @@
 build_peak_table(peak_list_clustered, aggregate_conflicting_peaks = NULL)
 }
 \arguments{
-\item{peak_list_clustered}{The output of \link{gcims_figures_of_merit}.}
+\item{peak_list_clustered}{The output of \code{\link[=gcims_figures_of_merit]{gcims_figures_of_merit()}}. Also, you can create your own peak table
+and use it as input value for \code{peak_list_clustered} (see first example below)}
 
 \item{aggregate_conflicting_peaks}{\code{NULL} or a function. What to do, in case two peaks from the same sample
 have been assigned to the same cluster. If \code{NULL}, throw an error. If \code{mean}, \code{max} or any other function,
 we will summarize all the conflicting volumes into that number (e.g. "take the maximum of the peaks")}
 }
 \value{
-A list with the peak table and the ROI duplicity information. The peak table
-is a data frame with
+A list with three fields: \code{peak_table}, \code{peak_table_matrix}, and \code{peak_table_duplicity}.
+\code{peak_table}, and \code{peak_table_matrix}, provide information of the peak table. \code{peak_table} is a dataframe
+containing cluster volumes, whose columns represent samples and rows clusters. \code{peak_table_matrix} presents
+the same information content as \code{peak_table} but in matrix form. Note that in \code{peak_table} columns represent
+clusters and rows samples. Finally, \code{peak_table_duplicity} is a dataframe that shows ROI duplicity information
+among clusters. Ideally, only one peak per sample should belong to a cluster.
 }
 \description{
-Build a peak table
+Extract the volume of each ROI across samples to create a peak table.
 }
 \examples{
 \donttest{

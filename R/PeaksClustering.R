@@ -157,13 +157,22 @@ group_peak_list <- function(
 
 #' Build a peak table
 #'
-#' @param peak_list_clustered The output of [gcims_figures_of_merit].
+#' @description Extract the volume of each ROI across samples to create a peak table.
+#'
+#' @param peak_list_clustered The output of [gcims_figures_of_merit()]. Also, you can create your own peak table
+#' and use it as input value for `peak_list_clustered` (see first example below)
 #' @param aggregate_conflicting_peaks `NULL` or a function. What to do, in case two peaks from the same sample
 #' have been assigned to the same cluster. If `NULL`, throw an error. If `mean`, `max` or any other function,
 #' we will summarize all the conflicting volumes into that number (e.g. "take the maximum of the peaks")
 #'
-#' @return A list with the peak table and the ROI duplicity information. The peak table
-#' is a data frame with
+#' @return A list with three fields: `peak_table`, `peak_table_matrix`, and `peak_table_duplicity`.
+#' `peak_table`, and `peak_table_matrix`, provide information of the peak table. `peak_table` is a dataframe
+#' containing cluster volumes, whose columns represent samples and rows clusters. `peak_table_matrix` presents
+#' the same information content as `peak_table` but in matrix form. Note that in `peak_table` columns represent
+#' clusters and rows samples. Finally, `peak_table_duplicity` is a dataframe that shows ROI duplicity information
+#' among clusters. Ideally, only one peak per sample should belong to a cluster.
+#'
+#'
 #' @export
 #' @examples
 #' \donttest{
