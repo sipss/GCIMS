@@ -125,3 +125,10 @@ setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))
 #' @keywords internal
 setGeneric("describeAsList", function(object, ...) standardGeneric("describeAsList"))
 
+#' Decimate an object
+#'
+#' @param object An object to decimate
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @return The object, modified
+#' @export
+setGeneric("decimate", function(object, ...) standardGeneric("decimate"))
