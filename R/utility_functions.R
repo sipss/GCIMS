@@ -92,9 +92,11 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' @param dir_out         Output directory. Where reshaped samples are stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to be reshaped.
-#' @details `gcims_reshape_samples` ensures that all samples in a dataset
-#'   have the same dimensions (number of data points) in retention and drift
-#'   times. `gcims_reshape_samples` checks what are the minimum retention /
+#' @description Force that all samples have the same minimal data dimensions.
+#' @details It may happen that not all samples in a dataset have the same size (dimensions).
+#'   When this happens, an adjustment of the dimensions of samples is nedeed.`gcims_reshape_samples()`
+#'   ensures that all samples in a dataset have the same dimensions (number of data points)
+#'   in retention and drift times. `gcims_reshape_samples()` checks what are the minimum retention /
 #'   drift time ranges a cuts all samples according to these ranges.
 #'
 #' @return A set of S3 objects.
@@ -108,6 +110,11 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' # Example of reshaping samples
 #' # (all samples must have the same
 #' # retention and drift time dimensions).
+#'
+#' # In this particular example, data dimensions is samples
+#' # 3 and 7 is the same, so the expected behavior of
+#' # the function gcims_reshaphe_samples() is keeping the
+#' # same dimensionality.
 #'
 #' # Before:
 #' nrow_before <- matrix(0, nrow = length(samples), ncol = 1)
