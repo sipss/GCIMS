@@ -29,7 +29,7 @@ A set of S3 objects.
 Cut samples in a retention time - drift time rectangle.
 }
 \details{
-\code{cut_samples} cuts a sample in a retention time - drift time
+\code{gcims_cut_samples()} cuts a sample in a retention time - drift time
 rectangle according to the retention time / drift time ranges given by
 function arguments \code{rt_range} / \code{dt_range}. Use this function to
 focus on the retention time - drift time region where chemical information

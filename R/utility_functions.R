@@ -254,7 +254,7 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 #'   drift time cut. If NULL the complete drift time range is used.
 #' @return A set of S3 objects.
 #' @description Cut samples in a retention time - drift time rectangle.
-#' @details `cut_samples` cuts a sample in a retention time - drift time
+#' @details `gcims_cut_samples()` cuts a sample in a retention time - drift time
 #'   rectangle according to the retention time / drift time ranges given by
 #'   function arguments `rt_range` / `dt_range`. Use this function to
 #'   focus on the retention time - drift time region where chemical information
