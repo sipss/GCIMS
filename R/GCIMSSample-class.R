@@ -118,40 +118,10 @@ GCIMSSample <- function(
 }
 
 
-#' Updates old saved GCIMSSample object to the latest version
-#'
-#' This function is useful when you have saved a [GCIMSSample] object
-#' with a previous version of the GCIMS package and you want to load it
-#' using a new version of the package.
-#'
-#' The function allows you to update the old object, adding missing
-#' slots, etc so it is fully compatible with the new class definition.
-#'
-#'
-#' @param object A [GCIMSSample] object
-#'
-#' @return The updated [GCIMSSample] object
-#' @export
-#'
-#' @examples
-#' obj <- GCIMSSample(drift_time=1:2, retention_time=1:3, data = matrix(1:6, nrow=2, ncol=3))
-#' # Update the object:
-#' newobj <- UpdateGCIMSSample(obj)
-#'
-UpdateGCIMSSample <- function(object) {
-  obj_version <- methods::slot(object, "class_version")
-  if (obj_version < "0.0.3") {
-    stop("Can't migrate an older verions of the GCIMSSample object")
-  }
-  return(object)
-}
-
 
 #' @name GCIMSSample-methods
 #' @title Methods for the GCIMSSample class
 NULL
-
-
 
 
 
