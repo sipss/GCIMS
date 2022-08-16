@@ -239,20 +239,21 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 }
 
 
-#' Cut samples in a retention time - drift time rectangle
+#' Cut samples
 
 
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
 #' @param dir_out         Output directory. Where cut data files are
 #'   stored.
-#' @param samples         A vector. Set of samples to be aligned(e.g.: c(1, 2,
+#' @param samples         A vector. Set of samples to be cut (e.g.: c(1, 2,
 #'   3)).
 #' @param rt_range        A  vector of two components. Beginning and end of the
 #'   retention time cut.If NULL the complete retention time range is used.
 #' @param dt_range        A  vector of two components. Beginning and end of the
 #'   drift time cut. If NULL the complete drift time range is used.
 #' @return A set of S3 objects.
+#' @description Cut samples in a retention time - drift time rectangle.
 #' @details `cut_samples` cuts a sample in a retention time - drift time
 #'   rectangle according to the retention time / drift time ranges given by
 #'   function arguments `rt_range` / `dt_range`. Use this function to
@@ -270,13 +271,13 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 #'
 #' # Example Sample data cutting:
 #' # Before:
-#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
 #'
 #' # After:
 #' rt_range <-c(70, 125)
 #' dt_range <- c(8, 9.25)
 #' gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
-#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
