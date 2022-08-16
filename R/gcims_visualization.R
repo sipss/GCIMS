@@ -145,7 +145,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
 
 
-#' Plot TICs or EICs.
+#' Plot TICs or EICs
 #'
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
@@ -301,7 +301,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
 
 
-#' Plots TIS or spectra
+#' Plot TIS or spectra
 
 
 #' @param dir_in          Input directory. Where input data files are loaded
@@ -317,9 +317,10 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #'   sample spectra.
 #' @return A plot of spectra colored according to some variable included in the
 #'   metadata.
-#' @details `gcims_plot_spec` plots a set of sample spectra at given
+#' @description Plot either the Total Ion Spectra (TIS) or the extracted spectra of samples.
+#' @details `gcims_plot_spec()` plots a set of sample spectra at given
 #'   retention time (or their TIS) and for a specific range of drift times. Use
-#'   `gcims_plot_spec` to visualize the effects of digital smoothing,
+#'   `gcims_plot_spec()` to visualize the effects of digital smoothing,
 #'   baseline correction and signal alignment algorithms along the drift time
 #'   axis.
 #' @family Visualization functions
@@ -333,6 +334,8 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' samples <- c(3, 7)
+#'
+#' # Visualize the TIS of samples:
 #' gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
 #'
 gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Name"){

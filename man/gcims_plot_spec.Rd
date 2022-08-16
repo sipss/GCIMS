@@ -2,7 +2,7 @@
 % Please edit documentation in R/gcims_visualization.R
 \name{gcims_plot_spec}
 \alias{gcims_plot_spec}
-\title{Plots TIS or spectra}
+\title{Plot TIS or spectra}
 \usage{
 gcims_plot_spec(
   dir_in,
@@ -34,18 +34,20 @@ A plot of spectra colored according to some variable included in the
 metadata.
 }
 \description{
-Plots TIS or spectra
+Plot either the Total Ion Spectra (TIS) or the extracted spectra of samples.
 }
 \details{
-\code{gcims_plot_spec} plots a set of sample spectra at given
+\code{gcims_plot_spec()} plots a set of sample spectra at given
 retention time (or their TIS) and for a specific range of drift times. Use
-\code{gcims_plot_spec} to visualize the effects of digital smoothing,
+\code{gcims_plot_spec()} to visualize the effects of digital smoothing,
 baseline correction and signal alignment algorithms along the drift time
 axis.
 }
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
 samples <- c(3, 7)
+
+# Visualize the TIS of samples:
 gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
 
 }

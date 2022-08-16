@@ -2,7 +2,7 @@
 % Please edit documentation in R/gcims_visualization.R
 \name{gcims_plot_chrom}
 \alias{gcims_plot_chrom}
-\title{Plot TICs or EICs.}
+\title{Plot TICs or EICs}
 \usage{
 gcims_plot_chrom(
   dir_in,
