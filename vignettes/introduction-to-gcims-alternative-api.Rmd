@@ -116,6 +116,15 @@ dataset <- GCIMSDataset(annotations, base_dir = samples_directory, scratch_dir =
 dataset
 ```
 
+Most operations on the `dataset` are not executed until you need to get the actual samples or
+data. This is done to perform them in batch, more efficiently, if possible. However,
+you can manually `realize` the `GCIMSDataset` object so it executes all its pending operations.
+We can see how the "read_sample" pending operation becomes part of the dataset history:
+
+```{r}
+realize(dataset)
+dataset
+```
 
 
 Explore one sample:
@@ -123,13 +132,6 @@ Explore one sample:
 ```{r}
 ket1 <- getGCIMSSample(dataset, sample = "Ketones1")
 plotRaw(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
-```
-
-To get the sample, we had first to *realize* the all pending operations, modifying
-the dataset in place. We can see how the pending operation is now part of history:
-
-```{r}
-dataset
 ```
 
 
