@@ -57,60 +57,21 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 #' @export
 #' @examples
 #' \donttest{
-#' # Use BiocParallel library for parallelization
-#' library(BiocParallel)
-#' register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)
-#'
 #' dir_in <- system.file("extdata", package = "GCIMS")
-#' roi_selection  <- tempdir()
-#' fom <- tempdir()
-#'
-#' pl <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
-#' clust <- group_peak_list(
-#'   pl,
-#'   distance_method = "sd_scaled_euclidean",
-#'   clustering = list(method = "kmedoids", Nclusters = 13)
-#' )
-#' # Baseline removal should be here, disabled for speed
-#' # bsln <- tempfile("dir)
-#' # gcims_remove_baseline(
-#' #   dir_in = roi_selection,
-#' #   dir_out = bsln,
-#' #   samples = c(3, 7),
-#' #   clust$peak_list_clustered
-#' # )
-#' #
-#' fusion_res <- gcims_rois_fusion(
-#'   clust$peak_list_clustered,
-#'   clust$cluster_stats
-#' )
-#' peak_list_foms <- gcims_figures_of_merit(
-#'   dir_in = roi_selection, # use bsln
-#'   dir_out = fom,
-#'   peak_list = fusion_res$peak_list_clustered,
-#'   cluster_stats = fusion_res$cluster_stats
-#' )
-#' peak_table_obj <- build_peak_table(peak_list_foms, aggregate_conflicting_peaks = max)
-#' # Ideally dir_in should point to baseline corrected, but we skip this
-#' # here for brevity.
+#' peak_table_obj <- readRDS(file.path(dir_in, "peak_table.rds"))
+#' roi_fusion_out <- readRDS(file.path(dir_in, "roi_fusion_out.rds"))
 #' peak_table_to_impute <- peak_table_obj$peak_table_mat
-#' peak_table_imputed <- gcims_missing_imputation(
-#'   peak_table = peak_table_to_impute,
-#'   dir_in = fom, # use bsln
-#'   cluster_stats = fusion_res$cluster_stats
-#' )
-#' head(peak_table_imputed)
+#'
+#' # Peak table before imputation
+#' peak_table_to_impute
 #'
 #'
-#' files_roi <- list.files(
-#'   path = roi_selection,
-#'   pattern = ".rds",
-#'   all.files = FALSE,
-#'   full.names = TRUE
-#' )
-#' invisible(file.remove(files_roi))
-#' files_fom <- list.files(path = fom, pattern = ".rds", all.files = FALSE, full.names = TRUE)
-#' invisible(file.remove(files_fom))
+#' peak_table_imputed <- gcims_missing_imputation(peak_table = peak_table_to_impute,
+#'                                                dir_in = dir_in, # use bsln
+#'                                                cluster_stats = roi_fusion_out$cluster_stats
+#'                                                )
+#' # Peak table after imputation
+#' peak_table_imputed
 #' }
 #'
 gcims_missing_imputation <- function(peak_table, dir_in, cluster_stats){

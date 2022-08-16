@@ -20,50 +20,29 @@ The center of the ROI is not changed, but the limits are taken so the size of th
 the same for all ROIs in the same cluster, using the median size of the ROIs in the cluster.
 }
 \examples{
-peak_list <- data.frame(
-  UniqueID = c("P1", "P2", "P3", "P4"),
-  SampleID = c("S1", "S1", "S2", "S2"),
-  dt_apex_idx = c(140, 340, 180, 380),
-  dt_apex_ms = c(7, 10, 7.1, 10.2),
-  rt_apex_idx = c(30, 250, 33, 247),
-  rt_apex_s = c(30, 250, 33, 247),
-  dt_min_idx = c(100, 300, 120, 320),
-  dt_min_ms = c(6.5, 9.4, 6.6, 9.7),
-  dt_max_idx = c(200, 400, 250, 440),
-  dt_max_ms = c(7.7, 10.8, 7.6, 11.1),
-  rt_min_idx = c(27, 246, 30, 245),
-  rt_min_s = c(27, 246, 30, 245),
-  rt_max_idx = c(36, 260, 37, 255),
-  rt_max_s = c(36, 260, 37, 255),
-  dt_cm_idx = c(140, 340, 180, 380),
-  dt_cm_ms = c(7, 10, 7.1, 10.2),
-  rt_cm_idx = c(30, 250, 33, 247),
-  rt_cm_s = c(30, 250, 33, 247)
-)
-clustering <- group_peak_list(
-  peaks = peak_list,
-  filter_dt_width_criteria = NULL,
-  filter_rt_width_criteria = NULL,
-  distance_method = "mahalanobis",
-  distance_between_peaks_from_same_sample = Inf,
-  clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-  verbose = FALSE
-)
+\donttest{
+dir_in <- system.file("extdata", package = "GCIMS")
+clustering <- readRDS(file.path(dir_in, "peak_clustering.rds"))
+
 roi_fusion_out <- gcims_rois_fusion(clustering$peak_list_clustered, clustering$cluster_stats)
 samplestocheck <- roi_fusion_out$peak_list_clustered[
-  which(roi_fusion_out$peak_list_clustered$cluster == "Cluster02"),
+  which(roi_fusion_out$peak_list_clustered$cluster == "Cluster01"),
 ]
 library(ggplot2)
 ggplot() +
  geom_rect(
    data = samplestocheck,
    mapping = aes(
-     xmin=dt_min_idx,
-     xmax=dt_max_idx,
-     ymin=rt_min_idx,
-     ymax=rt_max_idx,
-     color= SampleID
+     xmin = dt_min_idx,
+     xmax = dt_max_idx,
+     ymin = rt_min_idx,
+     ymax = rt_max_idx,
+     color = SampleID,
+     fill = SampleID
    ),
    alpha=0.5
-)
+) +
+labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster01")
+}
+
 }

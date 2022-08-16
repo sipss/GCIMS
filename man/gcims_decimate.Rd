@@ -67,10 +67,8 @@ Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 Other Utility functions: 
 \code{\link{gcims_cut_samples}()},
 \code{\link{gcims_figures_of_merit}()},
-\code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()},
-\code{\link{gcims_shifting}()},
-\code{\link{gcims_unfold}()}
+\code{\link{gcims_shifting}()}
 }
 \concept{Utility functions}

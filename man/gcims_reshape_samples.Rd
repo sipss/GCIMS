@@ -30,7 +30,7 @@ drift time ranges a cuts all samples according to these ranges.
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
-samples <- c(3, 7, 8, 14, 20, 21, 22)
+samples <- c(3, 7)
 
 # Example of reshaping samples
 # (all samples must have the same
@@ -59,7 +59,7 @@ for (i in seq_along(samples)){
 
 reshaping_info <- cbind(nrow_before, ncol_before, nrow_after, ncol_after)
 colnames(reshaping_info) <- c("rows_before", "columns_before", "rows_after", "columns_after")
-rownames(reshaping_info) <- c("M3", "M7", "M8", "M14", "M20", "M21", "M22")
+rownames(reshaping_info) <- c("M3", "M7")
 
 print(reshaping_info)
 
@@ -71,9 +71,7 @@ Other Utility functions:
 \code{\link{gcims_cut_samples}()},
 \code{\link{gcims_decimate}()},
 \code{\link{gcims_figures_of_merit}()},
-\code{\link{gcims_interpolate}()},
 \code{\link{gcims_remove_rip}()},
-\code{\link{gcims_shifting}()},
-\code{\link{gcims_unfold}()}
+\code{\link{gcims_shifting}()}
 }
 \concept{Utility functions}

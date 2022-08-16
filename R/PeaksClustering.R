@@ -26,27 +26,11 @@
 #' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
 #' @export
 #' @examples
-#' peak_list <- data.frame(
-#'   UniqueID = c("P1", "P2", "P3", "P4"),
-#'   SampleID = c("S1", "S1", "S2", "S2"),
-#'   dt_apex_idx = c(140, 340, 180, 380),
-#'   dt_apex_ms = c(7, 10, 7.1, 10.2),
-#'   rt_apex_idx = c(30, 250, 33, 247),
-#'   rt_apex_s = c(30, 250, 33, 247),
-#'   dt_min_idx = c(100, 300, 120, 320),
-#'   dt_min_ms = c(6.5, 9.4, 6.6, 9.7),
-#'   dt_max_idx = c(200, 400, 250, 440),
-#'   dt_max_ms = c(7.7, 10.8, 7.6, 11.1),
-#'   rt_min_idx = c(27, 246, 30, 245),
-#'   rt_min_s = c(27, 246, 30, 245),
-#'   rt_max_idx = c(36, 260, 37, 255),
-#'   rt_max_s = c(36, 260, 37, 255),
-#'   dt_cm_idx = c(140, 340, 180, 380),
-#'   dt_cm_ms = c(7, 10, 7.1, 10.2),
-#'   rt_cm_idx = c(30, 250, 33, 247),
-#'   rt_cm_s = c(30, 250, 33, 247)
-#' )
-#' peak_table_list <- group_peak_list(
+#' \donttest{
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' peak_list <- readRDS(file.path(dir_in, "peak_list.rds"))
+#'
+#' peak_clustering  <- group_peak_list(
 #'   peaks = peak_list,
 #'   filter_dt_width_criteria = NULL,
 #'   filter_rt_width_criteria = NULL,
@@ -55,6 +39,7 @@
 #'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
 #'   verbose = FALSE
 #' )
+#' }
 group_peak_list <- function(
   peaks,
   filter_dt_width_criteria = "IQR",
@@ -172,21 +157,40 @@ group_peak_list <- function(
 
 #' Build a peak table
 #'
-#' @param peak_list_clustered The output of [gcims_figures_of_merit].
+#' @description Extract the volume of each ROI across samples to create a peak table.
+#'
+#' @param peak_list_clustered The output of [gcims_figures_of_merit()]. Also, you can create your own peak table
+#' and use it as input value for `peak_list_clustered` (see first example below)
 #' @param aggregate_conflicting_peaks `NULL` or a function. What to do, in case two peaks from the same sample
 #' have been assigned to the same cluster. If `NULL`, throw an error. If `mean`, `max` or any other function,
 #' we will summarize all the conflicting volumes into that number (e.g. "take the maximum of the peaks")
 #'
-#' @return A list with the peak table and the ROI duplicity information. The peak table
-#' is a data frame with
+#' @return A list with three fields: `peak_table`, `peak_table_matrix`, and `peak_table_duplicity`.
+#' `peak_table`, and `peak_table_matrix`, provide information of the peak table. `peak_table` is a dataframe
+#' containing cluster volumes, whose columns represent samples and rows clusters. `peak_table_matrix` presents
+#' the same information content as `peak_table` but in matrix form. Note that in `peak_table` columns represent
+#' clusters and rows samples. Finally, `peak_table_duplicity` is a dataframe that shows ROI duplicity information
+#' among clusters. Ideally, only one peak per sample should belong to a cluster.
+#'
 #' @export
 #' @examples
+#' \donttest{
+#' # Create your peak table from scratch:
 #' pl <- data.frame(
 #'   SampleID = c("S1", "S1", "S2", "S2"),
 #'   cluster = c(1, 2, 1, 2),
 #'   Volume = c(10, 20, 8, 18)
 #' )
 #' build_peak_table(pl)
+#'
+#' # Create a peak table from the output of the function gcims_figure_of_merit()
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' peak_list_fom <- readRDS(file.path(dir_in, "peak_list_fom.rds"))
+#' peak_table <- build_peak_table(peak_list_fom, aggregate_conflicting_peaks = max)
+#'
+#' peak_table$peak_table_matrix
+#' }
+#'
 build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
   if (!"Volume" %in% colnames(peak_list_clustered)) {
     rlang::abort("Please compute a 'Volume' column in peak_list_clustered")

@@ -18,47 +18,18 @@
 #' @examples
 #' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")
-#' roi_selection <- tempdir()
-#' fom <- tempdir()
+#' dir_out <- tempdir()
+#' roi_fusion_out <- readRDS(file.path(dir_in, "peak_clustering.rds"))
 #'
-#' # Use BiocParallel for pararellization
-#' library(BiocParallel)
-#' # Enable parallellization with 3 workers
-#' register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)
-#'
-#' # Example of Calculating the Figures of Merit'
-#' peak_list <- gcims_rois_selection(dir_in, roi_selection, samples = c(3, 7), noise_level = 3)
-#' clustering <- group_peak_list(
-#'   peak_list,
-#'   distance_method = "sd_scaled_euclidean",
-#'   clustering = list(method = "kmedoids", Nclusters = 13)
-#' )
-#' roi_fusion_out <- gcims_rois_fusion(
-#'   clustering$peak_list_clustered,
-#'   clustering$cluster_stats
-#' )
 #' peak_list_fom <- gcims_figures_of_merit(
-#'   dir_in = roi_selection,
-#'   dir_out = fom,
+#'   dir_in = dir_in,
+#'   dir_out = dir_out,
 #'   peak_list = roi_fusion_out$peak_list_clustered,
 #'   cluster_stats = roi_fusion_out$cluster_stats
 #' )
 #' head(peak_list_fom)
 #'
-#' files_roi <- list.files(
-#'   path = roi_selection,
-#'   pattern = ".rds",
-#'   all.files = FALSE,
-#'   full.names = TRUE
-#' )
-#' invisible(file.remove(files_roi))
-#'
-#' files_fom <- list.files(
-#'   path = fom,
-#'   pattern = ".rds",
-#'   all.files = FALSE,
-#'   full.names = TRUE
-#' )
+#' files_fom <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files_fom))
 #'}
 gcims_figures_of_merit <- function(

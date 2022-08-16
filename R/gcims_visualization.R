@@ -175,7 +175,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
-#' samples <- c(3, 7 ,8, 14, 20, 21)
+#' samples <- c(3, 7)
 #' # Example without transforming data
 #' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 #'
@@ -331,7 +331,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' @importFrom ggplot2 ggplot aes labs theme_minimal geom_line
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
-#' samples <- c(3, 7 ,8, 14, 20, 21)
+#' samples <- c(3, 7)
 #' gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
 #'
 gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Name"){

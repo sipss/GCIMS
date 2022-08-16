@@ -1,143 +1,3 @@
-#' Converts Sample Matrices to Feature Vectors
-
-
-#' @param dir_in          Input directory. Where input data files are loaded
-#'   from.
-#' @param dir_out         Output directory. Where unfold data files are
-#'   stored.
-#' @param samples         Numeric vector of integers. Identifies the set of
-#'   samples to which their data matrices need to be unfolded.
-#' @return A set of S3 objects
-#' @details `gcims_unfold` reshapes *n* x *m* GCIMS data into
-#'   *1* x (*n* x *m*) vectors. This is done for all samples in
-#'   `samples`. `gcims_unfold` allows the latter use of pattern
-#'   recognition techniques (e.g. Principal Component Analysis) that need to be
-#'   fed with tabular data.
-#' @note It is recommended to perform a previous reduction of data
-#'   dimensionality using the functions `gcims_decimate` and
-#'   `gcims_cut_samples` before applying `gcims_unfold` to the data.
-#' @family Utility functions
-#' @export
-#' @examples
-#' dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
-#' dir_out <- tempdir()
-#' samples <- 3
-#'
-#' # Example of Sample Data unfolding
-#' # Before:
-#' M3 <- readRDS(file.path(dir_in, "M3.rds"))
-#' data <- M3$data$data_df
-#' data_dimensions <- dim(data)
-#'
-#' message("Before unfolding data has ", data_dimensions[1],
-#' " rows and ", data_dimensions[2], " columns.")
-#'
-#' # After:
-#' gcims_unfold(dir_in, dir_out, samples)
-#' M3 <- readRDS(file.path(dir_out, "M3.rds"))
-#' data <- M3$data$data_df
-#' data_length <- length(data)
-#'
-#' message("After unfolding data is a vector of length ", data_length,".
-#' This value corresponds to product of the number
-#' of columns by the number of rows of the original data.")
-#'
-#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
-#' invisible(file.remove(files))
-#'
-gcims_unfold <- function(dir_in, dir_out, samples){
-
-  for (i in samples){
-    aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(file.path(dir_in, aux_string))
-    aux <- aux_list$data$data_df
-    aux <- c(t(as.matrix(aux)))
-    aux_list$data$data_df <- aux
-    saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
-  }
-}
-
-#' Interpolates data to obtain constant sampling frequencies in retention and drift times
-
-#' @param dir_in          Input directory. Where input data files are loaded
-#'   from.
-#' @param dir_out         Output directory. Where interpolated data files are
-#'   stored.
-#' @param samples         Numeric vector of integers. Identifies the set of
-#'   samples to which their data matrices need to be interpolated.
-#' @param time            Sets the dimension to be corrected: drift time or
-#'   retention time. Introduce "Retention" for retention time; or "Drift" for
-#'   drift time.
-#' @details `gcims_interpolate` performs a linear interpolation on gcims
-#' data along the time axis selected in `gcims_interpolate`, and for all
-#' samples in `samples`.
-#' @return A set of S3 objects.
-#' @references { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
-#'   "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
-#'   Prentice Hall. p. 168. ISBN 0-13-754920-2. }
-#' @family Utility functions
-#' @export
-#' @examples
-#' dir_in <- system.file("extdata", "to_interpolate", package = "GCIMS")
-#' dir_out <- tempdir()
-#' samples <- 3
-#'
-#' # Example of Drift time Interpolation
-#' # Before:
-#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
-#'
-#' # After:
-#' time <- "Drift"
-#' gcims_interpolate(dir_in, dir_out, samples, time)
-#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
-#'
-#' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
-#' invisible(file.remove(files))
-#'
-gcims_interpolate <- function(dir_in, dir_out, samples, time){
-
-  if (!dir.exists(dir_out)) {
-    dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
-  }
-
-  for (i in samples){
-    aux_string <- paste0("M", i, ".rds")
-    aux_list <- readRDS(file.path(dir_in, aux_string))
-    aux <- as.matrix(aux_list$data$data_df)
-
-    if (time == "Retention"){
-      x <- aux_list$data$retention_time
-      step_x <- (x[length(x)]- x[1]) / (length(x) - 1)
-      xi <- seq(from = x[1],
-                by = step_x,
-                length.out = length(x))
-    } else if (time == "Drift"){
-      aux <- t(aux)
-      x <- aux_list$data$drift_time
-      step_x <- (x[length(x)]- x[1]) / (length(x) - 1)
-      xi <- seq(from = x[1],
-                by = step_x,
-                length.out = length(x))
-    }
-
-    n <- dim(aux)[1]
-
-    for (j in (1:n)){
-      aux[j, ] <- signal::interp1(x, aux[j, ], xi, method = "linear", extrap = TRUE)
-    }
-
-    if (time == "Retention"){
-      aux_list$data$retention_time <- xi
-    } else if (time == "Drift"){
-      aux <- t(aux)
-      aux_list$data$drift_time <- xi
-    }
-
-    aux_list$data$data_df <- round(aux)
-    M <- aux_list
-    saveRDS(M, file = file.path(dir_out, paste0("M", i, ".rds")))
-  }
-}
 
 
 #' Removes the Reactant Ion Peak (RIP) from samples
@@ -243,7 +103,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
-#' samples <- c(3, 7, 8, 14, 20, 21, 22)
+#' samples <- c(3, 7)
 #'
 #' # Example of reshaping samples
 #' # (all samples must have the same
@@ -272,7 +132,7 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #'
 #' reshaping_info <- cbind(nrow_before, ncol_before, nrow_after, ncol_after)
 #' colnames(reshaping_info) <- c("rows_before", "columns_before", "rows_after", "columns_after")
-#' rownames(reshaping_info) <- c("M3", "M7", "M8", "M14", "M20", "M21", "M22")
+#' rownames(reshaping_info) <- c("M3", "M7")
 #'
 #' print(reshaping_info)
 #'
