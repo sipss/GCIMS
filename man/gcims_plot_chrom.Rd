@@ -2,7 +2,7 @@
 % Please edit documentation in R/gcims_visualization.R
 \name{gcims_plot_chrom}
 \alias{gcims_plot_chrom}
-\title{Plots TICs or EICs.}
+\title{Plot TICs or EICs.}
 \usage{
 gcims_plot_chrom(
   dir_in,
@@ -20,8 +20,7 @@ from.}
 sample to be visualized from the dataset.}
 
 \item{dt_value}{Numeric. Selects the drift time to show the
-corresponding Extracted Ion Chromatograms (EIC) of samples. If NULL, the
-Total Ion Chromatogram (TIC) of samples is shown. NULL by default.}
+corresponding EIC of samples. If NULL, the TIC of samples is shown. NULL by default.}
 
 \item{rt_range}{Min and Max retention time values. If NULL the
 complete retention time range is used. NULL by default.}
@@ -34,19 +33,20 @@ A plot of sample chromatograms colored according to some variable
 included in the metadata.
 }
 \description{
-Plots TICs or EICs.
+Plot either the Total Ion Chromatogram (TIC) or Extracted Ion Chromatogram (EIC) of samples.
 }
 \details{
-\code{gcims_plot_chrom} uses the function plots a set of sample
+\code{gcims_plot_chrom()} uses the function plots a set of sample
 chromatograms at given drift time (or their TIC) and for a specific range
-of retention times. Use \code{gcims_plot_chrom} to visualize the effects of
+of retention times. Use \code{gcims_plot_chrom()} to visualize the effects of
 digital smoothing, baseline correction and signal alignment algorithms
 along the retention time axis.
 }
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
 samples <- c(3, 7)
-# Example without transforming data
+
+# Visualize the TIC of samples:
 gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 
 }

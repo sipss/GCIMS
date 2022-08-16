@@ -32,13 +32,13 @@ enhance image contrast. FALSE by default.}
 An image of selected data sample.
 }
 \description{
-Visualize 2-D gcims data. \code{gcims_view_sample()} provides to the user
-qualitative information about what are regions of interest to be analyzed in a sample.
+Visualize 2-D gcims data.
 }
 \details{
 \code{gcims_view_sample()} represents gcims data as a raster. In
 this plot, retention time increases along the y-axis from down to up, while
-drift time does it along the x-axis left to right.
+drift time does it along the x-axis left to right. \code{gcims_view_sample()} provides to the user
+qualitative information about what are regions of interest to be analyzed in a sample.
 }
 \note{
 \code{gcims_view_sample()} can't provide a reliable visualization of a
