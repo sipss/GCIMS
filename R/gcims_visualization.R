@@ -12,16 +12,16 @@
 #' @param transform       Boolean. IF TRUE, performs the cubic root of data to
 #'   enhance image contrast. FALSE by default.
 #' @return An image of selected data sample.
-#' @details `gcims_view_sample` uses represents gcims data as a raster. In
+#' @description Visualize 2-D gcims data. `gcims_view_sample()` provides to the user
+#' qualitative information about what are regions of interest to be analyzed in a sample.
+#' @details `gcims_view_sample()` represents gcims data as a raster. In
 #'   this plot, retention time increases along the y-axis from down to up, while
-#'   drift time does it along the x-axis left to right. `gcims_view_sample`
-#'   provides to the user qualitative information about what are regions of
-#'   interest to be analyzed in a sample.
+#'   drift time does it along the x-axis left to right.
 #'
-#' @note `gcims_view_sample` can't provide a reliable visualization of a
+#' @note `gcims_view_sample()` can't provide a reliable visualization of a
 #'   data sample if its sampling frequencies  along drift and/or retention time
 #'   are not constants. To overcome this problem consider using the function
-#'   `gcims_interpolate` (check also the example of use of this function).
+#'   `gcims_prepare_samples()`to interpolate data.
 #' @family Visualization functions
 #' @references {
 #' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.

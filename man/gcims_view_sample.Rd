@@ -32,20 +32,19 @@ enhance image contrast. FALSE by default.}
 An image of selected data sample.
 }
 \description{
-Sample matrix visualization
+Visualize 2-D gcims data. \code{gcims_view_sample()} provides to the user
+qualitative information about what are regions of interest to be analyzed in a sample.
 }
 \details{
-\code{gcims_view_sample} uses represents gcims data as a raster. In
+\code{gcims_view_sample()} represents gcims data as a raster. In
 this plot, retention time increases along the y-axis from down to up, while
-drift time does it along the x-axis left to right. \code{gcims_view_sample}
-provides to the user qualitative information about what are regions of
-interest to be analyzed in a sample.
+drift time does it along the x-axis left to right.
 }
 \note{
-\code{gcims_view_sample} can't provide a reliable visualization of a
+\code{gcims_view_sample()} can't provide a reliable visualization of a
 data sample if its sampling frequencies  along drift and/or retention time
 are not constants. To overcome this problem consider using the function
-\code{gcims_interpolate} (check also the example of use of this function).
+\code{gcims_prepare_samples()}to interpolate data.
 }
 \examples{
 dir_in <- system.file("extdata", package = "GCIMS")
