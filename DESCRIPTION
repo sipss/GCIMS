@@ -87,6 +87,7 @@ Imports:
     yaml
 Suggests:
     chemometrics(>= 1.4.2),
+    complot,
     curl,
     dbscan(>= 1.1-5),
     httr,
