@@ -5,6 +5,7 @@
 \alias{dtime,GCIMSSample-method}
 \alias{rtime,GCIMSSample-method}
 \alias{intensity,GCIMSSample-method}
+\alias{intensity<-,GCIMSSample-method}
 \title{Drift time, Retention time, Intensity of GCIMSSamples}
 \usage{
 \S4method{dtime}{GCIMSSample}(object)
@@ -18,9 +19,11 @@
   dt_idx = NULL,
   rt_idx = NULL
 )
+
+\S4method{intensity}{GCIMSSample}(object) <- value
 }
 \arguments{
-\item{object}{A \link{GCIMSSample} object}
+\item{object}{A GCIMSSample object.}
 
 \item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 
@@ -29,6 +32,8 @@
 \item{dt_idx}{A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)}
 
 \item{rt_idx}{A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)}
+
+\item{value}{A matrix of dimensions \code{dim(object)}}
 }
 \value{
 The drift time of the sample
@@ -47,9 +52,15 @@ the intensity.
 
 \item \code{intensity(GCIMSSample)}: Get the intensity matrix
 
+\item \code{intensity(GCIMSSample) <- value}: Set the intensity matrix
+
 }}
 \examples{
 mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
 gcims_sample <- read_mea(mea_file)
 my_matrix <- intensity(gcims_sample, dt_range = c(7, 8), rt_range = c(1,30))
+mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
+gcims_sample <- read_mea(mea_file)
+my_matrix <- intensity(gcims_sample)
+intensity(gcims_sample) <- my_matrix/100
 }
