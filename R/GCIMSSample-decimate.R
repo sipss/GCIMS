@@ -23,5 +23,5 @@ methods::setMethod(
     rt <- rtime(object)
     dt_idx <- seq(from = 1L, to = length(dt), by = dt_factor)
     rt_idx <- seq(from = 1L, to = length(rt), by = rt_factor)
-    subset(dt_idx = dt_idx, rt_idx = rt_idx)
+    subset(object, dt_idx = dt_idx, rt_idx = rt_idx)
   })
