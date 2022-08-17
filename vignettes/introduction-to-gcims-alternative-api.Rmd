@@ -325,27 +325,19 @@ align_plots
 
 
 
+
+# Peaks
+
+```{r}
+findPeaks(dataset)
+peak_list <- peaks(dataset)
+```
+
 ```{r}
 knitr::knit_exit()
 # The rest is not yet implemented
 ```
 
-
-
-```{r}
-#plot matrices
-# compute alignment corrections
-# align dataset
-# computeTIS and RIC
-# compare tis and ric before and after
-# plot two samples before and after
-```
-
-# Peaks
-
-```{r}
-peak_list <- peaks(dataset)
-```
 
 ```{r}
 # Shows all ROIs one on top of another (geom_rect, alpha...)
