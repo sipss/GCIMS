@@ -9,6 +9,9 @@
 # This file it is named AllGenerics.R so it is collated *first*, and it includes
 # all the generic declarations in the package.
 
+setClassUnion("DataFrameOrNULL", c("DataFrame", "NULL"))
+
+
 #' Get drift time vector
 #'
 #' @return A numeric vector with the drift time
@@ -151,3 +154,23 @@ setGeneric("align", function(object, ...) standardGeneric("align"))
 #' @return The object, modified
 #' @export
 setGeneric("alignDt", function(x, y, ...) standardGeneric("alignDt"))
+
+
+setGeneric("pData", getGeneric("pData", package = "Biobase"))
+setGeneric("pData<-", getGeneric("pData<-", package = "Biobase"))
+setGeneric("sampleNames", getGeneric("sampleNames", package = "Biobase"))
+setGeneric("sampleNames<-", getGeneric("sampleNames<-", package = "Biobase"))
+
+setGeneric("updateObject", getGeneric("updateObject", package = "BiocGenerics"))
+
+setGeneric("alignRt", getGeneric("alignRt", package = "ProtGenerics"))
+setGeneric("filterRt", getGeneric("filterRt", package = "ProtGenerics"))
+setGeneric("intensity", getGeneric("intensity", package = "ProtGenerics"))
+setGeneric("intensity<-", getGeneric("intensity<-", package = "ProtGenerics"))
+setGeneric("peaks", getGeneric("peaks", package = "ProtGenerics"))
+setGeneric("peaks<-", getGeneric("peaks<-", package = "ProtGenerics"))
+setGeneric("rtime", getGeneric("rtime", package = "ProtGenerics"))
+setGeneric("smooth", getGeneric("smooth", package = "ProtGenerics"))
+
+# FIXME: Ask the xcms maintainer to move the findPeaks generic to ProtGenerics
+setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))
