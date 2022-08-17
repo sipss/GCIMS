@@ -132,3 +132,22 @@ setGeneric("describeAsList", function(object, ...) standardGeneric("describeAsLi
 #' @return The object, modified
 #' @export
 setGeneric("decimate", function(object, ...) standardGeneric("decimate"))
+
+
+#' Align an object
+#'
+#' @param object An object to align
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @return The object, modified
+#' @export
+setGeneric("align", function(object, ...) standardGeneric("align"))
+
+
+#' Align an object in drift time
+#'
+#' @param x An object to align
+#' @param y Another object to use as reference
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @return The object, modified
+#' @export
+setGeneric("alignDt", function(x, y, ...) standardGeneric("alignDt"))
