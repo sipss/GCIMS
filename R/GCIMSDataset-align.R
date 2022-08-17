@@ -88,7 +88,7 @@ alignPlots <- function(object) {
     if (degree == 0L) {
       x_pows <- matrix(1., nrow = 1L, ncol = length(x))
     } else {
-      x_pows <- rbind(rep(1, length(x)), t(poly(x, degree = degree,  raw = TRUE, simple = TRUE)))
+      x_pows <- rbind(rep(1, length(x)), t(stats::poly(x, degree = degree,  raw = TRUE, simple = TRUE)))
     }
     coefs %*% x_pows
   }
