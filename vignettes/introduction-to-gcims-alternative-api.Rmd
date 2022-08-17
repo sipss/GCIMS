@@ -59,9 +59,9 @@ Enable parallellization of the workflow, here we use three cores:
 
 ```{r}
 # disable parallellization: (Useful for better error reporting)
-register(SerialParam(progressbar = TRUE), default = TRUE)
+#register(SerialParam(progressbar = TRUE), default = TRUE)
 # enable parallellization with 3 workers:
-#register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)
+register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)
 ```
 
 # Import data
@@ -213,11 +213,6 @@ ggplot(to_plot) +
   coord_cartesian(xlim = c(200, 250))
 ```
 
-
-```{r}
-knitr::knit_exit()
-```
-
 You can also apply it to a single sample:
 
 ```{r}
@@ -259,8 +254,8 @@ ket1_decimated <- decimate(ket1_smoothed, rt_factor = 1, dt_factor = 2)
 ```
 
 ```{r}
-ket1_spec_smoothed <- getIMS(ket1_smoothed, rtrange = 300, dtrange = c(7, 13))
-ket1_spec_decimated <- getIMS(ket1_decimated, rtrange = 300, dtrange = c(7, 13))
+ket1_spec_smoothed <- getIMS(ket1_smoothed, rt_range = 300, dt_range = c(7, 13))
+ket1_spec_decimated <- getIMS(ket1_decimated, rt_range = 300, dt_range = c(7, 13))
 ```
 
 ```{r}
@@ -285,10 +280,6 @@ One alternative is to start with a higher decimation factor (lets say
 repeat it without decimation.
 
 
-```{r}
-knit_exit()
-# The rest is not yet implemented
-```
 
 
 # Alignment
@@ -315,16 +306,31 @@ $t_r' = P(t_r)$, and $P$ is a polynomial of typically not a high order (1-5). Fo
 efficiency reasons, the polynomial will be estimated using the Reverse Ion Chromatogram of
 the samples to be aligned.
 
+
 ```{r}
-dataset <- computeTIS(dataset)
-dataset <- computeRIC(dataset)
+align(dataset)
+```
+
+```{r}
+realize(dataset)
+dataset
 ```
 
 
 ```{r}
-tis_matrix <- getTIS(dataset)
-ric_matrix <- getRIC(dataset)
+align_plots <- alignPlots(dataset)
+align_plots
 ```
+
+
+
+
+```{r}
+knitr::knit_exit()
+# The rest is not yet implemented
+```
+
+
 
 ```{r}
 #plot matrices
