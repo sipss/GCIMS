@@ -117,7 +117,7 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
 #' @param dir_out         Output directory. Where data files are stored as R
 #'   objects.
 #'
-#' @details `gcims_read_samples` stores a set of S3 objects in the
+#' @details `gcims_read_samples()` stores a set of S3 objects in the
 #'   directory `dir_out` (one per sample sample stored in `dir_in`).
 #'   Each object is a list containing the following variables: `metadata`
 #'   and `data`.In `metadata` you can find information related to the

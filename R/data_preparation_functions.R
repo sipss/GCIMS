@@ -1,5 +1,5 @@
 
-#' Data preparation for individual samples.
+#' Data preparation
 
 
 #' @param dir_in           Input directory. Where input data files are loaded
@@ -10,29 +10,31 @@
 #'   (e.g.: c(1, 2, 3)).
 #' @param params           A list of lists with parameter values to perform
 #'                         filtering and decimation in retention and drift time axes.
-#' @details Description of the parameters found in the variable `params`.
-#' \itemize{
-#'   \item{`params$filter$do_filter`}{ is a Boolean variable. If TRUE a Savitzky-Golay filters are applied.}
-#'   \item{`params$filter$order_rt`}{ is a positive integer. Polynomial order in retention time.}
-#'   \item{`params$filter$length_rt`}{ is a positive integer. Filter length in retention time.}
-#'   \item{`params$filter$order_dt`}{ is a positive integer. Polynomial order in drift time.}
-#'   \item{`params$filter$length_dt`}{ is a positive integer. Filter length in drift time.}
-#'   \item{`params$decimate$do_decimate`}{ is a Boolean variable. If TRUE decimation is performed on data.}
-#'   \item{`params$decimate$dfactor_rt`}{ is a positive integer. Decimation factor in retention time.}
-#'   \item{`params$decimate$factor_dt`}{ is a positive integer. Decimation factor in drift time.}
+#' @description Interpolates, filters and decimates data.
+#' @details  `gcims_prepare_data()` prepares samples for the subsequent data
+#'  pre-processing stage. Each of the samples is interpolated, filtered (optional),
+#'  and decimated (optional). To select which pre-processing steps apply to data use the input
+#'  variable `params`, described below:
+#' \describe{
+#'   \item{`filter$do, filter$order_rt, filter$length_rt, filter$order_dt`, `filter$length_dt`}{
+#'   Set of variables that control data filtering using Savitzky-Golay filters.  `do` is a Boolean variable.
+#'   If TRUE, digital filters are applied. `order_rt` and `length_rt` are positive integers that control
+#'   the polynomial order and the filter length in retention time, respectively. The analogous control
+#'   variables for drift time filtering are `order_dt` and `length_dt`.}
+#'   \item{`decimate$do, decimate$dfactor_rt, decimate$factor_dt`}{
+#'   Set of variables that control data decimation. `do` is a Boolean variable is a Boolean variable.
+#'   If TRUE, decimation is performed on data. `factor_rt` and `factor_dt` are positive integers that
+#'   control the decimation factors in retention and drift times, respectively.}
 #'   }
-#' @details `gcims_prepare_data` prepares samples for the subsequent data
-#'  pre-processing stage.
-#'  Each of the samples is interpolated, filtered (optional),
-#'  and decimated (optional).
-#'  Note that filter length must be an odd number bigger than the
+#' @note Note that filter length must be an odd number bigger than the
 #'  polynomial order of the filter.
 #' @return A set of S3 objects. Additionally, it returns a list with two variables needed to perform sample alignment in drift
 #'  and retention time axes: `tis` and `rics`. First variable (a matrix) corresponds to the Total Ion Spectra of
-#'  samples, while second one (a matrix) to their Reactive Ion Chromatograms, respectively.
+#'  samples, while second one (a matrix) to their Reactive Ion Chromatograms, respectively. These outputs are input variables for
+#'  the function `gcims_align_data()`.
 #' @family Data preparation functions
 #' @export
-#' @references { García, S., Luengo, J. and Herrera, F., 2015. Data preprocessing
+#' @references {García, S., Luengo, J. and Herrera, F., 2015. Data preprocessing
 #'  in data mining (Vol. 72, pp. 59-139). Cham, Switzerland: Springer International
 #'  Publishing.
 #'  \doi{10.1007/978-3-319-10247-4}
@@ -60,7 +62,7 @@
 #' params$filter$length_rt <- 19
 #' params$filter$order_dt <- 2
 #' params$filter$length_dt <- 19
-#
+#'
 #' # Decimation
 #' params$decimate$do <- TRUE
 #' params$decimate$factor_rt <- 2
