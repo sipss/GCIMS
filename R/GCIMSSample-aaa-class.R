@@ -60,7 +60,8 @@ methods::setClass(
     description = "character",
     class_version = "numeric_version",
     params = "list", # arbitrary parameters from the instrument
-    proc_params = "list"
+    proc_params = "list",
+    peaks = "DataFrameOrNULL"
   )
 )
 
@@ -73,6 +74,7 @@ methods::setMethod(
     .Object@drift_time <- drift_time
     .Object@retention_time <- retention_time
     .Object@data <- data
+    .Object@peaks <- NULL
     dots <- list(...)
     if (length(dots) == 0) {
       return(.Object)
