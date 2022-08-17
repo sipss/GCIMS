@@ -2,6 +2,7 @@
 #' @param object A [GCIMSSample] object
 #' @param rip_ref_ms The reference position of the Reactant Ion Peak in the dataset (in ms)
 #' @param ric_ref The reference Reverse Ion Chromatogram
+#' @param ric_ref_rt The retention times corresponding to `ric_ref`
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(

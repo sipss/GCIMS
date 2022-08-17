@@ -2,7 +2,7 @@
 #'
 #' This method assumes that the sample has been low-pass filtered to avoid aliasing issues
 #'
-#' @param x A [GCIMSSample] object
+#' @param object A [GCIMSSample] object
 #' @param rt_factor Keep one every `rt_factor` measurement points in retention time
 #' @param dt_factor Keep one every `dt_factor` measurement points in drift time
 #' @return The modified [GCIMSSample]

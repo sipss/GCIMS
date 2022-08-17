@@ -9,6 +9,8 @@
 #'
 #'
 #' @param object A [GCIMSSample] object, typically that has been serialized and loaded from disk
+#' @param ... Unused
+#' @param verbose Unused
 #'
 #' @return The updated [GCIMSSample] object
 #' @importMethodsFrom BiocGenerics updateObject
