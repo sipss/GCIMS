@@ -8,6 +8,10 @@
 }
 \arguments{
 \item{object}{A \link{GCIMSSample} object, typically that has been serialized and loaded from disk}
+
+\item{...}{Unused}
+
+\item{verbose}{Unused}
 }
 \value{
 The updated \link{GCIMSSample} object

@@ -7,11 +7,11 @@
 \S4method{decimate}{GCIMSSample}(object, dt_factor = 1L, rt_factor = 1L)
 }
 \arguments{
+\item{object}{A \link{GCIMSSample} object}
+
 \item{dt_factor}{Keep one every \code{dt_factor} measurement points in drift time}
 
 \item{rt_factor}{Keep one every \code{rt_factor} measurement points in retention time}
-
-\item{x}{A \link{GCIMSSample} object}
 }
 \value{
 The modified \link{GCIMSSample}

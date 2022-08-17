@@ -12,6 +12,8 @@
 \item{rip_ref_ms}{The reference position of the Reactant Ion Peak in the dataset (in ms)}
 
 \item{ric_ref}{The reference Reverse Ion Chromatogram}
+
+\item{ric_ref_rt}{The retention times corresponding to \code{ric_ref}}
 }
 \value{
 The modified \link{GCIMSSample}
