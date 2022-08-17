@@ -50,8 +50,7 @@
 #' samples <- c(3,7)
 #'
 #' # Example of digital smoothing and decimation, in both axes.
-#' # For simplicity, two EIC (before and after data preparation) are
-#' # compared.
+#' # To show the effect data preparation two EIC are compared:
 #'
 #' # Before:
 #' gcims_plot_chrom(dir_in, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
