@@ -60,6 +60,7 @@ Depends:
 License: GPL-2
 Imports: 
     BiocParallel,
+    BiocGenerics,
     cluster,
     dplyr (>= 1.0.2),
     ggplot2 (>= 3.3.2),
