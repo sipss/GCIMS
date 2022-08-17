@@ -1,4 +1,3 @@
-# setClassUnion("DataFrameOrNULL", c("DataFrame", "NULL"))
 # setClassUnion("matrixOrNULL", c("array", "NULL"))
 # setClassUnion("numericOrNULL", c("numeric", "NULL"))
 
