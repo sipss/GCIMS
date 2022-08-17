@@ -46,10 +46,20 @@ realize_one_sample <- function(sample_name, prev_dir, current_dir, delayed_ops, 
       )
     }
     gcimssample <- readRDS(sample_fn_prev)
+    if (!identical(gcimssample@description, sample_name)) {
+      # sampleNames were probably updated, files renamed.
+      gcimssample@description <- sample_name
+      needs_re_saving <- TRUE
+    }
   }
   for (i in seq_along(delayed_ops)) {
     result <- apply_op_to_sample(delayed_ops[[i]], gcimssample)
     gcimssample <- result$sample
+    if (!identical(gcimssample@description, sample_name)) {
+      # sampleNames were probably updated, files renamed.
+      gcimssample@description <- sample_name
+      needs_re_saving <- TRUE
+    }
     if (!is.null(result$extracted_obj)) {
       out[[i]] <- result$extracted_obj
     }
@@ -100,7 +110,6 @@ realize <- function(object) {
   orig_filenames <- pdata$FileName
   names(orig_filenames) <- sample_names
 
-
   extracted_results <- BiocParallel::bplapply(
     X = sample_names,
     FUN = realize_one_sample,
@@ -110,6 +119,7 @@ realize <- function(object) {
     base_dir = object@envir$base_dir,
     orig_filenames = orig_filenames
   )
+
   # Apply to the dataset object
   for (i in seq_along(object@envir$delayed_ops)) {
     delayed_op <- object@envir$delayed_ops[[i]]
