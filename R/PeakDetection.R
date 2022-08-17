@@ -154,25 +154,32 @@ estimate_minpeakdistance <- function(rip) {
   fwhm/sqrt(log(2))
 }
 
-gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE){
-    aux_list <- x
+gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE) {
+  x$data$ROIs <- peak_detection(
+    drift_time = x$data$drift_time,
+    retention_time = x$data$retention_time,
+    int_mat = as.matrix(x$data$data_df),
+    noise_level = noise_level,
+    verbose = verbose
+  )
+  x
+}
 
-    if (anyNA(aux_list$data$retention_time)) {
-      stop("The sample has missing values in the $data$retention_time vector")
+peak_detection <- function(drift_time, retention_time, int_mat, noise_level, verbose = FALSE) {
+
+    if (anyNA(retention_time)) {
+      stop("The sample has missing values in the retention_time vector")
     }
-    if (anyNA(aux_list$data$drift_time)) {
-      stop("The sample has missing values in the $data$drift_time vector")
+    if (anyNA(drift_time)) {
+      stop("The sample has missing values in the drift_time vector")
     }
     # 1. Data load
-
-    aux <- as.matrix(aux_list$data$data_df) # The data is in data_df
-    spec_length <- nrow(aux)
-    num_spec <- ncol(aux)
-    # aux[3, 4] # at drift time index 3, retention time index 4
+    spec_length <- nrow(int_mat)
+    num_spec <- ncol(int_mat)
+    # int_mat[3, 4] # at drift time index 3, retention time index 4
 
     # 2. Search of RIP position
-    the_rip <- find_rip(aux)
-    plot(the_rip$rip)
+    the_rip <- find_rip(int_mat)
     minpeakdistance <- estimate_minpeakdistance(the_rip$rip)
 
 
@@ -180,12 +187,12 @@ gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE){
     filter1 <- signal::sgolay(p = 2, n = 21, m = 2)
     filter2 <- signal::sgolay(p = 2, n = 11, m = 2)
 
-    drt <- t(apply(aux, 1, function(x) -signal::sgolayfilt(x, filter1)))
-    ddt <- apply(aux, 2, function(x) -signal::sgolayfilt(x, filter2))
+    drt <- t(apply(int_mat, 1, function(x) -signal::sgolayfilt(x, filter1)))
+    ddt <- apply(int_mat, 2, function(x) -signal::sgolayfilt(x, filter2))
 
     daux <- drt + ddt
 
-    stopifnot(dim(aux) == dim(daux))
+    stopifnot(dim(int_mat) == dim(daux))
 
     # Region without peaks: PROBAR CON ORINA
     # p1 <- hist(daux)
@@ -194,10 +201,10 @@ gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE){
     # quantile(daux)
     # quantile(daux, c(0.25, 0.75))
 
-    region <- find_region_without_peaks(aux, half_min_size = c(10, 10), noise_quantile = 0.25)
+    region <- find_region_without_peaks(int_mat, half_min_size = c(10, 10), noise_quantile = 0.25)
     sigmaNoise <- stats::sd(daux[region$row_min:region$row_max, region$col_min:region$col_max])
 
-    # tt <- aux < quantile(aux, 0.15)
+    # tt <- int_mat < quantile(int_mat, 0.15)
     # indx_noise <- which(tt == TRUE, arr.ind = TRUE)
     # sd(daux[indx_noise])
 
@@ -353,7 +360,7 @@ gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE){
       }
       ROIs_overlap <- rbind(ROIs_overlap, R1)
 
-      patch <- aux[
+      patch <- int_mat[
         R1["dt_idx_min"]:R1["dt_idx_max"],
         R1["rt_idx_min"]:R1["rt_idx_max"],
         drop = FALSE
@@ -363,17 +370,17 @@ gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE){
       c <- idx_mat[1, 2]
       dt_idx_apex <- R1["dt_idx_min"] + r - 1L
       rt_idx_apex <- R1["rt_idx_min"] + c - 1L
-      if (rt_idx_apex > length(aux_list$data$retention_time)) {
+      if (rt_idx_apex > length(retention_time)) {
         rlang::abort(
           glue::glue(
-            "The maximum ROI is found at the retention time index {rt_idx_apex} beyond the size of the retention time {length(aux_list$data$retention_time)}. This should not happen"
+            "The maximum ROI is found at the retention time index {rt_idx_apex} beyond the size of the retention time {length(retention_time)}. This should not happen"
           )
         )
       }
-      if (dt_idx_apex > length(aux_list$data$drift_time)) {
+      if (dt_idx_apex > length(drift_time)) {
         rlang::abort(
           glue::glue(
-            "The maximum ROI is found at the retention time index {dt_idx_apex} beyond the size of the retention time {length(aux_list$data$drift_time)}. This should not happen"
+            "The maximum ROI is found at the retention time index {dt_idx_apex} beyond the size of the retention time {length(drift_time)}. This should not happen"
           )
         )
       }
@@ -417,17 +424,16 @@ gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE){
     )
     peaktable <- dplyr::mutate(
       peaktable,
-      dt_apex_ms = aux_list$data$drift_time[.data$dt_apex_idx],
-      rt_apex_s = aux_list$data$retention_time[.data$rt_apex_idx],
-      dt_min_ms = aux_list$data$drift_time[.data$dt_min_idx],
-      dt_max_ms = aux_list$data$drift_time[.data$dt_max_idx],
-      rt_min_s = aux_list$data$retention_time[.data$rt_min_idx],
-      rt_max_s = aux_list$data$retention_time[.data$rt_max_idx],
-      dt_cm_ms = aux_list$data$drift_time[.data$dt_cm_idx],
-      rt_cm_s = aux_list$data$retention_time[.data$rt_cm_idx]
+      dt_apex_ms = drift_time[.data$dt_apex_idx],
+      rt_apex_s = retention_time[.data$rt_apex_idx],
+      dt_min_ms = drift_time[.data$dt_min_idx],
+      dt_max_ms = drift_time[.data$dt_max_idx],
+      rt_min_s = retention_time[.data$rt_min_idx],
+      rt_max_s = retention_time[.data$rt_max_idx],
+      dt_cm_ms = drift_time[.data$dt_cm_idx],
+      rt_cm_s = retention_time[.data$rt_cm_idx]
     )
-    aux_list$data$ROIs <- peaktable
-    aux_list
+    peaktable
 }
 
 
