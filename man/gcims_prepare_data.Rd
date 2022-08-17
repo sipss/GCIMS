@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_preparation_functions.R
 \name{gcims_prepare_data}
 \alias{gcims_prepare_data}
-\title{Data preparation for individual samples.}
+\title{Data preparation}
 \usage{
 gcims_prepare_data(dir_in, dir_out, samples, params)
 }
@@ -22,28 +22,30 @@ filtering and decimation in retention and drift time axes.}
 \value{
 A set of S3 objects. Additionally, it returns a list with two variables needed to perform sample alignment in drift
 and retention time axes: \code{tis} and \code{rics}. First variable (a matrix) corresponds to the Total Ion Spectra of
-samples, while second one (a matrix) to their Reactive Ion Chromatograms, respectively.
+samples, while second one (a matrix) to their Reactive Ion Chromatograms, respectively. These outputs are input variables for
+the function \code{gcims_align_data()}.
 }
 \description{
-Data preparation for individual samples.
+Interpolates, filters and decimates data.
 }
 \details{
-Description of the parameters found in the variable \code{params}.
-\itemize{
-\item{\code{params$filter$do_filter}}{ is a Boolean variable. If TRUE a Savitzky-Golay filters are applied.}
-\item{\code{params$filter$order_rt}}{ is a positive integer. Polynomial order in retention time.}
-\item{\code{params$filter$length_rt}}{ is a positive integer. Filter length in retention time.}
-\item{\code{params$filter$order_dt}}{ is a positive integer. Polynomial order in drift time.}
-\item{\code{params$filter$length_dt}}{ is a positive integer. Filter length in drift time.}
-\item{\code{params$decimate$do_decimate}}{ is a Boolean variable. If TRUE decimation is performed on data.}
-\item{\code{params$decimate$dfactor_rt}}{ is a positive integer. Decimation factor in retention time.}
-\item{\code{params$decimate$factor_dt}}{ is a positive integer. Decimation factor in drift time.}
+\code{gcims_prepare_data()} prepares samples for the subsequent data
+pre-processing stage. Each of the samples is interpolated, filtered (optional),
+and decimated (optional). To select which pre-processing steps apply to data use the input
+variable \code{params}, described below:
+\describe{
+\item{\verb{filter$do, filter$order_rt, filter$length_rt, filter$order_dt}, \code{filter$length_dt}}{
+Set of variables that control data filtering using Savitzky-Golay filters.  \code{do} is a Boolean variable.
+If TRUE, digital filters are applied. \code{order_rt} and \code{length_rt} are positive integers that control
+the polynomial order and the filter length in retention time, respectively. The analogous control
+variables for drift time filtering are \code{order_dt} and \code{length_dt}.}
+\item{\verb{decimate$do, decimate$dfactor_rt, decimate$factor_dt}}{
+Set of variables that control data decimation. \code{do} is a Boolean variable is a Boolean variable.
+If TRUE, decimation is performed on data. \code{factor_rt} and \code{factor_dt} are positive integers that
+control the decimation factors in retention and drift times, respectively.}
 }
-
-\code{gcims_prepare_data} prepares samples for the subsequent data
-pre-processing stage.
-Each of the samples is interpolated, filtered (optional),
-and decimated (optional).
+}
+\note{
 Note that filter length must be an odd number bigger than the
 polynomial order of the filter.
 }
@@ -53,7 +55,9 @@ dir_in <- system.file("extdata", package = "GCIMS")
 dir_out <- tempdir()
 samples <- c(3,7)
 
-# Example of digital smoothing and decimation, in both axes:
+# Example of digital smoothing and decimation, in both axes.
+# To show the effect data preparation two EIC are compared:
+
 # Before:
 gcims_plot_chrom(dir_in, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
 
@@ -66,6 +70,7 @@ params$filter$order_rt <- 2
 params$filter$length_rt <- 19
 params$filter$order_dt <- 2
 params$filter$length_dt <- 19
+
 # Decimation
 params$decimate$do <- TRUE
 params$decimate$factor_rt <- 2
@@ -83,7 +88,7 @@ invisible(file.remove(files))
 
 }
 \references{
-{ García, S., Luengo, J. and Herrera, F., 2015. Data preprocessing
+{García, S., Luengo, J. and Herrera, F., 2015. Data preprocessing
 in data mining (Vol. 72, pp. 59-139). Cham, Switzerland: Springer International
 Publishing.
 \doi{10.1007/978-3-319-10247-4}

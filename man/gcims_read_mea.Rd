@@ -19,7 +19,7 @@ The filenames that have been created in \code{dir_out}
 Read GC-IMS samples from .mea or .mea.gz files and save them as RDS list objects
 }
 \details{
-\code{gcims_read_samples} stores a set of S3 objects in the
+\code{gcims_read_samples()} stores a set of S3 objects in the
 directory \code{dir_out} (one per sample sample stored in \code{dir_in}).
 Each object is a list containing the following variables: \code{metadata}
 and \code{data}.In \code{metadata} you can find information related to the

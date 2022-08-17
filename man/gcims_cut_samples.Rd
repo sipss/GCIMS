@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility_functions.R
 \name{gcims_cut_samples}
 \alias{gcims_cut_samples}
-\title{Cut samples in a retention time - drift time rectangle}
+\title{Cut samples}
 \usage{
 gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
 }
@@ -13,7 +13,7 @@ from.}
 \item{dir_out}{Output directory. Where cut data files are
 stored.}
 
-\item{samples}{A vector. Set of samples to be aligned(e.g.: c(1, 2,
+\item{samples}{A vector. Set of samples to be cut (e.g.: c(1, 2,
 3)).}
 
 \item{rt_range}{A  vector of two components. Beginning and end of the
@@ -26,10 +26,10 @@ drift time cut. If NULL the complete drift time range is used.}
 A set of S3 objects.
 }
 \description{
-Cut samples in a retention time - drift time rectangle
+Cut samples in a retention time - drift time rectangle.
 }
 \details{
-\code{cut_samples} cuts a sample in a retention time - drift time
+\code{gcims_cut_samples()} cuts a sample in a retention time - drift time
 rectangle according to the retention time / drift time ranges given by
 function arguments \code{rt_range} / \code{dt_range}. Use this function to
 focus on the retention time - drift time region where chemical information
@@ -47,13 +47,13 @@ samples <- 3
 
 # Example Sample data cutting:
 # Before:
-gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
 
 # After:
 rt_range <-c(70, 125)
 dt_range <- c(8, 9.25)
 gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
-gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
 
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))

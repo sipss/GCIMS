@@ -12,16 +12,16 @@
 #' @param transform       Boolean. IF TRUE, performs the cubic root of data to
 #'   enhance image contrast. FALSE by default.
 #' @return An image of selected data sample.
-#' @details `gcims_view_sample` uses represents gcims data as a raster. In
+#' @description Visualize 2-D gcims data.
+#' @details `gcims_view_sample()` represents gcims data as a raster. In
 #'   this plot, retention time increases along the y-axis from down to up, while
-#'   drift time does it along the x-axis left to right. `gcims_view_sample`
-#'   provides to the user qualitative information about what are regions of
-#'   interest to be analyzed in a sample.
+#'   drift time does it along the x-axis left to right. `gcims_view_sample()` provides to the user
+#' qualitative information about what are regions of interest to be analyzed in a sample.
 #'
-#' @note `gcims_view_sample` can't provide a reliable visualization of a
+#' @note `gcims_view_sample()` can't provide a reliable visualization of a
 #'   data sample if its sampling frequencies  along drift and/or retention time
 #'   are not constants. To overcome this problem consider using the function
-#'   `gcims_interpolate` (check also the example of use of this function).
+#'   `gcims_prepare_samples()`to interpolate data.
 #' @family Visualization functions
 #' @references {
 #' Wickham, Hadley. "ggplot2." Wiley Interdisciplinary Reviews: Computational Statistics 3.2 (2011): 180-185.
@@ -145,7 +145,7 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 
 
 
-#' Plots TICs or EICs.
+#' Plot TICs or EICs
 #'
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
@@ -154,15 +154,15 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @param rt_range        Min and Max retention time values. If NULL the
 #'   complete retention time range is used. NULL by default.
 #' @param dt_value        Numeric. Selects the drift time to show the
-#'   corresponding Extracted Ion Chromatograms (EIC) of samples. If NULL, the
-#'   Total Ion Chromatogram (TIC) of samples is shown. NULL by default.
+#'   corresponding EIC of samples. If NULL, the TIC of samples is shown. NULL by default.
 #' @param colorby         A variable included in the metadata used to color
 #'   sample chromatograms.
 #' @return A plot of sample chromatograms colored according to some variable
 #'   included in the metadata.
-#' @details `gcims_plot_chrom` uses the function plots a set of sample
+#' @description Plot either the Total Ion Chromatogram (TIC) or Extracted Ion Chromatogram (EIC) of samples.
+#' @details `gcims_plot_chrom()` uses the function plots a set of sample
 #'   chromatograms at given drift time (or their TIC) and for a specific range
-#'   of retention times. Use `gcims_plot_chrom` to visualize the effects of
+#'   of retention times. Use `gcims_plot_chrom()` to visualize the effects of
 #'   digital smoothing, baseline correction and signal alignment algorithms
 #'   along the retention time axis.
 #' @family Visualization functions
@@ -176,7 +176,8 @@ gcims_view_sample <- function(dir_in, sample_num, rt_range = NULL, dt_range = NU
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' samples <- c(3, 7)
-#' # Example without transforming data
+#'
+#' # Visualize the TIC of samples:
 #' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 #'
 gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, colorby = "Name"){
@@ -300,7 +301,7 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 
 
 
-#' Plots TIS or spectra
+#' Plot TIS or spectra
 
 
 #' @param dir_in          Input directory. Where input data files are loaded
@@ -316,9 +317,10 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #'   sample spectra.
 #' @return A plot of spectra colored according to some variable included in the
 #'   metadata.
-#' @details `gcims_plot_spec` plots a set of sample spectra at given
+#' @description Plot either the Total Ion Spectra (TIS) or the extracted spectra of samples.
+#' @details `gcims_plot_spec()` plots a set of sample spectra at given
 #'   retention time (or their TIS) and for a specific range of drift times. Use
-#'   `gcims_plot_spec` to visualize the effects of digital smoothing,
+#'   `gcims_plot_spec()` to visualize the effects of digital smoothing,
 #'   baseline correction and signal alignment algorithms along the drift time
 #'   axis.
 #' @family Visualization functions
@@ -332,6 +334,8 @@ gcims_plot_chrom <- function(dir_in, samples, dt_value = NULL, rt_range = NULL, 
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' samples <- c(3, 7)
+#'
+#' # Visualize the TIS of samples:
 #' gcims_plot_spec(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Class")
 #'
 gcims_plot_spec <- function(dir_in, samples, rt_value = NULL, dt_range = NULL, colorby = "Name"){

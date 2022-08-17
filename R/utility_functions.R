@@ -92,9 +92,11 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' @param dir_out         Output directory. Where reshaped samples are stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
 #'   samples to be reshaped.
-#' @details `gcims_reshape_samples` ensures that all samples in a dataset
-#'   have the same dimensions (number of data points) in retention and drift
-#'   times. `gcims_reshape_samples` checks what are the minimum retention /
+#' @description Force that all samples have the same minimal data dimensions.
+#' @details It may happen that not all samples in a dataset have the same size (dimensions).
+#'   When this happens, an adjustment of the dimensions of samples is nedeed.`gcims_reshape_samples()`
+#'   ensures that all samples in a dataset have the same dimensions (number of data points)
+#'   in retention and drift times. `gcims_reshape_samples()` checks what are the minimum retention /
 #'   drift time ranges a cuts all samples according to these ranges.
 #'
 #' @return A set of S3 objects.
@@ -108,6 +110,11 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 #' # Example of reshaping samples
 #' # (all samples must have the same
 #' # retention and drift time dimensions).
+#'
+#' # In this particular example, data dimensions is samples
+#' # 3 and 7 is the same, so the expected behavior of
+#' # the function gcims_reshaphe_samples() is keeping the
+#' # same dimensionality.
 #'
 #' # Before:
 #' nrow_before <- matrix(0, nrow = length(samples), ncol = 1)
@@ -239,21 +246,22 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 }
 
 
-#' Cut samples in a retention time - drift time rectangle
+#' Cut samples
 
 
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
 #' @param dir_out         Output directory. Where cut data files are
 #'   stored.
-#' @param samples         A vector. Set of samples to be aligned(e.g.: c(1, 2,
+#' @param samples         A vector. Set of samples to be cut (e.g.: c(1, 2,
 #'   3)).
 #' @param rt_range        A  vector of two components. Beginning and end of the
 #'   retention time cut.If NULL the complete retention time range is used.
 #' @param dt_range        A  vector of two components. Beginning and end of the
 #'   drift time cut. If NULL the complete drift time range is used.
 #' @return A set of S3 objects.
-#' @details `cut_samples` cuts a sample in a retention time - drift time
+#' @description Cut samples in a retention time - drift time rectangle.
+#' @details `gcims_cut_samples()` cuts a sample in a retention time - drift time
 #'   rectangle according to the retention time / drift time ranges given by
 #'   function arguments `rt_range` / `dt_range`. Use this function to
 #'   focus on the retention time - drift time region where chemical information
@@ -270,13 +278,13 @@ gcims_decimate <- function(dir_in, dir_out, samples, q_rt, q_dt){
 #'
 #' # Example Sample data cutting:
 #' # Before:
-#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
 #'
 #' # After:
 #' rt_range <-c(70, 125)
 #' dt_range <- c(8, 9.25)
 #' gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
-#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL)
+#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
