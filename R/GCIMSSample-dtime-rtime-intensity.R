@@ -43,3 +43,25 @@ setMethod("intensity", "GCIMSSample", function(object, dt_range = NULL, rt_range
   dimnames(out) <- list(dt_ms = dt[dt_idx], rt_s = rt[rt_idx])
   out
 })
+
+
+#' @describeIn GCIMSSample-rtime-dtime-intensity Set the intensity matrix
+#' @importMethodsFrom ProtGenerics "intensity<-"
+#' @param object A GCIMSSample object.
+#' @param value A matrix of dimensions `dim(object)`
+#' @export
+#' @examples
+#' mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")
+#' gcims_sample <- read_mea(mea_file)
+#' my_matrix <- intensity(gcims_sample)
+#' intensity(gcims_sample) <- my_matrix/100
+setMethod("intensity<-", "GCIMSSample", function(object, value) {
+  if (!is.matrix(value)) {
+    rlang::abort("The given intensity should be a matrix")
+  }
+  if (!identical(dim(object), dim(value))) {
+    rlang::abort("The given intensity should have dimensions {dim(object)} and it has dimensions {dim(value)}")
+  }
+  object@data <- value
+  object
+})
