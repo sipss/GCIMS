@@ -26,13 +26,11 @@ extract_dtime_rtime <- function(object) {
       max_dt_min <- max(dt_rt_metrics$dt_min_ms)
       min_dt_max <- min(dt_rt_metrics$dt_max_ms)
       min_dt_step <- min(dt_rt_metrics$dt_step_ms)
-      # FIXME: Compute the length based on the minimum step
-      max_dt_length <- max(dt_rt_metrics$dt_length_points)
+      max_dt_length <- floor(round((min_dt_max - max_dt_min)/min_dt_step, digits = 8)) + 1L
       max_rt_min <- max(dt_rt_metrics$rt_min_s)
       min_rt_max <- min(dt_rt_metrics$rt_max_s)
       min_rt_step <- min(dt_rt_metrics$rt_step_s)
-      # FIXME: Compute the length based on the minimum step
-      max_rt_length <- max(dt_rt_metrics$rt_length_points)
+      max_rt_length <- floor(round((min_rt_max - max_rt_min)/min_rt_step, digits = 8)) + 1L
       dt_ref <- seq(from = max_dt_min, to = min_dt_max, length.out = max_dt_length)
       rt_ref <- seq(from = max_rt_min, to = min_rt_max, length.out = max_rt_length)
       gcimsdataset@envir$dt_rt_metrics <- S4Vectors::DataFrame(dt_rt_metrics)
