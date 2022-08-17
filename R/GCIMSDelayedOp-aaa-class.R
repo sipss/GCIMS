@@ -89,7 +89,7 @@ apply_op_to_sample <- function(delayed_op, sample) {
   }
   list(
     sample = sample,
-    needs_resaving = !is.null(fun),
+    needs_resaving = modifiesSample(delayed_op),
     extracted_obj = extracted_obj
   )
 }
@@ -102,8 +102,14 @@ methods::setMethod(
     if (num_params == 0) {
       return(txt)
     }
+    p <- object@params
+    for (i in seq_along(p)) {
+      if (is.atomic(p[[i]]) && length(p[[i]]) > 10) {
+        p[[i]] <- glue("< A {mode(p[[i]])} vector of {length(p[[i]])} elements >")
+      }
+    }
     out <- list()
-    out[[txt]] <- object@params
+    out[[txt]] <- p
     return(out)
   }
 )

@@ -27,6 +27,7 @@ methods::setOldClass("numeric_version")
 #' processing details the sample has gone through already
 #' @slot filepath character. A string with the path to the raw data
 #' @slot description A string (optional). A sample name or ID or description used in plots
+#' @slot proc_params list (internal). Data processing parameters computed and used internally.
 #' @slot class_version "numeric_version" (internal) The GCIMSSample object defines
 #' internally a class version, so if a GCIMSSample object is saved, the GCIMS
 #' package is updated and the GCIMSSample class has changed during the upgrade
@@ -58,7 +59,8 @@ methods::setClass(
     filepath = "character",
     description = "character",
     class_version = "numeric_version",
-    params = "list" # arbitrary parameters from the instrument
+    params = "list", # arbitrary parameters from the instrument
+    proc_params = "list"
   )
 )
 
@@ -79,9 +81,9 @@ methods::setMethod(
       rlang::abort(c("Error creating GCIMSSample object",
                      "x" = "All arguments should be named"))
     }
-    # class_version is internal and should not be given
+    # class_version and proc_params are internal and should not be given
     # drift_time, retention_time, data are mandatory and already given outside of ...
-    invalid_dot_names <-  c("drift_time", "retention_time", "data", "class_version")
+    invalid_dot_names <-  c("drift_time", "retention_time", "data", "class_version", "proc_params")
     valid_dot_names <- setdiff(methods::slotNames("GCIMSSample"), invalid_dot_names)
     if (!all(names(dots) %in% valid_dot_names)) {
       wrong_dot_names <- setdiff(names(dots), valid_dot_names)
@@ -322,9 +324,24 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
   }
 
   if (!is.null(dt_range)) {
-    out[["dt_ms_min"]] <- min(dt_range)
-    out[["dt_ms_max"]] <- max(dt_range)
-    out[["dt_logical"]] <- dt >= out[["dt_ms_min"]] & dt <= out[["dt_ms_max"]]
+    if (length(dt_range) == 2) {
+      out[["dt_ms_min"]] <- min(dt_range)
+      out[["dt_ms_max"]] <- max(dt_range)
+      out[["dt_logical"]] <- dt >= out[["dt_ms_min"]] & dt <= out[["dt_ms_max"]]
+    } else if (length(dt_range) == 1) {
+      dt_distance <- abs(dt - dt_range)
+      dt_idx_closest <- which.min(dt_distance)
+      dt_ms_distance <- dt_distance[dt_idx_closest]
+      if (dt_ms_distance > (dt[2] - dt[1])) {
+        rlang::abort(glue("The given dt_range {dt_range} is not in [{dt[1]} - {dt[length(dt)]}]"))
+      }
+      out[["dt_ms_min"]] <- dt_range
+      out[["dt_ms_max"]] <- dt_range
+      out[["dt_logical"]] <- rep(FALSE, length(dt))
+      out[["dt_logical"]][dt_idx_closest] <- TRUE
+    } else {
+      stop("dt_range should be of length 2 or a single number")
+    }
     dt_idx <- which(out[["dt_logical"]])
     if (length(dt_idx) > 0) {
       out[["dt_idx_min"]] <- dt_idx[1]
@@ -380,9 +397,25 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
   }
 
   if (!is.null(rt_range)) {
-    out[["rt_s_min"]] <- min(rt_range)
-    out[["rt_s_max"]] <- max(rt_range)
-    out[["rt_logical"]] <- rt >= out[["rt_s_min"]] & rt <= out[["rt_s_max"]]
+    if (length(rt_range) == 2) {
+      out[["rt_s_min"]] <- min(rt_range)
+      out[["rt_s_max"]] <- max(rt_range)
+      out[["rt_logical"]] <- rt >= out[["rt_s_min"]] & rt <= out[["rt_s_max"]]
+    } else if (length(rt_range) == 1) {
+      rt_distance <- abs(rt - rt_range)
+      rt_idx_closest <- which.min(rt_distance)
+      rt_s_distance <- rt_distance[rt_idx_closest]
+      if (rt_s_distance > (rt[2] - rt[1])) {
+        rlang::abort(glue("The given rt_range {rt_range} is not in [{rt[1L]} - {rt[length(rt)]}]"))
+      }
+      out[["rt_s_min"]] <- rt_range
+      out[["rt_s_max"]] <- rt_range
+      out[["rt_logical"]] <- rep(FALSE, length(rt))
+      out[["rt_logical"]][rt_idx_closest] <- TRUE
+    } else {
+      stop("rt_range should be of length 2 or a single number")
+    }
+
     rt_idx <- which(out[["rt_logical"]])
     if (length(rt_idx) > 0) {
       out[["rt_idx_min"]] <- rt_idx[1]
