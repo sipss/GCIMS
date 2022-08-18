@@ -28,7 +28,7 @@
 #' @return A set of S3 objects. Additionally, it returns a list containing the correction
 #' factors in drift time (`Kcorr_samples`, a vector with as many components as samples), the reference
 #' Reactant Ion Chromatogram (`ric_ref`), and correction type for retention time alignment (`correction_type`).
-#' The output a variable `correction_type i`s a whole number between 0 and 5. If 0, no correction is applied.
+#' The output variable `correction_type` is a whole number between 0 and 5. If 0, no correction is applied.
 #' Between 1 and 5 it the optimal degree of the polynomial that corrects retention time axis.
 #'
 ##' @examples
@@ -139,44 +139,44 @@ gcims_align_dt <- function(aux_list, Kcorr) {
 
 
 # RETENTION TIME
-#' This function provides the index corresponding to the reference Reactant Ion Chromatogram (RIC) to correct
-#' misalignments in retention time.
-#'
-#' @param rics            A matrix. Each row correspond to a different RIC. There are as many RICs as samples.
-#' @export
-#' @importFrom ptw bestref
-#' @return  An Integer number that indicates the reference sample.
-#' @export
-#' @examples
-#' rics <- rbind(
-#'   dnorm(1:100, mean=50, sd =1),
-#'   dnorm(1:100, mean=51, sd =1),
-#'   dnorm(1:100, mean=52, sd =1)
-#' )
-#' find_reference_ric(rics) == 2L
-#'
+
+#  Find the  best retention time reference chromatogram.
+#
+#  @description This function provides the index corresponding to the reference Reactant Ion Chromatogram (RIC) to correct
+#  misalignments in retention time.
+#  @param rics            A matrix. Each row correspond to a different RIC. There are as many RICs as samples.
+#  @importFrom ptw bestref
+#  @return  An Integer number that indicates the reference sample.
+#  @export
+#  @examples
+#  rics <- rbind(
+#    dnorm(1:100, mean=50, sd =1),
+#    dnorm(1:100, mean=51, sd =1),
+#    dnorm(1:100, mean=52, sd =1)
+#  )
+#  find_reference_ric(rics) == 2L
+#
 find_reference_ric <- function(rics){
   ref_ric_sample_idx <- ptw::bestref(rics)$best.ref
   return(ref_ric_sample_idx)
 }
 
 
-#' This function finds the optimal polynomial degree to apply ptw to GMIMS data
-#' when correcting retention time axis. The figure of merit is the mean of the
-#' correlation between the reference RIC and samples RIC.
-#'
-#'
-#' @param rics                         Matrix. One Reactant Ion Chromatogram per row.
-#' @param ref_ric_sample_idx           A scalar. It indicates the sample that is chosen
-#'                                     as reference for aligning in retention time.
-#' @export
-#' @importFrom ptw ptw
-#' @importFrom stats cor
-#' @return  A vector of integers with as many components as samples to be corrected, with values
-#'          between 0 and 5. If zero, no correction
-#'          in retention time is needed. Between 1 and 5, it indicates
-#'          the polynomial degree of the warping function.
-#' @export
+#  This function finds the optimal polynomial degree to apply ptw to GMIMS data
+#  when correcting retention time axis. The figure of merit is the mean of the
+#  correlation between the reference RIC and samples RIC.
+#
+#
+#  @param rics                         Matrix. One Reactant Ion Chromatogram per row.
+#  @param ref_ric_sample_idx           A scalar. It indicates the sample that is chosen
+#                                     as reference for aligning in retention time.
+#  @importFrom ptw ptw
+#  @importFrom stats cor
+#  @return  A vector of integers with as many components as samples to be corrected, with values
+#           between 0 and 5. If zero, no correction
+#           in retention time is needed. Between 1 and 5, it indicates
+#           the polynomial degree of the warping function.
+#  @export
 
 gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
 
@@ -226,25 +226,25 @@ gcims_optimize_polynomial <- function(rics, ref_ric_sample_idx) {
 }
 
 
-#' Correction of retention time axis using Parametric Time Warping (PTW)
-#'
-#' This chromatrogram computes the RIC of the reference samples and
-#' uses it to correct each of the EIC of a sample, for the all the selected
-#' samples on the dataset. The degree ot the polynomial that relates the
-#' retention time axes of the reference and the sample to be corrected
-#' is optimized using the average correlation between samples and reference as a figure
-#' of merit.
-#'
-#' @param aux_list                       Object containing GCIMS data and metadata (one sample).
-#' @param ric_ref                        A vector. The reference Reactant Ion Chromatogram.                                        as reference for aligning in retention time.
-#' @param correction_type                Numeric. Integer between 0 and 5. If zero, no correction
-#'                                       in retention time is needed. Between 1 and 5 it indicates
-#'                                       the polynomial degree of the warping function.
-#' @return And object containing GCIMS data and metadata (one sample).
-#' @export
-#' @importFrom ptw ptw
-#' @importFrom signal interp1
-#'
+#  Correction of retention time axis using Parametric Time Warping (PTW)
+#
+#  This chromatrogram computes the RIC of the reference samples and
+#  uses it to correct each of the EIC of a sample, for the all the selected
+#  samples on the dataset. The degree ot the polynomial that relates the
+#  retention time axes of the reference and the sample to be corrected
+#  is optimized using the average correlation between samples and reference as a figure
+#  of merit.
+#
+#  @param aux_list                       Object containing GCIMS data and metadata (one sample).
+#  @param ric_ref                        A vector. The reference Reactant Ion Chromatogram.                                        as reference for aligning in retention time.
+#  @param correction_type                Numeric. Integer between 0 and 5. If zero, no correction
+#                                        in retention time is needed. Between 1 and 5 it indicates
+#                                        the polynomial degree of the warping function.
+#  @return And object containing GCIMS data and metadata (one sample).
+#  @export
+#  @importFrom ptw ptw
+#  @importFrom signal interp1
+#
 gcims_align_rt <- function(aux_list, ric_ref, correction_type) {
   init_coeff_list <- list(c(0, 1), c(0, 1, 0), c(0, 1, 0, 0), c(0, 1, 0 , 0, 0), c(0, 1, 0 , 0, 0, 0))
   aux <- as.matrix(aux_list$data$data_df)
