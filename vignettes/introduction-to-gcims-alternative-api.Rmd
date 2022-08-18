@@ -329,50 +329,54 @@ align_plots
 # Peaks
 
 
-First try one sample:
+First try one sample and optimize the `noise_level` parameter there. Change values
+from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too low
+peaks may appear broken into two regions or false detections may occur.
 
 ```{r}
 ket1 <- getGCIMSSample(dataset, "Ketones1")
-ket1 <- findPeaks(ket1)
+ket1 <- findPeaks(ket1, noise_level = 2)
 peak_list_ket1 <- peaks(ket1)
-peak_list_ket1[, c("PeakID", "dt_apex_ms", "rt_apex_s", "dt_min_ms", "rt_min_s", "dt_max_ms", "rt_max_s")]
+
+ket1 <- getGCIMSSample(dataset, "Ketones1")
+plt <- plotRaw(ket1)
+plt <- add_peaklist_rect(plt, peak_list_ket1)
+plt
 ```
 
-Plot the peak list on the sample:
+
+
+Then do it on the whole dataset
 
 ```{r}
-# Not yet implemented
-```
-
-
-
-Do it on the whole dataset
-
-```{r}
-findPeaks(dataset)
+findPeaks(dataset, noise_level = 2)
 peak_list <- peaks(dataset)
 ```
+You can get any other sample if you like, plot it and plot the peaks on top:
 
 ```{r}
+ket2 <- getGCIMSSample(dataset, "Ketones2")
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peaks(ket2))
+plt
+```
+
+
+
+Or plot all the peaks from all the dataset together, overlayed on a single reference sample:
+
+```{r}
+ket2 <- getGCIMSSample(dataset, "Ketones2")
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peaks(dataset))
+plt
+```
+
+```{r}
+# Implemented until here
 knitr::knit_exit()
-# The rest is not yet implemented
 ```
 
-
-```{r}
-# Shows all ROIs one on top of another (geom_rect, alpha...)
-plotAllROIs(peak_list)
-```
-
-```{r}
-# Plots a grid of 5 rows and 2 columns.
-# Column 1 is intensity vs drift time
-# Column 2 is intensity vs retention time
-# Row 1 is when the ROI starts
-# Row 3 is at the ROI apex
-# Row 5 is when the ROI ends
-# plotROI(dataset, peak_list[2,])
-```
 
 # Clustering
 
