@@ -22,7 +22,7 @@ Ion Spectra and Reactant Ion Chromatograms of data, respectively.}
 A set of S3 objects. Additionally, it returns a list containing the correction
 factors in drift time (\code{Kcorr_samples}, a vector with as many components as samples), the reference
 Reactant Ion Chromatogram (\code{ric_ref}), and correction type for retention time alignment (\code{correction_type}).
-The output a variable \verb{correction_type i}s a whole number between 0 and 5. If 0, no correction is applied.
+The output variable \code{correction_type} is a whole number between 0 and 5. If 0, no correction is applied.
 Between 1 and 5 it the optimal degree of the polynomial that corrects retention time axis.
 }
 \description{
