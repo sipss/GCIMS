@@ -328,6 +328,26 @@ align_plots
 
 # Peaks
 
+
+First try one sample:
+
+```{r}
+ket1 <- getGCIMSSample(dataset, "Ketones1")
+ket1 <- findPeaks(ket1)
+peak_list_ket1 <- peaks(ket1)
+peak_list_ket1[, c("PeakID", "dt_apex_ms", "rt_apex_s", "dt_min_ms", "rt_min_s", "dt_max_ms", "rt_max_s")]
+```
+
+Plot the peak list on the sample:
+
+```{r}
+# Not yet implemented
+```
+
+
+
+Do it on the whole dataset
+
 ```{r}
 findPeaks(dataset)
 peak_list <- peaks(dataset)
