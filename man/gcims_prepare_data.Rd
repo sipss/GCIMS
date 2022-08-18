@@ -61,23 +61,26 @@ samples <- c(3,7)
 # Before:
 gcims_plot_chrom(dir_in, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
 
-# Set parameters:
-params <-list()
-
-# Filtering
-params$filter$do <- TRUE
-params$filter$order_rt <- 2
-params$filter$length_rt <- 19
-params$filter$order_dt <- 2
-params$filter$length_dt <- 19
-
-# Decimation
-params$decimate$do <- TRUE
-params$decimate$factor_rt <- 2
-params$decimate$factor_dt <- 2
-
-# Data preparation
-alignment_data <- gcims_prepare_data(dir_in, dir_out, samples, params)
+# Data preparation:
+alignment_data <- gcims_prepare_data(
+  dir_in = dir_in,
+  dir_out = dir_out,
+  samples = samples,
+  params = list(
+    filter = list(
+      do = TRUE,
+      order_rt = 2,
+      length_rt = 19,
+      order_dt = 2,
+      length_dt = 19
+    ),
+    decimate = list(
+      do = TRUE,
+      factor_rt = 2,
+      factor_dt = 2
+    )
+  )
+)
 
 # After:
 gcims_plot_chrom(dir_out, samples, dt_value = 8.5,  rt_range = NULL, colorby = "Class")
