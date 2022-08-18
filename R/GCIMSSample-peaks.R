@@ -45,7 +45,7 @@ setMethod(
   "peaks<-",
   "GCIMSSample",
   function(object, value) {
-    value <- S4Vectors::as.data.frame(value)
+    value <- methods::as(value, "DataFrame")
     object@peaks <- value
     object
   }

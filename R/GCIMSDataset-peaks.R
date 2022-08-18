@@ -16,7 +16,7 @@ setMethod(
       params = list(noise_level = noise_level, verbose = verbose),
       fun_extract = peaks,
       fun_aggregate = function(ds, objs) {
-        p <- dplyr::bind_rows(objs, .id = "SampleID")
+        p <- dplyr::bind_rows(purrr::map(objs, as.data.frame), .id = "SampleID")
         peaks(ds) <- p
         ds
       }
@@ -47,7 +47,7 @@ setMethod(
   "peaks<-",
   "GCIMSDataset",
   function(object, value) {
-    object@envir$peaks <- value
+    object@envir$peaks <- methods::as(value, "DataFrame")
     object
   }
 )
