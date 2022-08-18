@@ -172,5 +172,12 @@ setGeneric("peaks<-", getGeneric("peaks<-", package = "ProtGenerics"))
 setGeneric("rtime", getGeneric("rtime", package = "ProtGenerics"))
 setGeneric("smooth", getGeneric("smooth", package = "ProtGenerics"))
 
+#' Tidy generic
+#' @name tidy
+#' @importFrom generics tidy
+#' @export
+NULL
+
+
 # FIXME: Ask the xcms maintainer to move the findPeaks generic to ProtGenerics
 setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))

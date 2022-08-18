@@ -16,7 +16,7 @@ setMethod(
       params = list(noise_level = noise_level, verbose = verbose),
       fun_extract = peaks,
       fun_aggregate = function(ds, objs) {
-        p <- dplyr::bind_rows(purrr::map(objs, as.data.frame), .id = "SampleID")
+        p <- dplyr::bind_rows(purrr::map(objs, as.data.frame))
         peaks(ds) <- p
         ds
       }
@@ -37,7 +37,7 @@ setMethod(
     if (!"peaks" %in% names(object@envir)) {
       stop("Please run findPeaks() on your dataset first")
     }
-    object@envir$peaks
+    tibble::as_tibble(object@envir$peaks)
   }
 )
 

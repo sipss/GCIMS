@@ -35,7 +35,7 @@ setMethod(
     if (is.null(object@peaks)) {
       stop("Please run findPeaks() on the sample first")
     }
-    object@peaks
+    tibble::as_tibble(cbind(SampleID = object@description, object@peaks))
   }
 )
 
@@ -46,6 +46,8 @@ setMethod(
   "GCIMSSample",
   function(object, value) {
     value <- methods::as(value, "DataFrame")
+    # We don't want this column:
+    value$SampleID <- NULL
     object@peaks <- value
     object
   }
