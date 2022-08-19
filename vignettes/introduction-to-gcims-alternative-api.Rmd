@@ -70,35 +70,19 @@ Please start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
 with your samples and their annotations. Please name the first column `SampleID`
 and the second column `Filename`. We will use those annotations in plots.
 
-```{r}
-annotations <- readr::read_csv(file.path(samples_directory, "annotations.csv"), show_col_types = FALSE)
+
+
+```{r message=FALSE}
+annotations <- readr::read_csv(file.path(samples_directory, "annotations.csv"))
 annotations
 ```
 
-If you have some samples and you want to create your annotations file, you can use
-the following code to create a template that you can fill with Excel:
+If you need to create your `annotations.csv` file, please follow the example `create_annotations_table()`.
+See `help("create_annotations_table")` for further details on how to save the table to modify it.
+
 
 ```{r eval=FALSE}
-# Your samples match this extension:
-samples_ext <- "*.mea.gz"
-
-filenames <- list.files(samples_directory, pattern = utils::glob2rx(samples_ext),
-                        recursive = TRUE, include.dirs = FALSE)
-#
-annotations_template <- data.frame(
-  SampleID = tools::file_path_sans_ext(filenames, compression = TRUE),
-  FileName = filenames
-)
-# You may need to run: install.packages("writexl")
-writexl::write_xlsx(annotations_template, file.path(samples_directory, "annotations.xlsx"))
-```
-
-You will find the `annotations.xlsx` file that you can edit and change at will.
-Once you are happy with the annotations, you can load them back here with:
-
-```{r eval=FALSE}
-annotations <- readxl::read_excel(file.path(samples_directory, "annotations.xlsx"))
-annotations
+annotations <- create_annotations_table(samples_directory, "*.mea")
 ```
 
 # Create a GCIMSDataset object
