@@ -57,8 +57,8 @@ Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 }
 \seealso{
 Other Utility functions: 
+\code{\link{gcims_compute_fom}()},
 \code{\link{gcims_cut_samples}()},
-\code{\link{gcims_figures_of_merit}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()}
 }

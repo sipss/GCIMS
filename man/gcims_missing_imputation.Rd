@@ -46,8 +46,4 @@ peak_table_imputed
 }
 
 }
-\seealso{
-Other Imputation functions: 
-\code{\link{gcims_peak_imputation}()}
-}
 \concept{Imputation functions}
