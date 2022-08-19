@@ -18,7 +18,8 @@ setMethod(
       sampleid <- sample
     }
     filename <- paste0(sampleid, ".rds")
-    sample_file <- file.path(object@envir$scratch_dir, "samples_now", filename)
+    current_intermediate_dir <- CurrentHashedDir(object)
+    sample_file <- file.path(current_intermediate_dir, filename)
     if (!file.exists(sample_file)) {
       rlang::abort(glue("File not found: {sample_file} should have been created"))
     }

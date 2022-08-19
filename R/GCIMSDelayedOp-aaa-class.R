@@ -40,6 +40,16 @@ GCIMSDelayedOp <- function(...) {
 methods::setMethod(
   "initialize", "GCIMSDelayedOp",
   function(.Object, name, fun = NULL, params = list(), fun_extract = NULL, fun_aggregate = NULL) {
+    if (!grepl(pattern = "^[a-zA-Z0-9][-a-zA-Z_0-9]*$", x = name)) {
+      rlang::abort(
+        message = c(
+          "Invalid delayed operation name",
+          "x" = glue("{name} is not a valid operation name"),
+          "i" = "The operation name must start with an alphanumeric character",
+          "i" = "The operation name may only contain alphanumeric characters hyphens and underscores"
+          )
+      )
+    }
     .Object@name <- name
     .Object@fun <- fun
     .Object@params <- params

@@ -113,7 +113,7 @@ validate_base_dir <- function(base_dir) {
     errors <- c(errors, "base_dir does not exist")
   }
   abort_if_errors(errors, title = "base_dir is not valid")
-  base_dir
+  normalizePath(base_dir, mustWork = TRUE)
 }
 
 validate_scratch_dir <- function(scratch_dir) {
@@ -126,16 +126,25 @@ validate_scratch_dir <- function(scratch_dir) {
     errors <- c(errors, "scratch_dir does not exist and could not be created")
   }
   abort_if_errors(errors, title = "scratch_dir is not valid")
-  scratch_dir
+  normalizePath(scratch_dir, mustWork = TRUE)
+}
+
+validate_keep_intermediate <- function(keep_intermediate) {
+  keep_intermediate <- as.logical(keep_intermediate)
+  if (is.na(keep_intermediate)) {
+    rlang::abort("keep_intermediate must be either TRUE or FALSE")
+  }
+  keep_intermediate
 }
 
 methods::setMethod(
   "initialize", "GCIMSDataset",
-  function(.Object, pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_")) {
+  function(.Object, pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE) {
     pData <- validate_pData(pData)
     base_dir <- validate_base_dir(base_dir)
     check_files(pData$FileName, base_dir)
     scratch_dir <- validate_scratch_dir(scratch_dir)
+    keep_intermediate <- validate_keep_intermediate(keep_intermediate)
     .Object@envir <- rlang::new_environment()
     .Object@envir$pData <- pData
     .Object@envir$base_dir <- base_dir
@@ -147,6 +156,8 @@ methods::setMethod(
     .Object@envir$RIC <- NULL
     .Object@envir$delayed_ops <- NULL
     .Object@envir$previous_ops <- list()
+    .Object@envir$hasheddir <- ""
+    .Object@envir$keep_intermediate <- keep_intermediate
     .Object <- appendDelayedOp(.Object, GCIMSDelayedOp(name = "read_sample", fun = read_sample))
     # Some sample stats:
     .Object <- extract_dtime_rtime(.Object)
@@ -154,6 +165,53 @@ methods::setMethod(
     .Object
   }
 )
+
+CurrentHashedDir <- function(object) {
+  hasheddir <- object@envir$hasheddir
+  if (hasheddir == "") {
+    return(NULL)
+  }
+  file.path(
+    object@envir$scratch_dir,
+    hasheddir
+  )
+}
+
+"CurrentHashedDir<-" <- function(object, value) {
+  object@envir$hasheddir <- basename(value)
+  object
+}
+
+
+NextHashedDir <- function(object) {
+  if (!hasDelayedOps(object)) {
+    return(CurrentHashedDir(object))
+  }
+  # A hash chain:
+  current_hash <- object@envir$hasheddir
+  if (current_hash == "") {
+    # The first hash comes from the base_dir, sampleID and FileNames
+    pd <- pData(object)
+    if (!all(c("SampleID", "FileName") %in% colnames(pd))) {
+      rlang::abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
+    }
+    current_hash <- digest::digest(
+      list(
+        object@envir$base_dir,
+        pd[["SampleID"]],
+        pd[["FileName"]]
+      )
+    )
+  }
+  for (op in purrr::keep(object@envir$delayed_ops, modifiesSample)) {
+    current_hash <- paste0(op@name, "_", digest::digest(list(current_hash, op)))
+  }
+  file.path(
+    object@envir$scratch_dir,
+    current_hash
+  )
+}
+
 
 read_sample <- function(filename) {
   filename_l <- tolower(filename)
@@ -184,6 +242,7 @@ read_sample <- function(filename) {
 #' @param pData A data frame with at least the `SampleID` and `FileName` columns.
 #' @param base_dir A directory containing the file names described in `pData`
 #' @param scratch_dir A directory to save intermediate results.
+#' @param keep_intermediate A logical. Whether to keep or not intermediate files when realizing the GCIMSDataset object
 #' @export
 #' @return A GCIMSDataset object
 #'
@@ -193,8 +252,8 @@ read_sample <- function(filename) {
 #'   pData = data.frame(SampleID = character(), filename = character(0)),
 #'   base_dir = tempdir()
 #' )
-GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_")) {
-  methods::new("GCIMSDataset", pData, base_dir, scratch_dir)
+GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE) {
+  methods::new("GCIMSDataset", pData, base_dir, scratch_dir, keep_intermediate)
 }
 
 
