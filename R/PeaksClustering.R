@@ -160,7 +160,7 @@ group_peak_list <- function(
 #'
 #' @description Extract the volume of each ROI across samples to create a peak table.
 #'
-#' @param peak_list_clustered The output of [gcims_figures_of_merit()]. Also, you can create your own peak table
+#' @param peak_list_clustered The output of [gcims_compute_fom()]. Also, you can create your own peak table
 #' and use it as input value for `peak_list_clustered` (see first example below)
 #' @param aggregate_conflicting_peaks `NULL` or a function. What to do, in case two peaks from the same sample
 #' have been assigned to the same cluster. If `NULL`, throw an error. If `mean`, `max` or any other function,
