@@ -35,7 +35,7 @@ pl <- data.frame(
 )
 build_peak_table(pl)
 
-# Create a peak table from the output of the function gcims_figure_of_merit()
+# Create a peak table from the output of the function gcims_compute_fom()
 dir_in <- system.file("extdata", package = "GCIMS")
 peak_list_fom <- readRDS(file.path(dir_in, "peak_list_fom.rds"))
 peak_table <- build_peak_table(peak_list_fom, aggregate_conflicting_peaks = max)
