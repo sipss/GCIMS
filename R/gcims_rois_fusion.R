@@ -1,6 +1,6 @@
-#' ROIs Fusion
+#' Merge regions of interest
 #'
-#' For each ROI in `peak_list_clustered`, we define additional columns with ROI boundaries.
+#' @description For each ROI in `peak_list_clustered`, we define additional columns with ROI boundaries.
 #' The center of the ROI is not changed, but the limits are taken so the size of the ROI is
 #' the same for all ROIs in the same cluster, using the median size of the ROIs in the cluster.
 #'
@@ -14,9 +14,9 @@
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' clustering <- readRDS(file.path(dir_in, "peak_clustering.rds"))
 #'
-#' roi_fusion_out <- gcims_rois_fusion(clustering$peak_list_clustered, clustering$cluster_stats)
-#' samplestocheck <- roi_fusion_out$peak_list_clustered[
-#'   which(roi_fusion_out$peak_list_clustered$cluster == "Cluster01"),
+#' merge_rois_out <- gcims_merge_rois(clustering$peak_list_clustered, clustering$cluster_stats)
+#' samplestocheck <- merge_rois_out$peak_list_clustered[
+#'   which(merge_rois_out$peak_list_clustered$cluster == "Cluster01"),
 #' ]
 #' library(ggplot2)
 #' ggplot() +
@@ -35,7 +35,7 @@
 #' labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster01")
 #' }
 #'
-gcims_rois_fusion <- function(peak_list_clustered, cluster_stats) {
+gcims_merge_rois <- function(peak_list_clustered, cluster_stats) {
   # FIXME: Provide these columns in physical units as well.
   # We will do this afterwards, when we have a dataset object that has
   # this information (to avoid reading the samples just to get their dtime and rtime)

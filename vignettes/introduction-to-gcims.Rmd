@@ -331,19 +331,19 @@ gcims_view_sample(bsln,
                   dt_range = NULL, 
                   transform = TRUE)
 ```
-- ROI Fusion
+- ROI Merging
 
-It may happen that ROI belonging to the same cluster are detected more than once in the same sample. The function `gcims_rois_fusion()` fuses the repeated ROI into one.
+It may happen that ROI belonging to the same cluster are detected more than once in the same sample. The function `gcims_merge_rois()` fuses the repeated ROI into one.
 
 ```{r}
-fusion_res <- gcims_rois_fusion(
+merging_res <- gcims_merge_rois(
   peak_clustering$peak_list_clustered,
   peak_clustering$cluster_stats
 )
 
 ggplot() +
   geom_rect(
-    data = dplyr::filter(fusion_res$peak_list_clustered, cluster == "Cluster07"),
+    data = dplyr::filter(merging_res$peak_list_clustered, cluster == "Cluster07"),
     mapping = aes(
       xmin=ref_roi_dt_min_idx,
       xmax=ref_roi_dt_max_idx,
@@ -368,8 +368,8 @@ It creates a ".csv" file with all ROI information.
 peak_list_fom <- gcims_figures_of_merit(
   dir_in = bsln,
   dir_out = fom,
-  peak_list = fusion_res$peak_list_clustered,
-  cluster_stats = fusion_res$cluster_stats
+  peak_list = merging_res$peak_list_clustered,
+  cluster_stats = merging_res$cluster_stats
 )
 head(peak_list_fom)
 ```
@@ -393,7 +393,7 @@ To input missing values of the peak table, use the function `gcims_missing_imput
 peak_table_imputed <- gcims_missing_imputation(
   peak_table = peak_table$peak_table_matrix,
   dir_in = fom,
-  cluster_stats = fusion_res$cluster_stats
+  cluster_stats = merging_res$cluster_stats
 )
 peak_table_imputed
 ```
