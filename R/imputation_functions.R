@@ -1,11 +1,12 @@
 
-#' Missing Values Imputation
-
+#' Impute missing values
+#'
+#' Compute the volume of ROIS with missing values.
+#'
 #' @param peak_table The matrix to be imputed, with samples in rows (see example)
 #' @param dir_in Directory with baseline removed samples
 #' @param cluster_stats Cluster statistics (reference ROI limits)
-#' @details `gcims_missing_imputation` calculates the volume of the ROIs that
-#' have missing values. It uses the coordinates of the reference ROI for each
+#' @details `gcims_impute_missing()` uses the coordinates of the reference ROI for each
 #' cluster and substitute the missing value by the volume in this region without
 #' baseline.
 #' @return A matrix with samples in rows, clusters in columns and volumes
@@ -16,22 +17,22 @@
 #' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' peak_table_obj <- readRDS(file.path(dir_in, "peak_table.rds"))
-#' roi_fusion_out <- readRDS(file.path(dir_in, "roi_fusion_out.rds"))
+#' roi_merging_out <- readRDS(file.path(dir_in, "roi_fusion_out.rds"))
 #' peak_table_to_impute <- peak_table_obj$peak_table_mat
 #'
 #' # Peak table before imputation
 #' peak_table_to_impute
 #'
 #'
-#' peak_table_imputed <- gcims_missing_imputation(peak_table = peak_table_to_impute,
+#' peak_table_imputed <- gcims_impute_missing(peak_table = peak_table_to_impute,
 #'                                                dir_in = dir_in, # use bsln
-#'                                                cluster_stats = roi_fusion_out$cluster_stats
+#'                                                cluster_stats = roi_merging_out$cluster_stats
 #'                                                )
 #' # Peak table after imputation
 #' peak_table_imputed
 #' }
 #'
-gcims_missing_imputation <- function(peak_table, dir_in, cluster_stats){
+gcims_impute_missing <- function(peak_table, dir_in, cluster_stats){
 
   #-------------#
   #     MAIN    #
