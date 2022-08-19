@@ -63,6 +63,6 @@ Other Utility functions:
 \code{\link{gcims_compute_fom}()},
 \code{\link{gcims_remove_rip}()},
 \code{\link{gcims_reshape_samples}()},
-\code{\link{gcims_shifting}()}
+\code{\link{gcims_shift_rt}()}
 }
 \concept{Utility functions}

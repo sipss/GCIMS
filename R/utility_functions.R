@@ -319,25 +319,20 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 
 
 
-#' Shifting
-
+#' Shift samples in retention time.
+#'
+#' Perform a shift in retention time so to the injection point of all samples
+#' coincide.
+#'
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
 #' @param dir_out         Output directory. Where decimated data files are
 #'   stored.
 #' @param samples         Numeric vector of integers. Identifies the set of
-#'   samples to be decimated.
-#' @details `gcims_shifting` performs peak shifting in retention time axes
-#'   of GCIMS data. In particular, it shifts all the peaks along the retention
-#'   time axis in order to have the RIP peaks at the exact same time.
-#' @note `gcims_shifting` reduce the retention time axis of some of
-#'   the samples.
+#'   samples to be shifted in retention time.
 #' @return A set of S3 objets.
 #' @family Utility functions
 #' @export
-#' @references { Oppenheim, Alan V.; Schafer, Ronald W.; Buck, John R. (1999).
-#'   "4". Discrete-Time Signal Processing (2nd ed.). Upper Saddle River, N.J.:
-#'   Prentice Hall. p. 168. ISBN 0-13-754920-2. }
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
@@ -345,19 +340,16 @@ gcims_cut_samples <- function(dir_in, dir_out, samples, rt_range, dt_range){
 #' # Before:
 #' samples <- c(3, 7)
 #' gcims_plot_chrom(dir_in, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
-#' gcims_plot_spec(dir_in, samples, rt_value = NULL,  dt_range = NULL, colorby = "Class")
 #'
 #' # After:
-#' gcims_shifting(dir_in, dir_out, samples)
-#' # c(50, 226)
-#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = c(60, 98) , colorby = "Class")
-#' gcims_plot_spec(dir_out, samples, rt_value = NULL,  dt_range = c(7.8, 9.0), colorby = "Class")
+#' gcims_shift_rt(dir_in, dir_out, samples)
+#' gcims_plot_chrom(dir_out, samples, dt_value = NULL,  rt_range = NULL, colorby = "Class")
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #'
 
-gcims_shifting <- function(dir_in, dir_out, samples){
+gcims_shift_rt <- function(dir_in, dir_out, samples){
 
   tics <- NULL
   for (i in samples){
@@ -382,7 +374,6 @@ gcims_shifting <- function(dir_in, dir_out, samples){
         to = file.path(dir_out, paste0("M", referencetime, ".rds"))
       )
     } else {
-      print(paste0("Sample ", i, " of ", length(samples)))
       reference <- readRDS(file.path(dir_in, paste0("M", referencetime, ".rds")))
       reference <- reference$data$data_df
       referencetic <- colSums(reference)
