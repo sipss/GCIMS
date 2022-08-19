@@ -1,5 +1,5 @@
-#' ROIs Selection
-
+#' Select Regions of Interest
+#'
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
 #' @param dir_out         Output directory. Where ouput data files are stored.
@@ -8,7 +8,10 @@
 #' @param noise_level     Scalar number. The number of times the standard deviation
 #'   above the noise level needed to detect a peak. IUPAC recommends `noise_level = 3` for detection.
 #' @return A set of S3 objects. Additionally, a peak/roi list.
-#' @family Peak detection functions
+#' @family Peak detection
+#' @description  `gcims_select_rois()` function looks for 2-dimensional peaks in data and
+#' enclose each of them in a region or interest or ROI.
+#'
 #' @export
 #' @importFrom signal sgolayfilt
 #' @importFrom pracma findpeaks
@@ -25,14 +28,14 @@
 #' samples <- c(3,7)
 #'
 #' # Example of Peak Picking
-#' peak_list <- gcims_rois_selection(dir_in, dir_out, samples , noise_level = 3)
+#' peak_list <- gcims_select_rois(dir_in, dir_out, samples , noise_level = 3)
 #' head(peak_list)
 #'
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #' }
 #'
-gcims_rois_selection <- function(dir_in, dir_out, samples, noise_level){
+gcims_select_rois <- function(dir_in, dir_out, samples, noise_level){
   peak_lists <- gcims_batch_run(
     dir_in,
     dir_out,

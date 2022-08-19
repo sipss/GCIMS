@@ -1,4 +1,4 @@
-#' Peak grouping function, exposing a lot of options useful for benchmarking
+#' Group peaks in clusters
 #'
 #' @param peaks A data frame with at least the following columns:
 #'  - "UniqueID" A unique ID for each peak
@@ -19,6 +19,7 @@
 #'
 #'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
 #' @param verbose logical, to control printing in the function
+#' @description Peak grouping function, exposing several options useful for benchmarking.
 #'
 #' @return A list with :
 #' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample

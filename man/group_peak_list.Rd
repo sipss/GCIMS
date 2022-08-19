@@ -2,7 +2,7 @@
 % Please edit documentation in R/PeaksClustering.R
 \name{group_peak_list}
 \alias{group_peak_list}
-\title{Peak grouping function, exposing a lot of options useful for benchmarking}
+\title{Group peaks in clusters}
 \usage{
 group_peak_list(
   peaks,
@@ -53,7 +53,7 @@ A list with :
 }
 }
 \description{
-Peak grouping function, exposing a lot of options useful for benchmarking
+Peak grouping function, exposing several options useful for benchmarking.
 }
 \examples{
 \donttest{

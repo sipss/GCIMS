@@ -255,14 +255,14 @@ The resulting chromatograms become aligned, as expected. After this pre-processi
 
 # Feature Extraction
 
-Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions `gcims_rois_selection()` and `group_peak_list()`, respectively. 
+Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions `gcims_select_rois()` and `group_peak_list()`, respectively. 
 
 - ROI detection
 
 The following piece of code shows how to detect all ROI in a dataset. Also, it shows in an image where these ROI are located in data. Each rectangle corresponds to a different ROI. ROI are colored by sample.
 
 ```{r}
-peak_list <- gcims_rois_selection(dir_in = aligned,
+peak_list <- gcims_select_rois(dir_in = aligned,
                                   dir_out = roispp, 
                                   samples = 1:3,
                                   noise_level = 3)
