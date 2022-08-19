@@ -10,6 +10,8 @@
 # all the generic declarations in the package.
 
 setClassUnion("DataFrameOrNULL", c("DataFrame", "NULL"))
+# setClassUnion("matrixOrNULL", c("array", "NULL"))
+# setClassUnion("numericOrNULL", c("numeric", "NULL"))
 
 
 #' Get drift time vector

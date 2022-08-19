@@ -1,6 +1,3 @@
-# setClassUnion("matrixOrNULL", c("array", "NULL"))
-# setClassUnion("numericOrNULL", c("numeric", "NULL"))
-
 #' GCIMSDataset class
 #'
 #' GCIMSDataset is an S4 class to store a dataset
@@ -18,7 +15,6 @@
 #' )
 #' @importClassesFrom S4Vectors DataFrame
 # All the slots are in an environment because I want the dataset to be mutable.
-# R6 might be a better option, because as it copies are harder to do.
 # @slot pData A data frame with at least the SampleID and filename columns.
 # @slot base_dir A directory containing the file names described in `pData`
 # @slot scratch_dir A directory to save intermediate results.
@@ -168,6 +164,7 @@ read_sample <- function(filename) {
     if (methods::is(obj, "GCIMSSample")) {
       return(obj)
     } else if (methods::is(obj, "list")) {
+      # FIXME: Remove this if we drop the old API
       #Convert old list to GCIMSSample:
       sample <- GCIMSSample(
         drift_time = obj$data$drift_time,
