@@ -2,7 +2,7 @@
 % Please edit documentation in R/gcims_baseline_removal.R
 \name{gcims_remove_baseline}
 \alias{gcims_remove_baseline}
-\title{Remove baseline of a dataset}
+\title{Remove baseline in data}
 \usage{
 gcims_remove_baseline(dir_in, dir_out, samples, peak_list)
 }
@@ -22,13 +22,11 @@ correction are stored.}
 A set of S3 objects.
 }
 \description{
-Remove baseline of a dataset
+Performs baseline correction on sample spectra (in drift time) and chromatograms (in retention time)
 }
 \details{
-\code{gcims_remove_baseline} performs baseline correction on sample
-spectra (in drift time) and chromatograms (in retention time) .This function corrects
-the baseline in drift time and afterwards, in retention time. To do it, it cuts the
-axis in regions of equal length and looks for the local minima of each region. A simple
+\code{gcims_removel_baseine()}corrects the baseline in drift time and afterwards, in retention time.
+To do it, it cuts the axis in regions of equal length and looks for the local minima of each region. A simple
 linear interpolation is performed to create a baseline of the same length as the number
 of data points per axis.The region width is estimated differently in each of the the axes:
 In drift time, it is computed as 12 times the standard deviation of the RIP width, while
