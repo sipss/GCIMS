@@ -10,7 +10,12 @@
 \alias{plotRIC,GCIMSDataset-method}
 \title{GCIMSDataset class}
 \usage{
-GCIMSDataset(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"))
+GCIMSDataset(
+  pData,
+  base_dir,
+  scratch_dir = tempfile("GCIMSDataset_tempdir_"),
+  keep_intermediate = FALSE
+)
 
 \S4method{getGCIMSSample}{GCIMSDataset}(object, sample)
 
@@ -24,6 +29,8 @@ GCIMSDataset(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"))
 \item{base_dir}{A directory containing the file names described in \code{pData}}
 
 \item{scratch_dir}{A directory to save intermediate results.}
+
+\item{keep_intermediate}{A logical. Whether to keep or not intermediate files when realizing the GCIMSDataset object}
 
 \item{object}{A \link{GCIMSDataset} object}
 

@@ -4,10 +4,14 @@
 \alias{realize}
 \title{Runs all delayed operations on the object}
 \usage{
-realize(object)
+realize(object, keep_intermediate = NA)
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object, modified in-place}
+
+\item{keep_intermediate}{A logical, whether to keep the intermediate files of
+the previous realization once this one finishes. If \code{NA}, keeping will depend
+on the \code{object}.}
 }
 \value{
 The same \link{GCIMSDataset} object, without pending operations
