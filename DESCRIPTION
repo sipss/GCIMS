@@ -65,7 +65,6 @@ Imports:
     glue,
     magrittr(>= 1.5),
     methods,
-    missForest (>= 1.4),
     pracma(>= 2.2.9),
     ptw (>= 1.9-10),
     purrr(>= 0.3.4),
