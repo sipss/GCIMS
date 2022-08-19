@@ -157,21 +157,45 @@ setGeneric("align", function(object, ...) standardGeneric("align"))
 #' @export
 setGeneric("alignDt", function(x, y, ...) standardGeneric("alignDt"))
 
-
+#' @export
 setGeneric("pData", getGeneric("pData", package = "Biobase"))
+
+#' @export
 setGeneric("pData<-", getGeneric("pData<-", package = "Biobase"))
+
+#' @export
 setGeneric("sampleNames", getGeneric("sampleNames", package = "Biobase"))
+
+#' @export
 setGeneric("sampleNames<-", getGeneric("sampleNames<-", package = "Biobase"))
 
+
+#' @export
 setGeneric("updateObject", getGeneric("updateObject", package = "BiocGenerics"))
 
+
+#' @export
 setGeneric("alignRt", getGeneric("alignRt", package = "ProtGenerics"))
+
+#' @export
 setGeneric("filterRt", getGeneric("filterRt", package = "ProtGenerics"))
+
+#' @export
 setGeneric("intensity", getGeneric("intensity", package = "ProtGenerics"))
+
+#' @export
 setGeneric("intensity<-", getGeneric("intensity<-", package = "ProtGenerics"))
+
+#' @export
 setGeneric("peaks", getGeneric("peaks", package = "ProtGenerics"))
+
+#' @export
 setGeneric("peaks<-", getGeneric("peaks<-", package = "ProtGenerics"))
+
+#' @export
 setGeneric("rtime", getGeneric("rtime", package = "ProtGenerics"))
+
+#' @export
 setGeneric("smooth", getGeneric("smooth", package = "ProtGenerics"))
 
 #' Tidy generic
@@ -182,4 +206,5 @@ NULL
 
 
 # FIXME: Ask the xcms maintainer to move the findPeaks generic to ProtGenerics
+#' @export
 setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))
