@@ -19,7 +19,6 @@
 # @slot base_dir A directory containing the file names described in `pData`
 # @slot scratch_dir A directory to save intermediate results.
 # @slot delayed_ops Delayed operations
-# @slot dt_rt_metrics Eventually a data frame with start/end/step of drift and retention times
 # @slot TIS A matrix of n_samples vs drift time, with the Total Ion Spectrum of each sample
 # @slot RIC A matrix of n_samples vs retention time, with the Reverse Ion Chromatogram of each sample
 # @slot dt_ref A numeric drift time of reference
@@ -31,7 +30,6 @@ methods::setClass(
     # base_dir = "character",
     # scratch_dir = "character",
     # delayed_ops = "list",
-    # dt_rt_metrics = "DataFrameOrNULL",
     # TIS = "matrixOrNULL",
     # RIC = "matrixOrNULL",
     # dt_ref = "numericOrNULL",
@@ -149,7 +147,6 @@ methods::setMethod(
     .Object@envir$pData <- pData
     .Object@envir$base_dir <- base_dir
     .Object@envir$scratch_dir <- scratch_dir
-    .Object@envir$dt_rt_metrics <- NULL
     .Object@envir$dt_ref <- NULL
     .Object@envir$rt_ref <- NULL
     .Object@envir$TIS <- NULL

@@ -33,7 +33,6 @@ extract_dtime_rtime <- function(object) {
       max_rt_length <- floor(round((min_rt_max - max_rt_min)/min_rt_step, digits = 8)) + 1L
       dt_ref <- seq(from = max_dt_min, to = min_dt_max, length.out = max_dt_length)
       rt_ref <- seq(from = max_rt_min, to = min_rt_max, length.out = max_rt_length)
-      gcimsdataset@envir$dt_rt_metrics <- S4Vectors::DataFrame(dt_rt_metrics)
       gcimsdataset@envir$dt_ref <- dt_ref
       gcimsdataset@envir$rt_ref <- rt_ref
 
