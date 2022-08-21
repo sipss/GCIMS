@@ -117,10 +117,12 @@ optimize_delayed_operations <- function(object) {
 #' realize(dataset)
 #' print(dataset)
 #'
-realize <- function(object, keep_intermediate = NA) {
+setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
   if (!hasDelayedOps(object)) {
     return(object)
   }
+
+  object <- optimize_delayed_operations(object)
 
   if (is.na(keep_intermediate)) {
     keep_intermediate <- object@envir$keep_intermediate
@@ -164,4 +166,4 @@ realize <- function(object, keep_intermediate = NA) {
     unlink(current_dir, recursive = TRUE)
   }
   invisible(object)
-}
+})
