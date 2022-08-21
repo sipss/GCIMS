@@ -43,21 +43,6 @@ GCIMSSpectrum <- function(...) {
   methods::new("GCIMSSpectrum", ...)
 }
 
-#' Smoothing a GCIMS Spectrum using a Savitzky-Golay filter
-#' @param x A [GCIMSSpectrum] object
-#' @param dt_length_ms the length of the filter in drift time (in ms)
-#' @param dt_order The order of the filter in drift time
-#' @return The modified [GCIMSSpectrum]
-#' @importMethodsFrom ProtGenerics smooth
-#' @export
-methods::setMethod(
-  "smooth", "GCIMSSpectrum",
-  function(x, dt_length_ms, dt_order = 2){
-    dt <- dtime(x)
-    dt_length_pts <- units_to_points(dt_length_ms, dt[2] - dt[1], must_odd = TRUE)
-    x@intensity <- signal::sgolayfilt(x@intensity, n = dt_length_pts, p = dt_order)
-    x
-  })
 
 #' @export
 as.data.frame.GCIMSSpectrum <- function(x, ...) {
@@ -67,21 +52,4 @@ as.data.frame.GCIMSSpectrum <- function(x, ...) {
   )
 }
 
-#' @export
-plot.GCIMSSpectrum <- function(x, ...) {
-  rts <- x@retention_time_s
-  if (length(rts) == 1) {
-    subtitle <- glue("Retention time {rts} s")
-  } else if (length(rts) >= 2) {
-    subtitle <- glue("Retention time {min(rts)} - {max(rts)} s")
-  } else {
-    subtitle <- NULL
-  }
-  ggplot2::qplot(x = dtime(x), y = intensity(x), geom = "line") +
-    ggplot2::labs(
-      title = x@description,
-      subtitle = subtitle,
-      x = "Drift time (ms)",
-      y = "Intensity (a.u.)"
-    )
-}
+
