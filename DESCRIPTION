@@ -85,7 +85,6 @@ Imports:
     tidyr (>= 1.1.2),
     utils (>= 4.0.2),
     viridis (>= 0.5.1),
-    xcms,
     yaml
 Suggests:
     chemometrics(>= 1.4.2),
