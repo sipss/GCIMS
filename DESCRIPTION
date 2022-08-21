@@ -61,6 +61,7 @@ Imports:
     BiocParallel,
     BiocGenerics,
     cluster,
+    digest,
     dplyr (>= 1.0.2),
     generics,
     ggplot2 (>= 3.3.2),

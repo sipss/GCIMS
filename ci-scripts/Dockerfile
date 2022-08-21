@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     texlive-latex-extra
 
 RUN Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager", "covr", "pkgdown", "DT"))' && \
-  'BiocManager::install("BiocCheck")'
+    Rscript -e 'BiocManager::install("BiocCheck")'
 
 COPY DESCRIPTION /workdir/DESCRIPTION
 WORKDIR /workdir

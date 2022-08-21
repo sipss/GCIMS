@@ -61,8 +61,9 @@ setMethod(
 #'
 #' @param x A [GCIMSSample] object
 #' @inheritParams intensity,GCIMSSample-method
+#' @param ... unused
 #' @export
-tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {
+tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, ...) {
   intmat <- intensity(x, dt_range = dt_range, rt_range = rt_range, rt_idx = rt_idx, dt_idx = dt_idx)
   intens_long <- reshape2::melt(intmat, value.name = "Intensity")
   intens_long
