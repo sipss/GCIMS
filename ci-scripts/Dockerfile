@@ -1,6 +1,7 @@
 FROM docker.io/bioconductor/bioconductor_docker:RELEASE_3_15
 
 RUN apt-get update && apt-get install -y \
+    libmagick++-dev \
     qpdf \
     ghostscript \
     texlive-latex-base \
@@ -8,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     texlive-fonts-extra \
     texlive-latex-extra
 
-RUN Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager", "covr", "pkgdown", "DT"))' && \
+RUN Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager", "covr", "pkgdown", "DT", "magick"))' && \
     Rscript -e 'BiocManager::install("BiocCheck")'
 
 COPY DESCRIPTION /workdir/DESCRIPTION
