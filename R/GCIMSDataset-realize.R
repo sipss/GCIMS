@@ -75,6 +75,32 @@ realize_one_sample <- function(sample_name, curr_dir, next_dir, delayed_ops, bas
 }
 
 
+optimize_delayed_operations <- function(object) {
+  if (!hasDelayedOps(object)) {
+    return(object)
+  }
+  delayed_ops <- object@envir$delayed_ops
+  # Extra operations that extract the rtime and dtime or TIC and RIC from the object can be delayed
+  # Find them:
+  where_extract_times <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_dtime_rtime"})
+  where_extract_RICTIC <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_RIC_and_TIC"})
+  where_extract <- where_extract_times | where_extract_RICTIC
+  # Not found, return:
+  if (!any(where_extract)) {
+    return(object)
+  }
+  # Remove those ops:
+  delayed_ops[where_extract] <- NULL
+  object@envir$delayed_ops <- delayed_ops
+  if (any(where_extract_times)) {
+    object <- extract_dtime_rtime(object)
+  }
+  if (any(where_extract_RICTIC)) {
+    object <- extract_RIC_and_TIS(object)
+  }
+  object
+}
+
 #' Runs all delayed operations on the object
 #'
 #' @param object A [GCIMSDataset] object, modified in-place
