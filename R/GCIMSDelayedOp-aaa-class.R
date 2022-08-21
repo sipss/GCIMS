@@ -70,12 +70,17 @@ aggregate_result <- function(delayed_op, extracted_result, dataset) {
     rlang::abort(
       message = c(
         "Delayed operation contract was broken",
-        "x" = glue("The delayed action {delayed_op@name} has a `fun_aggregate` slot that does not return a {dataset_class} object"),
+        "x" = glue("The delayed action {name(delayed_op)} has a `fun_aggregate` slot that does not return a {dataset_class} object"),
         "i" = "If you did not write the delayed action, this is not your fault. Please report this error at https://github.com/sipss/GCIMS."
       )
     )
   }
   dataset
+}
+
+
+name <- function(x) {
+  x@name
 }
 
 modifiesSample <- function(delayed_op) {
@@ -108,7 +113,7 @@ methods::setMethod(
   "describeAsList", "GCIMSDelayedOp",
   function(object) {
     num_params <- length(object@params)
-    txt <- object@name
+    txt <- name(object)
     if (num_params == 0) {
       return(txt)
     }
