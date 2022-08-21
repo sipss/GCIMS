@@ -10,11 +10,11 @@ realize_one_sample <- function(sample_name, curr_dir, next_dir, delayed_ops, bas
   f <- paste0(sample_name, ".rds")
   sample_fn_next <- file.path(next_dir, f)
 
-  if (is.null(curr_dir) && delayed_ops[[1]]@name != "read_sample") {
+  if (is.null(curr_dir) && name(delayed_ops[[1]]) != "read_sample") {
     rlang::abort(
       message = c(
         "UnexpectedError",
-        "x" = glue("The first operation should have been named read_sample instead of {delayed_ops[[1]]@name}"),
+        "x" = glue("The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}"),
         "i" = "This is an unexpected problem. You can try deleting the scratch directory and restart again"
       )
     )

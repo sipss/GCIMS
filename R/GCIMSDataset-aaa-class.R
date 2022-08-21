@@ -201,7 +201,7 @@ NextHashedDir <- function(object) {
     )
   }
   for (op in purrr::keep(object@envir$delayed_ops, modifiesSample)) {
-    current_hash <- paste0(op@name, "_", digest::digest(list(current_hash, op)))
+    current_hash <- paste0(name(op), "_", digest::digest(list(current_hash, op)))
   }
   file.path(
     object@envir$scratch_dir,
