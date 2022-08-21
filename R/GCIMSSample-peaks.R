@@ -4,7 +4,6 @@
 #'   above the noise level needed to detect a peak.
 #' @param verbose If `TRUE`, debug information will be printed
 #' @return The modified [GCIMSSample], with a peak list
-#' @importMethodsFrom xcms findPeaks
 #' @export
 setMethod(
   "findPeaks",
