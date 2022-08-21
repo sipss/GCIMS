@@ -187,6 +187,13 @@ setGeneric("intensity", getGeneric("intensity", package = "ProtGenerics"))
 setGeneric("intensity<-", getGeneric("intensity<-", package = "ProtGenerics"))
 
 #' @export
+setGeneric("description", getGeneric("description", package = "Biobase"))
+
+#' @export
+setGeneric("description<-", getGeneric("description<-", package = "Biobase"))
+
+
+#' @export
 setGeneric("peaks", getGeneric("peaks", package = "ProtGenerics"))
 
 #' @export
@@ -206,5 +213,15 @@ NULL
 
 
 # FIXME: Ask the xcms maintainer to move the findPeaks generic to ProtGenerics
+#        Redefining creates a conflict between packages, but reusing the generic
+#        requires a dependency I would rather avoid
 #' @export
-setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))
+setGeneric("findPeaks", function(object, ...) standardGeneric("findPeaks"))
+#setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))
+
+
+# FIXME: Consider asking the delayedArray maintainer to move the realize()
+#        generic to a package I can depend on. I redefine the generic just in case
+#' @export
+setGeneric("realize", function(object, ...) standardGeneric("realize"))
+#setGeneric("realize", getGeneric("realize", package = "delayedArray"))
