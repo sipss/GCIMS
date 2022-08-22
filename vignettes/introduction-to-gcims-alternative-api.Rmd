@@ -1,6 +1,8 @@
 ---
 title: "Introduction to GCIMS, Alternative API"
-output: BiocStyle::pdf_document
+output:
+  "BiocStyle::pdf_document":
+    df_print: "kable"
 package: GCIMS
 author: "GCIMS authors"
 date: "`r format(Sys.Date(), '%F')`"
@@ -160,10 +162,12 @@ to_plot <- dplyr::bind_rows(
 )
 ggplot(to_plot) +
   geom_line(aes(x = drift_time_ms, y = intensity, colour = Status)) +
-  coord_cartesian(xlim = c(7, 10))
+  coord_cartesian(xlim = c(7, 10)) +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
 ggplot(to_plot) +
   geom_line(aes(x = drift_time_ms, y = intensity, colour = Status)) +
-  coord_cartesian(xlim = c(7, 10), ylim = c(0, 300))
+  coord_cartesian(xlim = c(7, 10), ylim = c(0, 300)) +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
 ```
 
 ```{r}
@@ -178,10 +182,12 @@ to_plot <- dplyr::bind_rows(
   .id = "Status"
 )
 ggplot(to_plot) +
-  geom_line(aes(x = retention_time_s, y = intensity, colour = Status))
+  geom_line(aes(x = retention_time_s, y = intensity, colour = Status)) +
+  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
 ggplot(to_plot) +
   geom_line(aes(x = retention_time_s, y = intensity, colour = Status)) +
-  coord_cartesian(xlim = c(200, 250))
+  coord_cartesian(xlim = c(200, 250)) +
+  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
 ```
 
 You can also apply it to a single sample:
@@ -290,7 +296,7 @@ dataset
 
 ```{r}
 align_plots <- alignPlots(dataset)
-align_plots
+cowplot::plot_grid(plotlist = align_plots, ncol = 1)
 ```
 
 
