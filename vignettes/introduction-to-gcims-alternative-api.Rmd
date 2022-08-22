@@ -78,28 +78,16 @@ annotations <- readr::read_csv(file.path(samples_directory, "annotations.csv"))
 annotations
 ```
 
-If you need to create your `annotations.csv` file, please follow the example `create_annotations_table()`.
-See `help("create_annotations_table")` for further details on how to save the table to modify it.
-
-
-```{r eval=FALSE}
-annotations <- create_annotations_table(samples_directory, "*.mea")
-```
+If you need to create your `annotations.csv` file for your samples, please
+follow the example from `help("create_annotations_table")` for further details.
 
 # Create a GCIMSDataset object
-
-```{r}
-# Delete the intermediate_files directory, if it exists
-if (dir.exists("intermediate_files")) {
-  unlink("intermediate_files", recursive = TRUE)
-}
-```
-
 
 ```{r}
 dataset <- GCIMSDataset(annotations, base_dir = samples_directory, scratch_dir = "intermediate_files")
 dataset
 ```
+
 
 Most operations on the `dataset` are not executed until you need to get the actual samples or
 data. This is done to perform them in batch, more efficiently, if possible. However,
@@ -110,8 +98,6 @@ We can see how the "read_sample" pending operation becomes part of the dataset h
 realize(dataset)
 dataset
 ```
-
-
 Explore one sample:
 
 ```{r}
@@ -121,7 +107,6 @@ plotRaw(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 
 
 Plot the RIC and the TIS to get an overview of the dataset:
-
 
 ```{r}
 plotTIS(dataset)
