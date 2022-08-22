@@ -43,8 +43,9 @@ samples_directory <- "threeketones"
 # Download the ketones dataset:
 tryCatch({
   download_three_ketones_dataset(samples_directory)
+  message("Download successful")
 }, error = function(e) {
-  message("The download of the samples did not succeed. The vignette can't continue.")
+  message("The download of the samples did not succeed. Stopping")
   message(conditionMessage(e))
   knitr::knit_exit()
 })
