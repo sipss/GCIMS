@@ -36,7 +36,9 @@ setMethod(
     if (!"peaks" %in% names(object@envir)) {
       stop("Please run findPeaks() on your dataset first")
     }
-    tibble::as_tibble(object@envir$peaks)
+    x <- tibble::as_tibble(object@envir$peaks)
+    x$UniqueID <- sprintf("%s/%s", x$SampleID, x$PeakID)
+    x
   }
 )
 
