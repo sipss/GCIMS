@@ -47,14 +47,19 @@ samples <- 3
 
 # Example Sample data cutting:
 # Before:
-gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
+gcims_view_sample(
+  dir_in, sample_num = samples,
+  rt_range = NULL, dt_range = NULL, transform = FALSE
+)
 
 # After:
 rt_range <-c(70, 125)
 dt_range <- c(8, 9.25)
 gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
-gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
-
+gcims_view_sample(
+  dir_out, sample_num = samples,
+  rt_range = NULL, dt_range = NULL, transform = FALSE
+)
 files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 invisible(file.remove(files))
 }
