@@ -80,11 +80,11 @@ optimize_delayed_operations <- function(object) {
     return(object)
   }
   delayed_ops <- object@envir$delayed_ops
-  # Extra operations that extract the rtime and dtime or TIC and RIC from the object can be delayed
+  # Extra operations that extract the rtime and dtime or TIS and RIC from the object can be delayed
   # Find them:
   where_extract_times <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_dtime_rtime"})
-  where_extract_RICTIC <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_RIC_and_TIC"})
-  where_extract <- where_extract_times | where_extract_RICTIC
+  where_extract_RIC_TIS <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_RIC_and_TIS"})
+  where_extract <- where_extract_times | where_extract_RIC_TIS
   # Not found, return:
   if (!any(where_extract)) {
     return(object)
@@ -95,7 +95,7 @@ optimize_delayed_operations <- function(object) {
   if (any(where_extract_times)) {
     object <- extract_dtime_rtime(object)
   }
-  if (any(where_extract_RICTIC)) {
+  if (any(where_extract_RIC_TIS)) {
     object <- extract_RIC_and_TIS(object)
   }
   object
