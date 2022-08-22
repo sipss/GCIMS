@@ -28,6 +28,9 @@ extract_RIC_and_TIS <- function(object) {
       rtimes <- purrr::map(objs, "rt")
 
       axes_heterogeneity <- ds@envir$axes_heterogeneity
+      if (is.null(axes_heterogeneity)) {
+        rlang::abort(c("UnexpectedError", "extract_dtime_rtime() should have been called before extract_RIC_and_TIS()"))
+      }
       if (axes_heterogeneity == "needs_interpolate") {
         # Different steps, interpolate to a common step
         dt_ref <- ds@envir$dt_ref
