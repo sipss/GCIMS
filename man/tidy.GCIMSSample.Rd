@@ -4,7 +4,7 @@
 \alias{tidy.GCIMSSample}
 \title{Tidy the raw data into a long data frame}
 \usage{
-\method{tidy}{GCIMSSample}(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL)
+\method{tidy}{GCIMSSample}(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, ...)
 }
 \arguments{
 \item{x}{A \link{GCIMSSample} object}
@@ -16,6 +16,8 @@
 \item{dt_idx}{A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)}
 
 \item{rt_idx}{A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)}
+
+\item{...}{unused}
 }
 \description{
 Tidy the raw data into a long data frame
