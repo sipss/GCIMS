@@ -81,7 +81,6 @@ setMethod("dtime", "GCIMSDataset", function(object) {
 #'
 #' @param object A GCIMSDataset
 #' @return a retention time vector
-#' @import ProtGenerics
 #' @export
 setMethod("rtime", "GCIMSDataset", function(object) {
   if (!hasDelayedOps(object) && !is.null(object@envir$rt_ref)) {

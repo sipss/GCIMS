@@ -321,7 +321,7 @@ peak_detection <- function(drift_time, retention_time, int_mat, noise_level, ver
 
     thrOverlap <- 0.2
     if (nrow(ROIs) >= 1) {
-      aff <- 1:nrow(ROIs)
+      aff <- seq_len(nrow(ROIs))
 
       done <- NULL
       for (j in (1:nrow(ROIs))){
@@ -534,7 +534,7 @@ overlapPercentage <- function(ROI1, ROI2){
 #   findpeaksRois  #
 #------------------#
 
-findpeaksRois <- function (data, MinPeakDistance = 1, MinPeakHeight = 1) {
+findpeaksRois <- function(data, MinPeakDistance = 1, MinPeakHeight = 1) {
   ld <- length(data)
   tmp <- data
 
