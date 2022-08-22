@@ -21,12 +21,12 @@ setMethod(
       } else {
         first <- axis[1]
         last <- axis[length(axis)]
-        res <- axis[2]-axis[1]
+        res <- axis[2] - axis[1]
       }
       outstring <- c(
         outstring,
         paste0(" with ", axis_name, " from ", first, " to ", last, " ", axis_unit,
-               " (", "step: ", res, " ", axis_unit , ", ",
+               " (", "step: ", signif(res, digits = 3), " ", axis_unit , ", ",
                "points: ", length(axis), ")")
       )
     }
