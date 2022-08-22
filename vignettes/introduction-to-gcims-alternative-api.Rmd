@@ -349,15 +349,7 @@ plt <- add_peaklist_rect(plt, peaks(dataset))
 plt
 ```
 
-```{r}
-# Implemented until here
-knitr::knit_exit()
-```
-
-
 # Clustering
-
-API to be decided:
 
 ```{r}
 peak_clustering <- group_peak_list(
@@ -373,6 +365,12 @@ peak_list_clustered <- peak_clustering$peak_list_clustered
 
 ```{r}
 peak_clustering$cluster_stats
+```
+
+
+```{r}
+# Implemented until here
+knitr::knit_exit()
 ```
 
 
