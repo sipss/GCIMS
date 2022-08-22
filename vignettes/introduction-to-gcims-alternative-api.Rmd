@@ -419,7 +419,7 @@ dataset <- estimateBaseline(dataset)
 # Peak integration
 
 ```{r}
-peak_list <- peakIntegration(dataset, fusion_res$peak_list, fusion_res$cluster_stats)
+peak_list <- integratePeaks(dataset, fusion_res$peak_list, fusion_res$cluster_stats)
 ```
 
 # Build peak table

@@ -25,6 +25,7 @@ setMethod(
 )
 
 
+#' @describeIn GCIMSSample-methods Get the peak list
 #' @importMethodsFrom ProtGenerics peaks
 #' @export
 setMethod(
@@ -38,6 +39,8 @@ setMethod(
   }
 )
 
+#' @describeIn GCIMSSample-methods Set the peak list
+#' @param value A data frame with the peak list
 #' @importMethodsFrom ProtGenerics "peaks<-"
 #' @export
 setMethod(

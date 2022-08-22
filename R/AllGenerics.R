@@ -231,6 +231,11 @@ NULL
 # FIXME: Ask the xcms maintainer to move the findPeaks generic to ProtGenerics
 #        Redefining creates a conflict between packages, but reusing the generic
 #        requires a dependency I would rather avoid
+#' Find Peaks in an object
+#' @param object An object to find peaks on
+#' @param ... Additional arguments for downstream methods
+#' @return The object, with found peaks
+#'
 #' @export
 setGeneric("findPeaks", function(object, ...) standardGeneric("findPeaks"))
 #setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))
@@ -238,6 +243,12 @@ setGeneric("findPeaks", function(object, ...) standardGeneric("findPeaks"))
 
 # FIXME: Consider asking the delayedArray maintainer to move the realize()
 #        generic to a package I can depend on. I redefine the generic just in case
+#' Realize the object by executing all delayed operations
+#' @param object An object with delayed operations
+#'
+#' @param ... Additional arguments for downstream methods
+#' @return The object, without delayed operations
+#'
 #' @export
 setGeneric("realize", function(object, ...) standardGeneric("realize"))
 #setGeneric("realize", getGeneric("realize", package = "delayedArray"))

@@ -5,4 +5,6 @@
 ^pkgdown$
 ^\.github$
 ^\.gitlab-ci\.yml$
-^/ci-scripts$
+^\ci-scripts$
+^vignettes/intermediate_files$
+^vignettes/threeketones$

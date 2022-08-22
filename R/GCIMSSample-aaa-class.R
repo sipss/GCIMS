@@ -28,6 +28,8 @@ methods::setOldClass("numeric_version")
 #' @slot filepath character. A string with the path to the raw data
 #' @slot description A string (optional). A sample name or ID or description used in plots
 #' @slot proc_params list (internal). Data processing parameters computed and used internally.
+#' @slot peaks A data frame (internal). The peak list, typically set using [findPeaks()].
+#'  Use [peaks()] to get/set this.
 #' @slot class_version "numeric_version" (internal) The GCIMSSample object defines
 #' internally a class version, so if a GCIMSSample object is saved, the GCIMS
 #' package is updated and the GCIMSSample class has changed during the upgrade

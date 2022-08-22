@@ -40,7 +40,7 @@
 #' # And then you can use:
 #' #    writexl::write_xlsx(annotations, "annotations.xlsx")
 #' # For csv just use:
-#' write.csv(annotations, "annotations.csv")
+#' #    write.csv(annotations, "annotations.csv")
 #' #
 #' # Modify manually the excel or CSV file
 #' #
