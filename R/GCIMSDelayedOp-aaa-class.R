@@ -78,6 +78,18 @@ aggregate_result <- function(delayed_op, extracted_result, dataset) {
   dataset
 }
 
+hashableDelayedOp <- function(object) {
+  # Functions have associated environments that change from session to session.
+  # Since we don't really care about those, we just return format() of the functions
+  # so the digest/hash is reproducible.
+  list(
+    name = object@name,
+    fun = format(object@fun),
+    params = object@params,
+    fun_extract = format(object@fun_extract),
+    fun_aggregate = format(object@fun_aggregate)
+  )
+}
 
 name <- function(x) {
   x@name
