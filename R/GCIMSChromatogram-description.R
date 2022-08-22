@@ -8,6 +8,7 @@ methods::setMethod(
 )
 
 #' @describeIn GCIMSChromatogram-class Set the description
+#' @param object A GCIMSChromatogram object
 #' @param value A string with the description
 #' @export
 methods::setMethod(

@@ -18,6 +18,8 @@ GCIMSChromatogram(...)
 \arguments{
 \item{...}{See the slots section in this page}
 
+\item{object}{A GCIMSChromatogram object}
+
 \item{value}{A string with the description}
 }
 \value{
