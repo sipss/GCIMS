@@ -157,51 +157,67 @@ setGeneric("align", function(object, ...) standardGeneric("align"))
 #' @export
 setGeneric("alignDt", function(x, y, ...) standardGeneric("alignDt"))
 
+#' @importMethodsFrom Biobase pData
 #' @export
 setGeneric("pData", getGeneric("pData", package = "Biobase"))
 
+#' @importMethodsFrom Biobase "pData<-"
 #' @export
 setGeneric("pData<-", getGeneric("pData<-", package = "Biobase"))
 
+
+#' @importMethodsFrom Biobase sampleNames
 #' @export
 setGeneric("sampleNames", getGeneric("sampleNames", package = "Biobase"))
 
+#' @importMethodsFrom Biobase "sampleNames<-"
 #' @export
 setGeneric("sampleNames<-", getGeneric("sampleNames<-", package = "Biobase"))
 
 
+#' @importMethodsFrom BiocGenerics "updateObject"
 #' @export
 setGeneric("updateObject", getGeneric("updateObject", package = "BiocGenerics"))
 
 
+#' @importMethodsFrom ProtGenerics "alignRt"
 #' @export
 setGeneric("alignRt", getGeneric("alignRt", package = "ProtGenerics"))
 
+#' @importMethodsFrom ProtGenerics "filterRt"
 #' @export
 setGeneric("filterRt", getGeneric("filterRt", package = "ProtGenerics"))
 
+#' @importMethodsFrom ProtGenerics "intensity"
 #' @export
 setGeneric("intensity", getGeneric("intensity", package = "ProtGenerics"))
 
+#' @importMethodsFrom ProtGenerics "intensity<-"
 #' @export
 setGeneric("intensity<-", getGeneric("intensity<-", package = "ProtGenerics"))
 
+#' @importMethodsFrom Biobase description
 #' @export
 setGeneric("description", getGeneric("description", package = "Biobase"))
 
+#' @importMethodsFrom Biobase "description<-"
 #' @export
 setGeneric("description<-", getGeneric("description<-", package = "Biobase"))
 
 
+#' @importMethodsFrom ProtGenerics peaks
 #' @export
 setGeneric("peaks", getGeneric("peaks", package = "ProtGenerics"))
 
+#' @importMethodsFrom ProtGenerics "peaks<-"
 #' @export
 setGeneric("peaks<-", getGeneric("peaks<-", package = "ProtGenerics"))
 
+#' @importMethodsFrom ProtGenerics rtime
 #' @export
 setGeneric("rtime", getGeneric("rtime", package = "ProtGenerics"))
 
+#' @importMethodsFrom ProtGenerics smooth
 #' @export
 setGeneric("smooth", getGeneric("smooth", package = "ProtGenerics"))
 
