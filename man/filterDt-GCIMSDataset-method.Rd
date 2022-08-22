@@ -11,6 +11,9 @@
 
 \item{dt_range}{A numeric vector of length 2 with the drift time range to keep, in milliseconds}
 }
+\value{
+The given object, with a delayed operation to filter retention times
+}
 \description{
 Filter GCIMSDataset samples by drift time
 }

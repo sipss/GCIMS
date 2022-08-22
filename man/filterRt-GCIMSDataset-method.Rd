@@ -11,6 +11,9 @@
 
 \item{rt_range}{A numeric vector of length 2 with the retention time range to keep, in seconds}
 }
+\value{
+The given object, with a delayed operation to filter retention times
+}
 \description{
 Filter GCIMSDataset samples by retention time
 }

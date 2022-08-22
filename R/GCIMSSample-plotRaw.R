@@ -62,6 +62,7 @@ setMethod(
 #' @param x A [GCIMSSample] object
 #' @inheritParams intensity,GCIMSSample-method
 #' @param ... unused
+#' @return A data frame with `dt_ms`, `rt_s` and `Intensity` columns
 #' @export
 tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, ...) {
   intmat <- intensity(x, dt_range = dt_range, rt_range = rt_range, rt_idx = rt_idx, dt_idx = dt_idx)

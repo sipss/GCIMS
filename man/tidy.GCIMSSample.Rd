@@ -19,6 +19,9 @@
 
 \item{...}{unused}
 }
+\value{
+A data frame with \code{dt_ms}, \code{rt_s} and \code{Intensity} columns
+}
 \description{
 Tidy the raw data into a long data frame
 }

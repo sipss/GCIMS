@@ -13,8 +13,15 @@ setClassUnion("DataFrameOrNULL", c("DataFrame", "NULL"))
 # setClassUnion("matrixOrNULL", c("array", "NULL"))
 # setClassUnion("numericOrNULL", c("numeric", "NULL"))
 
+#' GCIMS Generics
+#'
+#' Generics defined at the GCIMS package. We are open to moving them
+#' to an existing generics-only package if you need so.
+#'
+#' @name GCIMS-generics
+NULL
 
-#' Get drift time vector
+#' @describeIn GCIMS-generics Get drift time vector
 #'
 #' @return A numeric vector with the drift time
 #'
@@ -22,7 +29,7 @@ setClassUnion("DataFrameOrNULL", c("DataFrame", "NULL"))
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
 #' @examples
-#' x <- dummy_obj <-GCIMSSample(
+#' x <- GCIMSSample(
 #'   drift_time = 1:2,
 #'   retention_time = 1:3,
 #'   data = matrix(1:6, nrow = 2, ncol = 3)
@@ -31,7 +38,7 @@ setClassUnion("DataFrameOrNULL", c("DataFrame", "NULL"))
 #'
 setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 
-#' Get extracted ion chromatogram
+#' @describeIn GCIMS-generics Get extracted ion chromatogram
 #'
 #' @return A numeric vector with the extracted ion chromatogram
 #'
@@ -39,7 +46,7 @@ setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
 #' @examples
-#' x <- dummy_obj <-GCIMSSample(
+#' x <- GCIMSSample(
 #'   drift_time = 1:2,
 #'   retention_time = 1:3,
 #'   data = matrix(1:6, nrow = 2, ncol = 3)
@@ -48,7 +55,7 @@ setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
 
 
-#' Get IMS scans
+#' @describeIn GCIMS-generics Get IMS scans
 #'
 #' @return An ion mobility spectrum
 #' @param object An object that has IMS scans
@@ -64,7 +71,7 @@ setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
 setGeneric("getIMS", function(object, ...) standardGeneric("getIMS"))
 
 
-#' Get a GCIMSSample
+#' @describeIn GCIMS-generics Get a GCIMSSample
 #'
 #' @return A [GCIMSSample] object
 #' @param object An object where we can extract GCIMSSamples from
@@ -72,7 +79,7 @@ setGeneric("getIMS", function(object, ...) standardGeneric("getIMS"))
 #' @export
 setGeneric("getGCIMSSample", function(object, ...) standardGeneric("getGCIMSSample"))
 
-#' Get the Total Ion Spectrum
+#' @describeIn GCIMS-generics Get the Total Ion Spectrum
 #'
 #' @return The Total Ion Spectrum as a numeric vector or a matrix
 #' (depending if the object is one sample or several)
@@ -81,7 +88,7 @@ setGeneric("getGCIMSSample", function(object, ...) standardGeneric("getGCIMSSamp
 #' @export
 setGeneric("getTIS", function(object, ...) standardGeneric("getTIS"))
 
-#' Get the Reverse Ion Chromatogram
+#' @describeIn GCIMS-generics Get the Reverse Ion Chromatogram
 #'
 #' @return The Reverse Ion Chromatogram, as a numeric vector or a
 #' matrix (depending if the object is one sample or several)
@@ -91,7 +98,7 @@ setGeneric("getTIS", function(object, ...) standardGeneric("getTIS"))
 setGeneric("getRIC", function(object, ...) standardGeneric("getRIC"))
 
 
-#' Plot raw data
+#' @describeIn GCIMS-generics Plot raw data
 #'
 #' @return A plot
 #' @param object An object to plot raw data
@@ -99,7 +106,7 @@ setGeneric("getRIC", function(object, ...) standardGeneric("getRIC"))
 #' @export
 setGeneric("plotRaw", function(object, ...) standardGeneric("plotRaw"))
 
-#' Plot total ion spectrum
+#' @describeIn GCIMS-generics Plot total ion spectrum
 #'
 #' @return A plot
 #' @param object An object to plot the total ion spectrum
@@ -107,7 +114,7 @@ setGeneric("plotRaw", function(object, ...) standardGeneric("plotRaw"))
 #' @export
 setGeneric("plotTIS", function(object, ...) standardGeneric("plotTIS"))
 
-#' Plot Reverse Ion Chromatogram
+#' @describeIn GCIMS-generics Plot Reverse Ion Chromatogram
 #'
 #' @return A plot
 #' @param object An object to plot its reverse ion chromatogram
@@ -116,7 +123,7 @@ setGeneric("plotTIS", function(object, ...) standardGeneric("plotTIS"))
 setGeneric("plotRIC", function(object, ...) standardGeneric("plotRIC"))
 
 
-#' Filter in Drift time
+#' @describeIn GCIMS-generics Filter in Drift time
 #' @return The object, modified
 #' @param object An object to filter
 #' @param ... Further arguments, possibly used by downstream methods.
@@ -124,13 +131,14 @@ setGeneric("plotRIC", function(object, ...) standardGeneric("plotRIC"))
 setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))
 
 
-#' This function returns a list of relevant object-related information to be
-#' used when printing.
+#' Format as a list
+#'
+#' @return A list with a brief description/representation of the object
 #'
 #' @keywords internal
 setGeneric("describeAsList", function(object, ...) standardGeneric("describeAsList"))
 
-#' Decimate an object
+#' @describeIn GCIMS-generics Decimate an object
 #'
 #' @param object An object to decimate
 #' @param ... Further arguments, possibly used by downstream methods.
@@ -139,7 +147,7 @@ setGeneric("describeAsList", function(object, ...) standardGeneric("describeAsLi
 setGeneric("decimate", function(object, ...) standardGeneric("decimate"))
 
 
-#' Align an object
+#' @describeIn GCIMS-generics Align an object
 #'
 #' @param object An object to align
 #' @param ... Further arguments, possibly used by downstream methods.
@@ -148,7 +156,7 @@ setGeneric("decimate", function(object, ...) standardGeneric("decimate"))
 setGeneric("align", function(object, ...) standardGeneric("align"))
 
 
-#' Align an object in drift time
+#' @describeIn GCIMS-generics Align an object in drift time
 #'
 #' @param x An object to align
 #' @param y Another object to use as reference
@@ -221,11 +229,9 @@ setGeneric("rtime", getGeneric("rtime", package = "ProtGenerics"))
 #' @export
 setGeneric("smooth", getGeneric("smooth", package = "ProtGenerics"))
 
-#' Tidy generic
-#' @name tidy
 #' @importFrom generics tidy
 #' @export
-NULL
+generics::tidy
 
 
 # FIXME: Ask the xcms maintainer to move the findPeaks generic to ProtGenerics

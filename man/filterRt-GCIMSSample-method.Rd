@@ -11,6 +11,9 @@
 
 \item{rt_range}{A numeric vector of length 2 with the retention time range to keep, in seconds}
 }
+\value{
+A subset of the sample, only in the selected \code{rt_range}
+}
 \description{
 Filter GCIMSSample samples by retention time
 }

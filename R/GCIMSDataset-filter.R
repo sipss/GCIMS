@@ -3,6 +3,7 @@
 #' @importMethodsFrom ProtGenerics filterRt
 #' @param object A [GCIMSDataset] object
 #' @param rt_range A numeric vector of length 2 with the retention time range to keep, in seconds
+#' @return The given object, with a delayed operation to filter retention times
 #' @export
 #' @examples
 #' base_dir <- system.file("extdata", "sample_formats", package = "GCIMS")
@@ -33,6 +34,7 @@ setMethod(
 #' @param object A [GCIMSDataset] object
 #' @param dt_range A numeric vector of length 2 with the drift time range to keep, in milliseconds
 #' @export
+#' @return The given object, with a delayed operation to filter retention times
 #' @examples
 #' base_dir <- system.file("extdata", "sample_formats", package = "GCIMS")
 #' annot <- data.frame(SampleID = "Sample1", FileName = "small.mea.gz")

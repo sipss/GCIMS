@@ -3,6 +3,7 @@
 #' @param object A [GCIMSSample] object
 #' @param rt_range A numeric vector of length 2 with the retention time range to keep, in seconds
 #' @export
+#' @return A subset of the sample, only in the selected `rt_range`
 #' @examples
 #' sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
 #' s <- read_mea(sample_file)
@@ -21,6 +22,7 @@ setMethod(
 #' @param object A [GCIMSSample] object
 #' @param dt_range A numeric vector of length 2 with the drift time range to keep, in milliseconds
 #' @export
+#' @return A subset of the sample, only in the selected `dt_range`
 #' @examples
 #' sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
 #' s <- read_mea(sample_file)

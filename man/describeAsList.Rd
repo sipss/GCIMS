@@ -2,13 +2,14 @@
 % Please edit documentation in R/AllGenerics.R
 \name{describeAsList}
 \alias{describeAsList}
-\title{This function returns a list of relevant object-related information to be
-used when printing.}
+\title{Format as a list}
 \usage{
 describeAsList(object, ...)
 }
+\value{
+A list with a brief description/representation of the object
+}
 \description{
-This function returns a list of relevant object-related information to be
-used when printing.
+Format as a list
 }
 \keyword{internal}
