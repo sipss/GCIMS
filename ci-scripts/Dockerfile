@@ -9,10 +9,7 @@ RUN apt-get update && apt-get install -y \
     texlive-fonts-extra \
     texlive-latex-extra
 
-RUN Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager", "covr", "pkgdown", "DT", "magick"))' && \
-    Rscript -e 'BiocManager::install("BiocCheck")'
-
 COPY DESCRIPTION /workdir/DESCRIPTION
 WORKDIR /workdir
 
-RUN Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+RUN Rscript -e 'BiocManager::install(c("rcmdcheck", "BiocManager", "covr", "pkgdown", "DT", "magick", "BiocCheck", remotes::dev_package_deps(".", dependencies = TRUE)$package))'
