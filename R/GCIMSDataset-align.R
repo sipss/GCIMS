@@ -10,27 +10,22 @@ setMethod(
   "align",
   "GCIMSDataset",
   function(object) {
-    object <- extract_dtime_rtime(object)
     tis_matrix <- getTIS(object)
     ric_matrix <- getRIC(object)
-
-
-    # Optimize ret time alignment parameters:
-    ref_ric_sample_idx <- find_reference_ric(ric_matrix)
-    # Select reference RIC
-    ric_ref_rt <- rtime(object)
-    ric_ref <- as.numeric(ric_matrix[ref_ric_sample_idx, ])
-
-    # Optimize drift time alignment parameters:
-    rip_position <- apply(tis_matrix, 1L, which.max)
-    rip_ref_idx <- round(stats::median(rip_position, na.rm = TRUE))
     dt <- dtime(object)
-    rip_ref_ms <- dt[rip_ref_idx]
+    rt <- rtime(object)
+
+    align_params <- alignParams(
+      dt = dt,
+      rt = rt,
+      tis_matrix = tis_matrix,
+      ric_matrix = ric_matrix
+    )
 
     delayed_op <- GCIMSDelayedOp(
       name = "align",
       fun = align,
-      params = list(rip_ref_ms = rip_ref_ms, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt),
+      params = align_params,
       fun_extract = function(x) {
         list(
           dt_kcorr = x@proc_params$align$dt_kcorr,
@@ -71,6 +66,20 @@ setMethod(
     invisible(object)
   }
 )
+
+alignParams <- function(dt, rt, tis_matrix, ric_matrix) {
+  # Optimize ret time alignment parameters:
+  ref_ric_sample_idx <- find_reference_ric(ric_matrix)
+  # Select reference RIC
+  ric_ref <- as.numeric(ric_matrix[ref_ric_sample_idx, ])
+
+  # Optimize drift time alignment parameters:
+  rip_position <- apply(tis_matrix, 1L, which.max)
+  rip_ref_idx <- round(stats::median(rip_position, na.rm = TRUE))
+  rip_ref_ms <- dt[rip_ref_idx]
+
+  list(rip_ref_ms = rip_ref_ms, ric_ref = ric_ref, ric_ref_rt = rt)
+}
 
 #' Plots to interpret alignment results
 #'
