@@ -50,11 +50,11 @@ extract_dtime_rtime <- function(object) {
       needs_interpolate <- any(has_different_dt_step, has_different_rt_step)
 
       if (needs_interpolate) {
-        gcimsdataset@envir$axes_heterogeneity <- "needs_interpolate"
+        axesHeterogeneity(gcimsdataset) <- "needs_interpolate"
       } else if (needs_cutting) {
-        gcimsdataset@envir$axes_heterogeneity <- "needs_cutting"
+        axesHeterogeneity(gcimsdataset) <- "needs_cutting"
       } else {
-        gcimsdataset@envir$axes_heterogeneity <- "allequal"
+        axesHeterogeneity(gcimsdataset) <- "all_equal"
       }
       # fun_aggregate must return the GCIMSDataset object
       gcimsdataset
@@ -62,6 +62,25 @@ extract_dtime_rtime <- function(object) {
   )
   object <- appendDelayedOp(object, delayed_op)
   object
+}
+
+"axesHeterogeneity<-" <- function(object, value) {
+  valid_values <- c("needs_interpolate", "needs_cutting", "all_equal")
+  if (!value %in% valid_values) {
+    rlang::abort(
+      message = c(
+        "Invalid value for axesHeterogeneity",
+        "x" = glue("You gave {value}"),
+        "i" = glue("Expected one of: {paste0(valid_values, collapse = ', ')}")
+        )
+    )
+  }
+  object@envir$axes_heterogeneity <- value
+  object
+}
+
+axesHeterogeneity <- function(object) {
+  object@envir$axes_heterogeneity
 }
 
 #' Get A reference drift time vector for the dataset

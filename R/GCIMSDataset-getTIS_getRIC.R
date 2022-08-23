@@ -6,6 +6,7 @@
 #' RIC and TIS matrices.
 #' @export
 extract_RIC_and_TIS <- function(object) {
+  object <- extract_dtime_rtime(object)
   delayed_op <- GCIMSDelayedOp(
     name = "extract_RIC_and_TIS",
     fun = NULL,
@@ -27,7 +28,7 @@ extract_RIC_and_TIS <- function(object) {
       dtimes <- purrr::map(objs, "dt")
       rtimes <- purrr::map(objs, "rt")
 
-      axes_heterogeneity <- ds@envir$axes_heterogeneity
+      axes_heterogeneity <- axesHeterogeneity(ds)
       if (is.null(axes_heterogeneity)) {
         rlang::abort(c("UnexpectedError", "extract_dtime_rtime() should have been called before extract_RIC_and_TIS()"))
       }
