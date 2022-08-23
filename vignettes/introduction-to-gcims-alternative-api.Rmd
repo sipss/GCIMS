@@ -352,7 +352,7 @@ plt
 # Clustering
 
 ```{r}
-peak_clustering <- group_peak_list(
+peak_clustering <- clusterPeaks(
   peak_list,
   distance_method = "sd_scaled_euclidean",
   clustering = list(method = "kmedoids", Nclusters = 13)
