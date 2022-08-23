@@ -122,6 +122,20 @@ setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
     return(object)
   }
 
+  if (!canRealize(object)) {
+    rlang::abort(
+      message = c(
+        "UnexpectedError",
+        paste0(
+          "Tried to realize a dataset that could not be realized. This is ",
+          "a bug in the package. Please report it to https://github.com/sipss/GCIMS/issues"
+        )
+      )
+    )
+  }
+  canRealize(object) <- FALSE
+  on.exit({canRealize(object) <- TRUE})
+
   object <- optimize_delayed_operations(object)
 
   if (is.na(keep_intermediate)) {
@@ -167,3 +181,18 @@ setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
   }
   invisible(object)
 })
+
+
+canRealize <- function(object) {
+  object@envir$can_realize
+}
+
+"canRealize<-" <- function(object, value) {
+  value <- as.logical(value)
+  if (length(value) != 1 || is.na(value)) {
+    rlang::abort("canRealize can't be NA or NULL and must be of length one")
+  }
+  object@envir$can_realize <- value
+  object
+}
+

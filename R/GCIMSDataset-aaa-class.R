@@ -155,6 +155,7 @@ methods::setMethod(
     .Object@envir$previous_ops <- list()
     .Object@envir$hasheddir <- ""
     .Object@envir$keep_intermediate <- keep_intermediate
+    canRealize(.Object) <- TRUE
     .Object <- appendDelayedOp(.Object, GCIMSDelayedOp(name = "read_sample", fun = read_sample))
     # Some sample stats:
     .Object <- extract_dtime_rtime(.Object)
