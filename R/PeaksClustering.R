@@ -40,7 +40,7 @@
 #'   verbose = FALSE
 #' )
 #' }
-group_peak_list <- function(
+clusterPeaks <- function(
   peaks,
   filter_dt_width_criteria = "IQR",
   filter_rt_width_criteria = "arnau",
@@ -154,6 +154,10 @@ group_peak_list <- function(
     extra_clustering_info = extra_clustering_info
   )
 }
+
+#' @rdname clusterPeaks
+#' @export
+group_peak_list <- clusterPeaks
 
 #' Build a peak table
 #'
