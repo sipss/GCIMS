@@ -19,7 +19,12 @@ setMethod(
   "plotRaw",
   "GCIMSSample",
   function(object, dt_range = NULL, rt_range = NULL) {
-    intens_long <- tidy(object, dt_range = dt_range, rt_range = rt_range)
+    dt <- dtime(object)
+    rt <- rtime(object)
+    idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range)
+
+    intmat <- intensity(object, idx)
+    minmax <- range(intmat)
 
     cubic_root_trans <- scales::trans_new(
       name = "cubic_root",
@@ -38,22 +43,40 @@ setMethod(
       }
     )
 
+    intmat_trans <- cubic_root_trans$transform(intmat)
+    nr <- mat_to_nativeRaster(intmat_trans, COLORMAP_VIRIDIS_256_A_m1)
 
-
-    p <- ggplot2::ggplot(intens_long) +
-      ggplot2::geom_raster(
-        mapping = ggplot2::aes(x = .data$dt_ms, y = .data$rt_s, fill = .data$Intensity),
-        interpolate = FALSE
+    # The geom_rect is fake and it is only used to force the fill legend to appear
+    gplt <- ggplot() +
+      geom_rect(
+        xmin = idx$dt_ms_min, xmax = idx$dt_ms_min,
+        ymin = idx$rt_s_min, ymax = idx$rt_s_min,
+        ggplot2::aes(fill = .data$x),
+        data = data.frame(x = NA_real_)
       ) +
-      viridis::scale_fill_viridis(discrete = FALSE, option = "A", direction = -1, trans = cubic_root_trans) +
+      ggplot2::annotation_raster(
+        nr,
+        xmin = idx$dt_ms_min, xmax = idx$dt_ms_max,
+        ymin = idx$rt_s_min, ymax = idx$rt_s_max
+      ) +
+      ggplot2::scale_fill_viridis_c( # This has to match with the COLORMAP above
+        direction = -1,
+        option = "A",
+        limits = minmax,
+        na.value = "#00000000",
+        trans = cubic_root_trans
+      ) +
+      ggplot2::lims(
+        x = c(idx$dt_ms_min, idx$dt_ms_max),
+        y = c(idx$rt_s_min, idx$rt_s_max)
+      ) +
       ggplot2::labs(
-        x = "Drift Time (ms)",
-        y = "Retention Time (s)",
-        fill = "Intensity",
-        caption = object@description
+        x = "Drift time (ms)",
+        y = "Retention time (s)",
+        fill = "Intensity (a.u.)"
       ) +
       ggplot2::theme_minimal()
-    p
+    gplt
   }
 )
 
