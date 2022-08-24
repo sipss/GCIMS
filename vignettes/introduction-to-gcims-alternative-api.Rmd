@@ -87,7 +87,11 @@ follow the example from `help("create_annotations_table")` for further details.
 # Create a GCIMSDataset object
 
 ```{r}
-dataset <- GCIMSDataset(annotations, base_dir = samples_directory, scratch_dir = "intermediate_files")
+dataset <- GCIMSDataset(
+  annotations,
+  base_dir = samples_directory,
+  scratch_dir = "intermediate_files"
+)
 dataset
 ```
 
@@ -193,7 +197,13 @@ ggplot(to_plot) +
 You can also apply it to a single sample:
 
 ```{r}
-ket1_smoothed <- smooth(ket1afterfilter, rt_length_s = 3, dt_length_ms = 0.14, rt_order = 2, dt_order = 2)
+ket1_smoothed <- smooth(
+  ket1afterfilter,
+  rt_length_s = 3,
+  dt_length_ms = 0.14,
+  rt_order = 2,
+  dt_order = 2
+)
 ```
 
 ```{r}
@@ -210,14 +220,8 @@ Or to the whole dataset (the default order is 2 for both axes):
 
 ```{r}
 dataset <- smooth(dataset, rt_length_s = 3, dt_length_ms = 0.14)
-dataset
-```
-
-```{r}
 realize(dataset)
-dataset
 ```
-
 
 # Decimation
 
@@ -288,17 +292,12 @@ the samples to be aligned.
 align(dataset)
 ```
 
-```{r}
-realize(dataset)
-dataset
-```
 
 
-```{r}
+```{r fig.height=8}
 align_plots <- alignPlots(dataset)
 cowplot::plot_grid(plotlist = align_plots, ncol = 1)
 ```
-
 
 
 
