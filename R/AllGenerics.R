@@ -258,3 +258,12 @@ setGeneric("findPeaks", function(object, ...) standardGeneric("findPeaks"))
 #' @export
 setGeneric("realize", function(object, ...) standardGeneric("realize"))
 #setGeneric("realize", getGeneric("realize", package = "delayedArray"))
+
+
+#' Estimate the baseline in an object
+#' @param object An object to estimate the baseline
+#' @param ... Additional arguments for downstream methods
+#' @return The object, with a baseline estimated
+#'
+#' @export
+setGeneric("estimateBaseline", function(object, ...) standardGeneric("estimateBaseline"))
