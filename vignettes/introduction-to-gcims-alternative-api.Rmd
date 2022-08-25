@@ -3,6 +3,7 @@ title: "Introduction to GCIMS, Alternative API"
 output:
   "BiocStyle::pdf_document":
     df_print: "kable"
+    dev: png
 package: GCIMS
 author: "GCIMS authors"
 date: "`r format(Sys.Date(), '%F')`"
