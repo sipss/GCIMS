@@ -83,44 +83,52 @@ gcims_remove_baseline <- function(dir_in, dir_out, samples,
 }
 
 
-
-remove_bsln_td <- function(aux,sig_mult = 12){
-  # Create the total ion spectrum
-  y <- rowSums(aux)
-  # Compute the maximum height or RIP
-  y_max <- max(y)
-  # Find RIP position in drift time index
-  mu <- which.max(y)
-  # f/2 -> FWHM = 2.3482 * sigma
-  fwhm <-  2 * abs(mu - which.min(abs(y - (y_max / 2))))
-  # Estimate sigma
-  sig <- fwhm / 2.3482
+estimate_baseline_td <- function(aux, sig_mult = 12, peak_fwhm_pts = NULL) {
+  if (is.null(peak_fwhm_pts)) {
+    # Create the total ion spectrum
+    y <- rowSums(aux)
+    # Compute the maximum height or RIP
+    y_max <- max(y)
+    # Find RIP position in drift time index
+    mu <- which.max(y)
+    # f/2 -> FWHM = 2.3482 * sigma
+    peak_fwhm_pts <-  2 * abs(mu - which.min(abs(y - (y_max / 2))))
+    # Estimate sigma
+  }
+  sig <- peak_fwhm_pts / 2.3482
   #Create vector of indexes
-  x <- seq_along(y)
+  x <- seq_len(nrow(aux))
   #Selection of the region size to perform interpolation
   region_size <- sig * sig_mult
-  number_of_regions <- ceiling(length(y) / region_size)
+  number_of_regions <- ceiling(nrow(aux) / region_size)
   baseline <- compute_baseline(aux, x, number_of_regions, region_size)
-  aux_corr <-  aux - baseline
-  return(aux_corr)
+  return(baseline)
+}
+
+remove_bsln_td <- function(aux, sig_mult = 12) {
+  baseline <- estimate_baseline_td(aux, sig_mult)
+  aux - baseline
+}
+
+estimate_baseline_tr <- function(aux, region_size) {
+  # Transpose matrix
+  aux <- t(aux)
+  # Create vector of indexes
+  x <- seq_len(nrow(aux))
+  #Selection of the region size to perform interpolation
+  number_of_regions <- ceiling(nrow(aux)/region_size)
+  #compute baseline
+  baseline <- compute_baseline(aux, x, number_of_regions, region_size)
+  # Transpose again
+  t(baseline)
 }
 
 remove_bsln_tr <- function(aux, peak_list){
-  peak_width <- peak_list$rt_max_idx - peak_list$rt_min_idx
+  peak_rt_lengths <- peak_list$rt_max_idx - peak_list$rt_min_idx
   # Estimate region
-  region_size <- stats::quantile(peak_width, 0.75)
-  # Transpose matrix
-  aux <- t(aux)
-  # Create the total ion chromatogram
-  y <- rowSums(aux)
-  # Create vector of indexes
-  x <- seq_along(y)
-  #Selection of the region size to perform interpolation
-  number_of_regions <- ceiling(length(y) / region_size)
-  #compute baseline
-  baseline <- compute_baseline(aux, x, number_of_regions, region_size)
-  # correct baseline and transpose
-  aux_corr <-  t(aux - baseline)
+  region_size <- stats::quantile(peak_rt_lengths, 0.75)
+  baseline <- estimate_baseline_tr(aux, region_size)
+  aux_corr <-  aux - baseline
   return(aux_corr)
 }
 
