@@ -18,4 +18,5 @@ methods::setMethod(
     }
     object@description <- value
   }
+  object
 )
