@@ -227,11 +227,7 @@ dim.GCIMSSample <- function(x) {
 #' @describeIn GCIMSSample-methods Subset a [GCIMSSample-class] object
 #'
 #' @param x A GCIMSSample object
-#' @param dt_idx A vector of drift time indices to keep
-#' @param rt_idx A vector of retention time indices to keep
-#' @param dt_range The drift time range to keep (in milliseconds)
-#' @param rt_range The retention time range to keep (in seconds)
-#'
+#' @inheritParams dt_rt_range_normalization
 #' @return `subset`: A subsetted `GCIMSSample` object
 #'
 #' @aliases subset
@@ -251,36 +247,25 @@ subset.GCIMSSample <- function(
 
   dt <- dtime(x)
   rt <- rtime(x)
-
-  if (!is.null(dt_range)) {
-    dt_idx <- which(dt >= min(dt_range) & dt <= max(dt_range))
-  }
-
-  if (!is.null(rt_range)) {
-    rt_idx <- which(rt >= min(rt_range) & rt <= max(rt_range))
-  }
-
-  if (is.null(dt_idx)) {
-    dt_idx <- seq_along(dt)
-  }
-  if (is.null(rt_idx)) {
-    rt_idx <- seq_along(rt)
-  }
-
-  if (identical(dt_idx, seq_along(dt)) &&
-      identical(rt_idx, seq_along(rt))) {
-    return(x)
-  }
+  idx <- dt_rt_range_normalization(
+    dt = dt, rt = rt,
+    dt_range = dt_range, rt_range = rt_range,
+    dt_idx = dt_idx, rt_idx = rt_idx
+  )
 
   new_obj <- x
-  new_obj@drift_time <- dt[dt_idx]
-  new_obj@retention_time <- rt[rt_idx]
-  new_obj@data <- x@data[dt_idx, rt_idx, drop = FALSE]
+  new_obj@drift_time <- dt[idx$dt_logical]
+  new_obj@retention_time <- rt[idx$rt_logical]
+  new_obj@data <- x@data[idx$dt_logical, idx$rt_logical, drop = FALSE]
+  if (!is.null(new_obj@baseline)) {
+    new_obj@baseline <- new_obj@baseline[idx$dt_logical, idx$rt_logical, drop = FALSE]
+  }
   new_obj
 }
 
 
 #' @describeIn GCIMSSample-methods Get the extracted ion chromatogram
+#' @inheritParams dt_rt_range_normalization
 #' @export
 setMethod("getEIC", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {
   dt <- dtime(object)
@@ -302,6 +287,7 @@ setMethod("getEIC", "GCIMSSample", function(object, dt_range = NULL, rt_range = 
 })
 
 #' @describeIn GCIMSSample-methods Get IMS spectrum
+#' @inheritParams dt_rt_range_normalization
 #' @param object A GCIMSSample object
 #' @export
 setMethod("getIMS", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {

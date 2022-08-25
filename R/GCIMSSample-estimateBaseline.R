@@ -33,10 +33,7 @@ methods::setMethod(
 )
 
 #' @describeIn estimateBaseline-GCIMSSample-method Get the baseline
-#' @param dt_range The minimum and maximum drift times to extract (length 2 vector)
-#' @param rt_range The minimum and maximum retention times to extract (length 2 vector)
-#' @param dt_idx A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)
-#' @param rt_idx A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)
+#' @inheritParams dt_rt_range_normalization
 #' @param .error_if_missing A logical. If `TRUE`, raise error if baseline has not been estimated. If `FALSE` returns `NULL` instead.
 #' @export
 methods::setMethod(

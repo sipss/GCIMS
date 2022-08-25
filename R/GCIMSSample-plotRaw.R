@@ -1,8 +1,8 @@
 #' Topographical plot of a GCIMSSample object
 #'
 #' @param object A [GCIMSSample] object
-#' @param dt_range The drift time range to plot (in milliseconds)
-#' @param rt_range The retention time range to plot (in seconds)
+#' @param dt_range A numeric vector of length 2 with the drift time range to plot (in milliseconds)
+#' @param rt_range A numeric vector of length 2 with the retention time range to plot (in seconds)
 #' @param ... Ignored
 #' @param remove_baseline Set to `TRUE` to subtract the estimated baseline first
 #' @return A plot of the GCIMSSample

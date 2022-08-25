@@ -1,7 +1,7 @@
 #' Filter GCIMSSample samples by retention time
 #'
 #' @param object A [GCIMSSample] object
-#' @param rt_range A numeric vector of length 2 with the retention time range to keep, in seconds
+#' @inheritParams dt_rt_range_normalization
 #' @export
 #' @return A subset of the sample, only in the selected `rt_range`
 #' @examples
@@ -20,7 +20,7 @@ setMethod(
 #' Filter GCIMSSample samples by drift time
 #'
 #' @param object A [GCIMSSample] object
-#' @param dt_range A numeric vector of length 2 with the drift time range to keep, in milliseconds
+#' @inheritParams dt_rt_range_normalization
 #' @export
 #' @return A subset of the sample, only in the selected `dt_range`
 #' @examples

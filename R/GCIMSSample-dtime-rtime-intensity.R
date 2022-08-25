@@ -19,11 +19,7 @@ setMethod("dtime", "GCIMSSample", function(object) object@drift_time)
 setMethod("rtime", "GCIMSSample", function(object) object@retention_time)
 
 #' @describeIn GCIMSSample-rtime-dtime-intensity Get the intensity matrix
-#' @importMethodsFrom ProtGenerics intensity
-#' @param dt_range The minimum and maximum drift times to extract (length 2 vector)
-#' @param rt_range The minimum and maximum retention times to extract (length 2 vector)
-#' @param dt_idx A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)
-#' @param rt_idx A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)
+#' @inheritParams dt_rt_range_normalization
 #' @export
 #' @examples
 #' mea_file <- system.file("extdata",  "sample_formats", "small.mea.gz", package = "GCIMS")

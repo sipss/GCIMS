@@ -16,8 +16,7 @@ setMethod("rtime", "GCIMSChromatogram", function(object) object@retention_time)
 
 #' Get the intensity vector
 #' @param object A GCIMSChromatogram object
-#' @param rt_range The minimum and maximum retention times to extract (length 2 vector)
-#' @param rt_idx A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)
+#' @inheritParams dt_rt_range_normalization
 #' @return The retention intesity vector
 #' @importMethodsFrom ProtGenerics intensity
 #' @export
