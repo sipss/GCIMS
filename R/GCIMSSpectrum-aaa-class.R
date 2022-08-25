@@ -6,8 +6,8 @@
 #'
 #' @slot drift_time A numeric vector with drift times
 #' @slot intensity A numeric vector with the corresponding intensities
-#' @slot baseline (internal) A numeric vector of the same length as `intensity` with the corresponding baseline.
-#' Or `NULL` if not set. Use [estimateBaseline()] to estimate it, [baseline()] to directly access it.
+#' @slot baseline A numeric vector of the same length as `intensity` with the corresponding baseline,
+#' or `NULL` if not set. Use [estimateBaseline()] to estimate it, [baseline()] to directly access it.
 #' @slot retention_time_idx The index or indices used to get the intensity
 #' @slot retention_time_s The retention times corresponding to the retention time indices.
 #' @slot description A string with a description (used as plot title, useful e.g. to know the sample it came from)
@@ -27,7 +27,7 @@ methods::setClass(
 
 methods::setMethod(
   "initialize", "GCIMSSpectrum",
-  function(.Object, drift_time, intensity, retention_time_idx, retention_time_s, description, ...) {
+  function(.Object, drift_time, intensity, retention_time_idx, retention_time_s, description, ..., baseline = NULL) {
     dots <- list(...)
     if (length(dots) > 0) {
       if (!is.null(names(dots))) {
@@ -43,12 +43,13 @@ methods::setMethod(
       )
     }
     stopifnot(length(drift_time) == length(intensity))
+    stopifnot(is.null(baseline) || length(drift_time) == length(baseline))
     .Object@drift_time <- drift_time
     .Object@retention_time_idx <- retention_time_idx
     .Object@retention_time_s <- retention_time_s
     .Object@intensity <- intensity
     .Object@description <- description
-    .Object@baseline <- NULL
+    .Object@baseline <- baseline
     .Object
   })
 
