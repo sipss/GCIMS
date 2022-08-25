@@ -469,8 +469,3 @@ units_to_points <- function(length_phys, step_phys, must_odd = FALSE) {
   }
   length_pts
 }
-
-round_resolution <- function(step) {
-  step_digits <- 1L - ceiling(log10(step))
-  function(x) round(x, digits = step_digits)
-}

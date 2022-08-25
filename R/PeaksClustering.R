@@ -19,7 +19,6 @@
 #'
 #'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
 #' @param verbose logical, to control printing in the function
-#' @param dt_step_ms,rt_step_s Optional. The time resolution, for rounding purposes in cluster statistics
 #'
 #' @return A list with :
 #' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
@@ -48,9 +47,7 @@ clusterPeaks <- function(
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-  verbose = FALSE,
-  dt_step = NULL,
-  rt_step = NULL
+  verbose = FALSE
 ) {
   # 0. Warn if peaks with NA positions, and remove them
   peaks_with_na <- stats::complete.cases(peaks[,c("UniqueID", "SampleID", "dt_apex_ms", "rt_apex_s")])
@@ -123,35 +120,17 @@ clusterPeaks <- function(
     peaks$cluster <- sprintf(ndigits_print, peaks$cluster)
   }
 
-  if (!is.null(dt_step)) {
-    round_dt <- round_resolution(dt_step)
-  } else {
-    round_dt <- function(x) x
-  }
-  if (!is.null(rt_step)) {
-    round_rt <- round_resolution(rt_step)
-  } else {
-    round_rt <- function(x) x
-  }
-
   cluster_stats <- peaks %>%
     dplyr::group_by(.data$cluster) %>%
     dplyr::summarise(
       dplyr::across(
         dplyr::all_of(
           c(
-            "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms"
-          )
-        ),
-        ~ round_dt(stats::median(.))
-      ),
-      dplyr::across(
-        dplyr::all_of(
-          c(
+            "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms",
             "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s"
           )
         ),
-        ~ round_rt(stats::median(.))
+        stats::median
       ),
       dplyr::across(
         dplyr::all_of(c("dt_min_idx", "rt_min_idx")),
