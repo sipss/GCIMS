@@ -5,7 +5,9 @@
 #' or the aggregation of several spectra.
 #'
 #' @slot drift_time A numeric vector with drift times
-#' @slot intensity A numeric vector witht the corresponding intensities
+#' @slot intensity A numeric vector with the corresponding intensities
+#' @slot baseline (internal) A numeric vector of the same length as `intensity` with the corresponding baseline.
+#' Or `NULL` if not set. Use [estimateBaseline()] to estimate it, [baseline()] to directly access it.
 #' @slot retention_time_idx The index or indices used to get the intensity
 #' @slot retention_time_s The retention times corresponding to the retention time indices.
 #' @slot description A string with a description (used as plot title, useful e.g. to know the sample it came from)
@@ -16,6 +18,7 @@ methods::setClass(
   slots = c(
     drift_time = "numeric",
     intensity = "numeric",
+    baseline = "numericOrNULL",
     retention_time_idx = "numeric",
     retention_time_s = "numeric",
     description = "character"
@@ -24,21 +27,36 @@ methods::setClass(
 
 methods::setMethod(
   "initialize", "GCIMSSpectrum",
-  function(.Object, drift_time, intensity, retention_time_idx, retention_time_s, description) {
+  function(.Object, drift_time, intensity, retention_time_idx, retention_time_s, description, ...) {
+    dots <- list(...)
+    if (length(dots) > 0) {
+      if (!is.null(names(dots))) {
+        invalid_names <- paste0(names(dots), collapse = ", ")
+      }
+      valid_names <- paste0(setdiff(names(formals()), c(".Object", "...")), collapse = ", ")
+      rlang::abort(
+        message = c(
+          "Invalid argument to GCIMSSpectrum constructor",
+          "x" = paste0("The following arguments are invalid: ", invalid_names),
+          "i" = paste0("The valid argument names are: ", valid_names)
+          )
+      )
+    }
     stopifnot(length(drift_time) == length(intensity))
     .Object@drift_time <- drift_time
     .Object@retention_time_idx <- retention_time_idx
     .Object@retention_time_s <- retention_time_s
     .Object@intensity <- intensity
     .Object@description <- description
+    .Object@baseline <- NULL
     .Object
   })
 
 
-#' @describeIn GCIMSSpectrum class
-#'
-#' @param ... See the slots section in this page
+#' @describeIn GCIMSSpectrum-class Friendly constructor
+#' @param ... See the slots section
 #' @return A GCIMSSpectrum object
+#' @export
 GCIMSSpectrum <- function(...) {
   methods::new("GCIMSSpectrum", ...)
 }
@@ -46,10 +64,15 @@ GCIMSSpectrum <- function(...) {
 
 #' @export
 as.data.frame.GCIMSSpectrum <- function(x, ...) {
-  data.frame(
+  out <- data.frame(
     drift_time_ms = dtime(x),
     intensity = intensity(x)
   )
+  if (!is.null(x@baseline)) {
+    basel <- baseline(x)
+    out$baseline <- basel
+  }
+  out
 }
 
 
