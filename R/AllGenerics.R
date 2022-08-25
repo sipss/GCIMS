@@ -10,8 +10,8 @@
 # all the generic declarations in the package.
 
 setClassUnion("DataFrameOrNULL", c("DataFrame", "NULL"))
-# setClassUnion("matrixOrNULL", c("array", "NULL"))
-# setClassUnion("numericOrNULL", c("numeric", "NULL"))
+setClassUnion("matrixOrNULL", c("array", "NULL"))
+setClassUnion("numericOrNULL", c("numeric", "NULL"))
 
 #' GCIMS Generics
 #'
@@ -260,10 +260,27 @@ setGeneric("realize", function(object, ...) standardGeneric("realize"))
 #setGeneric("realize", getGeneric("realize", package = "delayedArray"))
 
 
-#' Estimate the baseline in an object
+#' @describeIn GCIMS-generics Estimate the baseline in an object
 #' @param object An object to estimate the baseline
 #' @param ... Additional arguments for downstream methods
 #' @return The object, with a baseline estimated
 #'
 #' @export
 setGeneric("estimateBaseline", function(object, ...) standardGeneric("estimateBaseline"))
+
+
+#' @describeIn GCIMS-generics Get the baseline of an object
+#' @param object An object to get the baseline
+#' @param ... Additional arguments for downstream methods
+#' @return The baseline of the object
+#'
+#' @export
+setGeneric("baseline", function(object, ...) standardGeneric("baseline"))
+
+#' @describeIn GCIMS-generics Set the baseline of an object
+#' @param object An object to set the baseline
+#' @param value baseline to set
+#' @return The object
+#'
+#' @export
+setGeneric("baseline<-", function(object, value) standardGeneric("baseline<-"))
