@@ -18,6 +18,6 @@ methods::setMethod(
       rlang::abort("description should be a string")
     }
     object@description <- value
+    object
   }
-  object
 )
