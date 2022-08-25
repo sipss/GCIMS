@@ -3,6 +3,8 @@
 #' @param object A [GCIMSSample] object
 #' @param dt_range The drift time range to plot (in milliseconds)
 #' @param rt_range The retention time range to plot (in seconds)
+#' @param ... Ignored
+#' @param remove_baseline Set to `TRUE` to subtract the estimated baseline first
 #' @return A plot of the GCIMSSample
 #' @examples
 #' dummy_obj <-GCIMSSample(
@@ -18,12 +20,16 @@
 setMethod(
   "plotRaw",
   "GCIMSSample",
-  function(object, dt_range = NULL, rt_range = NULL) {
+  function(object, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE) {
     dt <- dtime(object)
     rt <- rtime(object)
     idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range)
 
     intmat <- intensity(object, idx)
+    if (isTRUE(remove_baseline)) {
+      basel <- baseline(object)[idx$dt_logical, idx$rt_logical]
+      intmat <- intmat - basel
+    }
     minmax <- range(intmat)
 
     cubic_root_trans <- scales::trans_new(
