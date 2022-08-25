@@ -20,6 +20,10 @@ determine the length of the regions where local minima are searched.}
 
 \item{dt_region_multiplier}{A multiplier to calculate the region}
 
+\item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
+
+\item{dt_idx}{A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)}
+
 \item{.error_if_missing}{A logical. If \code{TRUE} (default) give an error if baseline is not estimated. Returns \code{NULL} otherwise.}
 
 \item{value}{A vector with a baseline of the same length as \code{intensity(object)}}
