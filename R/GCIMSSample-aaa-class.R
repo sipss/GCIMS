@@ -30,6 +30,8 @@ methods::setOldClass("numeric_version")
 #' @slot proc_params list (internal). Data processing parameters computed and used internally.
 #' @slot peaks A data frame (internal). The peak list, typically set using [findPeaks()].
 #'  Use [peaks()] to get/set this.
+#' @slot baseline A matrix of the same dimensions as `data` with the baseline. Use [estimateBaseline()] to estimate it
+#' and `baseline()` to get or set it.
 #' @slot class_version "numeric_version" (internal) The GCIMSSample object defines
 #' internally a class version, so if a GCIMSSample object is saved, the GCIMS
 #' package is updated and the GCIMSSample class has changed during the upgrade
@@ -63,7 +65,8 @@ methods::setClass(
     class_version = "numeric_version",
     params = "list", # arbitrary parameters from the instrument
     proc_params = "list",
-    peaks = "DataFrameOrNULL"
+    peaks = "DataFrameOrNULL",
+    baseline = "matrixOrNULL"
   )
 )
 
@@ -87,7 +90,7 @@ methods::setMethod(
     }
     # class_version and proc_params are internal and should not be given
     # drift_time, retention_time, data are mandatory and already given outside of ...
-    invalid_dot_names <-  c("drift_time", "retention_time", "data", "class_version", "proc_params")
+    invalid_dot_names <-  c("drift_time", "retention_time", "data", "class_version", "proc_params", "baseline")
     valid_dot_names <- setdiff(methods::slotNames("GCIMSSample"), invalid_dot_names)
     if (!all(names(dots) %in% valid_dot_names)) {
       wrong_dot_names <- setdiff(names(dots), valid_dot_names)
@@ -157,6 +160,12 @@ setValidity("GCIMSSample", function(object) {
     issues <- c(issues, "data should have as many columns as the retention_time length")
     success <- FALSE
   }
+
+  if (!is.null(object@baseline) && any(dim(object@baseline) != dim(object@data))) {
+    issues <- c(issues, "baseline should be of the same dimensions as data")
+    success <- FALSE
+  }
+
   if (!success) {
     return(issues)
   }
