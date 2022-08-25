@@ -25,14 +25,22 @@ methods::setMethod(
 )
 
 #' @describeIn estimateBaseline-GCIMSChromatogram-method Get the baseline
+#' @param .error_if_missing A logical. If `TRUE` (default) give an error if baseline is not estimated. Returns `NULL` otherwise.
 #' @export
 methods::setMethod(
   "baseline", "GCIMSChromatogram",
-  function(object) {
+  function(object, rt_range = NULL, rt_idx = NULL, .error_if_missing = TRUE) {
     if (is.null(object@baseline)) {
-      rlang::abort("Please use estimateBaseline() first")
+      if (.error_if_missing) {
+        rlang::abort("Please use estimateBaseline() first")
+      }
+      return(NULL)
     }
-    object@baseline
+    rt <- rtime(object)
+    idx <- dt_rt_range_normalization(rt = rt, rt_range = rt_range, rt_idx = rt_idx)
+    out <- object@baseline[idx$rt_logical]
+    names(out) <- rt[idx$rt_logical]
+    out
   }
 )
 

@@ -33,14 +33,33 @@ methods::setMethod(
 )
 
 #' @describeIn estimateBaseline-GCIMSSample-method Get the baseline
+#' @param dt_range The minimum and maximum drift times to extract (length 2 vector)
+#' @param rt_range The minimum and maximum retention times to extract (length 2 vector)
+#' @param dt_idx A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)
+#' @param rt_idx A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)
+#' @param .error_if_missing A logical. If `TRUE`, raise error if baseline has not been estimated. If `FALSE` returns `NULL` instead.
 #' @export
 methods::setMethod(
   "baseline", "GCIMSSample",
-  function(object) {
+  function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, .error_if_missing = TRUE) {
     if (is.null(object@baseline)) {
-      rlang::abort("Please use estimateBaseline() first")
+      if (.error_if_missing) {
+        rlang::abort("Please use estimateBaseline() first")
+      }
+      return(NULL)
     }
-    object@baseline
+    dt <- dtime(object)
+    rt <- rtime(object)
+    if (inherits(dt_range, "dt_rt_range_normalization")) {
+      idx <- dt_range
+    } else {
+      idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
+    }
+    dt_idx <- idx[["dt_logical"]]
+    rt_idx <- idx[["rt_logical"]]
+    out <- object@baseline[dt_idx, rt_idx, drop = FALSE]
+    dimnames(out) <- list(dt_ms = dt[dt_idx], rt_s = rt[rt_idx])
+    out
   }
 )
 

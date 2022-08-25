@@ -27,14 +27,22 @@ methods::setMethod(
 )
 
 #' @describeIn estimateBaseline-GCIMSSpectrum-method Get the baseline
+#' @param .error_if_missing A logical. If `TRUE` (default) give an error if baseline is not estimated. Returns `NULL` otherwise.
 #' @export
 methods::setMethod(
   "baseline", "GCIMSSpectrum",
-  function(object) {
+  function(object, dt_range = NULL, dt_idx = NULL, .error_if_missing = TRUE) {
     if (is.null(object@baseline)) {
-      rlang::abort("Please use estimateBaseline() first")
+      if (.error_if_missing) {
+        rlang::abort("Please use estimateBaseline() first")
+      }
+      return(NULL)
     }
-    object@baseline
+    dt <- dtime(object)
+    idx <- dt_rt_range_normalization(dt = dt, dt_range = dt_range, dt_idx = dt_idx)
+    out <- object@baseline[idx$dt_logical]
+    names(out) <- dt[idx$dt_logical]
+    out
   }
 )
 
