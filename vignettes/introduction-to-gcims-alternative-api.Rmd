@@ -369,7 +369,7 @@ peak_list_clustered <- peak_clustering$peak_list_clustered
 
 
 FIXME: We need a proper API to plot this with a user friendly interface, but we
-can easily see the trouble.
+can easily see there is some trouble with the clustering as of today (I'm working on it).
 
 ```{r fig.height=10, fig.width=10}
 plt <- plotRaw(ket2)
