@@ -90,7 +90,8 @@ follow the example from `help("create_annotations_table")` for further details.
 dataset <- GCIMSDataset(
   annotations,
   base_dir = samples_directory,
-  scratch_dir = "intermediate_files"
+  scratch_dir = "intermediate_files",
+  all_on_RAM = TRUE
 )
 dataset
 ```

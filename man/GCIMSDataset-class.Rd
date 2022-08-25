@@ -19,7 +19,8 @@ GCIMSDataset(
   pData,
   base_dir,
   scratch_dir = tempfile("GCIMSDataset_tempdir_"),
-  keep_intermediate = FALSE
+  keep_intermediate = FALSE,
+  all_on_RAM = FALSE
 )
 
 \S4method{getGCIMSSample}{GCIMSDataset}(object, sample)
