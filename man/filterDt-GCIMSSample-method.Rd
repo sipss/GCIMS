@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
 
-\item{dt_range}{A numeric vector of length 2 with the drift time range to keep, in milliseconds}
+\item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 }
 \value{
 A subset of the sample, only in the selected \code{dt_range}

@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{A \link{GCIMSDataset} object}
 
-\item{rt_range}{A numeric vector of length 2 with the retention time range to keep, in seconds}
+\item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
 }
 \value{
 The given object, with a delayed operation to filter retention times

@@ -18,6 +18,10 @@
 \item{rt_length_s}{The length of the baseline region. It should be
 comparable or longer than the peak width}
 
+\item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
+
+\item{rt_idx}{A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)}
+
 \item{.error_if_missing}{A logical. If \code{TRUE} (default) give an error if baseline is not estimated. Returns \code{NULL} otherwise.}
 
 \item{value}{A vector with a baseline of the same length as \code{intensity(object)}}

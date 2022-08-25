@@ -9,9 +9,9 @@
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
 
-\item{dt_range}{The drift time range to plot (in milliseconds)}
+\item{dt_range}{A numeric vector of length 2 with the drift time range to plot (in milliseconds)}
 
-\item{rt_range}{The retention time range to plot (in seconds)}
+\item{rt_range}{A numeric vector of length 2 with the retention time range to plot (in seconds)}
 
 \item{...}{Ignored}
 

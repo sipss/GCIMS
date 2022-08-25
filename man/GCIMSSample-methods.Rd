@@ -42,13 +42,13 @@
 
 \item{...}{ignored}
 
-\item{dt_idx}{A vector of drift time indices to keep}
+\item{dt_idx}{A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)}
 
-\item{rt_idx}{A vector of retention time indices to keep}
+\item{rt_idx}{A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)}
 
-\item{dt_range}{The drift time range to keep (in milliseconds)}
+\item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 
-\item{rt_range}{The retention time range to keep (in seconds)}
+\item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
 
 \item{object}{A GCIMSSample object}
 

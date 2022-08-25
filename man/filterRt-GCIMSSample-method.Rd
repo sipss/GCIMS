@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
 
-\item{rt_range}{A numeric vector of length 2 with the retention time range to keep, in seconds}
+\item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
 }
 \value{
 A subset of the sample, only in the selected \code{rt_range}
