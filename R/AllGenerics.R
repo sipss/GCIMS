@@ -183,20 +183,20 @@ setGeneric("sampleNames", getGeneric("sampleNames", package = "Biobase"))
 setGeneric("sampleNames<-", getGeneric("sampleNames<-", package = "Biobase"))
 
 
-#' @importMethodsFrom BiocGenerics "updateObject"
+#' @importMethodsFrom BiocGenerics updateObject
 #' @export
 setGeneric("updateObject", getGeneric("updateObject", package = "BiocGenerics"))
 
 
-#' @importMethodsFrom ProtGenerics "alignRt"
+#' @importMethodsFrom ProtGenerics alignRt
 #' @export
 setGeneric("alignRt", getGeneric("alignRt", package = "ProtGenerics"))
 
-#' @importMethodsFrom ProtGenerics "filterRt"
+#' @importMethodsFrom ProtGenerics filterRt
 #' @export
 setGeneric("filterRt", getGeneric("filterRt", package = "ProtGenerics"))
 
-#' @importMethodsFrom ProtGenerics "intensity"
+#' @importMethodsFrom ProtGenerics intensity
 #' @export
 setGeneric("intensity", getGeneric("intensity", package = "ProtGenerics"))
 
