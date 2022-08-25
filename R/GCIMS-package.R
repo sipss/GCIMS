@@ -1,4 +1,5 @@
 #' @importFrom glue glue
+#' @import methods
 #' @keywords internal
 "_PACKAGE"
 
