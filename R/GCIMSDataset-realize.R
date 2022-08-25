@@ -94,6 +94,109 @@ optimize_delayed_operations <- function(object) {
   object
 }
 
+move_delayed_to_history <- function(object) {
+  # Make delayed_ops history and remove them from pending
+  object@envir$previous_ops <- c(object@envir$previous_ops, object@envir$delayed_ops)
+  object@envir$delayed_ops <- list()
+  object
+}
+
+aggregate_all_results <- function(object, extracted_results) {
+  # Apply to the dataset object
+  for (i in seq_along(object@envir$delayed_ops)) {
+    delayed_op <- object@envir$delayed_ops[[i]]
+    # Extract i-th result for all samples:
+    extracted_result <- purrr::map(extracted_results, i)
+    # Let the delayed operation aggregate the extracted results and save them in object
+    object <- aggregate_result(delayed_op, extracted_result, object)
+  }
+  object
+}
+
+
+realize_ram <- function(object) {
+  sample_objs <- object@envir$samples
+  if (is.null(sample_objs)) {
+    pdata <- Biobase::pData(object)
+    sample_objs <- file.path(object@envir$base_dir, pdata$FileName)
+  }
+  results <- BiocParallel::bpmapply(
+    FUN = realize_one_sample_ram,
+    sample_name = sampleNames(object),
+    sample_obj = sample_objs,
+    MoreArgs = list(
+      delayed_ops = object@envir$delayed_ops
+    ),
+    SIMPLIFY = FALSE
+  )
+  object@envir$samples <- purrr::map(results, "sample_obj")
+  extracted_results <- purrr::map(results, "extracted_objects")
+
+  object <- aggregate_all_results(object, extracted_results)
+  object <- move_delayed_to_history(object)
+  invisible(object)
+}
+
+realize_disk <- function(object, keep_intermediate) {
+  delayed_ops <- object@envir$delayed_ops
+  current_dir <- CurrentHashedDir(object)
+  if (is.null(current_dir)) {
+    if (name(delayed_ops[[1]]) != "read_sample") {
+      rlang::abort(
+        message = c(
+          "UnexpectedError",
+          "x" = glue("The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}"),
+          "i" = "This is an unexpected problem. You can try deleting the scratch directory and restart again"
+        )
+      )
+    }
+  }
+  next_dir <- NextHashedDir(object)
+  if (is.null(next_dir)) {
+    rlang::abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
+  }
+  dir.create(next_dir, showWarnings = FALSE, recursive = TRUE)
+
+  sample_names <- sampleNames(object)
+
+  pdata <- Biobase::pData(object)
+  orig_filenames <- file.path(object@envir$base_dir, pdata$FileName)
+
+  if (is.null(current_dir)) {
+    current_filenames <- list(NULL)
+  } else {
+    current_filenames <- file.path(current_dir, paste0(sample_names, ".rds"))
+  }
+
+  next_filenames <- file.path(next_dir, paste0(sample_names, ".rds"))
+
+  extracted_results <- BiocParallel::bpmapply(
+    FUN = realize_one_sample_disk,
+    sample_name = sample_names,
+    orig_filename = orig_filenames,
+    current_filename = current_filenames,
+    next_filename = next_filenames,
+    MoreArgs = list(
+      delayed_ops = delayed_ops
+    ),
+    SIMPLIFY = FALSE
+  )
+
+  object <- aggregate_all_results(object, extracted_results)
+  # Make delayed_ops history and remove them from pending
+  object <- move_delayed_to_history(object)
+
+  CurrentHashedDir(object) <- next_dir
+  if (is.na(keep_intermediate)) {
+    keep_intermediate <- object@envir$keep_intermediate
+  }
+  if (!keep_intermediate && !is.null(current_dir)) {
+    unlink(current_dir, recursive = TRUE)
+  }
+  object
+}
+
+
 #' Runs all delayed operations on the object
 #'
 #' @param object A [GCIMSDataset] object, modified in-place
@@ -130,70 +233,10 @@ setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
   on.exit({canRealize(object) <- TRUE})
 
   object <- optimize_delayed_operations(object)
-
-  if (is.na(keep_intermediate)) {
-    keep_intermediate <- object@envir$keep_intermediate
-  }
-
-
-  current_dir <- CurrentHashedDir(object)
-  next_dir <- NextHashedDir(object)
-  if (is.null(next_dir)) {
-    rlang::abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
-  }
-
-  dir.create(next_dir, showWarnings = FALSE, recursive = TRUE)
-
-  sample_names <- sampleNames(object)
-  names(sample_names) <- sample_names
-
-  pdata <- Biobase::pData(object)
-  orig_filenames <- file.path(object@envir$base_dir, pdata$FileName)
-
-  delayed_ops <- object@envir$delayed_ops
-  if (is.null(current_dir)) {
-    if (name(delayed_ops[[1]]) != "read_sample") {
-      rlang::abort(
-        message = c(
-          "UnexpectedError",
-          "x" = glue("The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}"),
-          "i" = "This is an unexpected problem. You can try deleting the scratch directory and restart again"
-        )
-      )
-    }
-    current_filenames <- list(NULL)
+  if (isTRUE(object@envir$all_on_ram)) {
+    object <- realize_ram(object)
   } else {
-    current_filenames <- file.path(current_dir, paste0(sample_names, ".rds"))
-  }
-
-  next_filenames <- file.path(next_dir, paste0(sample_names, ".rds"))
-
-  extracted_results <- BiocParallel::bpmapply(
-    FUN = realize_one_sample_disk,
-    sample_name = sample_names,
-    orig_filename = orig_filenames,
-    current_filename = current_filenames,
-    next_filename = next_filenames,
-    MoreArgs = list(
-      delayed_ops = delayed_ops
-    ),
-    SIMPLIFY = FALSE
-  )
-
-  # Apply to the dataset object
-  for (i in seq_along(object@envir$delayed_ops)) {
-    delayed_op <- object@envir$delayed_ops[[i]]
-    # Extract i-th result for all samples:
-    extracted_result <- purrr::map(extracted_results, i)
-    # Let the delayed operation aggregate the extracted results and save them in object
-    object <- aggregate_result(delayed_op, extracted_result, object)
-  }
-  # Make delayed_ops history and remove them from pending
-  object@envir$previous_ops <- c(object@envir$previous_ops, object@envir$delayed_ops)
-  object@envir$delayed_ops <- list()
-  CurrentHashedDir(object) <- next_dir
-  if (!keep_intermediate && !is.null(current_dir)) {
-    unlink(current_dir, recursive = TRUE)
+    object <- realize_disk(object, keep_intermediate = keep_intermediate)
   }
   invisible(object)
 })

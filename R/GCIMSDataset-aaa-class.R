@@ -137,7 +137,7 @@ validate_keep_intermediate <- function(keep_intermediate) {
 
 methods::setMethod(
   "initialize", "GCIMSDataset",
-  function(.Object, pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE) {
+  function(.Object, pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, all_on_RAM = FALSE) {
     pData <- validate_pData(pData)
     base_dir <- validate_base_dir(base_dir)
     check_files(pData$FileName, base_dir)
@@ -155,6 +155,8 @@ methods::setMethod(
     .Object@envir$previous_ops <- list()
     .Object@envir$hasheddir <- ""
     .Object@envir$keep_intermediate <- keep_intermediate
+    .Object@envir$all_on_ram <- all_on_RAM
+    .Object@envir$samples <- NULL # Only used if all_on_ram is TRUE
     canRealize(.Object) <- TRUE
     .Object <- appendDelayedOp(.Object, GCIMSDelayedOp(name = "read_sample", fun = read_sample))
     # Some sample stats:
@@ -250,8 +252,8 @@ read_sample <- function(filename) {
 #'   pData = data.frame(SampleID = character(), filename = character(0)),
 #'   base_dir = tempdir()
 #' )
-GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE) {
-  methods::new("GCIMSDataset", pData, base_dir, scratch_dir, keep_intermediate)
+GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, all_on_RAM = FALSE) {
+  methods::new("GCIMSDataset", pData, base_dir, scratch_dir, keep_intermediate, all_on_RAM)
 }
 
 
