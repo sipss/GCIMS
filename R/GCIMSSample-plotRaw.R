@@ -102,13 +102,20 @@ tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL,
 
 #' Add peak list rectangles to a raw plot
 #'
+#'
 #' @param plt The output of [plotRaw()] when applied to a [GCIMSSample]
-#' @param peaklist The output of [peaks()] of a GCIMSSample
+#' @param peaklist A data frame with at least the columns: `dt_min_ms`, `dt_max_ms`, `rt_min_s`, `rt_max_s`
+#' and optionally additional columns (e.g. the column given to `color_by`)
+#' @param color_by A character with a column name of `peaklist`. Used to color the border of
+#' the added rectangles
+#'
+#' @details
+#' If `peaklist` includes `dt_apex_ms` and `rt_apex_s` a cross will be plotted on the peak apex.
 #'
 #' @return The given `plt` with rectangles showing the ROIs and crosses showing the apexes
 #' @export
 #'
-add_peaklist_rect <- function(plt, peaklist) {
+add_peaklist_rect <- function(plt, peaklist, color_by = NULL) {
   dt_range <- ggplot2::layer_scales(plt)$x$range$range
   rt_range <- ggplot2::layer_scales(plt)$y$range$range
   if (is.null(dt_range)) {
@@ -116,6 +123,14 @@ add_peaklist_rect <- function(plt, peaklist) {
   }
   if (is.null(rt_range)) {
     rt_range <- c(-Inf, Inf)
+  }
+
+  if (is.null(color_by)) {
+    color_by_sym <- NULL
+    how_many_colors <- 1L
+  } else {
+    color_by_sym <- rlang::sym(color_by)
+    how_many_colors <- length(unique(peaklist[[color_by]]))
   }
 
   peaklist <- as.data.frame(peaklist)
@@ -128,16 +143,20 @@ add_peaklist_rect <- function(plt, peaklist) {
     .data$rt_max_s >= min(rt_range)
   )
 
-  peaklist_to_plot_apex <- dplyr::filter(
-    peaklist,
-    .data$dt_apex_ms >= min(dt_range),
-    .data$dt_apex_ms <= max(dt_range),
-    .data$rt_apex_s >= min(rt_range),
-    .data$rt_apex_s <= max(rt_range)
-  )
+  has_apex <- all(c("dt_apex_ms", "rt_apex_s") %in% colnames(peaklist))
 
-  if (length(unique(peaklist$SampleID)) == 1) {
-    # Only one sample, use green
+  if (has_apex) {
+    peaklist_to_plot_apex <- dplyr::filter(
+      peaklist,
+      .data$dt_apex_ms >= min(dt_range),
+      .data$dt_apex_ms <= max(dt_range),
+      .data$rt_apex_s >= min(rt_range),
+      .data$rt_apex_s <= max(rt_range)
+    )
+  }
+
+  if (how_many_colors == 1) {
+    # Only one color, use green
     plt <- plt +
       ggplot2::geom_rect(
         data = peaklist_to_plot_rect,
@@ -149,17 +168,19 @@ add_peaklist_rect <- function(plt, peaklist) {
         ),
         color = "green",
         alpha = 0.3
-      ) +
-      ggplot2::geom_point(
-        data = peaklist_to_plot_apex,
-        mapping = ggplot2::aes(
-          x = .data$dt_apex_ms,
-          y = .data$rt_apex_s
-        ),
-        color = "green",
-        shape = "x"
       )
-
+    if (has_apex) {
+      plt <- plt +
+        ggplot2::geom_point(
+          data = peaklist_to_plot_apex,
+          mapping = ggplot2::aes(
+            x = .data$dt_apex_ms,
+            y = .data$rt_apex_s
+          ),
+          color = "green",
+          shape = "x"
+        )
+    }
   } else {
     plt <- plt +
       ggplot2::geom_rect(
@@ -169,20 +190,22 @@ add_peaklist_rect <- function(plt, peaklist) {
           xmax = .data$dt_max_ms,
           ymin = .data$rt_min_s,
           ymax = .data$rt_max_s,
-          color = .data$SampleID
+          color = !!color_by_sym
         ),
         alpha = 0.3
-      ) +
-      ggplot2::geom_point(
-        data = peaklist_to_plot_apex,
-        mapping = ggplot2::aes(
-          x = .data$dt_apex_ms,
-          y = .data$rt_apex_s,
-          color = .data$SampleID
-        ),
-        shape = "x"
       )
-
+    if (has_apex) {
+      plt <- plt +
+        ggplot2::geom_point(
+          data = peaklist_to_plot_apex,
+          mapping = ggplot2::aes(
+            x = .data$dt_apex_ms,
+            y = .data$rt_apex_s,
+            color = !!color_by_sym
+          ),
+          shape = "x"
+        )
+    }
   }
   plt
 }
