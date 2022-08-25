@@ -291,13 +291,18 @@ setMethod("getEIC", "GCIMSSample", function(object, dt_range = NULL, rt_range = 
   dt <- dtime(object)
   rt <- rtime(object)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
-  intens <- intensity(object, idx)
+  intens <- colSums(intensity(object, idx))
+  basel <- baseline(object, idx, .error_if_missing = FALSE)
+  if (!is.null(basel)) {
+    basel <- colSums(basel)
+  }
   GCIMSChromatogram(
     retention_time = rt[idx[["rt_logical"]]],
-    intensity = colSums(intens),
+    intensity = intens,
     drift_time_idx = unique(c(idx[["dt_idx_min"]], idx[["dt_idx_max"]])),
     drift_time_ms = unique(c(idx[["dt_ms_min"]], idx[["dt_ms_max"]])),
-    description = object@description
+    description = object@description,
+    baseline = basel
   )
 })
 
@@ -308,13 +313,18 @@ setMethod("getIMS", "GCIMSSample", function(object, dt_range = NULL, rt_range = 
   dt <- dtime(object)
   rt <- rtime(object)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
-  intens <- intensity(object, idx)
+  intens <- rowSums(intensity(object, idx))
+  basel <- baseline(object, idx, .error_if_missing = FALSE)
+  if (!is.null(basel)) {
+    basel <- rowSums(basel)
+  }
   GCIMSSpectrum(
     drift_time = dt[idx[["dt_logical"]]],
-    intensity = rowSums(intens),
+    intensity = intens,
     retention_time_idx = unique(c(idx[["rt_idx_min"]], idx[["rt_idx_max"]])),
     retention_time_s = unique(c(idx[["rt_s_min"]], idx[["rt_s_max"]])),
-    description = object@description
+    description = object@description,
+    baseline = basel
   )
 })
 
