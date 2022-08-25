@@ -322,16 +322,20 @@ plt
 
 
 
-Then do it on the whole dataset
+Then do it on the whole dataset:
 
 ```{r}
 findPeaks(dataset, noise_level = 2)
 peak_list <- peaks(dataset)
 ```
-You can get any other sample if you like, plot it and plot the peaks on top:
+You can get any other sample if you like, plot it and plot its peaks on top:
 
 ```{r}
 ket2 <- getGCIMSSample(dataset, "Ketones2")
+```
+
+
+```{r}
 plt <- plotRaw(ket2)
 plt <- add_peaklist_rect(plt, peaks(ket2))
 plt
@@ -339,12 +343,11 @@ plt
 
 
 
-Or plot all the peaks from all the dataset together, overlayed on a single reference sample:
+Or plot all the peaks from all the dataset together, overlayed on a single sample:
 
 ```{r}
-ket2 <- getGCIMSSample(dataset, "Ketones2")
 plt <- plotRaw(ket2)
-plt <- add_peaklist_rect(plt, peaks(dataset))
+plt <- add_peaklist_rect(plt, peaks(dataset), color_by = "SampleID")
 plt
 ```
 
@@ -358,14 +361,32 @@ peak_clustering <- clusterPeaks(
 )
 ```
 
+The peak list, with cluster ids can be plotted on top of a single sample:
+
 ```{r}
 peak_list_clustered <- peak_clustering$peak_list_clustered
 ```
 
-```{r}
-peak_clustering$cluster_stats
+
+FIXME: We need a proper API to plot this with a user friendly interface, but we
+can easily see the trouble.
+
+```{r fig.height=10, fig.width=10}
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "SampleID") + 
+  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
+  facet_wrap(~cluster, scales = "free")
+plt
 ```
 
+The resulting cluster sizes (median position of individual clusters) is not a good reference
+for integration. We are working on this.
+
+```{r}
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peak_clustering$cluster_stats, color_by = "cluster")
+plt
+```
 
 # Baseline correction
 
