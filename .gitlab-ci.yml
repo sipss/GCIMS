@@ -17,7 +17,7 @@ build_img:
       /kaniko/executor
       --cache=true
       --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/ci-scripts/Dockerfile"
+      --dockerfile "${CI_PROJECT_DIR}/ci_scripts/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
 
 check_pkg:
