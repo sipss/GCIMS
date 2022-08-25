@@ -1,56 +1,23 @@
-
-realize_one_sample <- function(sample_name, curr_dir, next_dir, delayed_ops, base_dir, orig_filenames) {
-  if (is.null(next_dir)) {
-    rlang::abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
-  }
-
+realize_one_sample_ram <- function(sample_name, sample_obj, delayed_ops) {
   out <- vector("list", length = length(delayed_ops))
   needs_re_saving <- FALSE
-
-  f <- paste0(sample_name, ".rds")
-  sample_fn_next <- file.path(next_dir, f)
-
-  if (is.null(curr_dir) && name(delayed_ops[[1]]) != "read_sample") {
-    rlang::abort(
-      message = c(
-        "UnexpectedError",
-        "x" = glue("The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}"),
-        "i" = "This is an unexpected problem. You can try deleting the scratch directory and restart again"
-      )
-    )
-  }
-
-  if (is.null(curr_dir)) {
-    # we are going to read_sample
-    gcimssample <- file.path(base_dir, orig_filenames[sample_name])
-    sample_fn_curr <- NULL
-  } else {
-    # We load the file
-    sample_fn_curr <- file.path(curr_dir, f)
-    if (!file.exists(sample_fn_curr)) {
-      rlang::abort(
-        message = c(
-          "UnexpectedError",
-          "x" = glue("The file {sample_fn_curr} should exist"),
-          "i" = "Try re running the pipeline from scratch or report the error to GCIMS authors"
-        )
-      )
-    }
-    gcimssample <- readRDS(sample_fn_curr)
-    # Check for a sample name change:
-    if (!identical(gcimssample@description, sample_name)) {
+  if (is(sample_obj, "GCIMSSample")) {
+    if (!identical(description(sample_obj), sample_name)) {
       # sampleNames were probably updated, files renamed.
-      gcimssample@description <- sample_name
+      description(sample_obj) <- sample_name
       needs_re_saving <- TRUE
     }
+  } else if (is.character(sample_obj)) {
+  } else {
+    rlang::abort("sample_obj should be a GCIMSSample or a file name")
   }
-
+  # Execute:
   for (i in seq_along(delayed_ops)) {
-    result <- apply_op_to_sample(delayed_ops[[i]], gcimssample)
-    gcimssample <- result$sample
-    if (!identical(gcimssample@description, sample_name)) {
+    result <- apply_op_to_sample(delayed_ops[[i]], sample_obj)
+    sample_obj <- result$sample
+    if (!identical(description(sample_obj), sample_name)) {
       # sampleNames were probably updated, files renamed.
-      gcimssample@description <- sample_name
+      description(sample_obj) <- sample_name
       needs_re_saving <- TRUE
     }
     if (!is.null(result$extracted_obj)) {
@@ -60,20 +27,46 @@ realize_one_sample <- function(sample_name, curr_dir, next_dir, delayed_ops, bas
       needs_re_saving <- TRUE
     }
   }
-  # saveRDS, or just copy
-  if (needs_re_saving || is.null(sample_fn_curr)) {
-    saveRDS(gcimssample, sample_fn_next)
-  } else {
-    if (!file.copy(
-      sample_fn_curr,
-      sample_fn_next
-    )) {
-      rlang::abort(glue("Could not copy {sample_fn_curr} to {sample_fn_next}."))
-    }
-  }
-  out
+  list(
+    extracted_objects = out,
+    sample_obj = sample_obj,
+    needs_re_saving = needs_re_saving
+  )
 }
 
+
+realize_one_sample_disk <- function(sample_name, orig_filename, current_filename, next_filename, delayed_ops) {
+  if (is.null(current_filename)) {
+    # we are going to read_sample, we are starting
+    sample_obj <- orig_filename
+  } else {
+    # We load the file
+    if (!file.exists(current_filename)) {
+      rlang::abort(
+        message = c(
+          "UnexpectedError",
+          "x" = glue("The file {current_filename} should exist"),
+          "i" = "Try re running the pipeline from scratch or report the error to GCIMS authors"
+        )
+      )
+    }
+    sample_obj <- readRDS(current_filename)
+  }
+  res <- realize_one_sample_ram(sample_name, sample_obj, delayed_ops)
+
+  # saveRDS, or just copy
+  if (res$needs_re_saving || is.null(current_filename)) {
+    saveRDS(res$sample_obj, next_filename)
+  } else {
+    if (!file.copy(
+      current_filename,
+      next_filename
+    )) {
+      rlang::abort(glue("Could not copy {current_filename} to {next_filename}."))
+    }
+  }
+  res$extracted_objects
+}
 
 optimize_delayed_operations <- function(object) {
   if (!hasDelayedOps(object)) {
@@ -145,23 +138,46 @@ setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
 
   current_dir <- CurrentHashedDir(object)
   next_dir <- NextHashedDir(object)
+  if (is.null(next_dir)) {
+    rlang::abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
+  }
+
   dir.create(next_dir, showWarnings = FALSE, recursive = TRUE)
 
   sample_names <- sampleNames(object)
   names(sample_names) <- sample_names
 
   pdata <- Biobase::pData(object)
-  orig_filenames <- pdata$FileName
-  names(orig_filenames) <- sample_names
+  orig_filenames <- file.path(object@envir$base_dir, pdata$FileName)
 
-  extracted_results <- BiocParallel::bplapply(
-    X = sample_names,
-    FUN = realize_one_sample,
-    curr_dir = current_dir,
-    next_dir = next_dir,
-    delayed_ops = object@envir$delayed_ops,
-    base_dir = object@envir$base_dir,
-    orig_filenames = orig_filenames
+  delayed_ops <- object@envir$delayed_ops
+  if (is.null(current_dir)) {
+    if (name(delayed_ops[[1]]) != "read_sample") {
+      rlang::abort(
+        message = c(
+          "UnexpectedError",
+          "x" = glue("The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}"),
+          "i" = "This is an unexpected problem. You can try deleting the scratch directory and restart again"
+        )
+      )
+    }
+    current_filenames <- list(NULL)
+  } else {
+    current_filenames <- file.path(current_dir, paste0(sample_names, ".rds"))
+  }
+
+  next_filenames <- file.path(next_dir, paste0(sample_names, ".rds"))
+
+  extracted_results <- BiocParallel::bpmapply(
+    FUN = realize_one_sample_disk,
+    sample_name = sample_names,
+    orig_filename = orig_filenames,
+    current_filename = current_filenames,
+    next_filename = next_filenames,
+    MoreArgs = list(
+      delayed_ops = delayed_ops
+    ),
+    SIMPLIFY = FALSE
   )
 
   # Apply to the dataset object
