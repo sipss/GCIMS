@@ -1,8 +1,3 @@
-# S3 classes can be used as S4 slots registering them as "old" classes
-# (old because S4 is newer than S3, not because S3 is deprecated, not great naming)
-methods::setOldClass("numeric_version")
-
-
 #' GCIMSSample class
 #'
 #' @description

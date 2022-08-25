@@ -1,5 +1,3 @@
-setClassUnion("functionOrNULL", c("function", "NULL"))
-
 #' GCIMSDelayedOp class
 #'
 #' @description
