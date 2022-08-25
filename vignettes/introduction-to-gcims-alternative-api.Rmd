@@ -367,10 +367,105 @@ peak_clustering$cluster_stats
 ```
 
 
+# Baseline correction
+
+```{r}
+ket1 <- getGCIMSSample(dataset, "Ketones1")
+```
+
+
+```{r}
+one_ims_spec <- getIMS(ket1, rt_range = 97.11)
+```
+
+```{r}
+plot(one_ims_spec) + coord_cartesian(xlim = c(7, 12))
+```
+
+```{r}
+one_ims_spec <- estimateBaseline(one_ims_spec, dt_peak_fwhm_ms = 0.2, dt_region_multiplier = 12)
+to_plot <- data.frame(
+  drift_time_ms = dtime(one_ims_spec),
+  Intensity = intensity(one_ims_spec),
+  Baseline = baseline(one_ims_spec)
+)
+ggplot(to_plot) +
+  geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
+  geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+ggplot(to_plot) +
+  geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
+  geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
+  coord_cartesian(xlim = c(7, 10), ylim = c(0, 500)) +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+```
+
+
+```{r}
+one_chrom <- getEIC(ket1, dt_range = 10.4)
+```
+
+```{r}
+one_chrom <- estimateBaseline(one_chrom, rt_length_s = 200)
+to_plot <- data.frame(
+  retention_time_s = rtime(one_chrom),
+  Intensity = intensity(one_chrom),
+  Baseline = baseline(one_chrom)
+)
+
+ggplot(to_plot) +
+  geom_line(aes(x = retention_time_s, y = Intensity), color = "red") +
+  geom_line(aes(x = retention_time_s, y = Baseline), color = "blue") +
+  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
+```
+
+You can also apply it to a single sample:
+
+```{r}
+ket1 <- estimateBaseline(
+  ket1,
+  dt_peak_fwhm_ms = 0.2, 
+  dt_region_multiplier = 12,
+  rt_length_s = 200
+)
+```
+
+
+```{r}
+plotRaw(ket1)
+```
+
+```{r}
+plotRaw(ket1, remove_baseline = TRUE)
+```
+
+```{r}
+cowplot::plot_grid(
+  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16), remove_baseline = TRUE),
+  ncol = 2
+)
+```
+
+
+Or to the whole dataset:
+
+```{r}
+dataset <- estimateBaseline(
+  dataset,
+  dt_peak_fwhm_ms = 0.2, 
+  dt_region_multiplier = 12,
+  rt_length_s = 200
+)
+realize(dataset)
+```
+
+
 ```{r}
 # Implemented until here
 knitr::knit_exit()
 ```
+
 
 
 ## Refine clusters
@@ -398,20 +493,6 @@ ggplot() +
     alpha=0.5
   ) +
   labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster07")
-```
-
-
-# Baseline correction
-
-
-```{r}
-dataset <- estimateBaseline(dataset)
-```
-
-
-```{r}
-# Plot some spectrum before and after
-# The API should be similar to smooth() (can be used on dataset, sample, EIC, EIS)
 ```
 
 
