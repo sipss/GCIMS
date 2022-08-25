@@ -8,7 +8,7 @@
 \usage{
 \S4method{estimateBaseline}{GCIMSChromatogram}(object, rt_length_s)
 
-\S4method{baseline}{GCIMSChromatogram}(object)
+\S4method{baseline}{GCIMSChromatogram}(object, rt_range = NULL, rt_idx = NULL, .error_if_missing = TRUE)
 
 \S4method{baseline}{GCIMSChromatogram}(object) <- value
 }
@@ -17,6 +17,8 @@
 
 \item{rt_length_s}{The length of the baseline region. It should be
 comparable or longer than the peak width}
+
+\item{.error_if_missing}{A logical. If \code{TRUE} (default) give an error if baseline is not estimated. Returns \code{NULL} otherwise.}
 
 \item{value}{A vector with a baseline of the same length as \code{intensity(object)}}
 }

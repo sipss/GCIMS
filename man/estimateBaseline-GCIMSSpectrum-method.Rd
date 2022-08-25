@@ -8,7 +8,7 @@
 \usage{
 \S4method{estimateBaseline}{GCIMSSpectrum}(object, dt_peak_fwhm_ms, dt_region_multiplier = 12)
 
-\S4method{baseline}{GCIMSSpectrum}(object)
+\S4method{baseline}{GCIMSSpectrum}(object, dt_range = NULL, dt_idx = NULL, .error_if_missing = TRUE)
 
 \S4method{baseline}{GCIMSSpectrum}(object) <- value
 }
@@ -19,6 +19,8 @@
 determine the length of the regions where local minima are searched.}
 
 \item{dt_region_multiplier}{A multiplier to calculate the region}
+
+\item{.error_if_missing}{A logical. If \code{TRUE} (default) give an error if baseline is not estimated. Returns \code{NULL} otherwise.}
 
 \item{value}{A vector with a baseline of the same length as \code{intensity(object)}}
 }

@@ -8,7 +8,14 @@
 \usage{
 \S4method{estimateBaseline}{GCIMSSample}(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s)
 
-\S4method{baseline}{GCIMSSample}(object)
+\S4method{baseline}{GCIMSSample}(
+  object,
+  dt_range = NULL,
+  rt_range = NULL,
+  dt_idx = NULL,
+  rt_idx = NULL,
+  .error_if_missing = TRUE
+)
 
 \S4method{baseline}{GCIMSSample}(object) <- value
 }
@@ -22,6 +29,16 @@ determine the length of the regions where local minima are searched.}
 
 \item{rt_length_s}{The length of the baseline region. It should be
 comparable or longer than the peak width}
+
+\item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
+
+\item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
+
+\item{dt_idx}{A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)}
+
+\item{rt_idx}{A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)}
+
+\item{.error_if_missing}{A logical. If \code{TRUE}, raise error if baseline has not been estimated. If \code{FALSE} returns \code{NULL} instead.}
 
 \item{value}{A matrix with the sample baseline of the same dimensions as \code{dim(object)}}
 }

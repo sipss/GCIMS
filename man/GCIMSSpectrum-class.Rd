@@ -64,8 +64,8 @@ or the aggregation of several spectra.
 
 \item{\code{intensity}}{A numeric vector with the corresponding intensities}
 
-\item{\code{baseline}}{(internal) A numeric vector of the same length as \code{intensity} with the corresponding baseline.
-Or \code{NULL} if not set. Use \code{\link[=estimateBaseline]{estimateBaseline()}} to estimate it, \code{\link[=baseline]{baseline()}} to directly access it.}
+\item{\code{baseline}}{A numeric vector of the same length as \code{intensity} with the corresponding baseline,
+or \code{NULL} if not set. Use \code{\link[=estimateBaseline]{estimateBaseline()}} to estimate it, \code{\link[=baseline]{baseline()}} to directly access it.}
 
 \item{\code{retention_time_idx}}{The index or indices used to get the intensity}
 
