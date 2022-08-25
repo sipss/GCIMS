@@ -4,7 +4,7 @@
 \alias{plotRaw,GCIMSSample-method}
 \title{Topographical plot of a GCIMSSample object}
 \usage{
-\S4method{plotRaw}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL)
+\S4method{plotRaw}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE)
 }
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
@@ -12,6 +12,10 @@
 \item{dt_range}{The drift time range to plot (in milliseconds)}
 
 \item{rt_range}{The retention time range to plot (in seconds)}
+
+\item{...}{Ignored}
+
+\item{remove_baseline}{Set to \code{TRUE} to subtract the estimated baseline first}
 }
 \value{
 A plot of the GCIMSSample

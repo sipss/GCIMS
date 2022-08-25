@@ -25,7 +25,7 @@ GCIMSSpectrum(...)
 \S4method{intensity}{GCIMSSpectrum}(object, dt_range = NULL, dt_idx = NULL)
 }
 \arguments{
-\item{...}{See the slots section in this page}
+\item{...}{See the slots section}
 
 \item{object}{A \link{GCIMSSpectrum} object}
 
@@ -44,7 +44,7 @@ or the aggregation of several spectra.
 }
 \section{Functions}{
 \itemize{
-\item \code{GCIMSSpectrum()}: class
+\item \code{GCIMSSpectrum()}: Friendly constructor
 
 \item \code{description(GCIMSSpectrum)}: Get the description
 
@@ -62,7 +62,10 @@ or the aggregation of several spectra.
 \describe{
 \item{\code{drift_time}}{A numeric vector with drift times}
 
-\item{\code{intensity}}{A numeric vector witht the corresponding intensities}
+\item{\code{intensity}}{A numeric vector with the corresponding intensities}
+
+\item{\code{baseline}}{(internal) A numeric vector of the same length as \code{intensity} with the corresponding baseline.
+Or \code{NULL} if not set. Use \code{\link[=estimateBaseline]{estimateBaseline()}} to estimate it, \code{\link[=baseline]{baseline()}} to directly access it.}
 
 \item{\code{retention_time_idx}}{The index or indices used to get the intensity}
 

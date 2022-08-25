@@ -16,7 +16,7 @@ GCIMSChromatogram(...)
 \S4method{description}{GCIMSChromatogram,ANY}(object) <- value
 }
 \arguments{
-\item{...}{See the slots section in this page}
+\item{...}{See the slots section below}
 
 \item{object}{A GCIMSChromatogram object}
 
@@ -31,7 +31,7 @@ or the aggregation of several chromatograms.
 }
 \section{Functions}{
 \itemize{
-\item \code{GCIMSChromatogram()}: class
+\item \code{GCIMSChromatogram()}: Friendly constructor
 
 \item \code{description(GCIMSChromatogram)}: Get the description
 
@@ -44,6 +44,9 @@ or the aggregation of several chromatograms.
 \item{\code{retention_time}}{A numeric vector with retention times}
 
 \item{\code{intensity}}{A numeric vector with the corresponding intensities}
+
+\item{\code{baseline}}{A numeric vector of the same length as \code{intensity} with the corresponding baseline.
+Or \code{NULL} if not set. Use \code{\link[=estimateBaseline]{estimateBaseline()}} to estimate it, \code{\link[=baseline]{baseline()}} to directly access it.}
 
 \item{\code{drift_time_idx}}{The index or indices used to get the intensity}
 

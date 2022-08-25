@@ -58,6 +58,9 @@ processing details the sample has gone through already}
 \item{\code{peaks}}{A data frame (internal). The peak list, typically set using \code{\link[=findPeaks]{findPeaks()}}.
 Use \code{\link[=peaks]{peaks()}} to get/set this.}
 
+\item{\code{baseline}}{A matrix of the same dimensions as \code{data} with the baseline. Use \code{\link[=estimateBaseline]{estimateBaseline()}} to estimate it
+and \code{baseline()} to get or set it.}
+
 \item{\code{class_version}}{"numeric_version" (internal) The GCIMSSample object defines
 internally a class version, so if a GCIMSSample object is saved, the GCIMS
 package is updated and the GCIMSSample class has changed during the upgrade

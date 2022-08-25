@@ -15,6 +15,9 @@
 \alias{decimate}
 \alias{align}
 \alias{alignDt}
+\alias{estimateBaseline}
+\alias{baseline}
+\alias{baseline<-}
 \title{GCIMS Generics}
 \usage{
 dtime(object, ...)
@@ -42,15 +45,23 @@ decimate(object, ...)
 align(object, ...)
 
 alignDt(x, y, ...)
+
+estimateBaseline(object, ...)
+
+baseline(object, ...)
+
+baseline(object) <- value
 }
 \arguments{
-\item{object}{An object to align}
+\item{object}{An object to set the baseline}
 
-\item{...}{Further arguments, possibly used by downstream methods.}
+\item{...}{Additional arguments for downstream methods}
 
 \item{x}{An object to align}
 
 \item{y}{Another object to use as reference}
+
+\item{value}{baseline to set}
 }
 \value{
 A numeric vector with the drift time
@@ -80,6 +91,12 @@ The object, modified
 The object, modified
 
 The object, modified
+
+The object, with a baseline estimated
+
+The baseline of the object
+
+The object
 }
 \description{
 Generics defined at the GCIMS package. We are open to moving them
@@ -112,6 +129,12 @@ to an existing generics-only package if you need so.
 \item \code{align()}: Align an object
 
 \item \code{alignDt()}: Align an object in drift time
+
+\item \code{estimateBaseline()}: Estimate the baseline in an object
+
+\item \code{baseline()}: Get the baseline of an object
+
+\item \code{baseline(object) <- value}: Set the baseline of an object
 
 }}
 \examples{
