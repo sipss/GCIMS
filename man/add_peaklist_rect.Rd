@@ -4,16 +4,23 @@
 \alias{add_peaklist_rect}
 \title{Add peak list rectangles to a raw plot}
 \usage{
-add_peaklist_rect(plt, peaklist)
+add_peaklist_rect(plt, peaklist, color_by = NULL)
 }
 \arguments{
 \item{plt}{The output of \code{\link[=plotRaw]{plotRaw()}} when applied to a \link{GCIMSSample}}
 
-\item{peaklist}{The output of \code{\link[=peaks]{peaks()}} of a GCIMSSample}
+\item{peaklist}{A data frame with at least the columns: \code{dt_min_ms}, \code{dt_max_ms}, \code{rt_min_s}, \code{rt_max_s}
+and optionally additional columns (e.g. the column given to \code{color_by})}
+
+\item{color_by}{A character with a column name of \code{peaklist}. Used to color the border of
+the added rectangles}
 }
 \value{
 The given \code{plt} with rectangles showing the ROIs and crosses showing the apexes
 }
 \description{
 Add peak list rectangles to a raw plot
+}
+\details{
+If \code{peaklist} includes \code{dt_apex_ms} and \code{rt_apex_s} a cross will be plotted on the peak apex.
 }
