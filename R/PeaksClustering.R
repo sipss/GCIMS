@@ -24,7 +24,6 @@
 #' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
 #' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
 #' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
-#' @export
 #' @examples
 #' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -40,7 +39,7 @@
 #'   verbose = FALSE
 #' )
 #' }
-clusterPeaks <- function(
+group_peak_list_internal <- function(
   peaks,
   filter_dt_width_criteria = "IQR",
   filter_rt_width_criteria = "arnau",
@@ -155,9 +154,50 @@ clusterPeaks <- function(
   )
 }
 
-#' @rdname clusterPeaks
+#' @describeIn group_peak_list_internal Peak grouping function
 #' @export
-group_peak_list <- clusterPeaks
+group_peak_list <- function(
+    peaks,
+    filter_dt_width_criteria = "IQR",
+    filter_rt_width_criteria = "arnau",
+    distance_method = "mahalanobis",
+    distance_between_peaks_from_same_sample = 100,
+    clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+    verbose = FALSE
+) {
+  group_peak_list_internal(
+    peaks = peaks,
+    filter_dt_width_criteria = filter_dt_width_criteria,
+    filter_rt_width_criteria = filter_rt_width_criteria,
+    distance_method = distance_method,
+    distance_between_peaks_from_same_sample = distance_between_peaks_from_same_sample,
+    clustering = clustering,
+    verbose = verbose
+  )
+}
+
+
+#' @describeIn group_peak_list_internal Peak grouping function
+#' @export
+clusterPeaks <- function(
+    peaks,
+    filter_dt_width_criteria = "IQR",
+    filter_rt_width_criteria = "arnau",
+    distance_method = "mahalanobis",
+    distance_between_peaks_from_same_sample = 100,
+    clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+    verbose = FALSE
+) {
+  group_peak_list_internal(
+    peaks = peaks,
+    filter_dt_width_criteria = filter_dt_width_criteria,
+    filter_rt_width_criteria = filter_rt_width_criteria,
+    distance_method = distance_method,
+    distance_between_peaks_from_same_sample = distance_between_peaks_from_same_sample,
+    clustering = clustering,
+    verbose = verbose
+  )
+}
 
 #' Build a peak table
 #'
