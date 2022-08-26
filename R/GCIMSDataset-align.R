@@ -26,37 +26,8 @@ setMethod(
       name = "align",
       fun = align,
       params = align_params,
-      fun_extract = function(x) {
-        list(
-          dt_kcorr = x@proc_params$align$dt_kcorr,
-          rt_poly_coefs = x@proc_params$align$rt_poly_coefs
-        )
-      },
-      fun_aggregate = function(ds, extracted_obj) {
-        if (!"align" %in% names(ds@envir)) {
-          ds@envir$align <- list()
-        }
-        ds@envir$align[["dt_kcorr"]] <- purrr::map_dbl(extracted_obj, "dt_kcorr")
-        poly_order <- purrr::map_int(
-          extracted_obj,
-          function(obj) {
-            length(obj$rt_poly_coefs) - 1L
-          }
-        )
-        ds@envir$align[["rt_poly_order"]] <- poly_order
-        poly_coefs <- matrix(0.0, nrow = length(extracted_obj), ncol = max(poly_order) + 1L)
-        poly_coefs[,2] <- 1
-        for (i in  seq_along(extracted_obj)) {
-          coefs <- extracted_obj[[i]]$rt_poly_coefs
-          poly_coefs[i, seq_along(coefs)] <- coefs
-        }
-        dimnames(poly_coefs) <- list(
-          SampleID = sampleNames(ds),
-          PolyOrder = paste0("Order_", seq_len(ncol(poly_coefs)) - 1L)
-        )
-        ds@envir$align[["rt_poly_coefs"]] <- poly_coefs
-        ds
-      }
+      fun_extract = .align_fun_extract,
+      fun_aggregate = .align_fun_aggregate
     )
     object <- appendDelayedOp(object, delayed_op)
 
@@ -66,6 +37,39 @@ setMethod(
     invisible(object)
   }
 )
+
+.align_fun_extract <- function(x) {
+  list(
+    dt_kcorr = x@proc_params$align$dt_kcorr,
+    rt_poly_coefs = x@proc_params$align$rt_poly_coefs
+  )
+}
+
+.align_fun_aggregate <- function(ds, extracted_obj) {
+  if (!"align" %in% names(ds@envir)) {
+    ds@envir$align <- list()
+  }
+  ds@envir$align[["dt_kcorr"]] <- purrr::map_dbl(extracted_obj, "dt_kcorr")
+  poly_order <- purrr::map_int(
+    extracted_obj,
+    function(obj) {
+      length(obj$rt_poly_coefs) - 1L
+    }
+  )
+  ds@envir$align[["rt_poly_order"]] <- poly_order
+  poly_coefs <- matrix(0.0, nrow = length(extracted_obj), ncol = max(poly_order) + 1L)
+  poly_coefs[,2] <- 1
+  for (i in  seq_along(extracted_obj)) {
+    coefs <- extracted_obj[[i]]$rt_poly_coefs
+    poly_coefs[i, seq_along(coefs)] <- coefs
+  }
+  dimnames(poly_coefs) <- list(
+    SampleID = sampleNames(ds),
+    PolyOrder = paste0("Order_", seq_len(ncol(poly_coefs)) - 1L)
+  )
+  ds@envir$align[["rt_poly_coefs"]] <- poly_coefs
+  ds
+}
 
 alignParams <- function(dt, rt, tis_matrix, ric_matrix) {
   # Optimize ret time alignment parameters:

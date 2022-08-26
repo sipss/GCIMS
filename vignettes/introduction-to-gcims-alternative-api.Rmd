@@ -26,6 +26,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+start_time <- Sys.time()
 library(BiocParallel)
 library(ggplot2)
 library(GCIMS)
@@ -485,6 +486,8 @@ realize(dataset)
 
 ```{r}
 # Implemented until here
+end_time <- Sys.time()
+message("The vignette ran in  ", format(end_time - start_time))
 knitr::knit_exit()
 ```
 
