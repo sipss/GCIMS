@@ -4,10 +4,12 @@
 \alias{dtime,GCIMSDataset-method}
 \title{Get A reference drift time vector for the dataset}
 \usage{
-\S4method{dtime}{GCIMSDataset}(object)
+\S4method{dtime}{GCIMSDataset}(object, sample = NULL)
 }
 \arguments{
 \item{object}{A GCIMSDataset}
+
+\item{sample}{A number or a string with the sample index or name. If \code{NULL}, the reference drift time is returned}
 }
 \value{
 a drift time vector

@@ -4,10 +4,12 @@
 \alias{rtime,GCIMSDataset-method}
 \title{Get a reference retention time vector for the dataset}
 \usage{
-\S4method{rtime}{GCIMSDataset}(object)
+\S4method{rtime}{GCIMSDataset}(object, sample = NULL)
 }
 \arguments{
 \item{object}{A GCIMSDataset}
+
+\item{sample}{A number or a string with the sample index or name. If \code{NULL}, the reference drift time is returned}
 }
 \value{
 a retention time vector

@@ -1,8 +1,9 @@
 #' Get A reference drift time vector for the dataset
 #' @param object A GCIMSDataset
+#' @param sample A number or a string with the sample index or name. If `NULL`, the reference drift time is returned
 #' @return a drift time vector
 #' @export
-setMethod("dtime", "GCIMSDataset", function(object, sample = 0L) {
+setMethod("dtime", "GCIMSDataset", function(object, sample = NULL) {
   if (hasDelayedOps(object) || is.null(object@envir$dt_ref)) {
     object <- extract_dtime_rtime(object)
     object <- realize(object)
@@ -26,6 +27,7 @@ setMethod("dtime", "GCIMSDataset", function(object, sample = 0L) {
 #'
 #' @param object A GCIMSDataset
 #' @return a retention time vector
+#' @param sample A number or a string with the sample index or name. If `NULL`, the reference drift time is returned
 #' @export
 setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
   if (hasDelayedOps(object) || is.null(object@envir$rt_ref)) {
