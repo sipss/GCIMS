@@ -2,13 +2,24 @@
 #' @param object A GCIMSDataset
 #' @return a drift time vector
 #' @export
-setMethod("dtime", "GCIMSDataset", function(object) {
-  if (!hasDelayedOps(object) && !is.null(object@envir$dt_ref)) {
-    return(object@envir$dt_ref)
+setMethod("dtime", "GCIMSDataset", function(object, sample = 0L) {
+  if (hasDelayedOps(object) || is.null(object@envir$dt_ref)) {
+    object <- extract_dtime_rtime(object)
+    object <- realize(object)
   }
-  object <- extract_dtime_rtime(object)
-  object <- realize(object)
-  object@envir$dt_ref
+  if (is.null(sample)) {
+    return(object@envir$dt_ref)
+  } else {
+    sample_idx_name <- sample_name_or_number_to_both(sample)
+    time_metrics <- as.list(object@envir$dt_rt_metrics[sample_idx_name$idx,])
+    return(
+      seq(
+        from = time_metrics$dt_min_ms,
+        to = time_metrics$dt_max_ms,
+        length.out = time_metrics$dt_length_points
+      )
+    )
+  }
 })
 
 #' Get a reference retention time vector for the dataset
@@ -16,13 +27,24 @@ setMethod("dtime", "GCIMSDataset", function(object) {
 #' @param object A GCIMSDataset
 #' @return a retention time vector
 #' @export
-setMethod("rtime", "GCIMSDataset", function(object) {
-  if (!hasDelayedOps(object) && !is.null(object@envir$rt_ref)) {
-    return(object@envir$rt_ref)
+setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
+  if (hasDelayedOps(object) || is.null(object@envir$rt_ref)) {
+    object <- extract_dtime_rtime(object)
+    object <- realize(object)
   }
-  object <- extract_dtime_rtime(object)
-  object <- realize(object)
-  object@envir$rt_ref
+  if (is.null(sample)) {
+    return(object@envir$rt_ref)
+  } else {
+    sample_idx_name <- sample_name_or_number_to_both(sample)
+    time_metrics <- as.list(object@envir$dt_rt_metrics[sample_idx_name$idx,])
+    return(
+      seq(
+        from = time_metrics$rt_min_s,
+        to = time_metrics$rt_max_s,
+        length.out = time_metrics$rt_length_points
+      )
+    )
+  }
 })
 
 .extract_dtime_rtime_fun_extract <- function(gcimssample) {
@@ -58,6 +80,7 @@ setMethod("rtime", "GCIMSDataset", function(object) {
   max_rt_length <- floor(round((min_rt_max - max_rt_min)/min_rt_step, digits = 8)) + 1L
   dt_ref <- seq(from = max_dt_min, to = min_dt_max, length.out = max_dt_length)
   rt_ref <- seq(from = max_rt_min, to = min_rt_max, length.out = max_rt_length)
+  gcimsdataset@envir$dt_rt_metrics <- dt_rt_metrics
   gcimsdataset@envir$dt_ref <- dt_ref
   gcimsdataset@envir$rt_ref <- rt_ref
 
