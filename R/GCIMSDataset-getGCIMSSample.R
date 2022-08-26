@@ -6,32 +6,11 @@ setMethod(
   "GCIMSDataset",
   function(object, sample) {
     object <- realize(object)
+    sample_id_num <- sample_name_or_number_to_both(sample, sampleNames(object))
     if (object@envir$all_on_ram) {
-      if (is.numeric(sample)) {
-        if (sample > length(sampleNames(object))) {
-          stop("sample exceeds the number of samples")
-        }
-        samplenum <- sample
-      } else if (is.character(sample)) {
-        if (!sample %in% sampleNames(object)) {
-          stop("sample not in sampleNames")
-        }
-        samplenum <- which(sample == sampleNames(object))
-      }
-      gcimssample <- object@envir$samples[[samplenum]]
+      gcimssample <- object@envir$samples[[sample_id_num$idx]]
     } else {
-      if (is.numeric(sample)) {
-        if (sample > length(sampleNames(object))) {
-          stop("sample exceeds the number of samples")
-        }
-        sampleid <- sampleNames(object)[sample]
-      } else if (is.character(sample)) {
-        if (!sample %in% sampleNames(object)) {
-          stop("sample not in sampleNames")
-        }
-        sampleid <- sample
-      }
-      filename <- paste0(sampleid, ".rds")
+      filename <- paste0(sample_id_num$name, ".rds")
       current_intermediate_dir <- CurrentHashedDir(object)
       sample_file <- file.path(current_intermediate_dir, filename)
       if (!file.exists(sample_file)) {
@@ -46,3 +25,24 @@ setMethod(
   }
 )
 
+
+sample_name_or_number_to_both <- function(sample, sample_names) {
+  if (is.numeric(sample)) {
+    sample_num <- sample
+    if (any(sample_num < 0 || sample_num > length(sample_names))) {
+      rlang::abort(glue("All samples should be between 1 and {length(sample_names)}"))
+    }
+    sample_id <- sample_names[sample_num]
+  } else if (is.character(sample)) {
+    sample_id <- sample
+    sample_num <- match(sample, sample_names)
+    missing_sample_names <- sample_id[which(is.na(sample_num))]
+    if (length(missing_sample_names) > 0) {
+      rlang::abort(glue("Missing sample names: {paste0(missing_sample_names, collapse = ', ')}"))
+    }
+  }
+  list(
+    idx = sample_id,
+    name = sample_num
+  )
+}
