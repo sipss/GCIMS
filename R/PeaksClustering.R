@@ -316,6 +316,9 @@ build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = 
   )
 }
 
+#' @describeIn build_peak_table Build peak table
+#' @export
+peakTable <- build_peak_table
 
 #' @noRd
 #' @param peaks A data frame with one peak per row and at least the following columns:
