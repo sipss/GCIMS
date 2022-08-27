@@ -290,3 +290,12 @@ setGeneric("baseline", function(object, ...) standardGeneric("baseline"))
 #'
 #' @export
 setGeneric("baseline<-", function(object, value) standardGeneric("baseline<-"))
+
+
+#' @describeIn GCIMS-generics Integrate peaks of an object
+#' @param object An object to get the baseline
+#' @param ... Additional arguments for downstream methods
+#' @return The object, with integrated peaks
+#'
+#' @export
+setGeneric("integratePeaks", function(object, ...) standardGeneric("integratePeaks"))
