@@ -4,7 +4,7 @@
 \alias{add_peaklist_rect}
 \title{Add peak list rectangles to a raw plot}
 \usage{
-add_peaklist_rect(plt, peaklist, color_by = NULL)
+add_peaklist_rect(plt, peaklist, color_by = NULL, col_prefix = "")
 }
 \arguments{
 \item{plt}{The output of \code{\link[=plotRaw]{plotRaw()}} when applied to a \link{GCIMSSample}}

@@ -18,6 +18,7 @@
 \alias{estimateBaseline}
 \alias{baseline}
 \alias{baseline<-}
+\alias{integratePeaks}
 \title{GCIMS Generics}
 \usage{
 dtime(object, ...)
@@ -51,9 +52,16 @@ estimateBaseline(object, ...)
 baseline(object, ...)
 
 baseline(object) <- value
+
+integratePeaks(
+  object,
+  peak_list,
+  integration_size_method = c("fixed_size", "free_size"),
+  rip_saturation_threshold = 0.1
+)
 }
 \arguments{
-\item{object}{An object to set the baseline}
+\item{object}{An object to get the baseline}
 
 \item{...}{Additional arguments for downstream methods}
 
@@ -97,6 +105,8 @@ The object, with a baseline estimated
 The baseline of the object
 
 The object
+
+The object, with integrated peaks
 }
 \description{
 Generics defined at the GCIMS package. We are open to moving them
@@ -135,6 +145,8 @@ to an existing generics-only package if you need so.
 \item \code{baseline()}: Get the baseline of an object
 
 \item \code{baseline(object) <- value}: Set the baseline of an object
+
+\item \code{integratePeaks()}: Integrate peaks of an object
 
 }}
 \examples{

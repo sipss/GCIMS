@@ -13,7 +13,8 @@ group_peak_list_internal(
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-  verbose = FALSE
+  verbose = FALSE,
+  .all_indices_homogeneous = TRUE
 )
 
 group_peak_list(
@@ -28,8 +29,6 @@ group_peak_list(
 
 clusterPeaks(
   peaks,
-  filter_dt_width_criteria = "IQR",
-  filter_rt_width_criteria = "arnau",
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
