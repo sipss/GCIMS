@@ -115,7 +115,7 @@ tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL,
 #' @return The given `plt` with rectangles showing the ROIs and crosses showing the apexes
 #' @export
 #'
-add_peaklist_rect <- function(plt, peaklist, color_by = NULL) {
+add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "") {
   dt_range <- ggplot2::layer_scales(plt)$x$range$range
   rt_range <- ggplot2::layer_scales(plt)$y$range$range
   if (is.null(dt_range)) {
@@ -134,25 +134,33 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL) {
   }
 
   peaklist <- as.data.frame(peaklist)
+  if (col_prefix != "") {
+    datacols <- c("dt_min_ms", "dt_max_ms", "rt_min_s", "rt_max_s")
+    datasyms <- rlang::data_syms(paste0(col_prefix, datacols))
+    names(datasyms) <- datacols
+    peaklist <- peaklist |>
+      dplyr::select(-tidyselect::any_of(datacols)) |>
+      dplyr::rename(!!!datasyms)
+  }
 
-  peaklist_to_plot_rect <- dplyr::filter(
-    peaklist,
-    .data$dt_min_ms <= max(dt_range),
-    .data$dt_max_ms >= min(dt_range),
-    .data$rt_min_s <= max(rt_range),
-    .data$rt_max_s >= min(rt_range)
-  )
+  peaklist_to_plot_rect <- peaklist |>
+    dplyr::filter(
+      .data$dt_min_ms <= max(dt_range),
+      .data$dt_max_ms >= min(dt_range),
+      .data$rt_min_s <= max(rt_range),
+      .data$rt_max_s >= min(rt_range)
+    )
 
   has_apex <- all(c("dt_apex_ms", "rt_apex_s") %in% colnames(peaklist))
 
   if (has_apex) {
-    peaklist_to_plot_apex <- dplyr::filter(
-      peaklist,
-      .data$dt_apex_ms >= min(dt_range),
-      .data$dt_apex_ms <= max(dt_range),
-      .data$rt_apex_s >= min(rt_range),
-      .data$rt_apex_s <= max(rt_range)
-    )
+    peaklist_to_plot_apex <- peaklist |>
+      dplyr::filter(
+        .data$dt_apex_ms >= min(dt_range),
+        .data$dt_apex_ms <= max(dt_range),
+        .data$rt_apex_s >= min(rt_range),
+        .data$rt_apex_s <= max(rt_range)
+      )
   }
 
   if (how_many_colors == 1) {
