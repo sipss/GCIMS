@@ -132,6 +132,9 @@ methods::setMethod(
       if (is.atomic(p[[i]]) && length(p[[i]]) > 10) {
         p[[i]] <- glue("< A {mode(p[[i]])} vector of {length(p[[i]])} elements >")
       }
+      if (inherits(p[[i]], "data.frame")) {
+        p[[i]] <- glue("< A data.frame with {nrow(p[[i]])} rows and {ncol(p[[i]])} columns >")
+      }
     }
     out <- list()
     out[[txt]] <- p
