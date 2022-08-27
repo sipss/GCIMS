@@ -46,7 +46,9 @@ group_peak_list_internal <- function(
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-  verbose = FALSE
+  verbose = FALSE,
+  .all_indices_homogeneous = TRUE
+
 ) {
   # 0. Warn if peaks with NA positions, and remove them
   peaks_with_na <- stats::complete.cases(peaks[,c("UniqueID", "SampleID", "dt_apex_ms", "rt_apex_s")])
@@ -113,45 +115,89 @@ group_peak_list_internal <- function(
     stop(sprintf("Unsupported clustering method %s", clustering$method))
   }
 
-  # Turn numeric peak clusters into IDs
+  # Turn numeric peak clusters into IDs:
   if (is.numeric(peaks$cluster)) {
     ndigits_print <- paste0("Cluster%0", nchar(max(peaks$cluster)), "d")
     peaks$cluster <- sprintf(ndigits_print, peaks$cluster)
   }
 
-  cluster_stats <- peaks %>%
-    dplyr::group_by(.data$cluster) %>%
-    dplyr::summarise(
-      dplyr::across(
-        dplyr::all_of(
-          c(
-            "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms",
-            "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s"
-          )
-        ),
-        stats::median
-      ),
-      dplyr::across(
-        dplyr::all_of(c("dt_min_idx", "rt_min_idx")),
-        ~ floor(stats::median(.))
-      ),
-      dplyr::across(
-        dplyr::all_of(c("dt_max_idx", "rt_max_idx")),
-        ~ ceiling(stats::median(.))
-      ),
-      dplyr::across(
-        dplyr::all_of(c("dt_apex_idx", "dt_cm_idx", "rt_apex_idx", "rt_cm_idx")),
-        ~ round(stats::median(.))
-      ),
-    ) %>%
-    dplyr::ungroup()
+  peak_cluster_stats <- peak_and_cluster_metrics(peaks, .all_indices_homogeneous = .all_indices_homogeneous)
 
   list(
-    peak_list_clustered = peaks,
-    cluster_stats = cluster_stats,
+    peak_list_clustered = peak_cluster_stats$peaks,
+    cluster_stats = peak_cluster_stats$cluster_stats,
     dist = peak2peak_dist,
     extra_clustering_info = extra_clustering_info
   )
+}
+
+peak_and_cluster_metrics <- function(peaks, .all_indices_homogeneous = FALSE) {
+  # Suggestion: Remove .all_indices_homogeneous=TRUE
+  if (.all_indices_homogeneous) {
+    cluster_stats <- peaks %>%
+      dplyr::group_by(.data$cluster) %>%
+      dplyr::summarise(
+        dplyr::across(
+          dplyr::all_of(
+            c(
+              "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms",
+              "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s"
+            )
+          ),
+          stats::median
+        ),
+        dplyr::across(
+          dplyr::all_of(c("dt_min_idx", "rt_min_idx")),
+          ~ floor(stats::median(.))
+        ),
+        dplyr::across(
+          dplyr::all_of(c("dt_max_idx", "rt_max_idx")),
+          ~ ceiling(stats::median(.))
+        ),
+        dplyr::across(
+          dplyr::all_of(c("dt_apex_idx", "dt_cm_idx", "rt_apex_idx", "rt_cm_idx")),
+          ~ round(stats::median(.))
+        ),
+      ) %>%
+      dplyr::ungroup()
+  } else {
+    peaks <- peaks %>%
+      dplyr::mutate(
+        dt_length_ms = .data$dt_max_ms - .data$rt_min_s,
+        rt_length_s = .data$rt_max_s - .data$rt_min_s,
+        dt_center_ms = (.data$dt_max_ms + .data$rt_min_s)/2,
+        rt_center_s = (.data$rt_max_s + .data$rt_min_s)/2,
+      )
+
+    cluster_stats <- peaks %>%
+      dplyr::group_by(.data$cluster) %>%
+      dplyr::summarise(
+        dplyr::across(
+          dplyr::all_of(
+            c(
+              "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms", "dt_length_ms",
+              "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s", "rt_length_s"
+            )
+          ),
+          stats::median
+        )
+      ) %>%
+      dplyr::ungroup()
+
+    cluster_sizes <- cluster_stats %>%
+      dplyr::select(dplyr::all_of(c("cluster", "dt_length_ms", "rt_length_s")))
+
+    peaks <- dplyr::left_join(peaks, cluster_sizes, by = "cluster") %>%
+      dplyr::mutate(
+        fixedsize_dt_min_ms = .data$dt_center_ms - .data$dt_length_ms/2,
+        fixedsize_dt_max_ms = .data$dt_center_ms + .data$dt_length_ms/2,
+        fixedsize_rt_min_s = .data$rt_center_s - .data$rt_length_s/2,
+        fixedsize_rt_max_s = .data$rt_center_s + .data$rt_length_s/2,
+      ) %>%
+      dplyr::select(-dplyr::all_of(c("dt_length_ms", "rt_length_s")))
+
+  }
+  list(peaks = peaks, cluster_stats = cluster_stats)
 }
 
 #' @describeIn group_peak_list_internal Peak grouping function
@@ -181,8 +227,6 @@ group_peak_list <- function(
 #' @export
 clusterPeaks <- function(
     peaks,
-    filter_dt_width_criteria = "IQR",
-    filter_rt_width_criteria = "arnau",
     distance_method = "mahalanobis",
     distance_between_peaks_from_same_sample = 100,
     clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
@@ -190,12 +234,13 @@ clusterPeaks <- function(
 ) {
   group_peak_list_internal(
     peaks = peaks,
-    filter_dt_width_criteria = filter_dt_width_criteria,
-    filter_rt_width_criteria = filter_rt_width_criteria,
+    filter_dt_width_criteria = NULL,
+    filter_rt_width_criteria = NULL,
     distance_method = distance_method,
     distance_between_peaks_from_same_sample = distance_between_peaks_from_same_sample,
     clustering = clustering,
-    verbose = verbose
+    verbose = verbose,
+    .all_indices_homogeneous = FALSE
   )
 }
 
