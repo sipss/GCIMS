@@ -187,7 +187,9 @@ peak_and_cluster_metrics <- function(peaks, .all_indices_homogeneous = FALSE) {
     cluster_sizes <- cluster_stats %>%
       dplyr::select(dplyr::all_of(c("cluster", "dt_length_ms", "rt_length_s")))
 
-    peaks <- dplyr::left_join(peaks, cluster_sizes, by = "cluster") %>%
+    peaks <- peaks %>%
+      dplyr::select(-dplyr::all_of(c("dt_length_ms", "rt_length_s"))) %>%
+      dplyr::left_join(cluster_sizes, by = "cluster") %>%
       dplyr::mutate(
         fixedsize_dt_min_ms = .data$dt_center_ms - .data$dt_length_ms/2,
         fixedsize_dt_max_ms = .data$dt_center_ms + .data$dt_length_ms/2,
