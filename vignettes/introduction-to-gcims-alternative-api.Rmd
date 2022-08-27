@@ -485,6 +485,30 @@ realize(dataset)
 ```
 
 
+```{r fig.height=10, fig.width=10}
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(
+  plt, 
+  dplyr::filter(peak_clustering$peak_list_clustered),
+  color_by = "SampleID",
+  col_prefix = "fixedsize_"
+) + 
+  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
+  facet_wrap(~cluster, scales = "free")
+plt
+```
+
+
+
+
+# Peak integration
+
+```{r}
+dataset <- integratePeaks(dataset, peak_clustering$peak_list, integration_size_method = "fixed_size", rip_saturation_threshold = 0.1)
+realize(dataset)
+peak_list <- peaks(dataset)
+```
+
 ```{r}
 # Implemented until here
 end_time <- Sys.time()
@@ -492,41 +516,6 @@ message("The vignette ran in  ", format(end_time - start_time))
 knitr::knit_exit()
 ```
 
-
-
-## Refine clusters
-
-- ROIs Fusion: gcims_rois_fusion
-
-```{r}
-# ROIs Fusion
-fusion_res <- gcims_rois_fusion(
-  peak_clustering$peak_list_clustered,
-  peak_clustering$cluster_stats
-)
-
-ggplot() +
-  geom_rect(
-    data = dplyr::filter(fusion_res$peak_list_clustered, cluster == "Cluster07"),
-    mapping = aes(
-      xmin=ref_roi_dt_min_idx,
-      xmax=ref_roi_dt_max_idx,
-      ymin=ref_roi_rt_min_idx,
-      ymax=ref_roi_rt_max_idx,
-      fill = SampleID,
-      color = SampleID
-    ),
-    alpha=0.5
-  ) +
-  labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster07")
-```
-
-
-# Peak integration
-
-```{r}
-peak_list <- integratePeaks(dataset, fusion_res$peak_list, fusion_res$cluster_stats)
-```
 
 # Build peak table
 
