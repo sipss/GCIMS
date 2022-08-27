@@ -35,23 +35,15 @@
 #' labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster01")
 #' }
 #'
-gcims_rois_fusion <- function(peak_list_clustered, cluster_stats, drift_time = NULL, retention_time = NULL) {
+gcims_rois_fusion <- function(peak_list_clustered, cluster_stats) {
   peak_list_clustered$ref_roi_dt_min_idx <- 0
   peak_list_clustered$ref_roi_dt_max_idx <- 0
   peak_list_clustered$ref_roi_rt_min_idx <- 0
   peak_list_clustered$ref_roi_rt_max_idx <- 0
 
-  if (!is.null(drift_time)) {
-    dt_allmax_idx <- length(drift_time)
-  } else {
-    dt_allmax_idx <- max(c(peak_list_clustered$dt_max_idx, cluster_stats$dt_max_idx))
-  }
+  dt_allmax_idx <- max(c(peak_list_clustered$dt_max_idx, cluster_stats$dt_max_idx))
 
-  if (!is.null(retention_time)) {
-    rt_allmax_idx <- length(retention_time)
-  } else {
-    rt_allmax_idx <- max(c(peak_list_clustered$rt_max_idx, cluster_stats$rt_max_idx))
-  }
+  rt_allmax_idx <- max(c(peak_list_clustered$rt_max_idx, cluster_stats$rt_max_idx))
 
   for (i in seq_len(nrow(peak_list_clustered))) {
     roi_prop <- as.list(peak_list_clustered[i,])
@@ -63,23 +55,11 @@ gcims_rois_fusion <- function(peak_list_clustered, cluster_stats, drift_time = N
 
     dt_roi_center_idx <- floor((roi_prop$dt_max_idx + roi_prop$dt_min_idx)/2)
     rt_roi_center_idx <- floor((roi_prop$rt_max_idx + roi_prop$rt_min_idx)/2)
-
     peak_list_clustered$ref_roi_dt_min_idx[i] <- max(1L,            dt_roi_center_idx - dt_cluster_half_length)
     peak_list_clustered$ref_roi_dt_max_idx[i] <- min(dt_allmax_idx, dt_roi_center_idx + dt_cluster_half_length)
     peak_list_clustered$ref_roi_rt_min_idx[i] <- max(1L,            rt_roi_center_idx - rt_cluster_half_length)
     peak_list_clustered$ref_roi_rt_max_idx[i] <- min(rt_allmax_idx, rt_roi_center_idx + rt_cluster_half_length)
   }
-
-  if (!is.null(drift_time)) {
-    peak_list_clustered$ref_roi_dt_min_ms <- drift_time[peak_list_clustered$ref_roi_dt_min_idx]
-    peak_list_clustered$ref_roi_dt_max_ms <- drift_time[peak_list_clustered$ref_roi_dt_max_idx]
-  }
-  if (!is.null(retention_time)) {
-    peak_list_clustered$ref_roi_rt_min_s <- retention_time[peak_list_clustered$ref_roi_rt_min_idx]
-    peak_list_clustered$ref_roi_rt_max_s <- retention_time[peak_list_clustered$ref_roi_rt_max_idx]
-  }
-
-
 
     # thrOverlap <- 0.8
     # for (j in ROIs2Fusion){
