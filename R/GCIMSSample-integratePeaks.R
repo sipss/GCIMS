@@ -37,10 +37,10 @@ setMethod(
 
     for (i in seq_len(nrow(peak_list))) {
       # ROI volume
-      if (integration_size_method == "cluster_roi") {
+      if (integration_size_method == "fixed_size") {
         dt_range <- c(peak_list$fixedsize_dt_min_ms[i], peak_list$fixedsize_dt_max_ms[i])
         rt_range <- c(peak_list$fixedsize_rt_min_s[i], peak_list$fixedsize_rt_max_s[i])
-      } else if (integration_size_method == "individual_roi") {
+      } else if (integration_size_method == "free_size") {
         dt_range <- c(peak_list$dt_min_ms[i], peak_list$dt_max_ms[i])
         rt_range <- c(peak_list$rt_min_s[i], peak_list$rt_max_s[i])
       } else {
