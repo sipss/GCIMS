@@ -47,7 +47,7 @@ setMethod(
         stop("Invalid integration_limits parameter")
       }
       patch <- intensity(object, dt_range = dt_range, rt_range = rt_range)
-      peak_list$Volume[i] <- compute_integral2(patch)*rt_step_s*dt_step_ms
+      peak_list$Volume[i] <- sum(patch)*rt_step_s*dt_step_ms
 
       # ROI saturation
       # Rather than checking if the center of mass is saturated, shouldn't we check if "any region within "some thin peak boundaries" is saturated"?
