@@ -509,19 +509,19 @@ realize(dataset)
 peak_list <- peaks(dataset)
 ```
 
-```{r}
-# Implemented until here
-end_time <- Sys.time()
-message("The vignette ran in  ", format(end_time - start_time))
-knitr::knit_exit()
-```
-
 
 # Build peak table
 
 ```{r}
 peak_table <- peakTable(peak_list, aggregate_conflicting_peaks = max)
 peak_table$peak_table_matrix
+```
+
+```{r}
+# Implemented until here
+end_time <- Sys.time()
+message("The vignette ran in  ", format(end_time - start_time))
+knitr::knit_exit()
 ```
 
 
