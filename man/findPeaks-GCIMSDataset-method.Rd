@@ -4,7 +4,14 @@
 \alias{findPeaks,GCIMSDataset-method}
 \title{Peak detection on the GCIMS dataset}
 \usage{
-\S4method{findPeaks}{GCIMSDataset}(object, noise_level = 3, verbose = FALSE)
+\S4method{findPeaks}{GCIMSDataset}(
+  object,
+  noise_level = 3,
+  verbose = FALSE,
+  dt_length_ms = 0.14,
+  rt_length_s = 3,
+  iou_overlap_threshold = 0.2
+)
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object, modified in-place}

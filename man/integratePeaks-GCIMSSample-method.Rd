@@ -14,6 +14,16 @@
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
 
+\item{peak_list}{A data frame with the peak list}
+
+\item{integration_size_method}{If "fixed_size", the ROI integration limits
+are the same for all the peaks that belong to the same cluster. If "free_size",
+each ROI has its own integration limits, regardless of the cluster it is assigned to.}
+
+\item{rip_saturation_threshold}{Used to compute the "Saturation" column. If the ratio of the RIP intensity at the ROI apex
+with respect to the maximum RIP is below this threshold, the RIP is considered almost depleted, and it's more likely that
+the ROI suffers from non-linearities.}
+
 \item{verbose}{If \code{TRUE}, debug information will be printed}
 }
 \value{
