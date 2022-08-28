@@ -122,8 +122,8 @@ gcims_figures_of_merit <- function(
 }
 
 
-find_regions_rip_saturated <- function(aux, rip_saturation_threshold, retention_time = NULL) {
-  the_rip <- find_rip(aux)
+find_regions_rip_saturated <- function(aux, rip_saturation_threshold, verbose = FALSE, retention_time = NULL, drift_time = NULL) {
+  the_rip <- find_rip(aux, verbose = verbose, retention_time = retention_time, drift_time = drift_time)
   # Search saturation regions
   rip_region <- aux[the_rip$dt_idx_start:the_rip$dt_idx_end, , drop = FALSE]
   rip_chrom <- rowSums(rip_region) / nrow(rip_region)
