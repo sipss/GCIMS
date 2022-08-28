@@ -156,7 +156,7 @@ You can apply the smoothing filter to a single IMS spectrum or to a single chrom
 to see how noise is removed and how peaks are not distorted. Tweak the filter lengths
 and, once you are happy, apply the smoothing filter to all the dataset.
 
-```{r}
+```{r smoothing-starts-here}
 one_ims_spec <- getIMS(ket1afterfilter, rt_range = 97.11)
 ```
 
@@ -291,7 +291,7 @@ efficiency reasons, the polynomial will be estimated using the Reverse Ion Chrom
 the samples to be aligned.
 
 
-```{r}
+```{r alignment-starts-here}
 align(dataset)
 ```
 
@@ -312,14 +312,19 @@ First try one sample and optimize the `noise_level` parameter there. Change valu
 from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too low
 peaks may appear broken into two regions or false detections may occur.
 
-```{r}
+```{r peak-detection-starts-here}
 ket1 <- getGCIMSSample(dataset, "Ketones1")
-ket1 <- findPeaks(ket1, noise_level = 2)
+ket1 <- findPeaks(
+  ket1,
+  noise_level = 3,
+  rt_length_s = 3,
+  dt_length_ms = 0.14,
+  verbose = TRUE,
+  iou_overlap_threshold = 0.2
+)
 peak_list_ket1 <- peaks(ket1)
-
-ket1 <- getGCIMSSample(dataset, "Ketones1")
 plt <- plotRaw(ket1)
-plt <- add_peaklist_rect(plt, peak_list_ket1)
+plt <- add_peaklist_rect(plt, peak_list_ket1, color_by = "PeakID")
 plt
 ```
 
@@ -328,7 +333,14 @@ plt
 Then do it on the whole dataset:
 
 ```{r}
-findPeaks(dataset, noise_level = 2)
+findPeaks(
+  dataset,
+  noise_level = 3,
+  rt_length_s = 3,
+  dt_length_ms = 0.14,
+  verbose = FALSE,
+  iou_overlap_threshold = 0.2
+)
 peak_list <- peaks(dataset)
 ```
 You can get any other sample if you like, plot it and plot its peaks on top:
@@ -356,7 +368,7 @@ plt
 
 # Clustering
 
-```{r}
+```{r clustering-section-starts-here}
 peak_clustering <- clusterPeaks(
   peak_list,
   distance_method = "sd_scaled_euclidean",
@@ -393,7 +405,7 @@ plt
 
 # Baseline correction
 
-```{r}
+```{r baseline-section-starts-here}
 ket1 <- getGCIMSSample(dataset, "Ketones1")
 ```
 
@@ -504,8 +516,17 @@ plt
 # Peak integration
 
 ```{r}
-dataset <- integratePeaks(dataset, peak_clustering$peak_list, integration_size_method = "fixed_size", rip_saturation_threshold = 0.1)
-realize(dataset)
+dataset <- integratePeaks(
+  dataset, 
+  peak_clustering$peak_list, 
+  integration_size_method = "fixed_size", 
+  rip_saturation_threshold = 0.1
+)
+```
+
+
+
+```{r}
 peak_list <- peaks(dataset)
 ```
 
