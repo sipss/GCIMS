@@ -1,29 +1,40 @@
 #' Peak integration for a GCIMSSample
 #' @param object A [GCIMSSample] object
-#' @param peak_list
-#' @param integration_size
+#' @param peak_list A data frame with the peak list
+#' @param integration_size_method If "fixed_size", the ROI integration limits
+#' are the same for all the peaks that belong to the same cluster. If "free_size",
+#' each ROI has its own integration limits, regardless of the cluster it is assigned to.
+#' @param rip_saturation_threshold Used to compute the "Saturation" column. If the ratio of the RIP intensity at the ROI apex
+#' with respect to the maximum RIP is below this threshold, the RIP is considered almost depleted, and it's more likely that
+#' the ROI suffers from non-linearities.
 #' @param verbose If `TRUE`, debug information will be printed
 #' @return The modified [GCIMSSample], with an updated peak list
 #' @export
 setMethod(
   "integratePeaks",
   "GCIMSSample",
-  function(object, peak_list, integration_size_method = c("fixed_size", "free_size"), rip_saturation_threshold = 0.1) {
+  function(object, peak_list, integration_size_method = c("fixed_size", "free_size"), rip_saturation_threshold = 0.1, verbose = FALSE) {
     integration_size_method <- match.arg(integration_size_method)
     # Ensure peak_list only has peaks from object
     sample_name <- description(object)
     peak_list <- dplyr::filter(peak_list, .data$SampleID == sample_name)
-    peak_list$Area <- 0
-    peak_list$Volume <- 0
-    peak_list$Asymmetry <- 0
-    peak_list$Saturation <- 0
+    peak_list$Area <- NA_real_
+    peak_list$Volume <- NA_real_
+    peak_list$Asymmetry <- NA_real_
+    peak_list$Saturation <- FALSE
 
     intmat <- intensity(object)
     rt <- rtime(object)
     dt <- dtime(object)
     dt_step_ms <- dt[2L] - dt[1L]
     rt_step_s <- rt[2L] - rt[1L]
-    rt_saturated_regions_s <- find_regions_rip_saturated(intmat, rip_saturation_threshold = rip_saturation_threshold, retention_time = rt)
+    rt_saturated_regions_s <- find_regions_rip_saturated(
+      intmat,
+      rip_saturation_threshold = rip_saturation_threshold,
+      verbose = verbose,
+      retention_time = rt,
+      drift_time = dt
+    )
 
     # Area:
     len_dt_ms <- peak_list$dt_max_ms - peak_list$dt_min_ms
