@@ -95,7 +95,7 @@ find_half_max_boundaries <- function(x) {
 #' @param intensity_mat A matrix of intensities of shape (drift, retention).
 #' @return A named list with the positions where the RIP starts and ends in drift time indices,
 #' and the positions of the RIP apex.
-find_rip <- function(intensity_mat) {
+find_rip <- function(intensity_mat, verbose = FALSE, retention_time = NULL, drift_time = NULL) {
   total_ion_spectrum <- rowSums(intensity_mat)
   # In most rows the RIP will be the higher peak, so it will also be the maximum in the TIS
   dt_idx_rip <- which.max(total_ion_spectrum)
@@ -121,6 +121,31 @@ find_rip <- function(intensity_mat) {
   dt_idx_start <- max(dt_idx_start, dt_idx_rip - 3*bounds_and_widths$fwhm_sym)
   dt_idx_end <- min(dt_idx_end, dt_idx_rip + 3*bounds_and_widths$fwhm_sym)
 
+  if (verbose) {
+    if (!is.null(retention_time)) {
+      rt_units <- "s"
+    } else {
+      rt_units <- "pts"
+      retention_time <- seq_len(ncol(intensity_mat))
+    }
+    if (!is.null(drift_time)) {
+      dt_units <- "ms"
+    } else {
+      dt_units <- "pts"
+      drift_time <- seq_len(nrow(intensity_mat))
+    }
+    dt_ms_start <- drift_time[dt_idx_start]
+    dt_ms_end <- drift_time[dt_idx_end]
+    dt_ms_apex <- drift_time[dt_idx_rip]
+    rt_s_apex <- retention_time[rt_idx_apex]
+
+    rlang::inform(message = c(
+      "RIP was detected",
+      "i" = glue(" - At drift time: [{dt_ms_start} - {dt_ms_end}] {dt_units}"),
+      "i" = glue(" - Maximum RIP intensity at: (dt: {dt_ms_apex} {dt_units}, rt: {rt_s_apex} {rt_units})")
+    )
+    )
+  }
   list(
     dt_idx_start = dt_idx_start,
     dt_idx_apex = dt_idx_rip,
