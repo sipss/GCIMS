@@ -167,16 +167,17 @@ find_rip <- function(intensity_mat, verbose = FALSE, retention_time = NULL, drif
 #' @param rip A numeric vector with the RIP shape
 #'
 #' @return A number, measured in indices, which can be used as the minimum peak distance when finding peaks
-estimate_minpeakdistance <- function(rip) {
+estimate_minpeakdistance <- function(rip, verbose = FALSE, drift_time = NULL) {
   filter_length <- min(21L, round(length(rip)/3))
   if (filter_length %% 2 == 0) {
     filter_length <- filter_length - 1L
   }
-  rip_2nd_deriv <- signal::sgolayfilt(rip, p = 2, n = filter_length, m = 2)
+  rip_2nd_deriv <- sgolayfilt(rip, p = 2, n = filter_length, m = 2)
   bounds_and_widths <- find_half_max_boundaries(-rip_2nd_deriv)
   fwhm <- bounds_and_widths$fwhm
   # Magic:
-  fwhm/sqrt(log(2))
+  minpeakdistance <- fwhm/sqrt(log(2))
+  minpeakdistance
 }
 
 gcims_rois_selection_one <- function(x, noise_level, verbose = FALSE) {
