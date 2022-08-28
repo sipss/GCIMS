@@ -10,6 +10,6 @@ methods::setMethod(
   function(x, dt_length_ms, dt_order = 2){
     dt <- dtime(x)
     dt_length_pts <- units_to_points(dt_length_ms, dt[2] - dt[1], must_odd = TRUE)
-    x@intensity <- signal::sgolayfilt(x@intensity, n = dt_length_pts, p = dt_order)
+    x@intensity <- sgolayfilt(x@intensity, n = dt_length_pts, p = dt_order)
     x
   })

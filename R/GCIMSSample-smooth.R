@@ -20,12 +20,8 @@ methods::setMethod(
     filter_dt <- signal::sgolay(p = dt_order, n = dt_length_pts)
 
     mat <- x@data
-    for (i in seq_len(ncol(mat))) {
-      mat[, i] <- signal::sgolayfilt(mat[, i], filter_rt)
-    }
-    for (i in seq_len(nrow(mat))) {
-      mat[i, ] <- signal::sgolayfilt(mat[i, ], filter_dt)
-    }
+    mat <- sgolayfilt(mat, filter_rt)
+    mat <- sgolayfilt(mat, filter_dt, rowwise = TRUE)
     x@data <- mat
     x
   })
