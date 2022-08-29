@@ -5,11 +5,10 @@
 #' @return A matrix with samples in rows and the drift time in columns
 #' @export
 setMethod("getTIS", "GCIMSDataset", function(object) {
-  if (!hasDelayedOps(object) && !is.null(object@envir$TIS)) {
-    return(object@envir$TIS)
+  if (hasDelayedOps(object) || is.null(object@envir$TIS)) {
+    object <- extract_RIC_and_TIS(object)
+    object <- realize(object)
   }
-  object <- extract_RIC_and_TIS(object)
-  object <- realize(object)
   out <- object@envir$TIS
   dimnames(out) <- list(
     SampleID = sampleNames(object),
@@ -25,11 +24,10 @@ setMethod("getTIS", "GCIMSDataset", function(object) {
 #' @return  The RIC matrix
 #' @export
 setMethod("getRIC", "GCIMSDataset", function(object) {
-  if (!hasDelayedOps(object) && !is.null(object@envir$RIC)) {
-    return(object@envir$RIC)
+  if (hasDelayedOps(object) || is.null(object@envir$RIC)) {
+    object <- extract_RIC_and_TIS(object)
+    object <- realize(object)
   }
-  object <- extract_RIC_and_TIS(object)
-  object <- realize(object)
   out <- object@envir$RIC
   dimnames(out) <- list(
     SampleID = sampleNames(object),
@@ -42,42 +40,77 @@ setMethod("getRIC", "GCIMSDataset", function(object) {
 #' Plot Total Ion Spectra
 #'
 #' @param object A [GCIMSDataset] object
-#'
-#' @return A plot
+#' @inheritParams dt_rt_range_normalization
+#' @param sample A number or a string with the sample index or name. If `NULL`, all samples are returned
+#' @return The plot of the TIS
 #' @export
 setMethod(
   "plotTIS",
   "GCIMSDataset",
-  function(object) {
+  function(object, dt_range = NULL, sample = NULL) {
     tis <- getTIS(object)
-    graphics::matplot(
-      x = object@envir$dt_ref,
-      y = t(tis),
-      type = "l",
-      xlab = "Drift time (ms)",
-      ylab = "Intensity (a.u.)"
-    )
+    dt <- dtime(object)
+    sample_names <- sampleNames(object)
+    if (is.null(sample)) {
+      sample <- sample_names
+    }
+    sample_idx <- sample_name_or_number_to_both(sample, sample_names)
+    idx <- dt_rt_range_normalization(dt = dt, dt_range = dt_range)
+    tis_long <- reshape2::melt(tis[sample_idx$idx, idx$dt_logical, drop = FALSE], value.name = "TIS")
+    gplt <- ggplot2::ggplot() +
+      ggplot2::geom_line(
+        data = tis_long,
+        mapping = ggplot2::aes(
+          x = .data$drift_time_ms,
+          y = .data$TIS,
+          color = .data$SampleID
+        )
+      ) +
+      ggplot2::labs(
+        x = "Drift time (ms)",
+        y = "TIS Intensity (a.u.)",
+        color = "SampleID"
+      )
+    gplt
   }
 )
 
 #' @describeIn GCIMSDataset Plot Reverse Ion Chromatograms
 #'
 #' @param object A [GCIMSDataset] object
-#'
+#' @inheritParams dt_rt_range_normalization
+#' @param sample A number or a string with the sample index or name. If `NULL`, all samples are returned
 #' @return A plot
 #' @export
 setMethod(
   "plotRIC",
   "GCIMSDataset",
-  function(object) {
+  function(object, rt_range = NULL, sample = NULL) {
     ric <- getRIC(object)
-    graphics::matplot(
-      x = object@envir$rt_ref,
-      y = t(ric),
-      type = "l",
-      xlab = "Retention time (s)",
-      ylab = "Intensity (a.u.)"
-    )
+    rt <- rtime(object)
+    sample_names <- sampleNames(object)
+    if (is.null(sample)) {
+      sample <- sample_names
+    }
+    sample_idx <- sample_name_or_number_to_both(sample, sample_names)
+    idx <- dt_rt_range_normalization(rt = rt, rt_range = rt_range)
+    ric_long <- reshape2::melt(ric[sample_idx$idx, idx$rt_logical, drop = FALSE], value.name = "RIC")
+
+    gplt <- ggplot2::ggplot() +
+      ggplot2::geom_line(
+        data = ric_long,
+        mapping = ggplot2::aes(
+          x = .data$retention_time_s,
+          y = .data$RIC,
+          color = .data$SampleID
+        )
+      ) +
+      ggplot2::labs(
+        x = "Retention time (s)",
+        y = "RIC Intensity (a.u.)",
+        color = "SampleID"
+      )
+    gplt
   }
 )
 
