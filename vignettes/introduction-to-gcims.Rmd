@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+start_time <- Sys.time()
 library(ggplot2)
 library(GCIMS)
 ```
@@ -400,6 +401,11 @@ peak_table_imputed
 
 
 # Session Info
+
+```{r}
+end_time <- Sys.time()
+message("The vignette ran in  ", format(end_time - start_time))
+```
 
 ```{r}
 sessionInfo()
