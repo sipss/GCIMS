@@ -2,6 +2,7 @@ FROM docker.io/bioconductor/bioconductor_docker:RELEASE_3_15
 
 RUN apt-get update && apt-get install -y \
     libmagick++-dev \
+    libfftw3-dev \
     qpdf \
     ghostscript \
     texlive-latex-base \

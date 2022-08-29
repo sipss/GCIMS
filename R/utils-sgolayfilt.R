@@ -97,7 +97,7 @@ sgolayfilt <- function(x, p = 3, n = p + 3 - p %% 2, m = 0, ts = 1, rowwise = FA
   #len_pow2 <- stats::nextn(len, 2)
   fft_length <- length(conv_coefs) + len - 1L
   conv_coefs_padded <- c(rev(conv_coefs), rep(0, len - 1L))
-  plan <- fft_plan(fft_length, effort = 3)
+  plan <- fft_plan(fft_length, effort = 0)
   conj_fft_y_prep <- Conj(fft(conv_coefs_padded, plan = plan))
   x_padded <- numeric(fft_length)
   for (i in seq_len(num_ser)) {
