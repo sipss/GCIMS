@@ -49,8 +49,6 @@ build_site_and_coverage:
   image: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
   tags:
     - sipss
-  only:
-    - master
   script:
     - Rscript -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
     - Rscript -e 'pkgdown::build_site()'
