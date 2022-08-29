@@ -187,7 +187,7 @@ methods::setMethod(
     .Object@envir$hasheddir <- ""
     .Object@envir$keep_intermediate <- keep_intermediate
     .Object@envir$on_ram <- on_ram
-    .Object@envir$samples <- NULL # Only used if all_on_ram is TRUE
+    .Object@envir$samples <- NULL # Only used if on_ram is TRUE
     canRealize(.Object) <- TRUE
     .Object <- appendDelayedOp(.Object, GCIMSDelayedOp(name = "read_sample", fun = read_sample))
     # Some sample stats:

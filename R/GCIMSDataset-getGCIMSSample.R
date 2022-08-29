@@ -7,7 +7,7 @@ setMethod(
   function(object, sample) {
     object <- realize(object)
     sample_id_num <- sample_name_or_number_to_both(sample, sampleNames(object))
-    if (object@envir$all_on_ram) {
+    if (object@envir$on_ram) {
       gcimssample <- object@envir$samples[[sample_id_num$idx]]
     } else {
       filename <- paste0(sample_id_num$name, ".rds")

@@ -255,7 +255,7 @@ setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
   on.exit({canRealize(object) <- TRUE})
 
   object <- optimize_delayed_operations(object)
-  if (isTRUE(object@envir$all_on_ram)) {
+  if (isTRUE(object@envir$on_ram)) {
     object <- realize_ram(object)
   } else {
     object <- realize_disk(object, keep_intermediate = keep_intermediate)
