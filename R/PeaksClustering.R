@@ -399,7 +399,7 @@ remove_peaks_with_outlier_rois <- function(
   if (verbose) {
     message(sprintf("Excluding %d/%d peaks", length(peaks_to_exclude), nrow(peaks)))
   }
-  dplyr::filter(peaks, ! .data$UniqueID %in% peaks_to_exclude)
+  dplyr::filter(peaks, !.data$UniqueID %in% peaks_to_exclude)
 }
 
 
