@@ -4,13 +4,17 @@
 \alias{plotTIS,GCIMSDataset-method}
 \title{Plot Total Ion Spectra}
 \usage{
-\S4method{plotTIS}{GCIMSDataset}(object)
+\S4method{plotTIS}{GCIMSDataset}(object, dt_range = NULL, sample = NULL)
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object}
+
+\item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
+
+\item{sample}{A number or a string with the sample index or name. If \code{NULL}, all samples are returned}
 }
 \value{
-A plot
+The plot of the TIS
 }
 \description{
 Plot Total Ion Spectra

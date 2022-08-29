@@ -27,7 +27,7 @@ GCIMSDataset(
 
 \S4method{getTIS}{GCIMSDataset}(object)
 
-\S4method{plotRIC}{GCIMSDataset}(object)
+\S4method{plotRIC}{GCIMSDataset}(object, rt_range = NULL, sample = NULL)
 
 \S4method{pData}{GCIMSDataset}(object)
 
@@ -52,7 +52,9 @@ as long as you have enough memory to keep all samples. If this is \code{TRUE}, t
 
 \item{object}{A \link{GCIMSDataset} object}
 
-\item{sample}{Either an integer (sample index) or a string (sample name)}
+\item{sample}{A number or a string with the sample index or name. If \code{NULL}, all samples are returned}
+
+\item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
 
 \item{value}{The data frame with a peak list}
 }

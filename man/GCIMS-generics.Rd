@@ -19,7 +19,6 @@
 \alias{baseline}
 \alias{baseline<-}
 \alias{integratePeaks}
-\alias{impute}
 \title{GCIMS Generics}
 \usage{
 dtime(object, ...)
@@ -55,11 +54,9 @@ baseline(object, ...)
 baseline(object) <- value
 
 integratePeaks(object, ...)
-
-impute(object, ...)
 }
 \arguments{
-\item{object}{What to impute}
+\item{object}{An object to get the baseline}
 
 \item{...}{Additional arguments for downstream methods}
 
@@ -105,8 +102,6 @@ The baseline of the object
 The object
 
 The object, with integrated peaks
-
-The object, with imputed values
 }
 \description{
 Generics defined at the GCIMS package. We are open to moving them
@@ -147,8 +142,6 @@ to an existing generics-only package if you need so.
 \item \code{baseline(object) <- value}: Set the baseline of an object
 
 \item \code{integratePeaks()}: Integrate peaks of an object
-
-\item \code{impute()}: Impute values
 
 }}
 \examples{
