@@ -139,7 +139,7 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "") {
     datasyms <- rlang::data_syms(paste0(col_prefix, datacols))
     names(datasyms) <- datacols
     peaklist <- peaklist |>
-      dplyr::select(-tidyselect::any_of(datacols)) |>
+      dplyr::select(-dplyr::any_of(datacols)) |>
       dplyr::rename(!!!datasyms)
   }
 
