@@ -53,8 +53,8 @@ setMethod(
     nr <- mat_to_nativeRaster(intmat_trans, COLORMAP_VIRIDIS_256_A_m1)
 
     # The geom_rect is fake and it is only used to force the fill legend to appear
-    gplt <- ggplot() +
-      geom_rect(
+    gplt <- ggplot2::ggplot() +
+      ggplot2::geom_rect(
         xmin = idx$dt_ms_min, xmax = idx$dt_ms_min,
         ymin = idx$rt_s_min, ymax = idx$rt_s_min,
         ggplot2::aes(fill = .data$x),

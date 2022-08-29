@@ -18,7 +18,6 @@
 #' @return A Set of S3 objects.
 #' @family Utility functions
 #' @export
-#' @importFrom pracma findpeaks
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
@@ -48,14 +47,14 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 
     # Compute the total ion spectra
     aux_2 <- rowSums(aux)
-    peaks_info <- findpeaks(aux_2)
+    peaks_info <- pracma::findpeaks(aux_2)
 
     # Look for rip position
     rip_pos_ind <- which.max(peaks_info[ , 1])
     rip_pos <- peaks_info[rip_pos_ind, 2]
 
     # Look for the beginning and ending of the RIP (searching the closest minima to it)
-    valleys_info <- findpeaks(-aux_2)
+    valleys_info <- pracma::findpeaks(-aux_2)
     valleys_pos <- valleys_info[ , 2]
     closest_valley_ind <- which.min(abs(valleys_pos - rip_pos))
 

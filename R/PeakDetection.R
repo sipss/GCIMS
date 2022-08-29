@@ -13,9 +13,6 @@
 #' enclose each of them in a region or interest or ROI.
 #'
 #' @export
-#' @importFrom pracma findpeaks
-#' @importFrom ggplot2 geom_rect
-#' @importFrom rlang .data
 #' @examples
 #' \donttest{
 #' # Use BiocParallel library for parallelization

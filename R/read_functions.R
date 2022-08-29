@@ -30,8 +30,6 @@
 #'   `gcims_read_samples`.
 #' @family Reading functions.
 #' @export
-#' @importFrom readr read_csv cols type_convert
-#' @importFrom utils menu
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
@@ -61,14 +59,16 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
       # METADATA
       metadata$Name <- i
       # DATA
-      single_file <- read_csv(file.path(dir_in, files[i]),
-                              progress = FALSE, skip = 1, col_names = FALSE,
-                              col_types = cols(.default = "c"))
+      single_file <- readr::read_csv(
+        file.path(dir_in, files[i]),
+        progress = FALSE, skip = 1, col_names = FALSE,
+        col_types = readr::cols(.default = "c")
+      )
 
       dd <- as.data.frame(t(single_file[-1, -1]))
       # Depende del tipo de instrumento OJO
-      data$data_df <- type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa viejo
-      data$retention_time <- type_convert(single_file[-1, 1] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
+      data$data_df <- readr::type_convert(dd, col_types = readr::cols(.default = "d"))                    # Signo Menos solo para gasdormund programa viejo
+      data$retention_time <- readr::type_convert(single_file[-1, 1] , col_types = readr::cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
       data$retention_time <-  data$retention_time[[1]]
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
@@ -91,17 +91,17 @@ gcims_read_samples <- function(dir_in, dir_out, sftwr) {
       # METADATA
       metadata$Name <- i
       # DATA
-      single_file <- read_csv(file.path(dir_in, files[i]), skip = 130,
+      single_file <- readr::read_csv(file.path(dir_in, files[i]), skip = 130,
                               progress = FALSE, col_names = FALSE,
-                              col_types = cols(.default = "c"))
+                              col_types = readr::cols(.default = "c"))
 
       dd <- single_file[-c(1:2), -c(1:2)]
       # Depende del tipo de instrumento OJO
-      data$data_df = - type_convert(dd, col_types = cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
+      data$data_df = - readr::type_convert(dd, col_types = readr::cols(.default = "d"))                    # Signo Menos solo para gasdormund programa nuevo
       data$retention_time <- as.numeric(single_file[1, -c(1:2)])
       # Depende del tipo de instrumento OJO
       #print(str(single_file))
-      data$drift_time <- type_convert(single_file[-c(1:2), 2] , col_types = cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
+      data$drift_time <- readr::type_convert(single_file[-c(1:2), 2] , col_types = readr::cols(.default = "d"))#[-c(1:2), 2]       # el primer indexado es para sacar de la lista. El segundo para los datos.
       data$drift_time <-  data$drift_time[[1]]                                                # Depende del tipo de instrumento OJO
 
       # Join

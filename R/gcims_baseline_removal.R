@@ -21,8 +21,6 @@
 #' @family Baseline removal functions
 #' @return A set of S3 objects.
 #' @export
-#' @importFrom signal interp1
-#' @importFrom stats  quantile
 #' @examples
 #' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")

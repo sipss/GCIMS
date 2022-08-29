@@ -40,8 +40,6 @@
 #'  \doi{10.1007/978-3-319-10247-4}
 #'   }
 #'
-#' @importFrom signal sgolayfilt
-#' @importFrom signal interp1
 #'
 #' @examples
 #' \donttest{
