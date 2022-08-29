@@ -10,7 +10,7 @@ build_peak_table(peak_list_clustered, aggregate_conflicting_peaks = NULL)
 peakTable(peak_list_clustered, aggregate_conflicting_peaks = NULL)
 }
 \arguments{
-\item{peak_list_clustered}{The output of \code{\link[=gcims_figures_of_merit]{gcims_figures_of_merit()}}. Also, you can create your own peak table
+\item{peak_list_clustered}{The output of \code{\link[=gcims_compute_fom]{gcims_compute_fom()}}. Also, you can create your own peak table
 and use it as input value for \code{peak_list_clustered} (see first example below)}
 
 \item{aggregate_conflicting_peaks}{\code{NULL} or a function. What to do, in case two peaks from the same sample
@@ -43,7 +43,7 @@ pl <- data.frame(
 )
 build_peak_table(pl)
 
-# Create a peak table from the output of the function gcims_figure_of_merit()
+# Create a peak table from the output of the function gcims_compute_fom()
 dir_in <- system.file("extdata", package = "GCIMS")
 peak_list_fom <- readRDS(file.path(dir_in, "peak_list_fom.rds"))
 peak_table <- build_peak_table(peak_list_fom, aggregate_conflicting_peaks = max)

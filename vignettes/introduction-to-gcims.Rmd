@@ -255,14 +255,14 @@ The resulting chromatograms become aligned, as expected. After this pre-processi
 
 # Feature Extraction
 
-Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions `gcims_rois_selection()` and `group_peak_list()`, respectively. 
+Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions `gcims_select_rois()` and `group_peak_list()`, respectively. 
 
 - ROI detection
 
 The following piece of code shows how to detect all ROI in a dataset. Also, it shows in an image where these ROI are located in data. Each rectangle corresponds to a different ROI. ROI are colored by sample.
 
 ```{r}
-peak_list <- gcims_rois_selection(dir_in = aligned,
+peak_list <- gcims_select_rois(dir_in = aligned,
                                   dir_out = roispp, 
                                   samples = 1:3,
                                   noise_level = 3)
@@ -331,19 +331,19 @@ gcims_view_sample(bsln,
                   dt_range = NULL, 
                   transform = TRUE)
 ```
-- ROI Fusion
+- ROI Merging
 
-It may happen that ROI belonging to the same cluster are detected more than once in the same sample. The function `gcims_rois_fusion()` fuses the repeated ROI into one.
+It may happen that ROI belonging to the same cluster are detected more than once in the same sample. The function `gcims_merge_rois()` fuses the repeated ROI into one.
 
 ```{r}
-fusion_res <- gcims_rois_fusion(
+merging_res <- gcims_merge_rois(
   peak_clustering$peak_list_clustered,
   peak_clustering$cluster_stats
 )
 
 ggplot() +
   geom_rect(
-    data = dplyr::filter(fusion_res$peak_list_clustered, cluster == "Cluster07"),
+    data = dplyr::filter(merging_res$peak_list_clustered, cluster == "Cluster07"),
     mapping = aes(
       xmin=ref_roi_dt_min_idx,
       xmax=ref_roi_dt_max_idx,
@@ -359,24 +359,24 @@ ggplot() +
 
 Example: Observe that the number of  ROI corresponding cluster 7 equals the number of samples.
 
-- Figures of Merit
+- Figures of Merit (fom)
 
-The function of `gcims_figures_of_merit()` calculates several of figures of merit of ROI: area, volume, asymmetry and saturation. 
+The function of `gcims_compute_fom()` calculates several of figures of merit of ROI: area, volume, asymmetry and saturation. 
 It creates a ".csv" file with all ROI information.
 
 ```{r}
-peak_list_fom <- gcims_figures_of_merit(
+peak_list_fom <- gcims_compute_fom(
   dir_in = bsln,
   dir_out = fom,
-  peak_list = fusion_res$peak_list_clustered,
-  cluster_stats = fusion_res$cluster_stats
+  peak_list = merging_res$peak_list_clustered,
+  cluster_stats = merging_res$cluster_stats
 )
 head(peak_list_fom)
 ```
 
 - Build the peak table: 
 
-You can extract the volume of each sample across samples to create a peak table using the function `build_peak_table()`. This will be useful in case you want perform qualitative and quantative analysis from these data.
+You can extract the volume of each sample across samples to create a peak table using the function `build_peak_table()`. This will be useful in case you want perform qualitative and quantitative analysis from these data.
 
 ```{r}
 peak_table <- build_peak_table(peak_list_fom,
@@ -388,12 +388,12 @@ Note that the peak table obtained present missing values (NA) for clusters 12 an
 
 - Imput Missing Values: 
 
-To input missing values of the peak table, use the function `gcims_missing_imputation()`. It computes the volume in the region of the reference ROI for each cluster for each sample having a missing value for the cluster.
+To input missing values of the peak table, use the function `gcims_imputate_missing()`. It computes the volume in the region of the reference ROI for each cluster for each sample having a missing value for the cluster.
 ```{r}
-peak_table_imputed <- gcims_missing_imputation(
+peak_table_imputed <- gcims_impute_missing(
   peak_table = peak_table$peak_table_matrix,
   dir_in = fom,
-  cluster_stats = fusion_res$cluster_stats
+  cluster_stats = merging_res$cluster_stats
 )
 peak_table_imputed
 ```

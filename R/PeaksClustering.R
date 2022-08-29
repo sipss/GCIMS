@@ -1,44 +1,3 @@
-#' Peak grouping function, exposing a lot of options useful for benchmarking
-#'
-#' @param peaks A data frame with at least the following columns:
-#'  - "UniqueID" A unique ID for each peak
-#'  - "SampleID" The sample ID the peak belongs to
-#'  - "dt_apex_ms", "rt_apex_s" The peak positions
-#'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
-#' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
-#'   - "IQR": Remove peaks with widths more than 1.5 interquartile ranges above upper quartile or
-#'     below the lower quartile.
-#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks with widths above mean+4iqr or below median-0.75iqr
-#'   - "none": Do not remove peaks based on their drift time width or retention time height
-#' @param distance_method A string. One of the distance methods from [stats::dist], "sd_scaled_euclidean" or "mahalanobis"
-#' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
-#' @param clustering A named list with "method" and the supported method, as well as further options.
-#'   For `method = "kmedoids"`, you must provide `Nclusters`, with either the number of clusters
-#'   to use in the kmedoids algorithm ([cluster::pam]) or the string `"max_peaks_sample"` to use the maximum number of
-#'   detected peaks per sample.
-#'
-#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
-#' @param verbose logical, to control printing in the function
-#'
-#' @return A list with :
-#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
-#' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
-#' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
-#' @examples
-#' \donttest{
-#' dir_in <- system.file("extdata", package = "GCIMS")
-#' peak_list <- readRDS(file.path(dir_in, "peak_list.rds"))
-#'
-#' peak_clustering  <- group_peak_list(
-#'   peaks = peak_list,
-#'   filter_dt_width_criteria = NULL,
-#'   filter_rt_width_criteria = NULL,
-#'   distance_method = "mahalanobis",
-#'   distance_between_peaks_from_same_sample = Inf,
-#'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-#'   verbose = FALSE
-#' )
-#' }
 group_peak_list_internal <- function(
   peaks,
   filter_dt_width_criteria = "IQR",
@@ -202,7 +161,48 @@ peak_and_cluster_metrics <- function(peaks, .all_indices_homogeneous = FALSE) {
   list(peaks = peaks, cluster_stats = cluster_stats)
 }
 
-#' @describeIn group_peak_list_internal Peak grouping function
+#' Group peaks in clusters
+#'
+#' @param peaks A data frame with at least the following columns:
+#'  - "UniqueID" A unique ID for each peak
+#'  - "SampleID" The sample ID the peak belongs to
+#'  - "dt_apex_ms", "rt_apex_s" The peak positions
+#'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
+#' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
+#'   - "IQR": Remove peaks with widths more than 1.5 interquartile ranges above upper quartile or
+#'     below the lower quartile.
+#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks with widths above mean+4iqr or below median-0.75iqr
+#'   - "none": Do not remove peaks based on their drift time width or retention time height
+#' @param distance_method A string. One of the distance methods from [stats::dist], "sd_scaled_euclidean" or "mahalanobis"
+#' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
+#' @param clustering A named list with "method" and the supported method, as well as further options.
+#'   For `method = "kmedoids"`, you must provide `Nclusters`, with either the number of clusters
+#'   to use in the kmedoids algorithm ([cluster::pam]) or the string `"max_peaks_sample"` to use the maximum number of
+#'   detected peaks per sample.
+#'
+#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
+#' @param verbose logical, to control printing in the function
+#' @description Peak grouping function, exposing several options useful for benchmarking.
+#'
+#' @return A list with :
+#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
+#' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
+#' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
+#' @examples
+#' \donttest{
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' peak_list <- readRDS(file.path(dir_in, "peak_list.rds"))
+#'
+#' peak_clustering  <- group_peak_list(
+#'   peaks = peak_list,
+#'   filter_dt_width_criteria = NULL,
+#'   filter_rt_width_criteria = NULL,
+#'   distance_method = "mahalanobis",
+#'   distance_between_peaks_from_same_sample = Inf,
+#'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+#'   verbose = FALSE
+#' )
+#'}
 #' @export
 group_peak_list <- function(
     peaks,
@@ -225,7 +225,7 @@ group_peak_list <- function(
 }
 
 
-#' @describeIn group_peak_list_internal Peak grouping function
+#' @describeIn group_peak_list Peak grouping function
 #' @export
 clusterPeaks <- function(
     peaks,
@@ -250,7 +250,7 @@ clusterPeaks <- function(
 #'
 #' @description Extract the volume of each ROI across samples to create a peak table.
 #'
-#' @param peak_list_clustered The output of [gcims_figures_of_merit()]. Also, you can create your own peak table
+#' @param peak_list_clustered The output of [gcims_compute_fom()]. Also, you can create your own peak table
 #' and use it as input value for `peak_list_clustered` (see first example below)
 #' @param aggregate_conflicting_peaks `NULL` or a function. What to do, in case two peaks from the same sample
 #' have been assigned to the same cluster. If `NULL`, throw an error. If `mean`, `max` or any other function,
@@ -274,7 +274,7 @@ clusterPeaks <- function(
 #' )
 #' build_peak_table(pl)
 #'
-#' # Create a peak table from the output of the function gcims_figure_of_merit()
+#' # Create a peak table from the output of the function gcims_compute_fom()
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' peak_list_fom <- readRDS(file.path(dir_in, "peak_list_fom.rds"))
 #' peak_table <- build_peak_table(peak_list_fom, aggregate_conflicting_peaks = max)

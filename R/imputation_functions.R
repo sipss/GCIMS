@@ -1,54 +1,12 @@
-#' Peak Table imputation using RF
 
-#' @param dir_in          The input directory.
-#' @param dir_out         The output directory.
-#' @param prop_samples    Mimimum proportion of hits per feature in the dataset to
-#'                        consider a feature as valid.
-#' @return A roi table for the whole dataset.
-#' @family Imputation functions
-#' @export
-#' @importFrom utils capture.output
-#' @importFrom tidyr spread
-#' @importFrom missForest missForest
-gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
-  roi_cluster <- volume <- NULL
-
-
-
-  # 1) Read the roi table in long format
-  roi_table_long <- readRDS(file.path(dir_in, "all_roi_df.rds"))
-
-  # 2) Select only the interesting roi variables:
-  roi_table_long <- roi_table_long[c("roi_cluster", "sample_id", "volume")]
-
-  # 3) Don't include data from the reference sample
-  roi_table_long <- roi_table_long[roi_table_long$sample_id != 0, ]
-
-  # 4) Convert data fron long to wide format (this action generates missing values)
-  roi_table_wide_mis  <- spread(roi_table_long , key = roi_cluster, value = volume)
-
-  # 5) Remove features that appear less than minumum allowed proportion in the dataset
-  cond_prop_samples <- round(nrow(roi_table_wide_mis) * prop_samples)
-  reliable_columns <- colSums(!is.na(roi_table_wide_mis)) > cond_prop_samples
-
-  # 6) Perform roi imputation using Random Forest
-  roi_table_wide_mis <- roi_table_wide_mis[, reliable_columns]
-  invisible(capture.output({roi_table_wide_imp <- missForest(roi_table_wide_mis)$ximp}))
-
-  # 7) Save results
-  saveRDS(roi_table_wide_imp, file = file.path(dir_out, "roi_table.rds"))
-}
-
-
-
-
-#' Missing Values Imputation
-
+#' Impute missing values
+#'
+#' Compute the volume of ROIS with missing values.
+#'
 #' @param peak_table The matrix to be imputed, with samples in rows (see example)
 #' @param dir_in Directory with baseline removed samples
 #' @param cluster_stats Cluster statistics (reference ROI limits)
-#' @details `gcims_missing_imputation` calculates the volume of the ROIs that
-#' have missing values. It uses the coordinates of the reference ROI for each
+#' @details `gcims_impute_missing()` uses the coordinates of the reference ROI for each
 #' cluster and substitute the missing value by the volume in this region without
 #' baseline.
 #' @return A matrix with samples in rows, clusters in columns and volumes
@@ -59,22 +17,22 @@ gcims_peak_imputation <- function(dir_in, dir_out, prop_samples){
 #' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' peak_table_obj <- readRDS(file.path(dir_in, "peak_table.rds"))
-#' roi_fusion_out <- readRDS(file.path(dir_in, "roi_fusion_out.rds"))
+#' roi_merging_out <- readRDS(file.path(dir_in, "roi_fusion_out.rds"))
 #' peak_table_to_impute <- peak_table_obj$peak_table_mat
 #'
 #' # Peak table before imputation
 #' peak_table_to_impute
 #'
 #'
-#' peak_table_imputed <- gcims_missing_imputation(peak_table = peak_table_to_impute,
+#' peak_table_imputed <- gcims_impute_missing(peak_table = peak_table_to_impute,
 #'                                                dir_in = dir_in, # use bsln
-#'                                                cluster_stats = roi_fusion_out$cluster_stats
+#'                                                cluster_stats = roi_merging_out$cluster_stats
 #'                                                )
 #' # Peak table after imputation
 #' peak_table_imputed
 #' }
 #'
-gcims_missing_imputation <- function(peak_table, dir_in, cluster_stats){
+gcims_impute_missing <- function(peak_table, dir_in, cluster_stats){
 
   #-------------#
   #     MAIN    #

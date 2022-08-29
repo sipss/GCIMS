@@ -1,6 +1,6 @@
-#' Figures Of Merit Calculation
+#' Compute figures of merit (fom)
 #'
-#' Calculates the area, volume asymmetry and saturation of each peak roi in `peak_list`
+#' Calculates the area, volume asymmetry and saturation of each peak roi in `peak_list`.
 #'
 #' @param dir_in          Input directory. Where input data files are loaded
 #'   from.
@@ -19,20 +19,20 @@
 #' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
-#' roi_fusion_out <- readRDS(file.path(dir_in, "peak_clustering.rds"))
+#' roi_merging_out <- readRDS(file.path(dir_in, "peak_clustering.rds"))
 #'
-#' peak_list_fom <- gcims_figures_of_merit(
+#' peak_list_fom <- gcims_compute_fom(
 #'   dir_in = dir_in,
 #'   dir_out = dir_out,
-#'   peak_list = roi_fusion_out$peak_list_clustered,
-#'   cluster_stats = roi_fusion_out$cluster_stats
+#'   peak_list = roi_merging_out$peak_list_clustered,
+#'   cluster_stats = roi_merging_out$cluster_stats
 #' )
 #' head(peak_list_fom)
 #'
 #' files_fom <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files_fom))
 #'}
-gcims_figures_of_merit <- function(
+gcims_compute_fom <- function(
     dir_in,
     dir_out,
     peak_list,

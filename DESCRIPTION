@@ -69,7 +69,6 @@ Imports:
     lifecycle,
     magrittr (>= 1.5),
     methods,
-    missForest (>= 1.4),
     pracma (>= 2.2.9),
     ProtGenerics (>= 1.24.0),
     ptw (>= 1.9-10),

@@ -8,7 +8,8 @@
   object,
   peak_list,
   integration_size_method = c("fixed_size", "free_size"),
-  rip_saturation_threshold = 0.1
+  rip_saturation_threshold = 0.1,
+  verbose = FALSE
 )
 }
 \arguments{

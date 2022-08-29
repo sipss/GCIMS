@@ -1,4 +1,4 @@
-#' Remove baseline of a dataset
+#' Remove baseline in data
 #'
 #' @param dir_in          Input directory. Where input data files are
 #'   loaded from.
@@ -7,17 +7,15 @@
 #' @param samples         A vector. Set of samples to which remove the baseline
 #'   (e.g.: c(1, 2, 3)).
 #' @param peak_list       A peak list after containing information regarding the 2d peaks found in data.
-#'
-#' @details `gcims_remove_baseline` performs baseline correction on sample
-#'   spectra (in drift time) and chromatograms (in retention time) .This function corrects
-#'   the baseline in drift time and afterwards, in retention time. To do it, it cuts the
-#'   axis in regions of equal length and looks for the local minima of each region. A simple
-#'   linear interpolation is performed to create a baseline of the same length as the number
-#'   of data points per axis.The region width is estimated differently in each of the the axes:
-#'   In drift time, it is computed as 12 times the standard deviation of the RIP width, while
-#'   in retention time as the third quantile of peak width distributions in chromatograms (obtained
-#'   from the peak table). Take into account that when removing the baseline in retention
-#'   time, the shape of the Reactant Ion Peak is severely affected.
+#' @description Performs baseline correction on sample spectra (in drift time) and chromatograms (in retention time)
+#' @details `gcims_removel_baseine()`corrects the baseline in drift time and afterwards, in retention time.
+#' To do it, it cuts the axis in regions of equal length and looks for the local minima of each region. A simple
+#' linear interpolation is performed to create a baseline of the same length as the number
+#' of data points per axis.The region width is estimated differently in each of the the axes:
+#' In drift time, it is computed as 12 times the standard deviation of the RIP width, while
+#' in retention time as the third quantile of peak width distributions in chromatograms (obtained
+#' from the peak table). Take into account that when removing the baseline in retention
+#' time, the shape of the Reactant Ion Peak is severely affected.
 #'
 #'
 #' @family Baseline removal functions

@@ -1,6 +1,6 @@
-#' ROIs Fusion
+#' Merge regions of interest
 #'
-#' For each ROI in `peak_list_clustered`, we define additional columns with ROI boundaries.
+#' @description For each ROI in `peak_list_clustered`, we define additional columns with ROI boundaries.
 #' The center of the ROI is not changed, but the limits are taken so the size of the ROI is
 #' the same for all ROIs in the same cluster, using the median size of the ROIs in the cluster.
 #'
@@ -14,9 +14,9 @@
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' clustering <- readRDS(file.path(dir_in, "peak_clustering.rds"))
 #'
-#' roi_fusion_out <- gcims_rois_fusion(clustering$peak_list_clustered, clustering$cluster_stats)
-#' samplestocheck <- roi_fusion_out$peak_list_clustered[
-#'   which(roi_fusion_out$peak_list_clustered$cluster == "Cluster01"),
+#' merge_rois_out <- gcims_merge_rois(clustering$peak_list_clustered, clustering$cluster_stats)
+#' samplestocheck <- merge_rois_out$peak_list_clustered[
+#'   which(merge_rois_out$peak_list_clustered$cluster == "Cluster01"),
 #' ]
 #' library(ggplot2)
 #' ggplot() +
@@ -35,14 +35,18 @@
 #' labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster01")
 #' }
 #'
-gcims_rois_fusion <- function(peak_list_clustered, cluster_stats) {
+gcims_merge_rois <- function(peak_list_clustered, cluster_stats) {
+  # FIXME: Provide these columns in physical units as well.
+  # We will do this afterwards, when we have a dataset object that has
+  # this information (to avoid reading the samples just to get their dtime and rtime)
   peak_list_clustered$ref_roi_dt_min_idx <- 0
   peak_list_clustered$ref_roi_dt_max_idx <- 0
   peak_list_clustered$ref_roi_rt_min_idx <- 0
   peak_list_clustered$ref_roi_rt_max_idx <- 0
 
+  # Largest valid index. It should come from the sample/dataset, but I'm not going
+  # to load all the samples just for that. We'll fix this later FIXME
   dt_allmax_idx <- max(c(peak_list_clustered$dt_max_idx, cluster_stats$dt_max_idx))
-
   rt_allmax_idx <- max(c(peak_list_clustered$rt_max_idx, cluster_stats$rt_max_idx))
 
   for (i in seq_len(nrow(peak_list_clustered))) {
@@ -55,11 +59,14 @@ gcims_rois_fusion <- function(peak_list_clustered, cluster_stats) {
 
     dt_roi_center_idx <- floor((roi_prop$dt_max_idx + roi_prop$dt_min_idx)/2)
     rt_roi_center_idx <- floor((roi_prop$rt_max_idx + roi_prop$rt_min_idx)/2)
+
     peak_list_clustered$ref_roi_dt_min_idx[i] <- max(1L,            dt_roi_center_idx - dt_cluster_half_length)
     peak_list_clustered$ref_roi_dt_max_idx[i] <- min(dt_allmax_idx, dt_roi_center_idx + dt_cluster_half_length)
     peak_list_clustered$ref_roi_rt_min_idx[i] <- max(1L,            rt_roi_center_idx - rt_cluster_half_length)
     peak_list_clustered$ref_roi_rt_max_idx[i] <- min(rt_allmax_idx, rt_roi_center_idx + rt_cluster_half_length)
+
   }
+
 
     # thrOverlap <- 0.8
     # for (j in ROIs2Fusion){

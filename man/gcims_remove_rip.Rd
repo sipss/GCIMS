@@ -50,9 +50,9 @@ invisible(file.remove(files))
 }
 \seealso{
 Other Utility functions: 
+\code{\link{gcims_compute_fom}()},
 \code{\link{gcims_cut_samples}()},
-\code{\link{gcims_figures_of_merit}()},
 \code{\link{gcims_reshape_samples}()},
-\code{\link{gcims_shifting}()}
+\code{\link{gcims_shift_rt}()}
 }
 \concept{Utility functions}
