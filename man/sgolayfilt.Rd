@@ -15,7 +15,7 @@ sgolayfilt(
 )
 }
 \arguments{
-\item{x}{ signal to be filtered. }
+\item{x}{A numeric matrix or vector}
 
 \item{p}{ filter order. }
 
@@ -29,11 +29,9 @@ sgolayfilt(
 
 \item{engine}{"fft" Uses the Fast Fourier Transform to apply the filter. "signal" uses \code{signal::sgolayfilt}. Both give
 the same results, fft is usually faster on matrices.}
-
-\item{xmat}{A numeric matrix or vector}
 }
 \value{
-A matrix or vector of the same dimensions or length as \code{xmat}, with the result of the filter
+A matrix or vector of the same dimensions or length as \code{x}, with the result of the filter
 }
 \description{
 Savitzky-Golay filtering

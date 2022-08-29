@@ -14,6 +14,9 @@ and optionally additional columns (e.g. the column given to \code{color_by})}
 
 \item{color_by}{A character with a column name of \code{peaklist}. Used to color the border of
 the added rectangles}
+
+\item{col_prefix}{After clustering, besides \code{dt_min_ms}, we also have
+\code{freesize_dt_min_ms}. Use \code{col_prefix = "freesize_"} to plot the \code{freesize} version}
 }
 \value{
 The given \code{plt} with rectangles showing the ROIs and crosses showing the apexes

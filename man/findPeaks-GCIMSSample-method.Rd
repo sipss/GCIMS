@@ -16,10 +16,15 @@
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
 
-\item{noise_level}{Scalar number. The number of times the standard deviation
-above the noise level needed to detect a peak.}
+\item{noise_level}{A number used to determine the minimum peak height threshold}
 
-\item{verbose}{If \code{TRUE}, debug information will be printed}
+\item{verbose}{If \code{TRUE} information will be printed on screen}
+
+\item{dt_length_ms}{Length (in ms) used in the Savitzky-Golay filter to compute the second derivative with respect to drift time.}
+
+\item{rt_length_s}{Length (in s) used in the Savitzky-Golay filter to compute the second derivative with respect to retention time.}
+
+\item{iou_overlap_threshold}{A number, between 0 and 1. Regions of interest b}
 }
 \value{
 The modified \link{GCIMSSample}, with a peak list
