@@ -19,29 +19,39 @@ methods::setMethod(
   "describeAsList", "GCIMSDataset",
   function(object) {
     out <- list()
-    root_txt <- "A GCIMSDataset with"
-    out[[root_txt]] <- list()
-    out[[root_txt]][[1]] <- paste0(length(sampleNames(object)), " samples")
-    # Phenotype:
-    out[[root_txt]][[2]] <- phenos_to_string(object)
+    on_ram <- object@envir$on_ram
+    root_txt <- "A GCIMSDataset object"
+    sample_info <- paste0(
+      "With ", length(sampleNames(object)), " samples",
+      if (on_ram) " on RAM" else " on disk"
+    )
+    pheno_info <- phenos_to_string(object)
+    # history info:
     # Previous operations
     pops <- object@envir$previous_ops
     pops <- purrr::keep(pops, modifiesSample)
     pops <- purrr::map(pops, describeAsList)
     if (length(pops) > 0) {
-      out[[root_txt]][[3]] <- list("History" = pops)
+      history_info <- list("History" = pops)
     } else {
-      out[[root_txt]][[3]] <- "No previous history"
+      history_info <- "No previous history"
     }
+
     # Pending operations
     pops <- object@envir$delayed_ops
     pops <- purrr::keep(pops, modifiesSample)
     pops <- purrr::map(pops, describeAsList)
     if (length(pops) > 0) {
-      out[[root_txt]][[4]] <- list("Pending operations" = pops)
+      pending_info <- list("Pending operations" = pops)
     } else {
-      out[[root_txt]][[4]] <- "No pending operations"
+      pending_info <- "No pending operations"
     }
+    out[[root_txt]] <- list(
+      sample_info,
+      pheno_info,
+      history_info,
+      pending_info
+    )
     out
   }
 )

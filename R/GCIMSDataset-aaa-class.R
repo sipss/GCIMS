@@ -114,8 +114,20 @@ validate_base_dir <- function(base_dir) {
   normalizePath(base_dir, mustWork = TRUE)
 }
 
-validate_scratch_dir <- function(scratch_dir) {
+validate_scratch_dir <- function(scratch_dir, on_ram) {
   errors <- character(0L)
+  if (on_ram) {
+    if (is.null(scratch_dir) ||
+        identical(scratch_dir, NA) ||
+        identical(scratch_dir(NA_character_))) {
+      return(NA_character_)
+    }
+    if (length(scratch_dir) != 1 || !is.character(scratch_dir)) {
+      errors <- c(errors, "scratch_dir must be a string of length 1 or NA")
+    }
+    abort_if_errors(errors, title = "scratch_dir is not valid")
+    return(scratch_dir)
+  }
   if (!rlang::is_string(scratch_dir)) {
     errors <- c(errors, "scratch_dir should be a string")
   }
@@ -128,20 +140,39 @@ validate_scratch_dir <- function(scratch_dir) {
 }
 
 validate_keep_intermediate <- function(keep_intermediate) {
-  keep_intermediate <- as.logical(keep_intermediate)
-  if (is.na(keep_intermediate)) {
-    rlang::abort("keep_intermediate must be either TRUE or FALSE")
+  errors <- c()
+  if (!rlang::is_bool(keep_intermediate)) {
+    errors <- c(errors, "keep_intermediate must be either TRUE or FALSE")
   }
+  abort_if_errors(errors, title = "keep_intermediate is not valid")
   keep_intermediate
+}
+
+validate_on_ram <- function(on_ram) {
+  errors <- c()
+  if (length(on_ram) != 1 || is.na(on_ram)) {
+    errors <- c(errors, "on_ram must be either TRUE or FALSE")
+  }
+  on_ram <- as.logical(on_ram)
+  abort_if_errors(errors, title = "on_ram is not valid")
+  on_ram
 }
 
 methods::setMethod(
   "initialize", "GCIMSDataset",
-  function(.Object, pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, all_on_RAM = FALSE) {
+  function(
+    .Object,
+    pData,
+    base_dir,
+    scratch_dir = tempfile("GCIMSDataset_tempdir_"),
+    keep_intermediate = FALSE,
+    on_ram = FALSE
+  ) {
     pData <- validate_pData(pData)
     base_dir <- validate_base_dir(base_dir)
     check_files(pData$FileName, base_dir)
-    scratch_dir <- validate_scratch_dir(scratch_dir)
+    on_ram <- validate_on_ram(on_ram)
+    scratch_dir <- validate_scratch_dir(scratch_dir, on_ram)
     keep_intermediate <- validate_keep_intermediate(keep_intermediate)
     .Object@envir <- rlang::new_environment()
     .Object@envir$pData <- pData
@@ -155,7 +186,7 @@ methods::setMethod(
     .Object@envir$previous_ops <- list()
     .Object@envir$hasheddir <- ""
     .Object@envir$keep_intermediate <- keep_intermediate
-    .Object@envir$all_on_ram <- all_on_RAM
+    .Object@envir$on_ram <- on_ram
     .Object@envir$samples <- NULL # Only used if all_on_ram is TRUE
     canRealize(.Object) <- TRUE
     .Object <- appendDelayedOp(.Object, GCIMSDelayedOp(name = "read_sample", fun = read_sample))
@@ -243,6 +274,9 @@ read_sample <- function(filename) {
 #' @param base_dir A directory containing the file names described in `pData`
 #' @param scratch_dir A directory to save intermediate results.
 #' @param keep_intermediate A logical. Whether to keep or not intermediate files when realizing the GCIMSDataset object
+#' @param on_ram A logical. If `TRUE`, samples are kept on RAM. This is faster
+#' as long as you have enough memory to keep all samples. If this is `TRUE`, then
+#' `scratch_dir` and `keep_intermediate` are ignored.
 #' @export
 #' @return A GCIMSDataset object
 #'
@@ -252,8 +286,8 @@ read_sample <- function(filename) {
 #'   pData = data.frame(SampleID = character(), filename = character(0)),
 #'   base_dir = tempdir()
 #' )
-GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, all_on_RAM = FALSE) {
-  methods::new("GCIMSDataset", pData, base_dir, scratch_dir, keep_intermediate, all_on_RAM)
+GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, on_ram = FALSE) {
+  methods::new("GCIMSDataset", pData, base_dir, scratch_dir, keep_intermediate, on_ram)
 }
 
 

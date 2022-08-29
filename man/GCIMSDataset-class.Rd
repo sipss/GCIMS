@@ -20,7 +20,7 @@ GCIMSDataset(
   base_dir,
   scratch_dir = tempfile("GCIMSDataset_tempdir_"),
   keep_intermediate = FALSE,
-  all_on_RAM = FALSE
+  on_ram = FALSE
 )
 
 \S4method{getGCIMSSample}{GCIMSDataset}(object, sample)
@@ -45,6 +45,10 @@ GCIMSDataset(
 \item{scratch_dir}{A directory to save intermediate results.}
 
 \item{keep_intermediate}{A logical. Whether to keep or not intermediate files when realizing the GCIMSDataset object}
+
+\item{on_ram}{A logical. If \code{TRUE}, samples are kept on RAM. This is faster
+as long as you have enough memory to keep all samples. If this is \code{TRUE}, then
+\code{scratch_dir} and \code{keep_intermediate} are ignored.}
 
 \item{object}{A \link{GCIMSDataset} object}
 
