@@ -291,8 +291,30 @@ efficiency reasons, the polynomial will be estimated using the Reverse Ion Chrom
 the samples to be aligned.
 
 
+
+```{r}
+plotTIS(dataset, dt_range = c(7, 17))
+```
+
+```{r}
+plotRIC(dataset)
+```
+
+
 ```{r alignment-starts-here}
 align(dataset)
+```
+
+```{r}
+realize(dataset)
+```
+
+```{r}
+plotTIS(dataset, dt_range = c(7, 17))
+```
+
+```{r}
+plotRIC(dataset)
 ```
 
 
@@ -538,32 +560,24 @@ peak_table <- peakTable(peak_list, aggregate_conflicting_peaks = max)
 peak_table$peak_table_matrix
 ```
 
+# Imputation
+
+
+```{r}
+peak_table_imputed <- imputePeakTable(peak_table$peak_table_matrix, dataset, peak_clustering$cluster_stats)
+peak_table_imputed
+```
+
 ```{r}
 # Implemented until here
 end_time <- Sys.time()
 message("The vignette ran in  ", format(end_time - start_time))
-knitr::knit_exit()
 ```
 
-
-# Imputation
-
-```{r}
-peak_table_imputed <- impute(peak_table, dataset, cluster_stats)
-```
-
-# Univariate analysis
-
-e.g. Wilcoxon test with Benjamini-Hochberg
-
-# Multivariate analysis
-
-e.g. PLS-DA
 
 # Session Info:
 
 ```{r}
 sessionInfo()
 ```
-
 
