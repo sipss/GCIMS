@@ -471,7 +471,33 @@ rois_to_peaklist <- function(ROIs, roi_center_of_mass, drift_time, retention_tim
   peak_list
 }
 
-
+#' Peak and ROI detection
+#'
+#' Detects regions of interest with peaks in a sample.
+#'
+#' Peaks are detected on the partial second derivative of the intensity matrix.
+#' The peak detection happens by scanning for peaks in the drift time direction, using
+#' the second derivative
+#'
+#' In detail, the approach is as follows:
+#'
+#' 1. We compute the second derivative with respect to the drift and retention times.
+#' 2. We detect the RIP and based on its peak width we estimate the minimum peak distance between peaks in drift time
+#' 3. Based on a region without peaks in the original matrix, we estimate the amplitude of noise peaks. This amplitude
+#' is used as a basis to determine the minimum peak height required for peak detection.
+#' 4. We run pracma::findPeaks on both partial derivatives
+#' 5. We intersect the maxima to discard saddle points
+#' 6. We merge similar ROIs using a threshold on the intersection over union
+#' 7. Get some ROI metrics and return.
+#'
+#' @keywords internal
+#' @param drift_time The drift time vector
+#' @param retention_time The retention time vector
+#' @param int_mat The intensity matrix, of dimensions `length(drift_time)` rows and `length(retention_time)` columns
+#' @param noise_level A number used to determine the minimum peak height threshold
+#' @param verbose If `TRUE` information will be printed on screen
+#' @param dt_length_pts,rt_length_pts Length of the filters used to compute the second derivative. See details
+#' @param iou_overlap_threshold A number, between 0 and 1. Regions of interest b
 peak_detection <- function(
     drift_time, retention_time, int_mat,
     noise_level, verbose = FALSE, dt_length_pts = 11, rt_length_pts = 21,

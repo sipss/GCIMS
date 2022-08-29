@@ -108,6 +108,8 @@ tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL,
 #' and optionally additional columns (e.g. the column given to `color_by`)
 #' @param color_by A character with a column name of `peaklist`. Used to color the border of
 #' the added rectangles
+#' @param col_prefix After clustering, besides `dt_min_ms`, we also have
+#' `freesize_dt_min_ms`. Use `col_prefix = "freesize_"` to plot the `freesize` version
 #'
 #' @details
 #' If `peaklist` includes `dt_apex_ms` and `rt_apex_s` a cross will be plotted on the peak apex.

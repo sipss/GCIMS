@@ -1,8 +1,8 @@
 #' Peak detection for a GCIMSSample
 #' @param object A [GCIMSSample] object
-#' @param noise_level     Scalar number. The number of times the standard deviation
-#'   above the noise level needed to detect a peak.
-#' @param verbose If `TRUE`, debug information will be printed
+#' @param dt_length_ms Length (in ms) used in the Savitzky-Golay filter to compute the second derivative with respect to drift time.
+#' @param rt_length_s Length (in s) used in the Savitzky-Golay filter to compute the second derivative with respect to retention time.
+#' @inheritParams peak_detection
 #' @return The modified [GCIMSSample], with a peak list
 #' @export
 setMethod(

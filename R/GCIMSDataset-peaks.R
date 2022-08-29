@@ -1,8 +1,6 @@
 #' Peak detection on the GCIMS dataset
 #' @param object A [GCIMSDataset] object, modified in-place
-#' @param noise_level     Scalar number. The number of times the standard deviation
-#'   above the noise level needed to detect a peak.
-#' @param verbose If `TRUE`, debug information will be printed
+#' @inheritParams findPeaks,GCIMSSample-method
 #' @return The modified [GCIMSDataset], with a peak list
 #' @export
 setMethod(
