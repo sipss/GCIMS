@@ -41,8 +41,12 @@ sample_name_or_number_to_both <- function(sample, sample_names) {
       rlang::abort(glue("Missing sample names: {paste0(missing_sample_names, collapse = ', ')}"))
     }
   }
+  logic <- rep(FALSE, length(sample_names))
+  logic[sample_num] <- TRUE
+
   list(
-    idx = sample_id,
-    name = sample_num
+    idx = sample_num,
+    name = sample_id,
+    logical = logic
   )
 }
