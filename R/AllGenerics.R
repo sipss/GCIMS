@@ -299,12 +299,3 @@ setGeneric("baseline<-", function(object, value) standardGeneric("baseline<-"))
 #'
 #' @export
 setGeneric("integratePeaks", function(object, ...) standardGeneric("integratePeaks"))
-
-
-#' @describeIn GCIMS-generics Impute values
-#' @param object What to impute
-#' @param ... Additional arguments for downstream methods
-#' @return The object, with imputed values
-#'
-#' @export
-setGeneric("impute", function(object, ...) standardGeneric("impute"))
