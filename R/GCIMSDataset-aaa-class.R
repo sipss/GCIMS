@@ -119,7 +119,7 @@ validate_scratch_dir <- function(scratch_dir, on_ram) {
   if (on_ram) {
     if (is.null(scratch_dir) ||
         identical(scratch_dir, NA) ||
-        identical(scratch_dir(NA_character_))) {
+        identical(scratch_dir, NA_character_)) {
       return(NA_character_)
     }
     if (length(scratch_dir) != 1 || !is.character(scratch_dir)) {
