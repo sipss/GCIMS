@@ -44,8 +44,6 @@ build_site_and_coverage:
   image: "bioconductor/bioconductor_docker:RELEASE_3_15"
   tags:
     - sipss
-  only:
-    - master
   before_script:
     - apt-get update
     - apt-get install -y qpdf ghostscript texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
