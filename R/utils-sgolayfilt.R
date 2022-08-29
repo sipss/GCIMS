@@ -97,6 +97,10 @@ sgolayfilt <- function(x, p = 3, n = p + 3 - p %% 2, m = 0, ts = 1, rowwise = FA
   #len_pow2 <- stats::nextn(len, 2)
   fft_length <- length(conv_coefs) + len - 1L
   conv_coefs_padded <- c(rev(conv_coefs), rep(0, len - 1L))
+  # Roughly at commit e357073d727e811396fd84269cbb64c71058c8c1
+  # The vignette took 5.1 minutes to build with effort = 3 and
+  # 3.2 minutes to build with effort = 0. So we just hardcode effort=0.
+  # FIXME: Maybe effort=1 or effort=2 is better, but I'll check later
   plan <- fft_plan(fft_length, effort = 0)
   conj_fft_y_prep <- Conj(fft(conv_coefs_padded, plan = plan))
   x_padded <- numeric(fft_length)
