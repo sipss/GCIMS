@@ -360,7 +360,6 @@ findPeaks(
   noise_level = 3,
   rt_length_s = 3,
   dt_length_ms = 0.14,
-  verbose = FALSE,
   iou_overlap_threshold = 0.2
 )
 peak_list <- peaks(dataset)
