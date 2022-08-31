@@ -109,6 +109,8 @@ tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL,
 #' @param color_by A character with a column name of `peaklist`. Used to color the border of
 #' the added rectangles
 #' @param col_prefix After clustering, besides `dt_min_ms`, we also have
+#' @param pdata A phenotype data data frame, with a SampleID column to be merged into peaklist so color_by can specify
+#' a phenotype
 #' `freesize_dt_min_ms`. Use `col_prefix = "freesize_"` to plot the `freesize` version
 #'
 #' @details
@@ -117,7 +119,7 @@ tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL,
 #' @return The given `plt` with rectangles showing the ROIs and crosses showing the apexes
 #' @export
 #'
-add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "") {
+add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", pdata = NULL) {
   dt_range <- ggplot2::layer_scales(plt)$x$range$range
   rt_range <- ggplot2::layer_scales(plt)$y$range$range
   if (is.null(dt_range)) {
@@ -132,6 +134,9 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "") {
     how_many_colors <- 1L
   } else {
     color_by_sym <- rlang::sym(color_by)
+    if (!is.null(pdata)) {
+      peaklist <- dplyr::left_join(peaklist, pdata, by = "SampleID")
+    }
     how_many_colors <- length(unique(peaklist[[color_by]]))
   }
 

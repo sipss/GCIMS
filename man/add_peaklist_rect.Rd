@@ -4,7 +4,13 @@
 \alias{add_peaklist_rect}
 \title{Add peak list rectangles to a raw plot}
 \usage{
-add_peaklist_rect(plt, peaklist, color_by = NULL, col_prefix = "")
+add_peaklist_rect(
+  plt,
+  peaklist,
+  color_by = NULL,
+  col_prefix = "",
+  pdata = NULL
+)
 }
 \arguments{
 \item{plt}{The output of \code{\link[=plotRaw]{plotRaw()}} when applied to a \link{GCIMSSample}}
@@ -15,7 +21,10 @@ and optionally additional columns (e.g. the column given to \code{color_by})}
 \item{color_by}{A character with a column name of \code{peaklist}. Used to color the border of
 the added rectangles}
 
-\item{col_prefix}{After clustering, besides \code{dt_min_ms}, we also have
+\item{col_prefix}{After clustering, besides \code{dt_min_ms}, we also have}
+
+\item{pdata}{A phenotype data data frame, with a SampleID column to be merged into peaklist so color_by can specify
+a phenotype
 \code{freesize_dt_min_ms}. Use \code{col_prefix = "freesize_"} to plot the \code{freesize} version}
 }
 \value{
