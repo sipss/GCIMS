@@ -36,6 +36,17 @@ library(GCIMS)
 The GCIMS package allows you to import your Gas Chromatography - Ion Mobility Spectrometry samples,
 preprocess them, align them one to each other and build a peak table with the relevant features.
 
+Enable parallellization of the workflow, here we use three cores:
+
+```{r}
+show_progress_bar <- interactive() && is.null(getOption("knitr.in.progress"))
+# disable parallellization: (Useful for better error reporting)
+register(SerialParam(progressbar = show_progress_bar), default = TRUE)
+# enable parallellization with 3 workers (you can use more if you have them):
+#register(SnowParam(workers = 3, progressbar = show_progress_bar, exportglobals = FALSE), default = TRUE)
+```
+
+
 This vignette will use a small dataset consisting of a mixture of three ketones.
 
 # Downloading the dataset:
@@ -58,16 +69,6 @@ tryCatch({
 ```{r}
 # Check that the files are downloaded:
 list.files(samples_directory)
-```
-
-Enable parallellization of the workflow, here we use three cores:
-
-```{r}
-show_progress_bar <- interactive() && is.null(getOption("knitr.in.progress"))
-# disable parallellization: (Useful for better error reporting)
-register(SerialParam(progressbar = show_progress_bar), default = TRUE)
-# enable parallellization with 3 workers (you can use more if you have them):
-#register(SnowParam(workers = 3, progressbar = show_progress_bar, exportglobals = FALSE), default = TRUE)
 ```
 
 # Import data
