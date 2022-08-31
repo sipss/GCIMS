@@ -98,8 +98,7 @@ Suggests:
     multiway,
     progress,
     rmarkdown,
-    R.matlab (>= 3.6.2),
-    fftw
+    R.matlab (>= 3.6.2)
 biocViews: Software, Preprocessing, Visualization, Classification,
  Cheminformatics, Metabolomics, DataImport
 RoxygenNote: 7.2.1
