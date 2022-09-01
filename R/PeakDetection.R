@@ -700,7 +700,8 @@ findpeaksRois <- function(data, MinPeakDistance = 1, MinPeakHeight = 1) {
   if (length(idx) > 0) {
     tmp <- sort(data[idx], decreasing = TRUE, index = TRUE)
     idx_s <- idx[tmp$ix]
-    D <- with(expand.grid(A = idx_s, B = t(idx_s)), abs(A - B))
+    grid1 <- expand.grid(A = idx_s, B = t(idx_s))
+    D <- abs(grid1$A - grid1$B)
     dim(D) <- c(length(idx_s), length(idx_s))
     if (dim(D)[1] > 1){
       diag(D) <- NA
