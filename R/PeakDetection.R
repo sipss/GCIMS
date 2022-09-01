@@ -195,7 +195,6 @@ compute_second_deriv <- function(int_mat, dt_length_pts, rt_length_pts, dt_order
   filter2 <- signal::sgolay(p = dt_order, n = dt_length_pts, m = 2)
   drt <- sgolayfilt(int_mat, filter1, rowwise = TRUE)
   ddt <- sgolayfilt(int_mat, filter2)
-  daux <- drt + ddt
   list(
     ddt = ddt,
     drt = drt
