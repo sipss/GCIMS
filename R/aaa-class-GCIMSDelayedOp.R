@@ -39,7 +39,7 @@ methods::setMethod(
   "initialize", "GCIMSDelayedOp",
   function(.Object, name, fun = NULL, params = list(), fun_extract = NULL, fun_aggregate = NULL) {
     if (!grepl(pattern = "^[a-zA-Z0-9][-a-zA-Z_0-9]*$", x = name)) {
-      rlang::abort(
+      abort(
         message = c(
           "Invalid delayed operation name",
           "x" = glue("{name} is not a valid operation name"),
@@ -65,7 +65,7 @@ aggregate_result <- function(delayed_op, extracted_result, dataset) {
   f <- delayed_op@fun_aggregate
   dataset <- f(dataset, extracted_result)
   if (!methods::is(dataset, dataset_class)) {
-    rlang::abort(
+    abort(
       message = c(
         "Delayed operation contract was broken",
         "x" = glue("The delayed action {name(delayed_op)} has a `fun_aggregate` slot that does not return a {dataset_class} object"),

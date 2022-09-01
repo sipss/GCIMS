@@ -136,7 +136,7 @@ setMethod(
 
   axes_heterogeneity <- axesHeterogeneity(ds)
   if (is.null(axes_heterogeneity)) {
-    rlang::abort(c("UnexpectedError", "extract_dtime_rtime() should have been called before extract_RIC_and_TIS()"))
+    abort(c("UnexpectedError", "extract_dtime_rtime() should have been called before extract_RIC_and_TIS()"))
   }
   if (axes_heterogeneity == "needs_interpolate") {
     # Different steps, interpolate to a common step
@@ -169,16 +169,16 @@ setMethod(
         length(rt_start_idx) == 0,
         length(rt_end_idx) == 0
       )) {
-        rlang::abort("Unexpected error: No overlap between sample retention and drift times.")
+        abort("Unexpected error: No overlap between sample retention and drift times.")
       }
       this_ric <- rics[[i]][rt_start_idx:rt_end_idx]
       if (length(this_ric) != ncol(ds@envir$RIC)) {
-        rlang::abort("Unexpected length of RIC")
+        abort("Unexpected length of RIC")
       }
       ds@envir$RIC[i,] <- this_ric
       this_tiss <- tiss[[i]][dt_start_idx:dt_end_idx]
       if (length(this_tiss) != ncol(ds@envir$TIS)) {
-        rlang::abort("Unexpected length of TIS")
+        abort("Unexpected length of TIS")
       }
       ds@envir$TIS[i,] <- this_tiss
     }

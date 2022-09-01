@@ -41,7 +41,7 @@ methods::setMethod(
   function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, .error_if_missing = TRUE) {
     if (is.null(object@baseline)) {
       if (.error_if_missing) {
-        rlang::abort("Please use estimateBaseline() first")
+        abort("Please use estimateBaseline() first")
       }
       return(NULL)
     }
@@ -67,7 +67,7 @@ methods::setMethod(
   "baseline<-", "GCIMSSample",
   function(object, value) {
     if (any(dim(value) != dim(object@data))) {
-      rlang::abort("The baseline should be of the same length as the intensity")
+      abort("The baseline should be of the same length as the intensity")
     }
     object@baseline <- value
     object

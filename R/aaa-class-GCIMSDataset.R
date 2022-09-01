@@ -56,7 +56,7 @@ check_files <- function(filenames, base_dir) {
       to_show <- length(missing_files)
       and_n_more <- ""
     }
-    rlang::abort(
+    abort(
       message = c(
         "Files not found",
         "x" = paste0("The following files", and_n_more, " were not found"),
@@ -70,7 +70,7 @@ check_files <- function(filenames, base_dir) {
 abort_if_errors <- function(errors, title = "Errors found") {
   if (length(errors) > 0) {
     names(errors) <- rep("x", length(errors))
-    rlang::abort(message = c(title, errors))
+    abort(message = c(title, errors))
   }
 }
 
@@ -224,7 +224,7 @@ NextHashedDir <- function(object) {
     # The first hash comes from the base_dir, sampleID and FileNames
     pd <- pData(object)
     if (!all(c("SampleID", "FileName") %in% colnames(pd))) {
-      rlang::abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
+      abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
     }
     current_hash <- digest::digest(
       list(
@@ -263,7 +263,7 @@ read_sample <- function(filename) {
       return(sample)
     }
   } else {
-    rlang::abort(glue("Support for reading {filename} not yet implemented"))
+    abort(glue("Support for reading {filename} not yet implemented"))
   }
 }
 

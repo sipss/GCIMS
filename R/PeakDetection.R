@@ -110,7 +110,7 @@ find_rip <- function(intensity_mat, verbose = FALSE, retention_time = NULL, drif
   # To workaround this, we estimate the FWHM and we clip the boundaries at the apex +- 2*FWHM
   bounds_and_widths <- find_half_max_boundaries(total_ion_spectrum)
   if (is.na(bounds_and_widths$fwhm_sym)) {
-    rlang::abort(
+    abort(
       message = c(
         "The ROI selection could not locate the RIP width",
         "i" = "Please contact the GCIMS authors at https://github.com/sipss/GCIMS/issues and if possible submit them your sample")
@@ -234,7 +234,7 @@ find_all_peaks_and_zero_crossings <- function(
   for (j in seq_len(num_spec)) {
     locs <- pracma::findpeaks(ddt[,j], minpeakheight = min_peak_height_ddt, minpeakdistance = dt_minpeakdistance_pts)[ ,2]
     if (any(locs > nrow(ddt))) {
-      rlang::abort(c("Unexpected error", "findpeaks found peaks out of bounds. this should not happen"))
+      abort(c("Unexpected error", "findpeaks found peaks out of bounds. this should not happen"))
     }
 
     # Find the zero-crossing points
@@ -280,7 +280,7 @@ find_all_peaks_and_zero_crossings <- function(
     #locs <- findpeaksRois(drt[j,], MinPeakHeight = min_peak_height_drt, MinPeakDistance = rt_minpeakdistance_pts)$loc
     #locs <- pracma::findpeaks(daux[j, ], minpeakheight = noise_level*sigmaNoise)[ ,2]
     if (any(locs > ncol(drt))) {
-      rlang::abort(c("Unexpected error", "findpeaksRois found peaks out of bounds. this should not happen"))
+      abort(c("Unexpected error", "findpeaksRois found peaks out of bounds. this should not happen"))
     }
 
     # Find the zero-crossing points

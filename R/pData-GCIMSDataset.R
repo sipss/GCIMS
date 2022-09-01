@@ -18,7 +18,7 @@ setReplaceMethod(
     value <- validate_pData(value)
     current_pData <- Biobase::pData(object)
     if (nrow(value) != nrow(current_pData)) {
-      rlang::abort(
+      abort(
         message = c(
           "Invalid replacement for pData",
           "x" = glue("The number of rows of the given pData ({nrow(value)}) does not match the rows of current pData ({nrow(current_pData)})")

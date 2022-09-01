@@ -10,7 +10,7 @@ setMethod("sampleNames", "GCIMSDataset", function(object) object@envir$pData$Sam
 #' @describeIn sampleNames-GCIMSDataset-method Sample names
 setReplaceMethod("sampleNames", "GCIMSDataset", function(object, value) {
   if (nrow(object@envir$pData) != length(value)) {
-    rlang::abort(
+    abort(
       message = c(
         "Invalid sample names",
         glue("The length of the given sample names ({length(value)}) should be equal to the number of samples ({nrow(object@envir$pData)})")
@@ -18,7 +18,7 @@ setReplaceMethod("sampleNames", "GCIMSDataset", function(object, value) {
     )
   }
   if (anyDuplicated(value)) {
-    rlang::abort("Sample names must be unique")
+    abort("Sample names must be unique")
   }
   rename_intermediate_files(object, value)
   object@envir$pData$SampleID <- value

@@ -26,7 +26,7 @@ methods::setMethod(
   function(object, ..., verbose = FALSE) {
     obj_version <- methods::slot(object, "class_version")
     if (obj_version < "0.0.3") {
-      rlang::abort("Can't migrate an older verions of the GCIMSSample object")
+      abort("Can't migrate an older verions of the GCIMSSample object")
     }
     return(object)
   }

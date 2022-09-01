@@ -9,7 +9,7 @@ realize_one_sample_ram <- function(sample_name, sample_obj, delayed_ops) {
     }
   } else if (is.character(sample_obj)) {
   } else {
-    rlang::abort("sample_obj should be a GCIMSSample or a file name")
+    abort("sample_obj should be a GCIMSSample or a file name")
   }
   # Execute:
   for (i in seq_along(delayed_ops)) {
@@ -42,7 +42,7 @@ realize_one_sample_disk <- function(sample_name, orig_filename, current_filename
   } else {
     # We load the file
     if (!file.exists(current_filename)) {
-      rlang::abort(
+      abort(
         message = c(
           "UnexpectedError",
           "x" = glue("The file {current_filename} should exist"),
@@ -62,7 +62,7 @@ realize_one_sample_disk <- function(sample_name, orig_filename, current_filename
       current_filename,
       next_filename
     )) {
-      rlang::abort(glue("Could not copy {current_filename} to {next_filename}."))
+      abort(glue("Could not copy {current_filename} to {next_filename}."))
     }
   }
   res$extracted_objects
@@ -157,7 +157,7 @@ realize_disk <- function(object, keep_intermediate) {
   current_dir <- CurrentHashedDir(object)
   if (is.null(current_dir)) {
     if (name(delayed_ops[[1]]) != "read_sample") {
-      rlang::abort(
+      abort(
         message = c(
           "UnexpectedError",
           "x" = glue("The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}"),
@@ -168,7 +168,7 @@ realize_disk <- function(object, keep_intermediate) {
   }
   next_dir <- NextHashedDir(object)
   if (is.null(next_dir)) {
-    rlang::abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
+    abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
   }
   dir.create(next_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -241,7 +241,7 @@ setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
   }
 
   if (!canRealize(object)) {
-    rlang::abort(
+    abort(
       message = c(
         "UnexpectedError",
         paste0(
@@ -271,7 +271,7 @@ canRealize <- function(object) {
 "canRealize<-" <- function(object, value) {
   value <- as.logical(value)
   if (length(value) != 1 || is.na(value)) {
-    rlang::abort("canRealize can't be NA or NULL and must be of length one")
+    abort("canRealize can't be NA or NULL and must be of length one")
   }
   object@envir$can_realize <- value
   object

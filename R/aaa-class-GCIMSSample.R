@@ -80,7 +80,7 @@ methods::setMethod(
       return(.Object)
     }
     if (is.null(names(dots)) || any(nchar(names(dots)) == 0) ) {
-      rlang::abort(c("Error creating GCIMSSample object",
+      abort(c("Error creating GCIMSSample object",
                      "x" = "All arguments should be named"))
     }
     # class_version and proc_params are internal and should not be given
@@ -90,7 +90,7 @@ methods::setMethod(
     if (!all(names(dots) %in% valid_dot_names)) {
       wrong_dot_names <- setdiff(names(dots), valid_dot_names)
       names(wrong_dot_names) <- rep("x", length(wrong_dot_names))
-      rlang::abort(c("Invalid named arguments in GCIMSSample initialization", wrong_dot_names))
+      abort(c("Invalid named arguments in GCIMSSample initialization", wrong_dot_names))
     }
     for (arg in names(dots)) {
       methods::slot(.Object, arg) <- dots[[arg]]

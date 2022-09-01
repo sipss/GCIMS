@@ -14,7 +14,7 @@ methods::setMethod(
     rt_factor <- as.integer(rt_factor)
     dt_factor <- as.integer(dt_factor)
     if (rt_factor <= 0L || dt_factor <= 0L) {
-      rlang::abort("decimation factors must be positive integers")
+      abort("decimation factors must be positive integers")
     }
     if (rt_factor == 1L && dt_factor == 1L) {
       return(object)

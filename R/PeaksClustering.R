@@ -284,7 +284,7 @@ clusterPeaks <- function(
 #'
 build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
   if (!"Volume" %in% colnames(peak_list_clustered)) {
-    rlang::abort("Please compute a 'Volume' column in peak_list_clustered")
+    abort("Please compute a 'Volume' column in peak_list_clustered")
   }
 
   peak_table_duplicity <- peak_list_clustered %>%
@@ -364,7 +364,7 @@ remove_peaks_with_outlier_rois <- function(
       ]
     )
   } else {
-    rlang::abort(sprintf("Unknown dtime_criteria: %s", dtime_criteria))
+    abort(sprintf("Unknown dtime_criteria: %s", dtime_criteria))
   }
 
 
@@ -394,7 +394,7 @@ remove_peaks_with_outlier_rois <- function(
       ]
     )
   }else {
-    rlang::abort(sprintf("Unknown rtime_criteria: %s", rtime_criteria))
+    abort(sprintf("Unknown rtime_criteria: %s", rtime_criteria))
   }
   if (verbose) {
     message(sprintf("Excluding %d/%d peaks", length(peaks_to_exclude), nrow(peaks)))

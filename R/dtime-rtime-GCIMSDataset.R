@@ -124,7 +124,7 @@ extract_dtime_rtime <- function(object) {
 "axesHeterogeneity<-" <- function(object, value) {
   valid_values <- c("needs_interpolate", "needs_cutting", "all_equal")
   if (!value %in% valid_values) {
-    rlang::abort(
+    abort(
       message = c(
         "Invalid value for axesHeterogeneity",
         "x" = glue("You gave {value}"),

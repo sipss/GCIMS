@@ -439,7 +439,7 @@ require_pkgs <- function(pkg, msgs = NULL, ...) {
       missing_bioc_pkgs <- deparse(missing_bioc_pkgs)
     }
     parent_call <- format(rlang::caller_call())
-    rlang::abort(
+    abort(
       message = c(
         glue::glue("{parent_call} requires additional packages. Please install them. You may want to use:", parent_call = parent_call),
         glue::glue("    install.packages({missing_cran_pkgs}) and", missing_cran_pkgs = missing_cran_pkgs),
