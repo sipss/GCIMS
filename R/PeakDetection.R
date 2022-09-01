@@ -58,7 +58,7 @@ find_half_max_boundaries <- function(x) {
   half_max <- x[max_idx]/2
   #
 
-  left_bound_idx <- findZeroCrossings(x[1:max_idx] - half_max, direction = "up")
+  left_bound_idx <- findZeroCrossings(x[seq_len(max_idx)] - half_max, direction = "up")
   if (length(left_bound_idx) == 0L) {
     left_bound_idx <- NA_integer_
   } else if (length(left_bound_idx) > 1L) {
@@ -365,7 +365,7 @@ merge_overlapping_rois <- function(ROIs, int_mat, iou_overlap_threshold) {
     for (j in (seq_len(nrow(ROIs)))) {
       done <- c(done, j)
       R1 <- ROIs[j, ]
-      for (k in c((1:nrow(ROIs))[-done])) {
+      for (k in seq_len(nrow(ROIs))[-done]) {
         R2 <- ROIs[k, ]
         if (aff[k] != j) {
           if (abs(overlapPercentage(R1, R2)) > iou_overlap_threshold) {
@@ -727,8 +727,7 @@ findpeaksRois <- function(data, MinPeakDistance = 1, MinPeakHeight = 1) {
 
     idx <- sort(idx)
     idx.pruned <- idx
-    n <- length(idx)
-    for (i in 1:n) {
+    for (i in seq_along(idx)) {
       ind <- round(max(idx[i] - MinPeakDistance/2, 1)):round(min(idx[i] + MinPeakDistance/2, ld))
       pp <- rep(0L, 3)
       H <- data[idx[i]]
@@ -738,7 +737,7 @@ findpeaksRois <- function(data, MinPeakDistance = 1, MinPeakHeight = 1) {
       pp[2] <- -2 * pp[1] * xm
       pp[3] <- H + pp[1] * xm^2
       sigma <- sqrt(abs(1/(2*pp[3])))
-      if (abs(pp[1]) > 0){
+      if (abs(pp[1]) > 0) {
         width <- exp(abs(pp[1]) + abs(pp[2])*sigma^2^2/(2*sigma^2))
       } else {
         width <- exp(1 + 1*sigma^2^2/(2*sigma^2))
