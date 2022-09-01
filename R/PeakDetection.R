@@ -692,8 +692,8 @@ findpeaksRois <- function(data, MinPeakDistance = 1, MinPeakHeight = 1) {
   ld <- length(data)
   tmp <- data
 
-  df1 <- diff(data, differences = 1)[c(1, 1:(ld - 1))]
-  df2 <- diff(data, differences = 2)[c(1, 1, 1:(ld - 2))]
+  df1 <- diff(data, differences = 1)[c(1, seq_len(ld - 1))]
+  df2 <- diff(data, differences = 2)[c(1, 1, seq_len(ld - 2))]
   idx <- which(df1 * c(df1[2:length(df1)], 0) <= 0 & c(df2[2:length(df2)], 0) < 0)
   max_ind <- which(data[idx] > MinPeakHeight)
   idx <- idx[max_ind]
