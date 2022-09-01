@@ -4,15 +4,23 @@ convolve_prepare <- function(x, conj = FALSE, plan = NULL, impl = "auto") {
   } else {
     do_conj <- identity
   }
-  do_conj(stats::fft(x))
+  if (!is.matrix(x)) {
+    do_conj(stats::fft(x))
+  } else {
+    do_conj(stats::mvfft(x))
+  }
 }
 
 convolve_do <- function(fft_x, conj_fft_y) {
-  Re(stats::fft(fft_x * conj_fft_y, inverse = TRUE))/length(fft_x)
+  if (!is.matrix(fft_x)) {
+    Re(stats::fft(fft_x * conj_fft_y, inverse = TRUE))/length(fft_x)
+  } else {
+    Re(stats::mvfft(fft_x * conj_fft_y, inverse = TRUE))/nrow(fft_x)
+  }
 }
 
 
-sgolayfilt_impl <- function(x, filt, rowwise, return_matrix, engine = c("fft", "filter")) {
+sgolayfilt_impl <- function(x, filt, rowwise, return_matrix, engine = "fft") {
   if (rowwise) {
     num_ser <- nrow(x)
     len <- ncol(x)
@@ -60,6 +68,32 @@ sgolayfilt_impl <- function(x, filt, rowwise, return_matrix, engine = c("fft", "
         out[center_points_idx, i] <- center_points
       }
     }
+  } else if (engine == "fft2") {
+    conv_coefs <- filt[k + 1L, n:1L]
+    fft_length <- length(conv_coefs) + len - 1L
+    conv_coefs_padded <- c(rev(conv_coefs), rep(0, len - 1L))
+    conj_fft_y_prep <- convolve_prepare(conv_coefs_padded, conj = TRUE)
+    xmat_padded <- matrix(0, nrow = fft_length, ncol = num_ser)
+    center_points_idx <- (k + 1L):(len - k)
+    if (rowwise) {
+      xmat_padded[length(conv_coefs):fft_length,] <- t(x)
+    } else {
+      xmat_padded[length(conv_coefs):fft_length,] <- x
+    }
+    fft_x_prep <- convolve_prepare(xmat_padded, conj = FALSE)
+    if (rowwise) {
+      out[, center_points_idx] <- t(convolve_do(
+        fft_x_prep,
+        conj_fft_y_prep
+      )[n:len,,drop = FALSE])
+    } else {
+      out[center_points_idx, ] <- convolve_do(
+        fft_x_prep,
+        conj_fft_y_prep
+      )[n:len,,drop = FALSE]
+    }
+
+
   } else if (engine == "filter") {
     center_points_idx <- (k + 1L):(len - k)
     filt_cent <- filt[k + 1L, n:1L]
@@ -135,7 +169,7 @@ choose_engine <- function(x, filter_length, orig_engine) {
 #' x <- runif(300)
 #' y <- sgolayfilt(x, p=2, n = 21)
 sgolayfilt <- function(x, p = 3, n = p + 3 - p %% 2, m = 0, ts = 1, rowwise = FALSE,
-                       engine = c("auto", "fft", "filter")) {
+                       engine = c("auto", "fft", "fft2", "filter")) {
   engine <- match.arg(engine)
   if (inherits(p, "sgolayFilter") || (!is.null(dim(p)) && dim(p) > 1)) {
     filt <- p
