@@ -45,7 +45,7 @@ methods::setMethod(
   "alignDt", "GCIMSSample",
   function(x, y, rip_ref_ms) {
     if (missing(rip_ref_ms) && !missing(y)) {
-      rlang::warn("Please provide rip_ref_ms as a named argument")
+      warn("Please provide rip_ref_ms as a named argument")
       rip_ref_ms <- y
     }
     tis <- getTIS(x)
@@ -141,7 +141,7 @@ methods::setMethod(
     }
 
     if (missing(ric_ref) && !missing(y)) {
-      rlang::warn("Please provide ric_ref as a named argument")
+      warn("Please provide ric_ref as a named argument")
       ric_ref <- y
     }
 

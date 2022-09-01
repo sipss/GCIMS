@@ -26,7 +26,7 @@ setReplaceMethod(
       )
     }
     if (!all(current_pData$FileName == value$FileName)) {
-      rlang::warn(
+      warn(
         message = c(
           "FileName changed in pData",
           "i" = "It is not advisable to replace the filenames, please create a new dataset instead if possible"

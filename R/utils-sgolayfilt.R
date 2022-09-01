@@ -141,7 +141,7 @@ choose_engine <- function(x, filter_length, orig_engine) {
   }
   if (engine == "fft" && anyNA(x)) {
     if (orig_engine == "fft") {
-      rlang::warn(
+      warn(
         message = c(
           'Switching sgolayfilt engine from "fft" to "filter"',
           "!" = "The fft engine does not handle missing values.",
