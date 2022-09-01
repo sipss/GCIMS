@@ -138,7 +138,7 @@ find_rip <- function(intensity_mat, verbose = FALSE, retention_time = NULL, drif
     dt_ms_apex <- drift_time[dt_idx_rip]
     rt_s_apex <- retention_time[rt_idx_apex]
 
-    rlang::inform(message = c(
+    inform(message = c(
       "RIP was detected",
       "i" = glue(" - At drift time: [{dt_ms_start} - {dt_ms_end}] {dt_units}"),
       "i" = glue(" - Maximum RIP intensity at: (dt: {dt_ms_apex} {dt_units}, rt: {rt_s_apex} {rt_units})")
@@ -222,7 +222,7 @@ find_all_peaks_and_zero_crossings <- function(
 
   if (verbose) {
     dt_step_ms <- drift_time[2] - drift_time[1]
-    rlang::inform(
+    inform(
       c("Finding peaks on each IMS Spectrum...",
         "i" = glue(" - on the second deriv with respect to drift time"),
         "i" = glue(" - with min height of {signif(min_peak_height_ddt, 3)} units and"),
@@ -264,7 +264,7 @@ find_all_peaks_and_zero_crossings <- function(
 
   if (verbose) {
     rt_step_s <- retention_time[2] - retention_time[1]
-    rlang::inform(
+    inform(
       c("Finding peaks on each Chromatogram",
         "i" = glue(" - on the second deriv with respect to ret.time"),
         "i" = glue(" - with min height of {signif(min_peak_height_drt, 3)} units and"),

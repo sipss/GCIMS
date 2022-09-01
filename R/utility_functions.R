@@ -403,7 +403,7 @@ gcims_shift_rt <- function(dir_in, dir_out, samples){
 
 new_progress_bar <- function(...) {
   if (!requireNamespace("progress", quietly = TRUE)) {
-    rlang::inform(
+    inform(
       message = c("i" = 'Use install.packages("progress") to get a progress bar'),
       class = "GCIMS_suggest_install_progress",
       .frequency = "once",

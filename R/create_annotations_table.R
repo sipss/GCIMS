@@ -69,7 +69,7 @@ create_annotations_table <- function(
     FileName = filenames
   )
   if (verbose) {
-    rlang::inform(
+    inform(
       message = c(
         "An annotation table was created",
         "i" = glue("The table now includes {nrow(annotations)} samples"),
