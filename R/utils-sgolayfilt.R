@@ -66,7 +66,6 @@ sgolayfilt_impl <- function(x, filt, rowwise, return_matrix, engine = c("fft", "
     embedded_signal <- matrix(0, nrow = len - 2*k, ncol = n)
     for (i in seq_len(num_ser)) {
       if (rowwise) {
-        embedded_signal[] <- stats::embed(x[i,], n)
         for (j in n:1L) {
           first_idx <- (n - j + 1L)
           last_idx <- first_idx + len - 2*k - 1
