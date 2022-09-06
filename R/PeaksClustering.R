@@ -1,59 +1,18 @@
-#' Group peaks in clusters
-#'
-#' @param peaks A data frame with at least the following columns:
-#'  - "UniqueID" A unique ID for each peak
-#'  - "SampleID" The sample ID the peak belongs to
-#'  - "dt_apex_ms", "rt_apex_s" The peak positions
-#'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
-#' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
-#'   - "IQR": Remove peaks with widths more than 1.5 interquartile ranges above upper quartile or
-#'     below the lower quartile.
-#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks with widths above mean+4iqr or below median-0.75iqr
-#'   - "none": Do not remove peaks based on their drift time width or retention time height
-#' @param distance_method A string. One of the distance methods from [stats::dist], "sd_scaled_euclidean" or "mahalanobis"
-#' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
-#' @param clustering A named list with "method" and the supported method, as well as further options.
-#'   For `method = "kmedoids"`, you must provide `Nclusters`, with either the number of clusters
-#'   to use in the kmedoids algorithm ([cluster::pam]) or the string `"max_peaks_sample"` to use the maximum number of
-#'   detected peaks per sample.
-#'
-#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
-#' @param verbose logical, to control printing in the function
-#' @description Peak grouping function, exposing several options useful for benchmarking.
-#'
-#' @return A list with :
-#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
-#' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
-#' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
-#' @export
-#' @examples
-#' \donttest{
-#' dir_in <- system.file("extdata", package = "GCIMS")
-#' peak_list <- readRDS(file.path(dir_in, "peak_list.rds"))
-#'
-#' peak_clustering  <- group_peak_list(
-#'   peaks = peak_list,
-#'   filter_dt_width_criteria = NULL,
-#'   filter_rt_width_criteria = NULL,
-#'   distance_method = "mahalanobis",
-#'   distance_between_peaks_from_same_sample = Inf,
-#'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-#'   verbose = FALSE
-#' )
-#' }
-group_peak_list <- function(
+group_peak_list_internal <- function(
   peaks,
   filter_dt_width_criteria = "IQR",
   filter_rt_width_criteria = "arnau",
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
-  verbose = FALSE
+  verbose = FALSE,
+  .all_indices_homogeneous = TRUE
+
 ) {
   # 0. Warn if peaks with NA positions, and remove them
   peaks_with_na <- stats::complete.cases(peaks[,c("UniqueID", "SampleID", "dt_apex_ms", "rt_apex_s")])
   if (!all(peaks_with_na)) {
-    rlang::warn("Some peaks in samples have wrong indexes leading to NA positions")
+    warn("Some peaks in samples have wrong indexes leading to NA positions")
     print(peaks[!peaks_with_na,])
     peaks <- peaks[peaks_with_na,]
   }
@@ -115,44 +74,175 @@ group_peak_list <- function(
     stop(sprintf("Unsupported clustering method %s", clustering$method))
   }
 
-  # Turn numeric peak clusters into IDs
+  # Turn numeric peak clusters into IDs:
   if (is.numeric(peaks$cluster)) {
     ndigits_print <- paste0("Cluster%0", nchar(max(peaks$cluster)), "d")
     peaks$cluster <- sprintf(ndigits_print, peaks$cluster)
   }
 
-  cluster_stats <- peaks %>%
-    dplyr::group_by(.data$cluster) %>%
-    dplyr::summarise(
-      dplyr::across(
-        dplyr::all_of(
-          c(
-            "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms",
-            "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s"
-          )
-        ),
-        stats::median
-      ),
-      dplyr::across(
-        dplyr::all_of(c("dt_min_idx", "rt_min_idx")),
-        ~ floor(stats::median(.))
-      ),
-      dplyr::across(
-        dplyr::all_of(c("dt_max_idx", "rt_max_idx")),
-        ~ ceiling(stats::median(.))
-      ),
-      dplyr::across(
-        dplyr::all_of(c("dt_apex_idx", "dt_cm_idx", "rt_apex_idx", "rt_cm_idx")),
-        ~ round(stats::median(.))
-      ),
-    ) %>%
-    dplyr::ungroup()
+  peak_cluster_stats <- peak_and_cluster_metrics(peaks, .all_indices_homogeneous = .all_indices_homogeneous)
 
   list(
-    peak_list_clustered = peaks,
-    cluster_stats = cluster_stats,
+    peak_list_clustered = peak_cluster_stats$peaks,
+    cluster_stats = peak_cluster_stats$cluster_stats,
     dist = peak2peak_dist,
     extra_clustering_info = extra_clustering_info
+  )
+}
+
+peak_and_cluster_metrics <- function(peaks, .all_indices_homogeneous = FALSE) {
+  # Suggestion: Remove .all_indices_homogeneous=TRUE
+  if (.all_indices_homogeneous) {
+    cluster_stats <- peaks %>%
+      dplyr::group_by(.data$cluster) %>%
+      dplyr::summarise(
+        dplyr::across(
+          dplyr::all_of(
+            c(
+              "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms",
+              "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s"
+            )
+          ),
+          stats::median
+        ),
+        dplyr::across(
+          dplyr::all_of(c("dt_min_idx", "rt_min_idx")),
+          ~ floor(stats::median(.))
+        ),
+        dplyr::across(
+          dplyr::all_of(c("dt_max_idx", "rt_max_idx")),
+          ~ ceiling(stats::median(.))
+        ),
+        dplyr::across(
+          dplyr::all_of(c("dt_apex_idx", "dt_cm_idx", "rt_apex_idx", "rt_cm_idx")),
+          ~ round(stats::median(.))
+        ),
+      ) %>%
+      dplyr::ungroup()
+  } else {
+    peaks <- peaks %>%
+      dplyr::mutate(
+        dt_length_ms = .data$dt_max_ms - .data$rt_min_s,
+        rt_length_s = .data$rt_max_s - .data$rt_min_s,
+        dt_center_ms = (.data$dt_max_ms + .data$rt_min_s)/2,
+        rt_center_s = (.data$rt_max_s + .data$rt_min_s)/2,
+      )
+
+    cluster_stats <- peaks %>%
+      dplyr::group_by(.data$cluster) %>%
+      dplyr::summarise(
+        dplyr::across(
+          dplyr::all_of(
+            c(
+              "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms", "dt_length_ms",
+              "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s", "rt_length_s"
+            )
+          ),
+          stats::median
+        )
+      ) %>%
+      dplyr::ungroup()
+
+    cluster_sizes <- cluster_stats %>%
+      dplyr::select(dplyr::all_of(c("cluster", "dt_length_ms", "rt_length_s")))
+
+    peaks <- peaks %>%
+      dplyr::select(-dplyr::all_of(c("dt_length_ms", "rt_length_s"))) %>%
+      dplyr::left_join(cluster_sizes, by = "cluster") %>%
+      dplyr::mutate(
+        fixedsize_dt_min_ms = .data$dt_center_ms - .data$dt_length_ms/2,
+        fixedsize_dt_max_ms = .data$dt_center_ms + .data$dt_length_ms/2,
+        fixedsize_rt_min_s = .data$rt_center_s - .data$rt_length_s/2,
+        fixedsize_rt_max_s = .data$rt_center_s + .data$rt_length_s/2,
+      ) %>%
+      dplyr::select(-dplyr::all_of(c("dt_length_ms", "rt_length_s")))
+
+  }
+  list(peaks = peaks, cluster_stats = cluster_stats)
+}
+
+#' Group peaks in clusters
+#'
+#' @param peaks A data frame with at least the following columns:
+#'  - "UniqueID" A unique ID for each peak
+#'  - "SampleID" The sample ID the peak belongs to
+#'  - "dt_apex_ms", "rt_apex_s" The peak positions
+#'  - "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
+#' @param filter_dt_width_criteria,filter_rt_width_criteria A character with the method for outlier detection.
+#'   - "IQR": Remove peaks with widths more than 1.5 interquartile ranges above upper quartile or
+#'     below the lower quartile.
+#'   - "arnau": FIXME Adhoc method from Arnau, where he removes peaks with widths above mean+4iqr or below median-0.75iqr
+#'   - "none": Do not remove peaks based on their drift time width or retention time height
+#' @param distance_method A string. One of the distance methods from [stats::dist], "sd_scaled_euclidean" or "mahalanobis"
+#' @param distance_between_peaks_from_same_sample The distance between two peaks from the same sample will be set to `distance_between_peaks_from_same_sample*max(distance_matrix)`
+#' @param clustering A named list with "method" and the supported method, as well as further options.
+#'   For `method = "kmedoids"`, you must provide `Nclusters`, with either the number of clusters
+#'   to use in the kmedoids algorithm ([cluster::pam]) or the string `"max_peaks_sample"` to use the maximum number of
+#'   detected peaks per sample.
+#'
+#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
+#' @param verbose logical, to control printing in the function
+#' @description Peak grouping function, exposing several options useful for benchmarking.
+#'
+#' @return A list with :
+#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
+#' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
+#' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
+#' @examples
+#' \donttest{
+#' dir_in <- system.file("extdata", package = "GCIMS")
+#' peak_list <- readRDS(file.path(dir_in, "peak_list.rds"))
+#'
+#' peak_clustering  <- group_peak_list(
+#'   peaks = peak_list,
+#'   filter_dt_width_criteria = NULL,
+#'   filter_rt_width_criteria = NULL,
+#'   distance_method = "mahalanobis",
+#'   distance_between_peaks_from_same_sample = Inf,
+#'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+#'   verbose = FALSE
+#' )
+#'}
+#' @export
+group_peak_list <- function(
+    peaks,
+    filter_dt_width_criteria = "IQR",
+    filter_rt_width_criteria = "arnau",
+    distance_method = "mahalanobis",
+    distance_between_peaks_from_same_sample = 100,
+    clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+    verbose = FALSE
+) {
+  group_peak_list_internal(
+    peaks = peaks,
+    filter_dt_width_criteria = filter_dt_width_criteria,
+    filter_rt_width_criteria = filter_rt_width_criteria,
+    distance_method = distance_method,
+    distance_between_peaks_from_same_sample = distance_between_peaks_from_same_sample,
+    clustering = clustering,
+    verbose = verbose
+  )
+}
+
+
+#' @describeIn group_peak_list Peak grouping function
+#' @export
+clusterPeaks <- function(
+    peaks,
+    distance_method = "mahalanobis",
+    distance_between_peaks_from_same_sample = 100,
+    clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+    verbose = FALSE
+) {
+  group_peak_list_internal(
+    peaks = peaks,
+    filter_dt_width_criteria = NULL,
+    filter_rt_width_criteria = NULL,
+    distance_method = distance_method,
+    distance_between_peaks_from_same_sample = distance_between_peaks_from_same_sample,
+    clustering = clustering,
+    verbose = verbose,
+    .all_indices_homogeneous = FALSE
   )
 }
 
@@ -194,7 +284,7 @@ group_peak_list <- function(
 #'
 build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
   if (!"Volume" %in% colnames(peak_list_clustered)) {
-    rlang::abort("Please compute a 'Volume' column in peak_list_clustered")
+    abort("Please compute a 'Volume' column in peak_list_clustered")
   }
 
   peak_table_duplicity <- peak_list_clustered %>%
@@ -228,6 +318,9 @@ build_peak_table <- function(peak_list_clustered, aggregate_conflicting_peaks = 
   )
 }
 
+#' @describeIn build_peak_table Build peak table
+#' @export
+peakTable <- build_peak_table
 
 #' @noRd
 #' @param peaks A data frame with one peak per row and at least the following columns:
@@ -271,7 +364,7 @@ remove_peaks_with_outlier_rois <- function(
       ]
     )
   } else {
-    rlang::abort(sprintf("Unknown dtime_criteria: %s", dtime_criteria))
+    abort(sprintf("Unknown dtime_criteria: %s", dtime_criteria))
   }
 
 
@@ -301,12 +394,12 @@ remove_peaks_with_outlier_rois <- function(
       ]
     )
   }else {
-    rlang::abort(sprintf("Unknown rtime_criteria: %s", rtime_criteria))
+    abort(sprintf("Unknown rtime_criteria: %s", rtime_criteria))
   }
   if (verbose) {
     message(sprintf("Excluding %d/%d peaks", length(peaks_to_exclude), nrow(peaks)))
   }
-  dplyr::filter(peaks, ! .data$UniqueID %in% peaks_to_exclude)
+  dplyr::filter(peaks, !.data$UniqueID %in% peaks_to_exclude)
 }
 
 

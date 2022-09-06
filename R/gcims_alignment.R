@@ -21,9 +21,6 @@
 #'                           sample to be visualized from the dataset.
 #' @param alignment_data     A list containing two matrices: `tis` and `rics`, the Total
 #'                           Ion Spectra and Reactant Ion Chromatograms of data, respectively.
-#' @importFrom signal interp1
-#' @importFrom ptw ptw bestref
-#' @importFrom stats cor median
 #' @export
 #' @return A set of S3 objects. Additionally, it returns a list containing the correction
 #' factors in drift time (`Kcorr_samples`, a vector with as many components as samples), the reference
@@ -170,8 +167,6 @@ find_reference_ric <- function(rics){
 #  @param rics                         Matrix. One Reactant Ion Chromatogram per row.
 #  @param ref_ric_sample_idx           A scalar. It indicates the sample that is chosen
 #                                     as reference for aligning in retention time.
-#  @importFrom ptw ptw
-#  @importFrom stats cor
 #  @return  A vector of integers with as many components as samples to be corrected, with values
 #           between 0 and 5. If zero, no correction
 #           in retention time is needed. Between 1 and 5, it indicates

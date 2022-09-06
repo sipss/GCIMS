@@ -40,8 +40,6 @@
 #'  \doi{10.1007/978-3-319-10247-4}
 #'   }
 #'
-#' @importFrom signal sgolayfilt
-#' @importFrom signal interp1
 #'
 #' @examples
 #' \donttest{
@@ -169,7 +167,7 @@ gcims_prepare_data <- function (dir_in, dir_out, samples, params){
       aux_list <- smoothing(aux_list, m,order_rt, length_rt, order_dt, length_dt)
     }
     if(do_decimate == TRUE){
-      aux_list <- decimate(aux_list, m, factor_rt, factor_dt)
+      aux_list <- decimate_impl(aux_list, m, factor_rt, factor_dt)
     }
     saveRDS(aux_list, file = file.path(dir_out, paste0("M", i, ".rds")))
 
@@ -249,7 +247,7 @@ smoothing <- function (aux_list, sample_index,
   return(aux_list)
 }
 
-decimate <- function(aux_list, sample_index, factor_rt, factor_dt){
+decimate_impl <- function(aux_list, sample_index, factor_rt, factor_dt){
   aux <- as.matrix(aux_list$data$data_df)
   rt_index <- seq(from = 1, to = dim(aux)[2], by = factor_rt)
   dt_index <- seq(from = 1, to = dim(aux)[1], by = factor_dt)

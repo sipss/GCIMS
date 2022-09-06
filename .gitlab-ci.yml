@@ -1,35 +1,43 @@
 stages:
+  - dependencies
   - check
   - build_website
   - deploy
 
-
-# To have the coverage percentage appear as a gitlab badge follow these
-# instructions:
-# https://docs.gitlab.com/ee/user/project/pipelines/settings.html#test-coverage-parsing
-# The coverage parsing string is
-# Coverage: \d+\.\d+
+build_img:
+  stage: dependencies
+  tags: [sipss]
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 -w 0)\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --cache=true
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/ci_scripts/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
+  rules:
+    - changes:
+      - ci_scripts/Dockerfile
+      - DESCRIPTION
 
 check_pkg:
   stage: check
-  image: "bioconductor/bioconductor_docker:RELEASE_3_15"
+  image: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
   tags:
     - sipss
-  before_script:
-    - apt-get update
-    - apt-get install -y qpdf ghostscript texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
-    - Rscript -e 'remotes::install_cran(c("rcmdcheck", "BiocManager"))'
   script:
     - Rscript -e 'remotes::install_deps(dependencies = TRUE)'
     - Rscript -e 'rcmdcheck::rcmdcheck()'
 
 BiocCheck:
   stage: check
-  image: "bioconductor/bioconductor_docker:RELEASE_3_15"
+  image: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
   tags:
     - sipss
-  before_script:
-    - Rscript -e 'BiocManager::install("BiocCheck")'
   script:
     - Rscript -e 'remotes::install_local(dependencies=TRUE, upgrade=TRUE)'
     - Rscript -e 'BiocCheck::BiocCheck(`quit-with-status` = TRUE, `no-check-R-ver` = TRUE, `no-check-bioc-help` = TRUE)'
@@ -41,16 +49,10 @@ BiocCheck:
 
 build_site_and_coverage:
   stage: build_website
-  image: "bioconductor/bioconductor_docker:RELEASE_3_15"
+  coverage: '/Coverage: \d+\.\d+/'
+  image: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
   tags:
     - sipss
-  only:
-    - master
-  before_script:
-    - apt-get update
-    - apt-get install -y qpdf ghostscript texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
-    - Rscript -e 'remotes::install_cran("BiocManager")'
-    - Rscript -e 'remotes::install_cran(c("covr", "pkgdown", "DT"))'
   script:
     - Rscript -e 'remotes::install_local(force = TRUE, dependencies = TRUE)'
     - Rscript -e 'pkgdown::build_site()'

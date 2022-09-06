@@ -18,7 +18,6 @@
 #' @return A Set of S3 objects.
 #' @family Utility functions
 #' @export
-#' @importFrom pracma findpeaks
 #' @examples
 #' dir_in <- system.file("extdata", package = "GCIMS")
 #' dir_out <- tempdir()
@@ -48,14 +47,14 @@ gcims_remove_rip <- function(dir_in, dir_out, samples){
 
     # Compute the total ion spectra
     aux_2 <- rowSums(aux)
-    peaks_info <- findpeaks(aux_2)
+    peaks_info <- pracma::findpeaks(aux_2)
 
     # Look for rip position
     rip_pos_ind <- which.max(peaks_info[ , 1])
     rip_pos <- peaks_info[rip_pos_ind, 2]
 
     # Look for the beginning and ending of the RIP (searching the closest minima to it)
-    valleys_info <- findpeaks(-aux_2)
+    valleys_info <- pracma::findpeaks(-aux_2)
     valleys_pos <- valleys_info[ , 2]
     closest_valley_ind <- which.min(abs(valleys_pos - rip_pos))
 
@@ -213,14 +212,19 @@ gcims_reshape_samples <- function(dir_in, dir_out, samples) {
 #'
 #' # Example Sample data cutting:
 #' # Before:
-#' gcims_view_sample(dir_in, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
+#' gcims_view_sample(
+#'   dir_in, sample_num = samples,
+#'   rt_range = NULL, dt_range = NULL, transform = FALSE
+#' )
 #'
 #' # After:
 #' rt_range <-c(70, 125)
 #' dt_range <- c(8, 9.25)
 #' gcims_cut_samples(dir_in, dir_out, samples, rt_range, dt_range)
-#' gcims_view_sample(dir_out, sample_num = samples, rt_range = NULL, dt_range = NULL, transform = FALSE)
-#'
+#' gcims_view_sample(
+#'   dir_out, sample_num = samples,
+#'   rt_range = NULL, dt_range = NULL, transform = FALSE
+#' )
 #' files <- list.files(path = dir_out, pattern = ".rds", all.files = FALSE, full.names = TRUE)
 #' invisible(file.remove(files))
 #
@@ -399,7 +403,7 @@ gcims_shift_rt <- function(dir_in, dir_out, samples){
 
 new_progress_bar <- function(...) {
   if (!requireNamespace("progress", quietly = TRUE)) {
-    rlang::inform(
+    inform(
       message = c("i" = 'Use install.packages("progress") to get a progress bar'),
       class = "GCIMS_suggest_install_progress",
       .frequency = "once",
@@ -435,7 +439,7 @@ require_pkgs <- function(pkg, msgs = NULL, ...) {
       missing_bioc_pkgs <- deparse(missing_bioc_pkgs)
     }
     parent_call <- format(rlang::caller_call())
-    rlang::abort(
+    abort(
       message = c(
         glue::glue("{parent_call} requires additional packages. Please install them. You may want to use:", parent_call = parent_call),
         glue::glue("    install.packages({missing_cran_pkgs}) and", missing_cran_pkgs = missing_cran_pkgs),
@@ -445,4 +449,13 @@ require_pkgs <- function(pkg, msgs = NULL, ...) {
       ...
     )
   }
+}
+
+
+units_to_points <- function(length_phys, step_phys, must_odd = FALSE) {
+  length_pts <- round(length_phys/step_phys)
+  if (must_odd) {
+    length_pts <- length_pts + (length_pts %% 2 == 0) # the filter length in points
+  }
+  length_pts
 }

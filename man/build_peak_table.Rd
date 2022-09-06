@@ -2,9 +2,12 @@
 % Please edit documentation in R/PeaksClustering.R
 \name{build_peak_table}
 \alias{build_peak_table}
+\alias{peakTable}
 \title{Build a peak table}
 \usage{
 build_peak_table(peak_list_clustered, aggregate_conflicting_peaks = NULL)
+
+peakTable(peak_list_clustered, aggregate_conflicting_peaks = NULL)
 }
 \arguments{
 \item{peak_list_clustered}{The output of \code{\link[=gcims_compute_fom]{gcims_compute_fom()}}. Also, you can create your own peak table
@@ -25,6 +28,11 @@ among clusters. Ideally, only one peak per sample should belong to a cluster.
 \description{
 Extract the volume of each ROI across samples to create a peak table.
 }
+\section{Functions}{
+\itemize{
+\item \code{peakTable()}: Build peak table
+
+}}
 \examples{
 \donttest{
 # Create your peak table from scratch:

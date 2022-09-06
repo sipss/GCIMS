@@ -2,12 +2,21 @@
 % Please edit documentation in R/PeaksClustering.R
 \name{group_peak_list}
 \alias{group_peak_list}
+\alias{clusterPeaks}
 \title{Group peaks in clusters}
 \usage{
 group_peak_list(
   peaks,
   filter_dt_width_criteria = "IQR",
   filter_rt_width_criteria = "arnau",
+  distance_method = "mahalanobis",
+  distance_between_peaks_from_same_sample = 100,
+  clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+  verbose = FALSE
+)
+
+clusterPeaks(
+  peaks,
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
@@ -55,6 +64,11 @@ A list with :
 \description{
 Peak grouping function, exposing several options useful for benchmarking.
 }
+\section{Functions}{
+\itemize{
+\item \code{clusterPeaks()}: Peak grouping function
+
+}}
 \examples{
 \donttest{
 dir_in <- system.file("extdata", package = "GCIMS")

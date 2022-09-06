@@ -1,0 +1,66 @@
+phenos_to_string <- function(object) {
+  phenotypes <- Biobase::pData(object)
+  only_phenotypes <- phenotypes[,c(-1, -2)]
+  num_of_phenotypes <- length(colnames(only_phenotypes))
+  if (num_of_phenotypes > 10) {
+    to_show <- 5
+    phen <- paste0(utils::head(colnames(only_phenotypes), n = to_show), collapse = ", ")
+    and_n_more <- paste0(" and ", num_of_phenotypes - to_show, " more phenotypes")
+    return(paste0(phen, and_n_more))
+  } else if (num_of_phenotypes == 0) {
+    return("No phenotypes")
+  }
+  to_show <- num_of_phenotypes
+  phen <- paste0(utils::head(colnames(only_phenotypes), n = to_show), collapse = ", ")
+  phen
+}
+
+methods::setMethod(
+  "describeAsList", "GCIMSDataset",
+  function(object) {
+    out <- list()
+    on_ram <- object@envir$on_ram
+    root_txt <- "A GCIMSDataset object"
+    sample_info <- paste0(
+      "With ", length(sampleNames(object)), " samples",
+      if (on_ram) " on RAM" else " on disk"
+    )
+    pheno_info <- phenos_to_string(object)
+    # history info:
+    # Previous operations
+    pops <- object@envir$previous_ops
+    pops <- purrr::keep(pops, modifiesSample)
+    pops <- purrr::map(pops, describeAsList)
+    if (length(pops) > 0) {
+      history_info <- list("History" = pops)
+    } else {
+      history_info <- "No previous history"
+    }
+
+    # Pending operations
+    pops <- object@envir$delayed_ops
+    pops <- purrr::keep(pops, modifiesSample)
+    pops <- purrr::map(pops, describeAsList)
+    if (length(pops) > 0) {
+      pending_info <- list("Pending operations" = pops)
+    } else {
+      pending_info <- "No pending operations"
+    }
+    out[[root_txt]] <- list(
+      sample_info,
+      pheno_info,
+      history_info,
+      pending_info
+    )
+    out
+  }
+)
+
+setMethod(
+  "show",
+  "GCIMSDataset",
+  function(object) {
+    outstring <- yaml::as.yaml(describeAsList(object))
+    cat(outstring)
+  }
+)
