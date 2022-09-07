@@ -15,10 +15,6 @@ library(shinycssloaders)
 library(prompter)
 library(yaml)
 library(fs)
-##UPDATES
-# install.packages("remotes")
-# remotes::install_github("sipss/GCIMS@sergio/new-api", auth_token= "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")
-# remotes::install_github("sipss/GCIMS@513966fd8ef86676a7b9d23129fc88c506744bb1", auth_token= "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")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                                  Import function                         ----
