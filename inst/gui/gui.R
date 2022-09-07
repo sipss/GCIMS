@@ -684,12 +684,13 @@ server <- function(input, output, session) {
 
     #Display
 
-    if(rt_smooth_apply==TRUE){
+    if(rt_smooth_apply==TRUE) {
 
+      chrom <- one_chrom()
       if (is.null(rtmin())){
         fig2 <-plot_ly(
-          x=one_chrom()@intensity,
-          y=one_chrom()@retention_time,
+          x=intensity(chrom),
+          y=rtime(chrom),
           type = 'scatter',
           mode = 'lines'
         )
