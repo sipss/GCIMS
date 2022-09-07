@@ -379,7 +379,7 @@ server <- function(input, output, session) {
   })
 
 
-  # Disable parallellization: (Useful for better error reporting)---------------
+  # Disable parallellization: (Useful for better error reporting)--------------
 
   register(SerialParam(progressbar = TRUE), default = TRUE) #QUESTION KESAKO
 
