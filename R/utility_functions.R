@@ -432,17 +432,20 @@ require_pkgs <- function(pkg, msgs = NULL, ...) {
         missing_cran_pkgs <- c(missing_cran_pkgs, "BiocManager")
       }
     }
+    and_string <- character()
     if (length(missing_cran_pkgs) > 0) {
       missing_cran_pkgs <- deparse(missing_cran_pkgs)
+      and_string <- ""
     }
     if (length(missing_bioc_pkgs) > 0) {
       missing_bioc_pkgs <- deparse(missing_bioc_pkgs)
+      and_string <- " and"
     }
     parent_call <- format(rlang::caller_call())
     abort(
       message = c(
         glue::glue("{parent_call} requires additional packages. Please install them. You may want to use:", parent_call = parent_call),
-        glue::glue("    install.packages({missing_cran_pkgs}) and", missing_cran_pkgs = missing_cran_pkgs),
+        glue::glue("    install.packages({missing_cran_pkgs}){and_string}", missing_cran_pkgs = missing_cran_pkgs, and_string = and_string),
         glue::glue("    BiocManager::install({missing_bioc_pkgs})", missing_bioc_pkgs = missing_bioc_pkgs),
         msgs
       ),
