@@ -1,3 +1,6 @@
+#' Launch the GCIMS graphical interface
+#'
+#' Launches the graphical interface. You may need to install additional packages.
 #' @export
 launchGCIMSgui <- function() {
   gui_deps <- c("shiny", "plotly", "bslib", "knitr",
@@ -5,8 +8,10 @@ launchGCIMSgui <- function() {
                 "GCIMS", "shinyFiles", "shinycssloaders",
                 "prompter", "yaml", "fs")
   require_pkgs(gui_deps)
-  gui_file <- system.file("gui", "gui.R", package = "GCIMS")
-  source(gui_file, local = TRUE)
-  shiny::shinyApp(ui, server)
+  app_dir <- system.file("gui", package = "GCIMS")
+  if (app_dir == "") {
+    stop("Could not find gui/ directory. Try re-installing `GCIMS`.", call. = FALSE)
+  }
+  shiny::runApp(app_dir, display.mode = "normal")
 }
 
