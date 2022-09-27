@@ -215,6 +215,7 @@ realize_disk <- function(object, keep_intermediate) {
   if (!keep_intermediate && !is.null(current_dir)) {
     unlink(current_dir, recursive = TRUE)
   }
+  saveRDS(object, file = file.path(next_dir, "GCIMSDataset.rds"))
   object
 }
 
