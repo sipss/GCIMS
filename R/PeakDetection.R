@@ -529,9 +529,6 @@ peak_detection <- function(
     )
     drt <- -deriv2$drt
     ddt <- -deriv2$ddt
-    daux <- drt + ddt
-
-    stopifnot(dim(int_mat) == dim(daux))
 
     # Region without peaks: PROBAR CON ORINA
     # p1 <- hist(daux)
@@ -541,7 +538,8 @@ peak_detection <- function(
     # quantile(daux, c(0.25, 0.75))
 
     region <- find_region_without_peaks(int_mat, half_min_size = c(10, 10), noise_quantile = 0.25)
-    sigmaNoise <- stats::sd(daux[region$row_min:region$row_max, region$col_min:region$col_max])
+    sigmaNoise_drt <- stats::sd(drt[region$row_min:region$row_max, region$col_min:region$col_max])
+    sigmaNoise_ddt <- stats::sd(ddt[region$row_min:region$row_max, region$col_min:region$col_max])
 
     # tt <- int_mat < quantile(int_mat, 0.15)
     # indx_noise <- which(tt == TRUE, arr.ind = TRUE)
@@ -554,8 +552,8 @@ peak_detection <- function(
     peaks_zeros <- find_all_peaks_and_zero_crossings(
       ddt, drt,
       drift_time, retention_time,
-      min_peak_height_ddt = noise_level*sigmaNoise,
-      min_peak_height_drt = noise_level*sigmaNoise,
+      min_peak_height_ddt = noise_level*sigmaNoise_ddt,
+      min_peak_height_drt = noise_level*sigmaNoise_drt,
       dt_minpeakdistance_pts = dt_minpeakdistance_pts,
       rt_minpeakdistance_pts = 1,
       verbose = FALSE
