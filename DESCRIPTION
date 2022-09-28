@@ -80,6 +80,7 @@ Imports:
     rlang,
     S4Vectors,
     scales,
+    sgolay,
     signal (>= 0.7-6),
     stats (>= 4.0.2),
     stringr,
