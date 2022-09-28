@@ -116,6 +116,26 @@ ket1 <- getGCIMSSample(dataset, sample = "Ketones1")
 plotRaw(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 ```
 
+```{r}
+dt_k1 <- dtime(ket1)
+tis_k1 <- getTIS(ket1)
+
+ggplot(dplyr::filter(data.frame(x = dt_k1, y = tis_k1), x >1)) + 
+  geom_line(aes(x = x, y = y)) +
+  scale_x_continuous(name = "Drift time (ms)", limits = c(7, 17)) +
+  scale_y_continuous(name = "Intensity (a.u)", trans = cubic_root_trans())
+```
+
+
+```{r}
+rt_k1 <- rtime(ket1)
+ric_k1 <- getRIC(ket1)
+
+ggplot(dplyr::filter(data.frame(x = rt_k1, y = ric_k1))) + 
+  geom_line(aes(x = x, y = y)) +
+  scale_x_continuous(name = "Retention time (ms)", limits = c(55, 900)) +
+  scale_y_continuous(name = "Intensity (a.u)")
+```
 
 Plot the RIC and the TIS to get an overview of the dataset:
 
@@ -375,7 +395,7 @@ ket2 <- getGCIMSSample(dataset, "Ketones2")
 ```{r}
 plt <- plotRaw(ket2)
 plt <- add_peaklist_rect(plt, peaks(ket2))
-plt
+plt + lims(x= c(7.5,15), y = c(0, 500))
 ```
 
 
