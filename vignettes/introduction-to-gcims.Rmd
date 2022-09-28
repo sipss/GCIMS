@@ -1,6 +1,9 @@
 ---
 title: "Introduction to GCIMS"
-output: BiocStyle::html_document
+output:
+  "BiocStyle::pdf_document":
+    df_print: "kable"
+    dev: png
 package: GCIMS
 author: "GCIMS authors"
 date: "`r format(Sys.Date(), '%F')`"
@@ -25,12 +28,24 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 start_time <- Sys.time()
+library(BiocParallel)
 library(ggplot2)
 library(GCIMS)
 ```
 
 The GCIMS package allows you to import your Gas Chromatography - Ion Mobility Spectrometry samples,
-preprocess them and build a peak table of their relevant features.
+preprocess them, align them one to each other and build a peak table with the relevant features.
+
+Enable parallellization of the workflow, here we use three cores:
+
+```{r}
+show_progress_bar <- interactive() && is.null(getOption("knitr.in.progress"))
+# disable parallellization: (Useful for better error reporting)
+register(SerialParam(progressbar = show_progress_bar), default = TRUE)
+# enable parallellization with 3 workers (you can use more if you have them):
+#register(SnowParam(workers = 3, progressbar = show_progress_bar, exportglobals = FALSE), default = TRUE)
+```
+
 
 This vignette will use a small dataset consisting of a mixture of three ketones.
 
@@ -39,8 +54,13 @@ This vignette will use a small dataset consisting of a mixture of three ketones.
 Download the "threeketones" dataset:
 
 ```{r}
+# The folder where we will download the samples:
+samples_directory <- "threeketones"
+
+# Download the ketones dataset:
 tryCatch({
-  download_three_ketones_dataset("threeketones")
+  download_three_ketones_dataset(samples_directory)
+  message("Download successful")
 }, error = function(e) {
   message("The download of the samples did not succeed. The vignette can't continue.")
   message(conditionMessage(e))
@@ -50,365 +70,536 @@ tryCatch({
 Check that the files are downloaded:
 
 ```{r}
-list.files("threeketones")
-```
-
-Enable parallellization of the workflow, here we use three cores:
-
-```{r}
-library(BiocParallel)
-#register(SerialParam(progressbar = TRUE, exportglobals = FALSE), default = TRUE)  # disable parallellization
-register(SnowParam(workers = 3, progressbar = TRUE, exportglobals = FALSE), default = TRUE)  # enable parallellization with 3 workers
-```
-
-
-# Create working directories
-
-The first step is to create all directories and folders where samples will be stored. The current working directory should be the folder where the raw data samples are located. Folders for each pre-processing step will be created.
-
-```{r}
-wd <- "intermediate_files"
-data <- file.path(wd,'data')
-reshaped <- file.path(wd,'reshaped')
-cut <- file.path(wd,'cut')
-prepared <- file.path(wd,'prepared')
-aligned <- file.path(wd,'aligned')
-roispp <- file.path(wd,'roispp')
-bsln <- file.path(wd, 'bsln')
-fom <- file.path(wd, 'fom')
+list.files(samples_directory)
 ```
 
 # Import data
 
-Please, start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
+Please start by preparing an Excel spreadsheet (or a CSV/TSV file if you prefer)
 with your samples and their annotations. Please name the first column `SampleID`
-and the second column `Filename`.
+and the second column `Filename`. We will use those annotations in plots.
+
+
+
+```{r message=FALSE}
+annotations <- readr::read_csv(file.path(samples_directory, "annotations.csv"))
+annotations
+```
+
+If you need to create your `annotations.csv` file for your samples, please
+follow the example from `help("create_annotations_table")` for further details.
+
+# Create a GCIMSDataset object
 
 ```{r}
-## We will directly define the data frame here:
-
-sample_annotations <- tibble::tribble(
-  ~SampleID, ~Filename,
-  "Ketone1", "211105_095453.mea.gz",
-  "Ketone2", "211105_135744.mea.gz",
-  "Ketone3", "211108_141524.mea.gz",
+dataset <- GCIMSDataset(
+  annotations,
+  base_dir = samples_directory,
+  on_ram = TRUE # You probably should set this to FALSE if you have more 
+                # than a handful of samples. See ?GCIMSDataset.
 )
-## But you can use the following code:
-## Use this for excel spreadsheets:
-# sample_annotations <- readxl::read_excel("your_excel_file.xlsx")
-## Use this for CSV files:
-# sample_annotations <- readr::read_csv("your_csv_file.csv")
-
-sample_annotations
+dataset
 ```
 
-- Reading raw data 
 
-All samples of the working directory are going to be read and converted to the format needed for working with this package.
+Most operations on the `dataset` are not executed until you need to get the actual samples or
+data. This is done to perform them in batch, more efficiently, if possible. However,
+you can manually `realize` the `GCIMSDataset` object so it executes all its pending operations.
+We can see how the "read_sample" pending operation becomes part of the dataset history:
 
 ```{r}
-# For mea or mea.gz files, use:
-dataset <- gcims_read_mea(dir_in = "threeketones", dir_out = data)
+realize(dataset)
+dataset
+```
+Explore one sample:
+
+```{r}
+ket1 <- getGCIMSSample(dataset, sample = "Ketones1")
+plotRaw(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 ```
 
-- Reading metadata 
+```{r}
+dt_k1 <- dtime(ket1)
+tis_k1 <- getTIS(ket1)
 
-An excel file containing sample metadata is going to be read and all the metadata information will be included  in the files.
+ggplot(dplyr::filter(data.frame(x = dt_k1, y = tis_k1), x >1)) + 
+  geom_line(aes(x = x, y = y)) +
+  scale_x_continuous(name = "Drift time (ms)", limits = c(7, 17)) +
+  scale_y_continuous(name = "Intensity (a.u)", trans = cubic_root_trans())
+```
+
 
 ```{r}
-samples <- seq_along(dataset)
-#file <- "Metadata.xlsx"
-file <- data.frame(
-  Name = c(1,2,3),
-  OriginalFileName = names(dataset)
+rt_k1 <- rtime(ket1)
+ric_k1 <- getRIC(ket1)
+
+ggplot(dplyr::filter(data.frame(x = rt_k1, y = ric_k1))) + 
+  geom_line(aes(x = x, y = y)) +
+  scale_x_continuous(name = "Retention time (ms)", limits = c(55, 900)) +
+  scale_y_continuous(name = "Intensity (a.u)")
+```
+
+Plot the RIC and the TIS to get an overview of the dataset:
+
+```{r}
+plotTIS(dataset)
+```
+
+```{r}
+plotRIC(dataset)
+```
+
+
+# Filter the retention and drift time of your samples
+
+```{r}
+filterRt(dataset, rt = c(0, 1300)) # in s
+filterDt(dataset, dt = c(1, 17)) # in ms
+dataset
+```
+
+
+
+```{r}
+ket1afterfilter <- getGCIMSSample(dataset, sample = "Ketones1")
+ket1afterfilter
+```
+
+# Smoothing
+
+You can remove noise from your sample using a Savitzky-Golay filter, applied
+both in drift time and in retention time.
+
+The Savitzky-Golay has two main parameters: the filter length and the filter order.
+It is recommended to use a filter order of 2, but the filter length must be selected
+so it is large enough to remove noise but always smaller than the peak width to
+prevent distorting the peaks.
+
+You can apply the smoothing filter to a single IMS spectrum or to a single chromatogram
+to see how noise is removed and how peaks are not distorted. Tweak the filter lengths
+and, once you are happy, apply the smoothing filter to all the dataset.
+
+```{r smoothing-starts-here}
+one_ims_spec <- getIMS(ket1afterfilter, rt_range = 97.11)
+```
+
+```{r}
+one_ims_smoothed <- smooth(one_ims_spec, dt_length_ms = 0.14, dt_order = 2)
+to_plot <- dplyr::bind_rows(
+  NoSmoothed = as.data.frame(one_ims_spec),
+  Smoothed = as.data.frame(one_ims_smoothed),
+  .id = "Status"
 )
-gcims_read_metadata(dir_in = data, samples, file)
+ggplot(to_plot) +
+  geom_line(aes(x = drift_time_ms, y = intensity, colour = Status)) +
+  coord_cartesian(xlim = c(7, 10)) +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+ggplot(to_plot) +
+  geom_line(aes(x = drift_time_ms, y = intensity, colour = Status)) +
+  coord_cartesian(xlim = c(7, 10), ylim = c(0, 300)) +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
 ```
 
-# Data Visualization
-
-Data visualization functions are useful to understand data structure. The package provides three main data visualization functions to perform this task: `gcims_view_sample()`, `gcims_plot_spec()`, and `gcims_plot_chrom()`. Let's use function `gcims_view_sample()` to inspect sample 1. 
-
 ```{r}
-gcims_view_sample(data, 
-                  sample_num = 1,
-                  rt_range = NULL, 
-                  dt_range = NULL, transform = TRUE)
+one_chrom <- getEIC(ket1afterfilter, dt_range = 10.4)
 ```
 
-# Reducing sample size
+```{r}
+one_chrom_smoothed <- smooth(one_chrom, rt_length_s = 3, rt_order = 2)
+to_plot <- dplyr::bind_rows(
+  NoSmoothed = as.data.frame(one_chrom),
+  Smoothed = as.data.frame(one_chrom_smoothed),
+  .id = "Status"
+)
+ggplot(to_plot) +
+  geom_line(aes(x = retention_time_s, y = intensity, colour = Status)) +
+  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
+ggplot(to_plot) +
+  geom_line(aes(x = retention_time_s, y = intensity, colour = Status)) +
+  coord_cartesian(xlim = c(200, 250)) +
+  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
+```
 
-Data samples are cut for a better manipulation. The package provides two different function two perform this task: `gcims_cut_samples()` and `gcims_reshape_samples()`.
-
-- Cut samples
-
-The function `gcims_cut_samples()` cuts all samples in a retention time - drift time rectangle selected by the user. The sample cut can be performed at the beginning, but also at the end after all the pre-processing.
+You can also apply it to a single sample:
 
 ```{r}
-gcims_cut_samples(dir_in = data,
-                  dir_out = cut,
-                  samples = 1:3,
-                  rt_range = c(1, 1300), # in seconds 
-                  dt_range = c(7, 17) # in ms
+ket1_smoothed <- smooth(
+  ket1afterfilter,
+  rt_length_s = 3,
+  dt_length_ms = 0.14,
+  rt_order = 2,
+  dt_order = 2
 )
 ```
 
-Let's visualize sample 1 after cutting it:
 ```{r}
-gcims_view_sample(cut, 
-                  sample_num = 1, 
-                  rt_range = NULL, 
-                  dt_range = NULL, 
-                  transform = TRUE)
-```
-
-- Reshape samples
-
-There are occasions where all samples in a dataset do not have the same size. When this happens, an adjustment of the dimensions of samples is performed using `gcims_reshape_samples()`. Take into account that `gcims_cut_samples()` and `gcims_reshape_samples()` perform similar tasks. It can be the case that after cutting all samples (like in this examples) no further reshape is needed. Though, we include the reshape stage of data pre-processing workflow to exemplify how the function `gcims_reshape_samples()` works:
-
-```{r}
-gcims_reshape_samples(dir_in = cut,
-                      dir_out = reshaped,
-                      samples)
-```
-
-# Pre-processing
-
-GCIMS data usually suffers from noise, drift and retention time axes misalignment.  Data pre-processing corrects this non-idealities of data. Use the functions `gcims_prepare_data()`ans `gcims_align_data()` to solve these problems, respectively.
-
-- Prepare samples
-
-The function  `gcims_prepare_data()` performs the first set of data pre-processing steps: interpolation, digital filtering (Savitzky-Golay filters), and decimation, both in drift and retention time axes. The parameters needed for each function should be indicated by the user.
-
-```{r}
-alignment_data <- gcims_prepare_data(
-  dir_in = reshaped,
-  dir_out = prepared,
-  samples = 1:3,
-  params = list(
-    filter = list(
-      do = TRUE,
-      order_rt = 2,
-      length_rt = 19,
-      order_dt = 2,
-      length_dt = 19
-    ),
-    decimate = list(
-      do = TRUE,
-      factor_rt = 2,
-      factor_dt = 2
-    )
-  )
+cowplot::plot_grid(
+  plotRaw(ket1afterfilter, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plotRaw(ket1_smoothed, rt_range = c(0, 500), dt_range = c(6, 16)),
+  ncol = 2
 )
 ```
 
-The plot for samples' spectra at retention time rt_value = 90 s, after preparing data is:
-```{r}
-gcims_plot_spec(prepared,
-                samples = 1:3, 
-                rt_value = 90, 
-                dt_range = c(7.2,10),
-                colorby = "Name")
-```
 
-Similarly, the chromatoagrams of all samples at drift time dt_value = 11.1 ms is:
-```{r}
-gcims_plot_chrom(prepared, 
-                 samples = 1:3,
-                 dt_value = 11.1,
-                 rt_range =  NULL, 
-                 colorby = "Name")
-```
 
-- Align data
-
-Data is aligned in drift and retention time axes applying the function `gcims_align_data()`. The correction in drift time axis is multiplicative, that is, a multiplicative correction factor is computed for each of the samples so that the position of the Reactant Ion Peak (RIP) in spectra is the same across samples. The correction in retention time axis is achieved using the Parametric Time Warping (PTW) algorithm. 
+Or to the whole dataset (the default order is 2 for both axes):
 
 ```{r}
-alignment_info <- gcims_align_data(
-  dir_in = prepared, 
-  dir_out = aligned,
-  samples = 1:3,
-  alignment_data = alignment_data)
+dataset <- smooth(dataset, rt_length_s = 3, dt_length_ms = 0.14)
+realize(dataset)
 ```
 
-
-Let's show gcims after sample alignment. Compare the spectra of all samples at retention time rt_value = 90 s, before and after the alignment:
-```{r}
-gcims_plot_spec(aligned,
-                samples = 1:3,
-                rt_value = 90, 
-                dt_range = c(7.2,10), 
-                colorby = "Name")
-```
-
-In this case, is evident that sample 3 needed to be aligned and that the job was properly done by the function `gcims_align_data()`.
-We can do the same for the chromatograms of all samples at drift time dt_value = 11.1 ms:
-```{r}
-gcims_plot_chrom(aligned, 
-                 samples = 1:3,
-                 dt_value = 11.1, 
-                 rt_range =  NULL, 
-                 colorby = "Name")
-```
-The resulting chromatograms become aligned, as expected. After this pre-processing stage, regions with peaks in data will be detected. Since several peaks may be convoluted in these regions we will call them Regions Of Interest, or ROI for short.
+# Decimation
 
 
-# Feature Extraction
 
-Chemical information is GCIMS data is found in peaks. To characterize a sample, one must detect all their present peaks. Also, one must know the correspondence of these peaks across samples. These two tasks are carried out by the functions `gcims_select_rois()` and `group_peak_list()`, respectively. 
-
-- ROI detection
-
-The following piece of code shows how to detect all ROI in a dataset. Also, it shows in an image where these ROI are located in data. Each rectangle corresponds to a different ROI. ROI are colored by sample.
+One way to speed up calculations and reduce the memory requirements is to decimate
+the matrix, by taking 1 every Nd points in drift time and 1 every Nr points in retention time.
 
 ```{r}
-peak_list <- gcims_select_rois(dir_in = aligned,
-                                  dir_out = roispp, 
-                                  samples = 1:3,
-                                  noise_level = 3)
-head(peak_list)
-
-ggplot() +
-  geom_rect(
-    data = peak_list,
-    mapping = aes(
-      xmin = dt_min_ms, xmax = dt_max_ms, ymin = rt_min_s, ymax = rt_max_s,
-      color = SampleID,
-      fill = SampleID
-    ),
-    alpha = 0.5
-  )
+ket1_decimated <- decimate(ket1_smoothed, rt_factor = 1, dt_factor = 2)
 ```
-You can see that some ROI are common across samples, while other not.
-
-
-- ROI clustering
-
-We clustered the ROI of dataset using the kmedoids method and the scaled Euclidean distance. Please consult the documentation of function `group_peak_list()` to select other methods and distances. At the end of this process, an R object is obtained (a list):
 
 ```{r}
-peak_clustering <- group_peak_list(peak_list, 
-                                   distance_method = "sd_scaled_euclidean", 
-                                   clustering = list(method = "kmedoids", Nclusters = 13))
+ket1_spec_smoothed <- getIMS(ket1_smoothed, rt_range = 300, dt_range = c(7, 13))
+ket1_spec_decimated <- getIMS(ket1_decimated, rt_range = 300, dt_range = c(7, 13))
 ```
 
-From this list you can extract a peak list:
+```{r}
+cowplot::plot_grid(
+  plot(ket1_spec_smoothed) + labs(title = "Before decimation"),
+  plot(ket1_spec_decimated) + labs(title = "After decimation"),
+  ncol = 1
+)
+
+```
+
+
+Once you are satisfied with de decimation factor (if you want to apply it) just
+use it on the whole dataset:
+
+```{r}
+dataset <- decimate(dataset, rt_factor = 1, dt_factor = 2)
+```
+
+One alternative is to start with a higher decimation factor (lets say
+2 in retention time and 4 in drift time) and, after running the pipeline successfully,
+repeat it without decimation.
+
+
+
+
+# Alignment
+
+Pressure and temperature fluctuations as well as degradation of the chromatographic
+column are some of the causes of misalignments in the data, both in retention and
+drift time.
+
+In order to be able to compare samples to each other, we align the samples.
+
+The alignment will happen first in drift time and afterwards in retention time. To
+correct the drift time, we will use a multiplicative correction $t_d' = k  t_d$. The
+correction factor $k$ will be estimated using the RIP positions for each sample,
+extracted from the Total Ion Spectra. The correction factors are typically between
+0.9 and 1.1. The reference RIP position is the median of all the RIP positions to
+minimize the distortions.
+
+One of the checks to verify the alignment in drift time is not failing is by plotting
+the Total Ion Spectra of several samples before and after the alignment and see
+the effect of the correction.
+
+The retention time will be corrected using Parametric Time Warping, where
+$t_r' = P(t_r)$, and $P$ is a polynomial of typically not a high order (1-5). For
+efficiency reasons, the polynomial will be estimated using the Reverse Ion Chromatogram of
+the samples to be aligned.
+
+
+
+```{r}
+plotTIS(dataset, dt_range = c(7, 17))
+```
+
+```{r}
+plotRIC(dataset)
+```
+
+
+```{r alignment-starts-here}
+align(dataset)
+```
+
+```{r}
+realize(dataset)
+```
+
+```{r}
+plotTIS(dataset, dt_range = c(7, 17))
+```
+
+```{r}
+plotRIC(dataset)
+```
+
+
+
+```{r fig.height=8}
+align_plots <- alignPlots(dataset)
+cowplot::plot_grid(plotlist = align_plots, ncol = 1)
+```
+
+
+
+
+# Peaks
+
+
+First try one sample and optimize the `noise_level` parameter there. Change values
+from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too low
+peaks may appear broken into two regions or false detections may occur.
+
+```{r peak-detection-starts-here}
+ket1 <- getGCIMSSample(dataset, "Ketones1")
+ket1 <- findPeaks(
+  ket1,
+  noise_level = 3,
+  rt_length_s = 3,
+  dt_length_ms = 0.14,
+  verbose = TRUE,
+  iou_overlap_threshold = 0.2
+)
+peak_list_ket1 <- peaks(ket1)
+plt <- plotRaw(ket1)
+plt <- add_peaklist_rect(plt, peak_list_ket1, color_by = "PeakID")
+plt
+```
+
+
+
+Then do it on the whole dataset:
+
+```{r}
+findPeaks(
+  dataset,
+  noise_level = 3,
+  rt_length_s = 3,
+  dt_length_ms = 0.14,
+  iou_overlap_threshold = 0.2
+)
+peak_list <- peaks(dataset)
+```
+You can get any other sample if you like, plot it and plot its peaks on top:
+
+```{r}
+ket2 <- getGCIMSSample(dataset, "Ketones2")
+```
+
+
+```{r}
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peaks(ket2))
+plt + lims(x= c(7.5,15), y = c(0, 500))
+```
+
+
+
+Or plot all the peaks from all the dataset together, overlayed on a single sample:
+
+```{r}
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peaks(dataset), color_by = "SampleID")
+plt
+```
+
+# Clustering
+
+```{r clustering-section-starts-here}
+peak_clustering <- clusterPeaks(
+  peak_list,
+  distance_method = "sd_scaled_euclidean",
+  clustering = list(method = "kmedoids", Nclusters = 13)
+)
+```
+
+The peak list, with cluster ids can be plotted on top of a single sample:
 
 ```{r}
 peak_list_clustered <- peak_clustering$peak_list_clustered
 ```
 
-Also, some statistics of the clustering:
 
-```{r}
-peak_clustering$cluster_stats
+FIXME: We need a proper API to plot this with a user friendly interface, but we
+can easily see there is some trouble with the clustering as of today (I'm working on it).
+
+```{r fig.height=10, fig.width=10}
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "SampleID") + 
+  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
+  facet_wrap(~cluster, scales = "free")
+plt
 ```
 
-- Baseline Correction
+The resulting cluster sizes (median position of individual clusters) is not a good reference
+for integration. We are working on this.
 
-Each ROI is characterized by its volume and other figures of merit. To calculate properly the volume, one must first subtract the baseline of data, in both drift and retention time axes. This is done by the function `gcims_remove_baseline()`.
 ```{r}
-gcims_remove_baseline(
-  dir_in = roispp,
-  dir_out = bsln,
-  samples = 1:3,
-  peak_list_clustered
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(plt, peak_clustering$cluster_stats, color_by = "cluster")
+plt
+```
+
+# Baseline correction
+
+```{r baseline-section-starts-here}
+ket1 <- getGCIMSSample(dataset, "Ketones1")
+```
+
+
+```{r}
+one_ims_spec <- getIMS(ket1, rt_range = 97.11)
+```
+
+```{r}
+plot(one_ims_spec) + coord_cartesian(xlim = c(7, 12))
+```
+
+```{r}
+one_ims_spec <- estimateBaseline(one_ims_spec, dt_peak_fwhm_ms = 0.2, dt_region_multiplier = 12)
+to_plot <- data.frame(
+  drift_time_ms = dtime(one_ims_spec),
+  Intensity = intensity(one_ims_spec),
+  Baseline = baseline(one_ims_spec)
+)
+ggplot(to_plot) +
+  geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
+  geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+ggplot(to_plot) +
+  geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
+  geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
+  coord_cartesian(xlim = c(7, 10), ylim = c(0, 500)) +
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+```
+
+
+```{r}
+one_chrom <- getEIC(ket1, dt_range = 10.4)
+```
+
+```{r}
+one_chrom <- estimateBaseline(one_chrom, rt_length_s = 200)
+to_plot <- data.frame(
+  retention_time_s = rtime(one_chrom),
+  Intensity = intensity(one_chrom),
+  Baseline = baseline(one_chrom)
+)
+
+ggplot(to_plot) +
+  geom_line(aes(x = retention_time_s, y = Intensity), color = "red") +
+  geom_line(aes(x = retention_time_s, y = Baseline), color = "blue") +
+  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
+```
+
+You can also apply it to a single sample:
+
+```{r}
+ket1 <- estimateBaseline(
+  ket1,
+  dt_peak_fwhm_ms = 0.2, 
+  dt_region_multiplier = 12,
+  rt_length_s = 200
 )
 ```
 
-- Effect of Baseline removal
 
-The following plots show the images of sample 1, before and after baseline correction. A side effect of this correction is the destruction of Reactant Ion Peack Chromatogram along retention time axis.
 ```{r}
-gcims_view_sample(cut,
-                  sample_num = 1,
-                  rt_range = NULL, 
-                  dt_range = NULL, 
-                  transform = TRUE)
-gcims_view_sample(bsln,
-                  sample_num = 1,
-                  rt_range = NULL, 
-                  dt_range = NULL, 
-                  transform = TRUE)
+plotRaw(ket1)
 ```
-- ROI Merging
-
-It may happen that ROI belonging to the same cluster are detected more than once in the same sample. The function `gcims_merge_rois()` fuses the repeated ROI into one.
 
 ```{r}
-merging_res <- gcims_merge_rois(
-  peak_clustering$peak_list_clustered,
-  peak_clustering$cluster_stats
+plotRaw(ket1, remove_baseline = TRUE)
+```
+
+```{r}
+cowplot::plot_grid(
+  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16), remove_baseline = TRUE),
+  ncol = 2
 )
-
-ggplot() +
-  geom_rect(
-    data = dplyr::filter(merging_res$peak_list_clustered, cluster == "Cluster07"),
-    mapping = aes(
-      xmin=ref_roi_dt_min_idx,
-      xmax=ref_roi_dt_max_idx,
-      ymin=ref_roi_rt_min_idx,
-      ymax=ref_roi_rt_max_idx,
-      fill = SampleID,
-      color = SampleID
-    ),
-    alpha=0.5
-  ) +
-  labs(x = "Drift time (index)", "Retention time (index)", title = "Cluster07")
 ```
 
-Example: Observe that the number of  ROI corresponding cluster 7 equals the number of samples.
 
-- Figures of Merit (fom)
-
-The function of `gcims_compute_fom()` calculates several of figures of merit of ROI: area, volume, asymmetry and saturation. 
-It creates a ".csv" file with all ROI information.
+Or to the whole dataset:
 
 ```{r}
-peak_list_fom <- gcims_compute_fom(
-  dir_in = bsln,
-  dir_out = fom,
-  peak_list = merging_res$peak_list_clustered,
-  cluster_stats = merging_res$cluster_stats
+dataset <- estimateBaseline(
+  dataset,
+  dt_peak_fwhm_ms = 0.2, 
+  dt_region_multiplier = 12,
+  rt_length_s = 200
 )
-head(peak_list_fom)
+realize(dataset)
 ```
 
-- Build the peak table: 
 
-You can extract the volume of each sample across samples to create a peak table using the function `build_peak_table()`. This will be useful in case you want perform qualitative and quantitative analysis from these data.
+```{r fig.height=10, fig.width=10}
+plt <- plotRaw(ket2)
+plt <- add_peaklist_rect(
+  plt, 
+  dplyr::filter(peak_clustering$peak_list_clustered),
+  color_by = "SampleID",
+  col_prefix = "fixedsize_"
+) + 
+  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
+  facet_wrap(~cluster, scales = "free")
+plt
+```
+
+
+
+
+# Peak integration
 
 ```{r}
-peak_table <- build_peak_table(peak_list_fom,
-                               aggregate_conflicting_peaks = max)
+dataset <- integratePeaks(
+  dataset, 
+  peak_clustering$peak_list, 
+  integration_size_method = "fixed_size", 
+  rip_saturation_threshold = 0.1
+)
+```
+
+
+
+```{r}
+peak_list <- peaks(dataset)
+```
+
+
+# Build peak table
+
+```{r}
+peak_table <- peakTable(peak_list, aggregate_conflicting_peaks = max)
 peak_table$peak_table_matrix
 ```
 
-Note that the peak table obtained present missing values (NA) for clusters 12 and 13, in sample 1.
+# Imputation
 
-- Imput Missing Values: 
 
-To input missing values of the peak table, use the function `gcims_imputate_missing()`. It computes the volume in the region of the reference ROI for each cluster for each sample having a missing value for the cluster.
 ```{r}
-peak_table_imputed <- gcims_impute_missing(
-  peak_table = peak_table$peak_table_matrix,
-  dir_in = fom,
-  cluster_stats = merging_res$cluster_stats
-)
+peak_table_imputed <- imputePeakTable(peak_table$peak_table_matrix, dataset, peak_clustering$cluster_stats)
 peak_table_imputed
 ```
 
-
-# Session Info
-
 ```{r}
+# Implemented until here
 end_time <- Sys.time()
 message("The vignette ran in  ", format(end_time - start_time))
 ```
 
+
+# Session Info:
+
 ```{r}
 sessionInfo()
 ```
-
 
