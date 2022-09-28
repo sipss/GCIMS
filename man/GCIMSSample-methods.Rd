@@ -8,7 +8,7 @@
 \alias{subset.GCIMSSample}
 \alias{subset}
 \alias{getChromatogram,GCIMSSample-method}
-\alias{getIMS,GCIMSSample-method}
+\alias{getSpectrum,GCIMSSample-method}
 \alias{description,GCIMSSample-method}
 \alias{description<-,GCIMSSample,ANY-method}
 \alias{peaks,GCIMSSample-method}
@@ -29,7 +29,13 @@
   rt_idx = NULL
 )
 
-\S4method{getIMS}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL)
+\S4method{getSpectrum}{GCIMSSample}(
+  object,
+  dt_range = NULL,
+  rt_range = NULL,
+  dt_idx = NULL,
+  rt_idx = NULL
+)
 
 \S4method{description}{GCIMSSample}(object)
 
@@ -80,7 +86,7 @@ Methods for the GCIMSSample class
 
 \item \code{getChromatogram(GCIMSSample)}: Get the extracted ion chromatogram
 
-\item \code{getIMS(GCIMSSample)}: Get IMS spectrum
+\item \code{getSpectrum(GCIMSSample)}: Get IMS spectrum
 
 \item \code{description(GCIMSSample)}: Get the description
 
@@ -102,6 +108,12 @@ x <- GCIMSSample(
   data = matrix(1:6, nrow = 2, ncol = 3)
 )
 getChromatogram(x)
+x <- dummy_obj <-GCIMSSample(
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3)
+)
+getSpectrum(x, rt_idx = 2)
 }
 \seealso{
 \code{\link[base:subset]{base::subset()}}

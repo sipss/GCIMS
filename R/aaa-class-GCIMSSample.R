@@ -297,7 +297,14 @@ setMethod("getChromatogram", "GCIMSSample", function(object, dt_range = NULL, rt
 #' @inheritParams dt_rt_range_normalization
 #' @param object A GCIMSSample object
 #' @export
-setMethod("getIMS", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {
+#' @examples
+#' x <- dummy_obj <-GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3)
+#' )
+#' getSpectrum(x, rt_idx = 2)
+setMethod("getSpectrum", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {
   dt <- dtime(object)
   rt <- rtime(object)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
@@ -315,6 +322,4 @@ setMethod("getIMS", "GCIMSSample", function(object, dt_range = NULL, rt_range = 
     baseline = basel
   )
 })
-
-
 

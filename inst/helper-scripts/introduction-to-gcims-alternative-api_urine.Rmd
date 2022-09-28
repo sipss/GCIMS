@@ -184,7 +184,7 @@ to see how noise is removed and how peaks are not distorted. Tweak the filter le
 and, once you are happy, apply the smoothing filter to all the dataset.
 
 ```{r smoothing-starts-here}
-one_ims_spec <- getIMS(ket1afterfilter, rt_range = 97.11)
+one_ims_spec <- getSpectrum(ket1afterfilter, rt_range = 97.11)
 ```
 
 ```{r}
@@ -265,8 +265,8 @@ ket1_decimated <- decimate(ket1_smoothed, rt_factor = 1, dt_factor = 2)
 ```
 
 ```{r}
-ket1_spec_smoothed <- getIMS(ket1_smoothed, rt_range = 300, dt_range = c(7, 13))
-ket1_spec_decimated <- getIMS(ket1_decimated, rt_range = 300, dt_range = c(7, 13))
+ket1_spec_smoothed <- getSpectrum(ket1_smoothed, rt_range = 300, dt_range = c(7, 13))
+ket1_spec_decimated <- getSpectrum(ket1_decimated, rt_range = 300, dt_range = c(7, 13))
 ```
 
 ```{r}
@@ -607,7 +607,7 @@ ket1 <- getSample(dataset, "S246_Control_F")
 
 
 ```{r}
-one_ims_spec <- getIMS(ket1, rt_range = 97.11)
+one_ims_spec <- getSpectrum(ket1, rt_range = 97.11)
 ```
 
 ```{r}

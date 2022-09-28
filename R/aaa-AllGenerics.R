@@ -68,20 +68,28 @@ getEIC <- function(...) {
   getChromatogram(...)
 }
 
-#' @describeIn GCIMS-generics Get IMS scans
+#' @describeIn GCIMS-generics Get spectrums
 #'
 #' @return An ion mobility spectrum
-#' @param object An object that has IMS scans
+#' @param object An object that has spectra
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
-#' @examples
-#' x <- dummy_obj <-GCIMSSample(
-#'   drift_time = 1:2,
-#'   retention_time = 1:3,
-#'   data = matrix(1:6, nrow = 2, ncol = 3)
-#' )
-#' getIMS(x, rt_idx = 2)
-setGeneric("getIMS", function(object, ...) standardGeneric("getIMS"))
+setGeneric("getSpectrum", function(object, ...) standardGeneric("getSpectrum"))
+
+#' Deprecated function. Use getSpectrum() instead
+#' @param ... Arguments passed to [getSpectrum()]
+#' @export
+getIMS <- function(...) {
+  rlang::warn(c(
+    "Deprecation warning",
+    c("i" = "getIMS() is being renamed to getSpectrum()."),
+    c("i" = "Please use getSpectrum() instead")
+  ),
+  .frequency = "once",
+  .frequency_id = "getSpectrum-deprecation"
+  )
+  getSpectrum(...)
+}
 
 
 #' @describeIn GCIMS-generics Get a Sample

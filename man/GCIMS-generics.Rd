@@ -4,7 +4,7 @@
 \alias{GCIMS-generics}
 \alias{dtime}
 \alias{getChromatogram}
-\alias{getIMS}
+\alias{getSpectrum}
 \alias{getSample}
 \alias{getTIS}
 \alias{getRIC}
@@ -25,7 +25,7 @@ dtime(object, ...)
 
 getChromatogram(object, ...)
 
-getIMS(object, ...)
+getSpectrum(object, ...)
 
 getSample(object, ...)
 
@@ -113,7 +113,7 @@ to an existing generics-only package if you need so.
 
 \item \code{getChromatogram()}: Get chromatogram
 
-\item \code{getIMS()}: Get IMS scans
+\item \code{getSpectrum()}: Get spectrums
 
 \item \code{getSample()}: Get a Sample
 
@@ -152,10 +152,4 @@ x <- GCIMSSample(
 )
 dtime(x) # c(1,2)
 
-x <- dummy_obj <-GCIMSSample(
-  drift_time = 1:2,
-  retention_time = 1:3,
-  data = matrix(1:6, nrow = 2, ncol = 3)
-)
-getIMS(x, rt_idx = 2)
 }

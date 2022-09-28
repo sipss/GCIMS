@@ -327,7 +327,7 @@ function(input, output, session) {
   SG_dt_size<-reactive({value=input$SG_dt_size})
 
   #Get one intensity line
-  one_ims_spec <- reactive({value=getIMS(sampleafterfilter(), rt_range = clicked_rt())})
+  one_ims_spec <- reactive({value=getSpectrum(sampleafterfilter(), rt_range = clicked_rt())})
   one_ims_smoothed <- reactive({value=smooth(one_ims_spec(), dt_length_ms = SG_dt_size(), dt_order = strtoi(SG_dt_order()))})
 
   #Make button variable global
