@@ -32,24 +32,8 @@ setMethod(
     }
     minmax <- range(intmat)
 
-    cubic_root_trans <- scales::trans_new(
-      name = "cubic_root",
-      transform = function(x) sign(x)*abs(x)^(1/3),
-      inverse = function(x) sign(x)*abs(x)^3,
-      breaks = function(x, n = 5) {
-        x <- x[is.finite(x)]
-        if (length(x) == 0) {
-          return(numeric())
-        }
-        rng <- range(x)
-        rng <- sign(rng)*abs(rng)^(1/3)
-        out <- labeling::extended(rng[1], rng[2], n)
-        out <- sign(out)*abs(out)^3
-        out
-      }
-    )
-
-    intmat_trans <- cubic_root_trans$transform(intmat)
+    cubic_root <- cubic_root_trans()
+    intmat_trans <- cubic_root$transform(intmat)
     nr <- mat_to_nativeRaster(intmat_trans, COLORMAP_VIRIDIS_256_A_m1)
 
     # The geom_rect is fake and it is only used to force the fill legend to appear
@@ -78,7 +62,7 @@ setMethod(
         option = "A",
         limits = minmax,
         na.value = "#00000000",
-        trans = cubic_root_trans
+        trans = cubic_root
       ) +
       ggplot2::lims(
         x = c(idx$dt_ms_min, idx$dt_ms_max),
@@ -93,6 +77,35 @@ setMethod(
     gplt
   }
 )
+
+#' Cubic root transformation
+#'
+#' A scales transformation to be used with ggplot2.
+#'
+#' This function is exported because we are using it in vignettes, but it may
+#' become unavailable in future versions
+#'
+#' @return A scale transformation object of name "cubic_root"
+#'
+#' @export
+cubic_root_trans <- function() {
+  scales::trans_new(
+    name = "cubic_root",
+    transform = function(x) sign(x)*abs(x)^(1/3),
+    inverse = function(x) sign(x)*abs(x)^3,
+    breaks = function(x, n = 5) {
+      x <- x[is.finite(x)]
+      if (length(x) == 0) {
+        return(numeric())
+      }
+      rng <- range(x)
+      rng <- sign(rng)*abs(rng)^(1/3)
+      out <- labeling::extended(rng[1], rng[2], n)
+      out <- sign(out)*abs(out)^3
+      out
+    }
+  )
+}
 
 #' Tidy the raw data into a long data frame
 #'
