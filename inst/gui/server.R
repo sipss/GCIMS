@@ -210,7 +210,7 @@ function(input, output, session) {
       dataset<<-GCIMSDataset(annotations,
                              base_dir = raw_directory(),
                              scratch_dir = convert_directory())
-      getGCIMSSample(dataset, sample = annotations$SampleID[1])
+      getSample(dataset, sample = annotations$SampleID[1])
       print(dataset)
     }
   })#observeEvent
@@ -233,7 +233,7 @@ function(input, output, session) {
 
   #Load data to plot -----------------------------------------------------------
 
-  untreated_sample<-reactive({value=getGCIMSSample(dataset, sample = filestoplot_select())})
+  untreated_sample<-reactive({value=getSample(dataset, sample = filestoplot_select())})
   untreated_sample_intensity<-reactive({value=untreated_sample()@data})
   untreated_sample_dt<-reactive({value=untreated_sample()@drift_time})
   untreated_sample_rt<-reactive({value=untreated_sample()@retention_time})
@@ -291,7 +291,7 @@ function(input, output, session) {
   range_rt<-reactive({value=input$rt_reshape})
 
   #Initialization and make variables global
-  sampleafterfilter<-reactive({value=getGCIMSSample(dataset, sample = filestoplot_select())})
+  sampleafterfilter<-reactive({value=getSample(dataset, sample = filestoplot_select())})
   sampleafterfilter_intensity<-reactive({value=sampleafterfilter()@data})
   sampleafterfilter_dt<-reactive({value=sampleafterfilter()@drift_time})
   sampleafterfilter_rt<-reactive({value=sampleafterfilter()@retention_time})

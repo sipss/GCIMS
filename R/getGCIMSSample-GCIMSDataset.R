@@ -2,7 +2,7 @@
 #' @param sample Either an integer (sample index) or a string (sample name)
 #' @return The corresponding [GCIMSSample]
 setMethod(
-  "getGCIMSSample",
+  "getSample",
   "GCIMSDataset",
   function(object, sample) {
     object <- realize(object)

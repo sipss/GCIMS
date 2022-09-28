@@ -101,7 +101,7 @@ Explore one sample:
 
 
 ```{r}
-ket1 <- getGCIMSSample(dataset, sample = "S402_Cancer_M")
+ket1 <- getSample(dataset, sample = "S402_Cancer_M")
 ```
 
 ```{r}
@@ -165,7 +165,7 @@ dataset
 
 
 ```{r}
-ket1afterfilter <- getGCIMSSample(dataset, sample = "S402_Cancer_M")
+ket1afterfilter <- getSample(dataset, sample = "S402_Cancer_M")
 ket1afterfilter
 ```
 
@@ -369,7 +369,7 @@ from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too 
 peaks may appear broken into two regions or false detections may occur.
 
 ```{r peak-detection-starts-here}
-ket1 <- getGCIMSSample(dataset, "S402_Cancer_M")
+ket1 <- getSample(dataset, "S402_Cancer_M")
 ket1 <- findPeaks(
   ket1,
   noise_level = 3,
@@ -401,7 +401,7 @@ peak_list <- peaks(dataset)
 You can get any other sample if you like, plot it and plot its peaks on top:
 
 ```{r}
-ket2 <- getGCIMSSample(dataset, "S246_Control_F")
+ket2 <- getSample(dataset, "S246_Control_F")
 ```
 
 
@@ -602,7 +602,7 @@ plt + theme(legend.position ="none")
 # Baseline correction
 
 ```{r baseline-section-starts-here}
-ket1 <- getGCIMSSample(dataset, "S246_Control_F")
+ket1 <- getSample(dataset, "S246_Control_F")
 ```
 
 

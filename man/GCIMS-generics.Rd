@@ -5,7 +5,7 @@
 \alias{dtime}
 \alias{getEIC}
 \alias{getIMS}
-\alias{getGCIMSSample}
+\alias{getSample}
 \alias{getTIS}
 \alias{getRIC}
 \alias{plotRaw}
@@ -27,7 +27,7 @@ getEIC(object, ...)
 
 getIMS(object, ...)
 
-getGCIMSSample(object, ...)
+getSample(object, ...)
 
 getTIS(object, ...)
 
@@ -73,7 +73,7 @@ A numeric vector with the extracted ion chromatogram
 
 An ion mobility spectrum
 
-A \link{GCIMSSample} object
+A sample object
 
 The Total Ion Spectrum as a numeric vector or a matrix
 (depending if the object is one sample or several)
@@ -115,7 +115,7 @@ to an existing generics-only package if you need so.
 
 \item \code{getIMS()}: Get IMS scans
 
-\item \code{getGCIMSSample()}: Get a GCIMSSample
+\item \code{getSample()}: Get a Sample
 
 \item \code{getTIS()}: Get the Total Ion Spectrum
 

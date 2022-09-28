@@ -77,13 +77,29 @@ setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
 setGeneric("getIMS", function(object, ...) standardGeneric("getIMS"))
 
 
-#' @describeIn GCIMS-generics Get a GCIMSSample
+#' @describeIn GCIMS-generics Get a Sample
 #'
-#' @return A [GCIMSSample] object
-#' @param object An object where we can extract GCIMSSamples from
+#' @param object An object where we can extract samples from
 #' @param ... Further arguments, possibly used by downstream methods.
+#' @return A sample object
 #' @export
-setGeneric("getGCIMSSample", function(object, ...) standardGeneric("getGCIMSSample"))
+setGeneric("getSample", function(object, ...) standardGeneric("getSample"))
+
+
+#' Deprecated function. Use getSample() instead
+#' @param ... Arguments passed to [getSample()]
+#' @export
+getGCIMSSample <- function(...) {
+  rlang::warn(c(
+    "Deprecation warning",
+    c("i" = "getGCIMSSample() is being renamed to getSample()."),
+    c("i" = "Please use getSample() instead")
+    ),
+    .frequency = "once",
+    .frequency_id = "getGCIMSSample-deprecation"
+  )
+  getSample(...)
+}
 
 #' @describeIn GCIMS-generics Get the Total Ion Spectrum
 #'

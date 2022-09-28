@@ -6,7 +6,7 @@
 \name{GCIMSDataset-class}
 \alias{GCIMSDataset-class}
 \alias{GCIMSDataset}
-\alias{getGCIMSSample,GCIMSDataset-method}
+\alias{getSample,GCIMSDataset-method}
 \alias{getTIS,GCIMSDataset-method}
 \alias{plotRIC,GCIMSDataset-method}
 \alias{pData,GCIMSDataset-method}
@@ -23,7 +23,7 @@ GCIMSDataset(
   on_ram = FALSE
 )
 
-\S4method{getGCIMSSample}{GCIMSDataset}(object, sample)
+\S4method{getSample}{GCIMSDataset}(object, sample)
 
 \S4method{getTIS}{GCIMSDataset}(object)
 
@@ -76,7 +76,7 @@ needed, so the dataset object scales with large number of samples.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{getGCIMSSample(GCIMSDataset)}: class
+\item \code{getSample(GCIMSDataset)}: class
 
 \item \code{getTIS(GCIMSDataset)}: Get Total Ion Spectra matrix
 

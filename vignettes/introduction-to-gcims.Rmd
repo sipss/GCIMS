@@ -114,7 +114,7 @@ dataset
 Explore one sample:
 
 ```{r}
-ket1 <- getGCIMSSample(dataset, sample = "Ketones1")
+ket1 <- getSample(dataset, sample = "Ketones1")
 plotRaw(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 ```
 
@@ -161,7 +161,7 @@ dataset
 
 
 ```{r}
-ket1afterfilter <- getGCIMSSample(dataset, sample = "Ketones1")
+ket1afterfilter <- getSample(dataset, sample = "Ketones1")
 ket1afterfilter
 ```
 
@@ -358,7 +358,7 @@ from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too 
 peaks may appear broken into two regions or false detections may occur.
 
 ```{r peak-detection-starts-here}
-ket1 <- getGCIMSSample(dataset, "Ketones1")
+ket1 <- getSample(dataset, "Ketones1")
 ket1 <- findPeaks(
   ket1,
   noise_level = 3,
@@ -390,7 +390,7 @@ peak_list <- peaks(dataset)
 You can get any other sample if you like, plot it and plot its peaks on top:
 
 ```{r}
-ket2 <- getGCIMSSample(dataset, "Ketones2")
+ket2 <- getSample(dataset, "Ketones2")
 ```
 
 
@@ -450,7 +450,7 @@ plt
 # Baseline correction
 
 ```{r baseline-section-starts-here}
-ket1 <- getGCIMSSample(dataset, "Ketones1")
+ket1 <- getSample(dataset, "Ketones1")
 ```
 
 
