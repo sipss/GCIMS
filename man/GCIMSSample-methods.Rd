@@ -7,7 +7,7 @@
 \alias{dim.GCIMSSample}
 \alias{subset.GCIMSSample}
 \alias{subset}
-\alias{getEIC,GCIMSSample-method}
+\alias{getChromatogram,GCIMSSample-method}
 \alias{getIMS,GCIMSSample-method}
 \alias{description,GCIMSSample-method}
 \alias{description<-,GCIMSSample,ANY-method}
@@ -21,7 +21,13 @@
 
 \method{subset}{GCIMSSample}(x, dt_idx = NULL, rt_idx = NULL, dt_range = NULL, rt_range = NULL, ...)
 
-\S4method{getEIC}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL)
+\S4method{getChromatogram}{GCIMSSample}(
+  object,
+  dt_range = NULL,
+  rt_range = NULL,
+  dt_idx = NULL,
+  rt_idx = NULL
+)
 
 \S4method{getIMS}{GCIMSSample}(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL)
 
@@ -72,7 +78,7 @@ Methods for the GCIMSSample class
 
 \item \code{subset(GCIMSSample)}: Subset a \linkS4class{GCIMSSample} object
 
-\item \code{getEIC(GCIMSSample)}: Get the extracted ion chromatogram
+\item \code{getChromatogram(GCIMSSample)}: Get the extracted ion chromatogram
 
 \item \code{getIMS(GCIMSSample)}: Get IMS spectrum
 
@@ -90,6 +96,12 @@ Methods for the GCIMSSample class
 
 obj <- GCIMSSample(drift_time=1:2, retention_time=1:3, data = matrix(1:6, nrow=2, ncol=3))
 dim(obj)
+x <- GCIMSSample(
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3)
+)
+getChromatogram(x)
 }
 \seealso{
 \code{\link[base:subset]{base::subset()}}

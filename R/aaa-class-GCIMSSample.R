@@ -267,7 +267,14 @@ subset.GCIMSSample <- function(
 #' @describeIn GCIMSSample-methods Get the extracted ion chromatogram
 #' @inheritParams dt_rt_range_normalization
 #' @export
-setMethod("getEIC", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {
+#' @examples
+#' x <- GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3)
+#' )
+#' getChromatogram(x)
+setMethod("getChromatogram", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL) {
   dt <- dtime(object)
   rt <- rtime(object)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)

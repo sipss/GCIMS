@@ -44,22 +44,29 @@ NULL
 #'
 setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 
-#' @describeIn GCIMS-generics Get extracted ion chromatogram
+#' @describeIn GCIMS-generics Get chromatogram
 #'
-#' @return A numeric vector with the extracted ion chromatogram
+#' @return A chromatogram
 #'
-#' @param object An object that has ion chromatograms
+#' @param object An object with chromatograms
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @export
-#' @examples
-#' x <- GCIMSSample(
-#'   drift_time = 1:2,
-#'   retention_time = 1:3,
-#'   data = matrix(1:6, nrow = 2, ncol = 3)
-#' )
-#' getEIC(x) # c(`1` = 3, `2` = 7, `3` = 11)
-setGeneric("getEIC", function(object, ...) standardGeneric("getEIC"))
+setGeneric("getChromatogram", function(object, ...) standardGeneric("getChromatogram"))
 
+#' Deprecated function. Use getChromatogram() instead
+#' @param ... Arguments passed to [getChromatogram()]
+#' @export
+getEIC <- function(...) {
+  rlang::warn(c(
+    "Deprecation warning",
+    c("i" = "getEIC() is being renamed to getChromatogram()."),
+    c("i" = "Please use getChromatogram() instead")
+  ),
+  .frequency = "once",
+  .frequency_id = "getEIC-deprecation"
+  )
+  getChromatogram(...)
+}
 
 #' @describeIn GCIMS-generics Get IMS scans
 #'

@@ -205,7 +205,7 @@ ggplot(to_plot) +
 ```
 
 ```{r}
-one_chrom <- getEIC(ket1afterfilter, dt_range = 10.4)
+one_chrom <- getChromatogram(ket1afterfilter, dt_range = 10.4)
 ```
 
 ```{r}
@@ -634,7 +634,7 @@ ggplot(to_plot) +
 
 
 ```{r}
-one_chrom <- getEIC(ket1, dt_range = 10.4)
+one_chrom <- getChromatogram(ket1, dt_range = 10.4)
 ```
 
 ```{r}

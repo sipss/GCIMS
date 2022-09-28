@@ -343,7 +343,7 @@ function(input, output, session) {
   SG_rt_size<-reactive({value=input$SG_rt_size})
 
   #Get one intensity column
-  one_chrom <- reactive({value=getEIC(sampleafterfilter(), dt_range = clicked_dt())})
+  one_chrom <- reactive({value=getChromatogram(sampleafterfilter(), dt_range = clicked_dt())})
   one_chrom_smoothed <- reactive({value=smooth(one_chrom(), rt_length_s = SG_rt_size(), rt_order = strtoi(SG_rt_order()))})
 
   #Make button variable global

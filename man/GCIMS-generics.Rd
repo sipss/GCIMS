@@ -3,7 +3,7 @@
 \name{GCIMS-generics}
 \alias{GCIMS-generics}
 \alias{dtime}
-\alias{getEIC}
+\alias{getChromatogram}
 \alias{getIMS}
 \alias{getSample}
 \alias{getTIS}
@@ -23,7 +23,7 @@
 \usage{
 dtime(object, ...)
 
-getEIC(object, ...)
+getChromatogram(object, ...)
 
 getIMS(object, ...)
 
@@ -69,7 +69,7 @@ integratePeaks(object, ...)
 \value{
 A numeric vector with the drift time
 
-A numeric vector with the extracted ion chromatogram
+A chromatogram
 
 An ion mobility spectrum
 
@@ -111,7 +111,7 @@ to an existing generics-only package if you need so.
 \itemize{
 \item \code{dtime()}: Get drift time vector
 
-\item \code{getEIC()}: Get extracted ion chromatogram
+\item \code{getChromatogram()}: Get chromatogram
 
 \item \code{getIMS()}: Get IMS scans
 
@@ -152,12 +152,6 @@ x <- GCIMSSample(
 )
 dtime(x) # c(1,2)
 
-x <- GCIMSSample(
-  drift_time = 1:2,
-  retention_time = 1:3,
-  data = matrix(1:6, nrow = 2, ncol = 3)
-)
-getEIC(x) # c(`1` = 3, `2` = 7, `3` = 11)
 x <- dummy_obj <-GCIMSSample(
   drift_time = 1:2,
   retention_time = 1:3,
