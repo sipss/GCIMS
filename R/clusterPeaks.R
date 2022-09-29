@@ -144,19 +144,34 @@ peak_and_cluster_metrics <- function(peaks) {
     )
 
   cluster_stats <- peaks %>%
+    dplyr::mutate(
+      dt_apex_to_min_ms = .data$dt_apex_ms - .data$dt_min_ms,
+      dt_apex_to_max_ms = .data$dt_max_ms - .data$dt_apex_ms,
+      rt_apex_to_min_s = .data$rt_apex_s - .data$rt_min_s,
+      rt_apex_to_max_s = .data$rt_max_s - .data$rt_apex_s
+    ) %>%
     dplyr::group_by(.data$cluster) %>%
     dplyr::summarise(
       dplyr::across(
         dplyr::all_of(
           c(
-            "dt_apex_ms", "dt_min_ms", "dt_max_ms", "dt_cm_ms", "dt_length_ms",
-            "rt_apex_s", "rt_min_s", "rt_max_s", "rt_cm_s", "rt_length_s"
+            "dt_apex_ms", "rt_apex_s",
+            "dt_apex_to_min_ms", "dt_apex_to_max_ms",
+            "rt_apex_to_min_s", "rt_apex_to_max_s"
           )
         ),
         stats::median
       )
     ) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::mutate(
+      dt_min_ms = .data$dt_apex_ms - .data$dt_apex_to_min_ms,
+      dt_max_ms = .data$dt_apex_ms + .data$dt_apex_to_max_ms,
+      dt_length_ms = .data$dt_max_ms - .data$dt_min_ms,
+      rt_min_s = .data$rt_apex_s - .data$rt_apex_to_min_s,
+      rt_max_s = .data$rt_apex_s + .data$rt_apex_to_max_s,
+      rt_length_s = .data$rt_max_s - .data$rt_min_s
+    )
 
   cluster_sizes <- cluster_stats %>%
     dplyr::select(dplyr::all_of(c("cluster", "dt_length_ms", "rt_length_s")))
