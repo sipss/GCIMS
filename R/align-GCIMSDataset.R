@@ -71,6 +71,27 @@ setMethod(
   ds
 }
 
+#' Find the  best retention time reference chromatogram.
+#' @noRd
+#'
+#' @description This function provides the index corresponding to the reference Reactant Ion Chromatogram (RIC) to correct
+#' misalignments in retention time.
+#' @param rics A matrix. Each row correspond to a different RIC. There are as many RICs as samples.
+#' @return  An Integer number that indicates the reference sample.
+#' @examples
+#' rics <- rbind(
+#'   dnorm(1:100, mean=50, sd =1),
+#'   dnorm(1:100, mean=51, sd =1),
+#'   dnorm(1:100, mean=52, sd =1)
+#' )
+#' find_reference_ric(rics) == 2L
+find_reference_ric <- function(rics){
+  ref_ric_sample_idx <- ptw::bestref(rics)$best.ref
+  return(ref_ric_sample_idx)
+}
+
+
+
 alignParams <- function(dt, rt, tis_matrix, ric_matrix) {
   # Optimize ret time alignment parameters:
   ref_ric_sample_idx <- find_reference_ric(ric_matrix)

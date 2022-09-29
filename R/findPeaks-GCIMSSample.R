@@ -2,7 +2,7 @@
 #' @param object A [GCIMSSample] object
 #' @param dt_length_ms Length (in ms) used in the Savitzky-Golay filter to compute the second derivative with respect to drift time.
 #' @param rt_length_s Length (in s) used in the Savitzky-Golay filter to compute the second derivative with respect to retention time.
-#' @inheritParams peak_detection
+#' @inheritParams findPeaksImpl
 #' @return The modified [GCIMSSample], with a peak list
 #' @export
 setMethod(
@@ -14,7 +14,7 @@ setMethod(
     int_mat <- intensity(object)
     dt_length_pts <- units_to_points(dt_length_ms, dt[2] - dt[1], must_odd = TRUE)
     rt_length_pts <- units_to_points(rt_length_s, rt[2] - rt[1], must_odd = TRUE)
-    peak_list <- peak_detection(
+    peak_list <- findPeaksImpl(
       drift_time = dt,
       retention_time = rt,
       int_mat = int_mat,

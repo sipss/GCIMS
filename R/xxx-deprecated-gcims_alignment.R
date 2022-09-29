@@ -137,27 +137,6 @@ gcims_align_dt <- function(aux_list, Kcorr) {
 
 # RETENTION TIME
 
-#  Find the  best retention time reference chromatogram.
-#
-#  @description This function provides the index corresponding to the reference Reactant Ion Chromatogram (RIC) to correct
-#  misalignments in retention time.
-#  @param rics            A matrix. Each row correspond to a different RIC. There are as many RICs as samples.
-#  @importFrom ptw bestref
-#  @return  An Integer number that indicates the reference sample.
-#  @export
-#  @examples
-#  rics <- rbind(
-#    dnorm(1:100, mean=50, sd =1),
-#    dnorm(1:100, mean=51, sd =1),
-#    dnorm(1:100, mean=52, sd =1)
-#  )
-#  find_reference_ric(rics) == 2L
-#
-find_reference_ric <- function(rics){
-  ref_ric_sample_idx <- ptw::bestref(rics)$best.ref
-  return(ref_ric_sample_idx)
-}
-
 
 #  This function finds the optimal polynomial degree to apply ptw to GMIMS data
 #  when correcting retention time axis. The figure of merit is the mean of the

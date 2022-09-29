@@ -1,7 +1,4 @@
-
 #' Data preparation
-
-
 #' @param dir_in           Input directory. Where input data files are loaded
 #'   from.
 #' @param dir_out          Output directory. Where prepared data files are

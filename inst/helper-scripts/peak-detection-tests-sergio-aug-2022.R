@@ -18,7 +18,7 @@ dt_length_pts <- GCIMS:::units_to_points(length_phys = 0.14, step_phys = dt[2] -
 rt_length_pts <- GCIMS:::units_to_points(length_phys = 3, step_phys = rt[2] - rt[1], must_odd = TRUE)
 
 
-peak_list_ket1 <- peak_detection(
+peak_list_ket1 <- findPeaksImpl(
     drift_time = dt,
     retention_time = rt,
     int_mat = int_mat,
@@ -172,4 +172,4 @@ peak_list <- rois_to_peaklist(
   retention_time = rt
 )
 
-GCIMS:::add_peaklist_rect(gplt, peak_list)
+add_peaklist_rect(gplt, peak_list)
