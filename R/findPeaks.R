@@ -441,7 +441,9 @@ rois_to_peaklist <- function(ROIs, roi_center_of_mass, drift_time, retention_tim
 #' @param iou_overlap_threshold A number, between 0 and 1. Regions of interest b
 findPeaksImpl <- function(
     drift_time, retention_time, int_mat,
-    noise_level, verbose = FALSE, dt_length_pts = 11, rt_length_pts = 21,
+    noise_level,
+    verbose = FALSE,
+    dt_length_pts = 11, rt_length_pts = 21,
     iou_overlap_threshold = 0.2) {
 
     if (anyNA(retention_time)) {
@@ -470,6 +472,7 @@ findPeaksImpl <- function(
     )
     drt <- -deriv2$drt
     ddt <- -deriv2$ddt
+    rm(deriv2)
 
     # Region without peaks: PROBAR CON ORINA
     # p1 <- hist(daux)
