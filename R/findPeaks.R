@@ -376,13 +376,15 @@ compute_center_of_mass <- function(ROIs, int_mat) {
 }
 
 
-rois_to_peaklist <- function(ROIs, roi_center_of_mass, drift_time, retention_time, int_mat) {
+rois_to_peaklist <- function(ROIs, roi_center_of_mass, drift_time, retention_time, int_mat, ddt, drt) {
   fmt <- paste0("%0", nchar(as.character(nrow(ROIs))), "d")
   peak_list <- tibble::tibble(
     PeakID = sprintf(fmt, seq_len(nrow(ROIs))),
     dt_apex_ms = NA_real_,
     rt_apex_s = NA_real_,
     int_apex_au = apply(ROIs, 1L, function(ROI) int_mat[ROI["dt_idx_apex"], ROI["rt_idx_apex"]]),
+    ddt_apex_au = apply(ROIs, 1L, function(ROI) ddt[ROI["dt_idx_apex"], ROI["rt_idx_apex"]]),
+    drt_apex_au = apply(ROIs, 1L, function(ROI) drt[ROI["dt_idx_apex"], ROI["rt_idx_apex"]]),
     dt_min_ms = NA_real_,
     dt_max_ms = NA_real_,
     rt_min_s = NA_real_,
@@ -529,7 +531,9 @@ findPeaksImpl <- function(
       roi_center_of_mass = roi_center_of_mass,
       drift_time = drift_time,
       retention_time = retention_time,
-      int_mat = int_mat
+      int_mat = int_mat,
+      ddt = ddt,
+      drt = drt
     )
     peak_list
 }
