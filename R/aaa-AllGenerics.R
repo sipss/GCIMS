@@ -53,21 +53,6 @@ setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 #' @export
 setGeneric("getChromatogram", function(object, ...) standardGeneric("getChromatogram"))
 
-#' Deprecated function. Use getChromatogram() instead
-#' @param ... Arguments passed to [getChromatogram()]
-#' @export
-getEIC <- function(...) {
-  rlang::warn(c(
-    "Deprecation warning",
-    c("i" = "getEIC() is being renamed to getChromatogram()."),
-    c("i" = "Please use getChromatogram() instead")
-  ),
-  .frequency = "once",
-  .frequency_id = "getEIC-deprecation"
-  )
-  getChromatogram(...)
-}
-
 #' @describeIn GCIMS-generics Get spectrums
 #'
 #' @return An ion mobility spectrum
@@ -76,22 +61,6 @@ getEIC <- function(...) {
 #' @export
 setGeneric("getSpectrum", function(object, ...) standardGeneric("getSpectrum"))
 
-#' Deprecated function. Use getSpectrum() instead
-#' @param ... Arguments passed to [getSpectrum()]
-#' @export
-getIMS <- function(...) {
-  rlang::warn(c(
-    "Deprecation warning",
-    c("i" = "getIMS() is being renamed to getSpectrum()."),
-    c("i" = "Please use getSpectrum() instead")
-  ),
-  .frequency = "once",
-  .frequency_id = "getSpectrum-deprecation"
-  )
-  getSpectrum(...)
-}
-
-
 #' @describeIn GCIMS-generics Get a Sample
 #'
 #' @param object An object where we can extract samples from
@@ -99,22 +68,6 @@ getIMS <- function(...) {
 #' @return A sample object
 #' @export
 setGeneric("getSample", function(object, ...) standardGeneric("getSample"))
-
-
-#' Deprecated function. Use getSample() instead
-#' @param ... Arguments passed to [getSample()]
-#' @export
-getGCIMSSample <- function(...) {
-  rlang::warn(c(
-    "Deprecation warning",
-    c("i" = "getGCIMSSample() is being renamed to getSample()."),
-    c("i" = "Please use getSample() instead")
-    ),
-    .frequency = "once",
-    .frequency_id = "getGCIMSSample-deprecation"
-  )
-  getSample(...)
-}
 
 #' @describeIn GCIMS-generics Get the Total Ion Spectrum
 #'
