@@ -30,53 +30,75 @@ setMethod(
       basel <- baseline(object)[idx$dt_logical, idx$rt_logical]
       intmat <- intmat - basel
     }
-    minmax <- range(intmat)
-
-    cubic_root <- cubic_root_trans()
-    intmat_trans <- cubic_root$transform(intmat)
-    nr <- mat_to_nativeRaster(intmat_trans, COLORMAP_VIRIDIS_256_A_m1)
-
-    # The geom_rect is fake and it is only used to force the fill legend to appear
-    # The geom_rect  limits are used to help set the plot limits
-    # The geom_rect data, that contains the limits as well, is there because ggplotly
-    # raises a javascript error otherwise: "Uncaught Error: Something went wrong with axis scaling"
-    # in setScale (bug not yet reported to plotly)
-    gplt <- ggplot2::ggplot() +
-      ggplot2::geom_rect(
-        xmin = idx$dt_ms_min, xmax = idx$dt_ms_min,
-        ymin = idx$rt_s_min, ymax = idx$rt_s_min,
-        ggplot2::aes(fill = .data$x),
-        data = data.frame(
-          x = NA_real_,
-          dt_ms_min = idx$dt_ms_min, dt_ms_max = idx$dt_ms_max,
-          rt_s_min = idx$rt_s_min, rt_s_max = idx$rt_s_max
-        )
-      ) +
-      ggplot2::annotation_raster(
-        nr,
-        xmin = idx$dt_ms_min, xmax = idx$dt_ms_max,
-        ymin = idx$rt_s_min, ymax = idx$rt_s_max
-      ) +
-      ggplot2::scale_fill_viridis_c( # This has to match with the COLORMAP above
-        direction = -1,
-        option = "A",
-        limits = minmax,
-        na.value = "#00000000",
-        trans = cubic_root
-      ) +
-      ggplot2::lims(
-        x = c(idx$dt_ms_min, idx$dt_ms_max),
-        y = c(idx$rt_s_min, idx$rt_s_max)
-      ) +
-      ggplot2::labs(
-        x = "Drift time (ms)",
-        y = "Retention time (s)",
-        fill = "Intensity (a.u.)"
-      ) +
-      ggplot2::theme_minimal()
-    gplt
+    mat_to_gplot(
+      intmat,
+      dt_min = idx$dt_ms_min,
+      dt_max = idx$dt_ms_max,
+      rt_min = idx$rt_s_min,
+      rt_max = idx$rt_s_max
+    )
   }
 )
+
+mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL) {
+  if (is.null(dt_min)) {
+    dt_min <- as.numeric(rownames(intmat)[1L])
+  }
+  if (is.null(dt_max)) {
+    dt_max <- as.numeric(rownames(intmat)[nrow(intmat)])
+  }
+  if (is.null(rt_min)) {
+    rt_min <- as.numeric(colnames(intmat)[1L])
+  }
+  if (is.null(rt_max)) {
+    rt_max <- as.numeric(colnames(intmat)[ncol(intmat)])
+  }
+  minmax <- range(intmat)
+
+  cubic_root <- cubic_root_trans()
+  intmat_trans <- cubic_root$transform(intmat)
+  nr <- mat_to_nativeRaster(intmat_trans, COLORMAP_VIRIDIS_256_A_m1)
+
+  # The geom_rect is fake and it is only used to force the fill legend to appear
+  # The geom_rect  limits are used to help set the plot limits
+  # The geom_rect data, that contains the limits as well, is there because ggplotly
+  # raises a javascript error otherwise: "Uncaught Error: Something went wrong with axis scaling"
+  # in setScale (bug not yet reported to plotly)
+  gplt <- ggplot2::ggplot() +
+    ggplot2::geom_rect(
+      xmin = dt_min, xmax = dt_min,
+      ymin = rt_min, ymax = rt_min,
+      ggplot2::aes(fill = .data$x),
+      data = data.frame(
+        x = NA_real_,
+        dt_ms_min = dt_min, dt_ms_max = dt_max,
+        rt_s_min = rt_min, rt_s_max = rt_max
+      )
+    ) +
+    ggplot2::annotation_raster(
+      nr,
+      xmin = dt_min, xmax = dt_max,
+      ymin = rt_min, ymax = rt_max
+    ) +
+    ggplot2::scale_fill_viridis_c( # This has to match with the COLORMAP above
+      direction = -1,
+      option = "A",
+      limits = minmax,
+      na.value = "#00000000",
+      trans = cubic_root
+    ) +
+    ggplot2::lims(
+      x = c(dt_min, dt_max),
+      y = c(rt_min, rt_max)
+    ) +
+    ggplot2::labs(
+      x = "Drift time (ms)",
+      y = "Retention time (s)",
+      fill = "Intensity (a.u.)"
+    ) +
+    ggplot2::theme_minimal()
+  gplt
+}
 
 #' Cubic root transformation
 #'
