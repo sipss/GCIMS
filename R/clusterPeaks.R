@@ -173,19 +173,29 @@ peak_and_cluster_metrics <- function(peaks) {
       rt_length_s = .data$rt_max_s - .data$rt_min_s
     )
 
-  cluster_sizes <- cluster_stats %>%
-    dplyr::select(dplyr::all_of(c("cluster", "dt_length_ms", "rt_length_s")))
-
-  peaks <- peaks %>%
-    dplyr::select(-dplyr::all_of(c("dt_length_ms", "rt_length_s"))) %>%
-    dplyr::left_join(cluster_sizes, by = "cluster") %>%
-    dplyr::mutate(
-      fixedsize_dt_min_ms = .data$dt_center_ms - .data$dt_length_ms/2,
-      fixedsize_dt_max_ms = .data$dt_center_ms + .data$dt_length_ms/2,
-      fixedsize_rt_min_s = .data$rt_center_s - .data$rt_length_s/2,
-      fixedsize_rt_max_s = .data$rt_center_s + .data$rt_length_s/2,
+  peaks_fixed_size <- dplyr::left_join(
+      dplyr::select(
+        peaks,
+        dplyr::all_of(c("UniqueID", "cluster", "dt_apex_ms", "rt_apex_s"))
+      ),
+      dplyr::select(
+        cluster_stats,
+        dplyr::all_of(c("cluster", "dt_apex_to_min_ms", "dt_apex_to_max_ms", "rt_apex_to_min_s", "rt_apex_to_max_s"))
+      ),
+      by = "cluster"
     ) %>%
-    dplyr::select(-dplyr::all_of(c("dt_length_ms", "rt_length_s")))
+    dplyr::mutate(
+      fixedsize_dt_min_ms = .data$dt_apex_ms + .data$dt_apex_to_min_ms,
+      fixedsize_dt_max_ms = .data$dt_apex_ms + .data$dt_apex_to_max_ms,
+      fixedsize_rt_min_s = .data$rt_apex_s + .data$rt_apex_to_min_s,
+      fixedsize_rt_max_s = .data$rt_apex_s + .data$rt_apex_to_max_s,
+    ) %>%
+    dplyr::select(dplyr::all_of(c("UniqueID", "fixedsize_dt_min_ms", "fixedsize_dt_max_ms", "fixedsize_rt_min_s", "fixedsize_rt_max_s")))
+  peaks <- dplyr::left_join(
+    peaks,
+    peaks_fixed_size,
+    by = "UniqueID"
+  )
   list(peaks = peaks, cluster_stats = cluster_stats)
 }
 
