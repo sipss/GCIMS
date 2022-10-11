@@ -69,3 +69,49 @@ peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
     peak_table_duplicity = peak_table_duplicity
   )
 }
+
+
+#' Omit ROIs present in certain retention and drift times
+#'
+#' @description Extract the volume of each ROI across samples to create a peak table.
+#'
+#' @param peak_list The output of [peaks()]. Also, you can create your own peak table
+#' and use it as input value for `peak_list`
+#' @param rt_time_2_omit A vector including a set of retention times where ROIs detected
+#' should not be considered. As default is is set as `NULL`
+#' @param dt_time_2_omit A vector including a set of drift times where ROIs detected
+#' should not be considered. As default is is set as `NULL`
+#'
+#' @return A `peak_list` without the ROIs present in the retention and drift times
+#' not desired.
+#'
+#' @export
+#' @examples
+#' \donttest{
+#' tt <- omit_times(x = peak_list, rt_time_2_omit = sample(peak_list$rt_apex_s, 40),
+#' dt_time_2_omit = sample(peak_list$dt_apex_ms, 10))
+#' tt
+#'
+omit_times <- function(peak_list, rt_time_2_omit = NULL, dt_time_2_omit = NULL){
+  peak_list_2 <- peak_list
+  if(is.null(rt_time_2_omit) == FALSE){
+    for (i in c(1:length(rt_time_2_omit))) {
+      rt_omit <- rt_time_2_omit[i]
+      roi_2_omit <- which(peak_list_2$rt_apex_s == rt_omit)
+      if(length(roi_2_omit) >= 1){
+        peak_list_2 <- peak_list_2[-roi_2_omit, ]
+      }
+    }
+  }
+  if(is.null(dt_time_2_omit) == FALSE){
+    for (j in c(1:length(dt_time_2_omit))) {
+      dt_omit <- dt_time_2_omit[j]
+      roi_2_omit <- which(peak_list_2$dt_apex_ms == dt_omit)
+      if(length(roi_2_omit) >= 1){
+        peak_list_2 <- peak_list_2[-roi_2_omit, ]
+      }
+    }
+  }
+  peak_list <- peak_list_2
+  peak_list
+}
