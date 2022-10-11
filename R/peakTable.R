@@ -87,10 +87,13 @@ peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
 #'
 #' @export
 #' @examples
-#' \donttest{
-#' tt <- omit_times(x = peak_list, rt_time_2_omit = sample(peak_list$rt_apex_s, 40),
-#' dt_time_2_omit = sample(peak_list$dt_apex_ms, 10))
-#' tt
+#'
+#' peak_list <- data.frame(
+#'   rt_apex_s =  c(1, 2, 3, 3, 4, 4,  5, 5, 6, 6),
+#'   dt_apex_ms = c(2, 4, 6, 4, 8, 4, 10, 4, 4, 12)
+#' )
+#' peak_list_filt <- omit_times(peak_list, dt_time_2_omit = 4)
+#'
 #'
 omit_times <- function(peak_list, rt_time_2_omit = NULL, dt_time_2_omit = NULL){
   keep_roi <- rep(TRUE, nrow(peak_list))
