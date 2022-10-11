@@ -168,8 +168,13 @@ alignPlots <- function(object) {
     ggplot2::geom_line(ggplot2::aes(x = .data$drift_time_ms, y = .data$correction_ms, group = .data$SampleID, color = .data$SampleID)) +
     ggplot2::labs(x = "Drift time (ms)", y = "Drift time correction (ms)", color = "SampleID")
 
-  dt_kcorr_plot <- ggplot2::qplot(x = names(object@envir$align$dt_kcorr), y = object@envir$align$dt_kcorr, geom = "col") +
-    labs(x = "SampleID", y = "Multiplicative factor (drift time correction, unitless)") +
+  dt_kcorr_plot <- ggplot2::ggplot(
+    data.frame(
+      x = names(object@envir$align$dt_kcorr),
+      y = object@envir$align$dt_kcorr
+    )
+  ) + ggplot2::geom_col(ggplot2::aes(x = .data$x, y = .data$y)) +
+    ggplot2::labs(x = "SampleID", y = "Multiplicative factor (drift time correction, unitless)") +
     ggplot2::coord_flip()
 
 

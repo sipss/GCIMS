@@ -77,7 +77,7 @@ as.data.frame.GCIMSChromatogram <- function(x, ...) {
 
 #' @export
 plot.GCIMSChromatogram <- function(x, ...) {
-  dt_ms <- x@drift_time_ms
+  dt_ms <- dtime(x)
   if (length(dt_ms) == 1) {
     subtitle <- glue("Drift time {dt_ms} ms")
   } else if (length(dt_ms) >= 2) {
@@ -85,9 +85,14 @@ plot.GCIMSChromatogram <- function(x, ...) {
   } else {
     subtitle <- NULL
   }
-  ggplot2::qplot(x = rtime(x), y = intensity(x), geom = "line") +
+  ggplot2::ggplot(
+    data.frame(
+      x = rtime(x),
+      y = intensity(x)
+    )
+  ) + ggplot2::geom_line(ggplot2::aes(x = .data$x, y = .data$y)) +
     ggplot2::labs(
-      title = x@description,
+      title = description(x),
       subtitle = subtitle
     )
 }

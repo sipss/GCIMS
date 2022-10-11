@@ -1,6 +1,6 @@
 #' @export
 plot.GCIMSSpectrum <- function(x, ...) {
-  rts <- x@retention_time_s
+  rts <- rtime(x)
   if (length(rts) == 1) {
     subtitle <- glue("Retention time {rts} s")
   } else if (length(rts) >= 2) {
@@ -8,7 +8,13 @@ plot.GCIMSSpectrum <- function(x, ...) {
   } else {
     subtitle <- NULL
   }
-  ggplot2::qplot(x = dtime(x), y = intensity(x), geom = "line") +
+
+  ggplot2::ggplot(
+    data.frame(
+      x = dtime(x),
+      y = intensity(x)
+    )
+  ) + ggplot2::geom_line(ggplot2::aes(x = .data$x, y = .data$y)) +
     ggplot2::labs(
       title = description(x),
       subtitle = subtitle,
