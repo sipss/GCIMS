@@ -95,7 +95,7 @@ peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
 omit_times <- function(peak_list, rt_time_2_omit = NULL, dt_time_2_omit = NULL){
   peak_list_2 <- peak_list
   if(is.null(rt_time_2_omit) == FALSE){
-    for (i in c(1:length(rt_time_2_omit))) {
+    for (i in seq_along(rt_time_2_omit)) {
       rt_omit <- rt_time_2_omit[i]
       roi_2_omit <- which(peak_list_2$rt_apex_s == rt_omit)
       if(length(roi_2_omit) >= 1){
@@ -104,7 +104,7 @@ omit_times <- function(peak_list, rt_time_2_omit = NULL, dt_time_2_omit = NULL){
     }
   }
   if(is.null(dt_time_2_omit) == FALSE){
-    for (j in c(1:length(dt_time_2_omit))) {
+    for (j in seq_along(dt_time_2_omit)) {
       dt_omit <- dt_time_2_omit[j]
       roi_2_omit <- which(peak_list_2$dt_apex_ms == dt_omit)
       if(length(roi_2_omit) >= 1){
