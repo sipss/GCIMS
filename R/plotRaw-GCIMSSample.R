@@ -134,14 +134,14 @@ cubic_root_trans <- function() {
   )
 }
 
-#' Tidy the raw data into a long data frame
+#' Turn the intensity matrix into a data frame
 #'
 #' @param x A [GCIMSSample] object
 #' @inheritParams intensity,GCIMSSample-method
 #' @param ... unused
 #' @return A data frame with `dt_ms`, `rt_s` and `Intensity` columns
 #' @export
-tidy.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, ...) {
+as.data.frame.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, ...) {
   intmat <- intensity(x, dt_range = dt_range, rt_range = rt_range, rt_idx = rt_idx, dt_idx = dt_idx)
   intens_long <- reshape2::melt(intmat, value.name = "Intensity")
   intens_long

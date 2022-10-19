@@ -219,10 +219,6 @@ setGeneric("rtime", getGeneric("rtime", package = "ProtGenerics"))
 #' @export
 setGeneric("smooth", getGeneric("smooth", package = "ProtGenerics"))
 
-#' @importFrom generics tidy
-#' @export
-generics::tidy
-
 
 # FIXME: Ask the xcms maintainer to move the findPeaks generic to ProtGenerics
 #        Redefining creates a conflict between packages, but reusing the generic
