@@ -53,11 +53,11 @@ clusterPeaks <- function(
 
   # Set distances from pairs of peaks belonging to the same sample to Inf,
   # so they are never in the same cluster
-  peakuids_by_sample <- peaks %>%
-    dplyr::select(dplyr::all_of(c("SampleID", "UniqueID"))) %>%
-    dplyr::group_by(.data$SampleID) %>%
-    dplyr::summarize(UniqueIDs = list(.data$UniqueID)) %>%
-    dplyr::ungroup() %>%
+  peakuids_by_sample <- peaks |>
+    dplyr::select(dplyr::all_of(c("SampleID", "UniqueID"))) |>
+    dplyr::group_by(.data$SampleID) |>
+    dplyr::summarize(UniqueIDs = list(.data$UniqueID)) |>
+    dplyr::ungroup() |>
     dplyr::pull(.data$UniqueIDs)
 
   peak2peak_dist <- set_peak_distances_within_groups(
@@ -135,7 +135,7 @@ clusterPeaks <- function(
 
 
 peak_and_cluster_metrics <- function(peaks) {
-  peaks <- peaks %>%
+  peaks <- peaks |>
     dplyr::mutate(
       dt_length_ms = .data$dt_max_ms - .data$rt_min_s,
       rt_length_s = .data$rt_max_s - .data$rt_min_s,
@@ -143,14 +143,14 @@ peak_and_cluster_metrics <- function(peaks) {
       rt_center_s = (.data$rt_max_s + .data$rt_min_s)/2,
     )
 
-  cluster_stats <- peaks %>%
+  cluster_stats <- peaks |>
     dplyr::mutate(
       dt_apex_to_min_ms = .data$dt_apex_ms - .data$dt_min_ms,
       dt_apex_to_max_ms = .data$dt_max_ms - .data$dt_apex_ms,
       rt_apex_to_min_s = .data$rt_apex_s - .data$rt_min_s,
       rt_apex_to_max_s = .data$rt_max_s - .data$rt_apex_s
-    ) %>%
-    dplyr::group_by(.data$cluster) %>%
+    ) |>
+    dplyr::group_by(.data$cluster) |>
     dplyr::summarise(
       dplyr::across(
         dplyr::all_of(
@@ -162,8 +162,8 @@ peak_and_cluster_metrics <- function(peaks) {
         ),
         stats::median
       )
-    ) %>%
-    dplyr::ungroup() %>%
+    ) |>
+    dplyr::ungroup() |>
     dplyr::mutate(
       dt_min_ms = .data$dt_apex_ms - .data$dt_apex_to_min_ms,
       dt_max_ms = .data$dt_apex_ms + .data$dt_apex_to_max_ms,
@@ -183,13 +183,13 @@ peak_and_cluster_metrics <- function(peaks) {
         dplyr::all_of(c("cluster", "dt_apex_to_min_ms", "dt_apex_to_max_ms", "rt_apex_to_min_s", "rt_apex_to_max_s"))
       ),
       by = "cluster"
-    ) %>%
+    ) |>
     dplyr::mutate(
       fixedsize_dt_min_ms = .data$dt_apex_ms + .data$dt_apex_to_min_ms,
       fixedsize_dt_max_ms = .data$dt_apex_ms + .data$dt_apex_to_max_ms,
       fixedsize_rt_min_s = .data$rt_apex_s + .data$rt_apex_to_min_s,
       fixedsize_rt_max_s = .data$rt_apex_s + .data$rt_apex_to_max_s,
-    ) %>%
+    ) |>
     dplyr::select(dplyr::all_of(c("UniqueID", "fixedsize_dt_min_ms", "fixedsize_dt_max_ms", "fixedsize_rt_min_s", "fixedsize_rt_max_s")))
   peaks <- dplyr::left_join(
     peaks,
@@ -217,8 +217,8 @@ get_max_dist_ppb_for_num_clusters <- function(num_clusters, peak_list, cluster, 
   limiting_threshold <- "none"
   for (i in seq_len(ncol(peak_assignments))) {
     peak_list$cluster <- peak_assignments[,i]
-    max_distances <- peak_list %>%
-      dplyr::group_by(.data$cluster)  %>%
+    max_distances <- peak_list |>
+      dplyr::group_by(.data$cluster)  |>
       dplyr::summarize(
         dt_max_dist_ms = max(.data$dt_apex_ms) - min(.data$dt_apex_ms),
         rt_max_dist_s = max(.data$rt_apex_s) - min(.data$rt_apex_s),
@@ -257,9 +257,9 @@ get_max_dist_ppb_for_num_clusters <- function(num_clusters, peak_list, cluster, 
 }
 
 estimate_num_clusters <- function(peak_list, cluster, dt_ms_max_dist_thres, rt_s_max_dist_thres) {
-  peaks_per_sample <- peak_list %>%
-    dplyr::group_by(.data$SampleID) %>%
-    dplyr::summarize(n = dplyr::n()) %>%
+  peaks_per_sample <- peak_list |>
+    dplyr::group_by(.data$SampleID) |>
+    dplyr::summarize(n = dplyr::n()) |>
     dplyr::pull("n")
   min_clusters_to_test <- max(peaks_per_sample)
   max_clusters_to_test <- sum(peaks_per_sample)
@@ -288,17 +288,17 @@ estimate_num_clusters <- function(peak_list, cluster, dt_ms_max_dist_thres, rt_s
   )
   clust_dist2 <- get_max_dist_ppb_for_num_clusters(num_clusters_fine, peak_list, cluster, dt_ms_max_dist_thres = NULL, rt_s_max_dist_thres = NULL)
   # Combine:
-  num_clusters_vs_max_distance <- dplyr::bind_rows(clust_dist, clust_dist2$clust_dist) %>%
-    dplyr::arrange(num_clusters) %>%
+  num_clusters_vs_max_distance <- dplyr::bind_rows(clust_dist, clust_dist2$clust_dist) |>
+    dplyr::arrange(num_clusters) |>
     dplyr::distinct()
-  dt_num_clusters <- num_clusters_vs_max_distance %>%
-    dplyr::filter(.data$dt_ms_max_dist < !!dt_ms_max_dist_thres) %>%
+  dt_num_clusters <- num_clusters_vs_max_distance |>
+    dplyr::filter(.data$dt_ms_max_dist < !!dt_ms_max_dist_thres) |>
     dplyr::pull("num_clusters")
-  rt_num_clusters <- num_clusters_vs_max_distance %>%
-    dplyr::filter(.data$rt_s_max_dist < !!rt_s_max_dist_thres) %>%
+  rt_num_clusters <- num_clusters_vs_max_distance |>
+    dplyr::filter(.data$rt_s_max_dist < !!rt_s_max_dist_thres) |>
     dplyr::pull("num_clusters")
-  num_clusters <- num_clusters_vs_max_distance %>%
-    dplyr::filter(.data$dt_ms_max_dist < !!dt_ms_max_dist_thres, .data$rt_s_max_dist < !!rt_s_max_dist_thres) %>%
+  num_clusters <- num_clusters_vs_max_distance |>
+    dplyr::filter(.data$dt_ms_max_dist < !!dt_ms_max_dist_thres, .data$rt_s_max_dist < !!rt_s_max_dist_thres) |>
     dplyr::pull("num_clusters")
   dt_gplt <- ggplot2::ggplot() +
     ggplot2::geom_point(

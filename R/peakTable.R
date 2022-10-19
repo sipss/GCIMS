@@ -36,26 +36,26 @@ peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
     abort("Please compute a 'Volume' column in peak_list_clustered")
   }
 
-  peak_table_duplicity <- peak_list_clustered %>%
-    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) %>%
+  peak_table_duplicity <- peak_list_clustered |>
+    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) |>
     tidyr::pivot_wider(
       names_from = dplyr::all_of("SampleID"),
       values_from = dplyr::all_of("Volume"),
       values_fn = length
     )
 
-  peak_table <- peak_list_clustered %>%
-    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) %>%
+  peak_table <- peak_list_clustered |>
+    dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) |>
     tidyr::pivot_wider(
       names_from = dplyr::all_of("SampleID"),
       values_from = dplyr::all_of("Volume"),
       values_fn = aggregate_conflicting_peaks
     )
 
-  peak_table_mat <- peak_table %>%
-    tidyr::pivot_longer(cols = -1, names_to = "SampleID", values_to = "Volume") %>%
-    tidyr::pivot_wider(names_from = "cluster", values_from = "Volume") %>%
-    tibble::column_to_rownames("SampleID") %>%
+  peak_table_mat <- peak_table |>
+    tidyr::pivot_longer(cols = -1, names_to = "SampleID", values_to = "Volume") |>
+    tidyr::pivot_wider(names_from = "cluster", values_from = "Volume") |>
+    tibble::column_to_rownames("SampleID") |>
     as.matrix()
 
 
