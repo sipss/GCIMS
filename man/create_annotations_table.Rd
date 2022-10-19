@@ -68,5 +68,5 @@ annotations <- create_annotations_table(samples_dir, glob = "*.mea.gz")
 # And then you can use:
 #    annotations <- readxl::read_excel("annotations.xlsx")
 # For csv just use:
-#    annotations <- readr::read_csv("annotations.csv")
+#    annotations <- read.csv("annotations.csv")
 }
