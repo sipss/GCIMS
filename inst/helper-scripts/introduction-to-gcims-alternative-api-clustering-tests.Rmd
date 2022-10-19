@@ -342,7 +342,7 @@ plotRIC(dataset)
 
 ```{r fig.height=8}
 align_plots <- alignPlots(dataset)
-cowplot::plot_grid(plotlist = align_plots, ncol = 1)
+cowplot::plot_grid(plotlist = align_plots, ncol = 2)
 ```
 
 
@@ -368,7 +368,372 @@ ket1 <- findPeaks(
 peak_list_ket1 <- peaks(ket1)
 plt <- plotRaw(ket1)
 plt <- add_peaklist_rect(plt, peak_list_ket1, color_by = "PeakID")
+plt + guides(color = "none")
+```
+
+
+```{r}
+# 1. Data load
+int_mat <- intensity(ket1)
+spec_length <- nrow(int_mat)
+num_spec <- ncol(int_mat)
+
+# Compute the 2nd derivative for both axes
+deriv2 <- GCIMS:::compute_second_deriv(
+  int_mat,
+  dt_length_pts = 11L,
+  rt_length_pts = 21L,
+  dt_order = 2L,
+  rt_order = 2L
+)
+drt <- -deriv2$drt
+ddt <- -deriv2$ddt
+rm(deriv2)
+```
+
+```{r}
+GCIMS:::mat_to_gplot(
+  drt,
+  dt_min = dtime(ket1)[1],
+  dt_max = dtime(ket1)[nrow(drt)],
+  rt_min = rtime(ket1)[1],
+  rt_max = rtime(ket1)[ncol(drt)]
+)
+```
+
+```{r}
+GCIMS:::mat_to_gplot(
+  ddt,
+  dt_min = dtime(ket1)[1],
+  dt_max = dtime(ket1)[nrow(ddt)],
+  rt_min = rtime(ket1)[1],
+  rt_max = rtime(ket1)[ncol(ddt)]
+)
+```
+
+# 1460, 175
+```{r}
+region10 <- GCIMS:::find_region_without_peaks(int_mat, half_min_size = c(10, 10), noise_quantile = 0.25)
+sigmaNoise_drt <- stats::sd(drt[region10$row_min:region10$row_max, region10$col_min:region10$col_max])
+sigmaNoise_ddt <- stats::sd(ddt[region10$row_min:region10$row_max, region10$col_min:region10$col_max])
+print(sigmaNoise_drt)
+print(sigmaNoise_ddt)
+
+```
+
+```{r}
+region50 <- GCIMS:::find_region_without_peaks(int_mat, half_min_size = c(50, 50), noise_quantile = 0.25)
+sigmaNoise_drt <- stats::sd(drt[region50$row_min:region50$row_max, region50$col_min:region50$col_max])
+sigmaNoise_ddt <- stats::sd(ddt[region50$row_min:region50$row_max, region50$col_min:region50$col_max])
+print(sigmaNoise_drt)
+print(sigmaNoise_ddt)
+
+```
+
+
+```{r}
+MassSpecWavelet::peakDetectionCWT(ddt[,250], scales = c(1, 32,64))$majorPeakInfo$peakIndex
+```
+
+
+```{r}
+plot(dtime(ket1), ddt[,30], type = "l")
+```
+
+```{r}
+prof <- profvis::profvis({
+  start <- Sys.time()
+  
+  prep_wav <- MassSpecWavelet::prepareWavelets(ncol(drt), scales = c(1, 32, 48, 64))
+  peaks_and_zeros_drt <- purrr::map_dfr(seq_len(nrow(drt)), function(dt_idx) {
+    peak_idx <- unname(MassSpecWavelet::peakDetectionCWT(ms = drt[dt_idx,], prep_wav, exclude0scaleAmpThresh = TRUE)$majorPeakInfo$peakIndex)
+    zero_idx <- GCIMS:::findZeroCrossings(drt[dt_idx,])
+    if (length(peak_idx) == 0 || length(zero_idx) == 0) {
+      return(
+        tibble::tibble(
+          dt_idx_apex = integer(0L),
+          rt_idx_apex = integer(0L),
+          is_rt_peak = logical(0L),
+          rt_idx_min = integer(0L),
+          rt_idx_max = integer(0L)
+        )
+      )
+    }
+    out <- tibble::tibble(
+      dt_idx_apex = rep(dt_idx, length(peak_idx)),
+      rt_idx_apex = peak_idx,
+      rt_idx_min = NA_integer_,
+      rt_idx_max = NA_integer_
+    )
+    zero_idx2 <- 1L
+    for (i in seq_len(nrow(out))) {
+      if (out$rt_idx_apex[i] <= zero_idx[1L]) {
+        next
+      }
+      while (out$rt_idx_apex[i] >= zero_idx[zero_idx2]) {
+        zero_idx2 <- zero_idx2 + 1L
+      }
+      if (zero_idx2 > length(zero_idx)) {
+        break
+      }
+      out$rt_idx_min[i] <- zero_idx[zero_idx2 - 1L]
+      out$rt_idx_max[i] <- zero_idx[zero_idx2]
+    }
+    out <- dplyr::filter(out, !is.na(.data$rt_idx_min))
+    out <- out[, c("dt_idx_apex", "rt_idx_apex", "rt_idx_min", "rt_idx_max")]
+    out
+  })
+  
+  prep_wav <- MassSpecWavelet::prepareWavelets(nrow(ddt), scales = c(1, 32, 48, 64))
+  peaks_and_zeros_ddt <- purrr::map_dfr(seq_len(ncol(ddt)), function(rt_idx) {
+    peak_idx <- unname(MassSpecWavelet::peakDetectionCWT(ms = ddt[,rt_idx], prep_wav, exclude0scaleAmpThresh = TRUE)$majorPeakInfo$peakIndex)
+    zero_idx <- GCIMS:::findZeroCrossings(ddt[,rt_idx])
+    if (length(peak_idx) == 0 || length(zero_idx) == 0) {
+      return(
+        tibble::tibble(
+          dt_idx_apex = integer(0L),
+          rt_idx_apex = integer(0L),
+          dt_idx_min = integer(0L),
+          dt_idx_max = integer(0L)
+        )
+      )
+    }
+    out <- tibble::tibble(
+      dt_idx_apex = peak_idx,
+      rt_idx_apex = rep(rt_idx, length(peak_idx)),
+      dt_idx_min = NA_integer_,
+      dt_idx_max = NA_integer_
+    )
+    zero_idx2 <- 1L
+    for (i in seq_len(nrow(out))) {
+      if (out$dt_idx_apex[i] <= zero_idx[1L]) {
+        next
+      }
+      while (out$dt_idx_apex[i] >= zero_idx[zero_idx2]) {
+        zero_idx2 <- zero_idx2 + 1L
+      }
+      if (zero_idx2 > length(zero_idx)) {
+        break
+      }
+      out$dt_idx_min[i] <- zero_idx[zero_idx2 - 1L]
+      out$dt_idx_max[i] <- zero_idx[zero_idx2]
+    }
+    out <- dplyr::filter(out, !is.na(.data$dt_idx_min))
+    out <- out[, c("dt_idx_apex", "rt_idx_apex", "dt_idx_min", "dt_idx_max")]
+    out
+  })
+  
+  
+  ROIs <- dplyr::inner_join(
+    peaks_and_zeros_drt,
+    peaks_and_zeros_ddt,
+    by = c("dt_idx_apex", "rt_idx_apex")
+  )
+  ROIs <- ROIs[, c("dt_idx_min", "dt_idx_max", "rt_idx_min", "rt_idx_max", "dt_idx_apex", "rt_idx_apex"), drop = FALSE]
+  
+  spent <- Sys.time() - start
+  print(spent)
+})
+
+```
+
+```{r}
+overlapPercentage <- function(ROI1, ROI2){
+  if (
+    ROI1$dt_idx_min >= ROI2$dt_idx_max ||
+    ROI1$dt_idx_max <= ROI2$dt_idx_min ||
+    ROI1$rt_idx_min >= ROI2$rt_idx_max ||
+    ROI1$rt_idx_max <= ROI2$rt_idx_min) {
+    return(0.0)
+  }
+  area1 <- (ROI1$dt_idx_max - ROI1$dt_idx_min)*(ROI1$rt_idx_max - ROI1$rt_idx_min)
+  area2 <- (ROI2$dt_idx_max - ROI2$dt_idx_min)*(ROI2$rt_idx_max - ROI2$rt_idx_min)
+  x_left <- max(ROI1$dt_idx_min, ROI2$dt_idx_min)
+  y_top <- min(ROI1$rt_idx_max, ROI2$rt_idx_max)
+  x_right <- min(ROI1$dt_idx_max, ROI2$dt_idx_max)
+  y_bottom <- max(ROI1$rt_idx_min, ROI2$rt_idx_min)
+  overlapping_area <- (x_right - x_left)*(y_top - y_bottom)
+  p <- overlapping_area / (area1 + area2 - overlapping_area)
+  return(p)
+}
+merge_overlapping_rois <- function(ROIs, int_mat, iou_overlap_threshold) {
+  if (iou_overlap_threshold > 1) {
+    return(ROIs)
+  }
+
+  if (nrow(ROIs) >= 1) {
+    aff <- seq_len(nrow(ROIs))
+
+    done <- NULL
+    for (j in seq_len(nrow(ROIs) - 1L)) {
+      done <- c(done, j)
+      R1 <- as.list(ROIs[j, ])
+      for (k in seq.int(from = j + 1L, to = nrow(ROIs))) {
+        R2 <- as.list(ROIs[k, ])
+        if (aff[k] != j) {
+          if (abs(overlapPercentage(R1, R2)) > iou_overlap_threshold) {
+            aff[aff == k] <- j
+          }
+        }
+      }
+    }
+  }
+
+
+  labels <- unique(aff)
+  ROIs_overlap <- tibble::tibble(
+    dt_idx_min = integer(length(labels)),
+    dt_idx_max = integer(length(labels)),
+    rt_idx_min = integer(length(labels)),
+    rt_idx_max = integer(length(labels)),
+    dt_idx_apex = integer(length(labels)),
+    rt_idx_apex = integer(length(labels))
+  )
+
+  for (n in seq_along(labels)) {
+    idx <- which(aff == labels[n])
+    R1 <- as.list(ROIs[idx[1], ])
+    if (length(idx) > 1) {
+      for (m in 2:length(idx)) {
+        R2 <- as.list(ROIs[idx[m], ])
+        r1_int_apex <- int_mat[R1$dt_idx_apex, R1$rt_idx_apex]
+        r2_int_apex <- int_mat[R2$dt_idx_apex, R2$rt_idx_apex]
+        if (r1_int_apex >= r2_int_apex) {
+          dt_idx_apex <- R1$dt_idx_apex
+          rt_idx_apex <- R1$rt_idx_apex
+        } else {
+          dt_idx_apex <- R2$dt_idx_apex
+          rt_idx_apex <- R2$rt_idx_apex
+        }
+
+        R1 <- list(
+          dt_idx_min = min(R1$dt_idx_min, R2$dt_idx_min),
+          dt_idx_max = max(R1$dt_idx_max, R2$dt_idx_max),
+          rt_idx_min = min(R1$rt_idx_min, R2$rt_idx_min),
+          rt_idx_max = max(R1$rt_idx_max, R2$rt_idx_max),
+          dt_idx_apex = dt_idx_apex,
+          rt_idx_apex = rt_idx_apex
+        )
+      }
+    }
+    ROIs_overlap$dt_idx_min[n] <- R1$dt_idx_min
+    ROIs_overlap$dt_idx_max[n] <- R1$dt_idx_max
+    ROIs_overlap$rt_idx_min[n] <- R1$rt_idx_min
+    ROIs_overlap$rt_idx_max[n] <- R1$rt_idx_max
+    ROIs_overlap$dt_idx_apex[n] <- R1$dt_idx_apex
+    ROIs_overlap$rt_idx_apex[n] <- R1$rt_idx_apex
+  }
+  return(ROIs_overlap)
+}
+
+```
+
+
+```{r}
+compute_center_of_mass <- function(ROIs, int_mat) {
+  ROIs$dt_cm_idx <- NA_integer_
+  ROIs$rt_cm_idx <- NA_integer_
+  for (i in seq_len(nrow(ROIs))) {
+    patch <- int_mat[
+      ROIs$dt_idx_min[i]:ROIs$dt_idx_max[i],
+      ROIs$rt_idx_min[i]:ROIs$rt_idx_max[i],
+      drop = FALSE
+    ]
+
+    # roi center of mass
+    v <- rowSums(patch)
+    dt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + ROIs$dt_idx_min[i]  - 1L
+    v <- colSums(patch)
+    rt_cm1 <- (sum(v * seq_along(v)) / sum(v)) + ROIs$rt_idx_min[i] - 1L
+    ROIs$rt_cm_idx[i] <- round(rt_cm1)
+    ROIs$dt_cm_idx[i] <- round(dt_cm1)
+  }
+  ROIs
+}
+```
+
+```{r}
+rois_to_peaklist <- function(ROIs, drift_time, retention_time, int_mat, ddt, drt) {
+  fmt <- paste0("%0", nchar(as.character(nrow(ROIs))), "d")
+  peak_list <- tibble::tibble(
+    PeakID = sprintf(fmt, seq_len(nrow(ROIs))),
+    dt_apex_ms = NA_real_,
+    rt_apex_s = NA_real_,
+    int_apex_au = purrr::map_dbl(
+      seq_len(nrow(ROIs)), 
+      function(j) {
+        int_mat[ROIs$dt_idx_apex[j], ROIs$rt_idx_apex[j]]
+      }
+    ),
+    ddt_apex_au = purrr::map_dbl(
+      seq_len(nrow(ROIs)), 
+      function(j) {
+        ddt[ROIs$dt_idx_apex[j], ROIs$rt_idx_apex[j]]
+      }
+    ),
+    drt_apex_au = purrr::map_dbl(
+      seq_len(nrow(ROIs)), 
+      function(j) {
+        drt[ROIs$dt_idx_apex[j], ROIs$rt_idx_apex[j]]
+      }
+    ),
+    dt_min_ms = NA_real_,
+    dt_max_ms = NA_real_,
+    rt_min_s = NA_real_,
+    rt_max_s = NA_real_,
+    dt_cm_ms = NA_real_,
+    rt_cm_s = NA_real_,
+    dt_apex_idx = ROIs$dt_idx_apex,
+    rt_apex_idx = ROIs$rt_idx_apex,
+    dt_min_idx = ROIs$dt_idx_min,
+    dt_max_idx = ROIs$dt_idx_max,
+    rt_min_idx = ROIs$rt_idx_min,
+    rt_max_idx = ROIs$rt_idx_max,
+    dt_cm_idx = ROIs$dt_cm_idx,
+    rt_cm_idx = ROIs$rt_cm_idx
+  )
+  peak_list <- dplyr::mutate(
+    peak_list,
+    dt_apex_ms = .env$drift_time[.data$dt_apex_idx],
+    rt_apex_s = .env$retention_time[.data$rt_apex_idx],
+    dt_min_ms = .env$drift_time[.data$dt_min_idx],
+    dt_max_ms = .env$drift_time[.data$dt_max_idx],
+    rt_min_s = .env$retention_time[.data$rt_min_idx],
+    rt_max_s = .env$retention_time[.data$rt_max_idx],
+    dt_cm_ms = .env$drift_time[.data$dt_cm_idx],
+    rt_cm_s = .env$retention_time[.data$rt_cm_idx]
+  )
+  peak_list
+}
+```
+
+
+
+```{r}
+ROIs_overlap <- merge_overlapping_rois(ROIs, int_mat, iou_overlap_threshold = 0.2)
+# Compute ROI's center of mass:
+ROIs_overlap_cm <- compute_center_of_mass(ROIs = ROIs_overlap, int_mat = int_mat)
+# Convert into a data frame / peak list:
+peak_list <- rois_to_peaklist(
+  ROIs = ROIs_overlap_cm,
+  drift_time = dtime(ket1),
+  retention_time = rtime(ket1),
+  int_mat = int_mat,
+  ddt = ddt,
+  drt = drt
+)
+
+```
+
+
+```{r}
+plt <- plotRaw(ket1)
+plt <- add_peaklist_rect(plt, peak_list)
 plt
+```
+
+```{r}
+
 ```
 
 

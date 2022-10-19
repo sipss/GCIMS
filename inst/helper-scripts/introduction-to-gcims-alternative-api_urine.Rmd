@@ -1,5 +1,5 @@
 ---
-title: "Introduction to GCIMS, Alternative API"
+title: "Introduction to GCIMS"
 output:
   "BiocStyle::pdf_document":
     df_print: "kable"
@@ -14,7 +14,7 @@ abstract: >
   of interest (ROIs), clustering of ROIs across samples, peak integration and
   building a peak table.
 vignette: >
-  %\VignetteIndexEntry{Introduction to GCIMS, Alternative API}
+  %\VignetteIndexEntry{Introduction to GCIMS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
