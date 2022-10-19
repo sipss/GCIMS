@@ -41,6 +41,7 @@ setMethod(
 )
 
 mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL) {
+  require_pkgs(c("farver", "viridisLite"))
   if (is.null(dt_min)) {
     dt_min <- as.numeric(rownames(intmat)[1L])
   }
@@ -57,7 +58,10 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
 
   cubic_root <- cubic_root_trans()
   intmat_trans <- cubic_root$transform(intmat)
-  nr <- mat_to_nativeRaster(intmat_trans, COLORMAP_VIRIDIS_256_A_m1)
+  colormap <- farver::encode_native(
+    viridisLite::viridis(256L, direction = -1, option = "A")
+  )
+  nr <- mat_to_nativeRaster(intmat_trans, colormap)
 
   # The geom_rect is fake and it is only used to force the fill legend to appear
   # The geom_rect  limits are used to help set the plot limits
@@ -111,6 +115,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
 #'
 #' @export
 cubic_root_trans <- function() {
+  require_pkgs(c("scales", "labeling"))
   scales::trans_new(
     name = "cubic_root",
     transform = function(x) sign(x)*abs(x)^(1/3),
