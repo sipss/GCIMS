@@ -738,6 +738,78 @@ plt
 
 
 
+# ¿Qué estrategias hay?
+
+## Referencia
+
+- Celia usando el VOCal crea una peak table
+
+
+## Para hacer clustering
+
+
+
+## Para medir que el clustering funciona
+
+
+
+
+- Luis propone filtrar la lista de picos por intensidad
+
+
+# Listar problemas por severidad
+
+
+# Al respecto de la presencia de picos de contaminación tenemos los blancos.
+
+
+
+# Como sabemos si un pico/roi es bueno?
+
+-
+
+# Como sabemos si un cluster es bueno?
+
+- Tamaño de los clusters
+- Numero de picos de la misma muestra en un cluster
+- Picos fuera de la ROI del cluster
+- ROI consenso: Coordenadas medianas
+
+
+- ROIs que contienen al pico
+- Centroide del cluster
+
+
+
+- Dentro de cluster hay picos fuera del roi consenso (outlier):
+
+
+  * [SI] sigmanoise por derivada parcial
+  * [SI] ROI consenso: Mediana de la distancia del apice al borde
+    para tener un tamaño mediano...
+  * Criterio para el numero de clusters es:
+  * Métrica del tamaño de la region
+    del cluster. (max-min) * (max-min) o IQR * IQR
+    percentil-95.
+  * El tamaño de la dispersión de los apices que pertenecen a un cluster deberia
+    ser menor al tamaño del roi consenso en ambas direcciones.
+  * Porcentaje de missing data en funcion de N.
+
+
+
+    + Coherencia entre clusters Jaccard.
+    + Silouhette plot.
+    + Densidad de cuantas muestras haya en cada cluster.
+    + Complementariedad de clusters para detectar clusters que se han partidoh
+
+  * iou < 0.2
+
+  * peak_apex > 2consensusrois de distancia
+
+ * Cuartear el plano dt x rt.
+
+
+
 Then do it on the whole dataset:
 
 ```{r}
