@@ -80,9 +80,8 @@ with your samples and their annotations. Please name the first column `SampleID`
 and the second column `Filename`. We will use those annotations in plots.
 
 
-
 ```{r message=FALSE}
-annotations <- readr::read_csv(file.path(samples_directory, "annotations.csv"))
+annotations <- read.csv(file.path(samples_directory, "annotations.csv"))
 annotations
 ```
 
