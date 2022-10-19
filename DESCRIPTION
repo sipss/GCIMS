@@ -87,21 +87,17 @@ Imports:
     tibble,
     tidyr (>= 1.1.2),
     utils (>= 4.0.2),
-    viridis (>= 0.5.1),
+    viridisLite,
     yaml
 Suggests:
-    chemometrics(>= 1.4.2),
     cowplot,
     curl,
-    dbscan(>= 1.1-5),
     httr,
     testthat (>= 3.0.0),
     BiocStyle,
     knitr,
-    multiway,
     progress,
     rmarkdown,
-    R.matlab (>= 3.6.2),
     shiny
 biocViews: Software, Preprocessing, Visualization, Classification,
  Cheminformatics, Metabolomics, DataImport
