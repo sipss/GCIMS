@@ -245,6 +245,7 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
         )
     }
   } else {
+    show_legend <- nrow(peaklist_to_plot_rect) > 10
     plt <- plt +
       ggplot2::geom_rect(
         data = peaklist_to_plot_rect,
@@ -255,7 +256,8 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
           ymax = .data$rt_max_s,
           color = !!color_by_sym
         ),
-        alpha = 0.3
+        alpha = 0.3,
+        show.legend = show_legend
       )
     if (has_apex) {
       plt <- plt +
