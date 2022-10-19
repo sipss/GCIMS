@@ -2,7 +2,7 @@
 #'
 #' @description Extract the volume of each ROI across samples to create a peak table.
 #'
-#' @param peak_list_clustered The output of [gcims_compute_fom()]. Also, you can create your own peak table
+#' @param peak_list_clustered A peak list with clusters assigned. Also, you can create your own peak table
 #' and use it as input value for `peak_list_clustered` (see first example below)
 #' @param aggregate_conflicting_peaks `NULL` or a function. What to do, in case two peaks from the same sample
 #' have been assigned to the same cluster. If `NULL`, throw an error. If `mean`, `max` or any other function,
@@ -17,7 +17,6 @@
 #'
 #' @export
 #' @examples
-#' \donttest{
 #' # Create your peak table from scratch:
 #' pl <- data.frame(
 #'   SampleID = c("S1", "S1", "S2", "S2"),
@@ -26,13 +25,11 @@
 #' )
 #' peakTable(pl)
 #'
-#' # Create a peak table from the output of the function gcims_compute_fom()
-#' dir_in <- system.file("extdata", package = "GCIMS")
-#' peak_list_fom <- readRDS(file.path(dir_in, "peak_list_fom.rds"))
+#' # Create a peak table
+#' peak_list_fom <- readRDS(system.file("extdata", "peak_list_fom.rds", package = "GCIMS"))
 #' peak_table <- peakTable(peak_list_fom, aggregate_conflicting_peaks = max)
 #'
 #' peak_table$peak_table_matrix
-#' }
 #'
 peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
   if (!"Volume" %in% colnames(peak_list_clustered)) {
