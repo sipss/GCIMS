@@ -113,14 +113,6 @@ aggregate_all_results <- function(object, extracted_results) {
   object
 }
 
-runs_in_serial <- function() {
-  tryCatch({
-    methods::is(BiocParallel::bpparam(), "SerialParam")
-  },
-  error = function(e) TRUE
-  )
-}
-
 realize_ram <- function(object) {
   sample_objs <- object@envir$samples
   if (is.null(sample_objs)) {
@@ -128,13 +120,7 @@ realize_ram <- function(object) {
     sample_objs <- file.path(object@envir$base_dir, pdata$FileName)
   }
   delayed_ops <- rlang::as_list(object@envir$delayed_ops)
-  if (runs_in_serial()) {
-    # I prefer to avoid BiocParallel if running in serial
-    mapply_fun <- mapply
-  } else {
-    mapply_fun <- BiocParallel::bpmapply
-  }
-  results <- mapply_fun(
+  results <- mybpmapply(
     FUN = realize_one_sample_ram,
     sample_name = sampleNames(object),
     sample_obj = sample_objs,
@@ -185,14 +171,7 @@ realize_disk <- function(object, keep_intermediate) {
 
   next_filenames <- file.path(next_dir, paste0(sample_names, ".rds"))
 
-  if (runs_in_serial()) {
-    # I prefer to avoid BiocParallel if running in serial
-    mapply_fun <- mapply
-  } else {
-    mapply_fun <- BiocParallel::bpmapply
-  }
-
-  extracted_results <- mapply_fun(
+  extracted_results <- mybpmapply(
     FUN = realize_one_sample_disk,
     sample_name = sample_names,
     orig_filename = orig_filenames,
