@@ -120,7 +120,7 @@ realize_ram <- function(object) {
     sample_objs <- file.path(object@envir$base_dir, pdata$FileName)
   }
   delayed_ops <- rlang::as_list(object@envir$delayed_ops)
-  results <- mybpmapply(
+  results <- mymapply(
     FUN = realize_one_sample_ram,
     sample_name = sampleNames(object),
     sample_obj = sample_objs,
@@ -171,7 +171,7 @@ realize_disk <- function(object, keep_intermediate) {
 
   next_filenames <- file.path(next_dir, paste0(sample_names, ".rds"))
 
-  extracted_results <- mybpmapply(
+  extracted_results <- mymapply(
     FUN = realize_one_sample_disk,
     sample_name = sample_names,
     orig_filename = orig_filenames,
