@@ -8,10 +8,16 @@ findPeaksImpl(
   drift_time,
   retention_time,
   int_mat,
-  noise_level,
   verbose = FALSE,
-  dt_length_pts = 11,
-  rt_length_pts = 21,
+  dt_length_ms = 0.07,
+  rt_length_s = 8,
+  dt_peakwidth_range_ms = c(0.05, 3),
+  rt_peakwidth_range_s = c(0.3, 25),
+  dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  dt_extension_factor = 0,
+  rt_extension_factor = 0,
+  exclude_rip = FALSE,
   iou_overlap_threshold = 0.2
 )
 }
@@ -22,32 +28,42 @@ findPeaksImpl(
 
 \item{int_mat}{The intensity matrix, of dimensions \code{length(drift_time)} rows and \code{length(retention_time)} columns}
 
-\item{noise_level}{A number used to determine the minimum peak height threshold}
-
 \item{verbose}{If \code{TRUE} information will be printed on screen}
 
-\item{dt_length_pts, rt_length_pts}{Length of the filters used to compute the second derivative. See details}
+\item{dt_length_ms, rt_length_s}{Length of the filters used to compute the
+second derivative. See details. FIXME (experimental): You can set both
+\code{dt_length_ms} and \code{rt_length_s} to \code{-1} if you want to use the raw signal
+for the peak detection instead of the second derivatives.}
 
-\item{iou_overlap_threshold}{A number, between 0 and 1. Regions of interest b}
+\item{dt_peakwidth_range_ms, rt_peakwidth_range_s}{A vector of length 2 with the minimum and maximum peak width. See details}
+
+\item{dt_peakDetectionCWTParams, rt_peakDetectinoCWTParams}{Additional parameters to \code{\link[MassSpecWavelet:peakDetectionCWT]{MassSpecWavelet::peakDetectionCWT()}}. See details}
+
+\item{exclude_rip}{Whether to exclude ROIs with a drift time apex smaller than the RIP drift time end.}
+
+\item{iou_overlap_threshold}{A number, between 0 and 1. Pairs of ROIs with an intersection over union larger than this threshold are merged.}
 }
 \description{
 Detects regions of interest with peaks in a sample.
 }
 \details{
 Peaks are detected on the partial second derivative of the intensity matrix.
-The peak detection happens by scanning for peaks in the drift time direction, using
-the second derivative
 
 In detail, the approach is as follows:
 \enumerate{
 \item We compute the second derivative with respect to the drift and retention times.
-\item We detect the RIP and based on its peak width we estimate the minimum peak distance between peaks in drift time
-\item Based on a region without peaks in the original matrix, we estimate the amplitude of noise peaks. This amplitude
-is used as a basis to determine the minimum peak height required for peak detection.
-\item We run pracma::findPeaks on both partial derivatives
+\item Based on the given peak width ranges, mexican hat wavelets are scaled
+\item Peaks on the second derivatives are detected using \code{\link[MassSpecWavelet:peakDetectionCWT]{MassSpecWavelet::peakDetectionCWT()}}.
 \item We intersect the maxima to discard saddle points
 \item We merge similar ROIs using a threshold on the intersection over union
 \item Get some ROI metrics and return.
 }
+
+For the MassSpecWavelet-based peak detection, the \code{scales} are computed based on
+the requested peak widths. Besides, the scales, further tuning beyond the
+MassSpecWavelet defaults is possible through the \verb{*_peakDetectionCWTParams} argument.
+By default, the only change we introduce is the \code{exclude0scaleAmpThresh = TRUE}
+which is a reasonable peak detection setting not enabled in MassSpecWavelet
+for backwards compatibility reasons.
 }
 \keyword{internal}

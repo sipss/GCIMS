@@ -4,27 +4,23 @@
 \alias{findPeaks,GCIMSDataset-method}
 \title{Peak detection on the GCIMS dataset}
 \usage{
-\S4method{findPeaks}{GCIMSDataset}(
-  object,
-  noise_level = 3,
-  verbose = FALSE,
-  dt_length_ms = 0.14,
-  rt_length_s = 3,
-  iou_overlap_threshold = 0.2
-)
+\S4method{findPeaks}{GCIMSDataset}(object, ...)
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object, modified in-place}
 
-\item{noise_level}{A number used to determine the minimum peak height threshold}
-
-\item{verbose}{If \code{TRUE} information will be printed on screen}
-
-\item{dt_length_ms}{Length (in ms) used in the Savitzky-Golay filter to compute the second derivative with respect to drift time.}
-
-\item{rt_length_s}{Length (in s) used in the Savitzky-Golay filter to compute the second derivative with respect to retention time.}
-
-\item{iou_overlap_threshold}{A number, between 0 and 1. Regions of interest b}
+\item{...}{
+  Arguments passed on to \code{\link[=findPeaksImpl]{findPeaksImpl}}
+  \describe{
+    \item{\code{verbose}}{If \code{TRUE} information will be printed on screen}
+    \item{\code{dt_length_ms,rt_length_s}}{Length of the filters used to compute the
+second derivative. See details. FIXME (experimental): You can set both
+\code{dt_length_ms} and \code{rt_length_s} to \code{-1} if you want to use the raw signal
+for the peak detection instead of the second derivatives.}
+    \item{\code{dt_peakwidth_range_ms,rt_peakwidth_range_s}}{A vector of length 2 with the minimum and maximum peak width. See details}
+    \item{\code{exclude_rip}}{Whether to exclude ROIs with a drift time apex smaller than the RIP drift time end.}
+    \item{\code{iou_overlap_threshold}}{A number, between 0 and 1. Pairs of ROIs with an intersection over union larger than this threshold are merged.}
+  }}
 }
 \value{
 The modified \link{GCIMSDataset}, with a peak list
