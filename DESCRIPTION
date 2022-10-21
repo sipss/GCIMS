@@ -65,6 +65,7 @@ Imports:
     dplyr (>= 1.0.2),
     ggplot2 (>= 3.3.2),
     glue,
+    MassSpecWavelet (>= 1.63.5),
     methods,
     pracma (>= 2.2.9),
     ProtGenerics (>= 1.24.0),
@@ -100,3 +101,4 @@ RoxygenNote: 7.2.1
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
+Additional_repositories: https://zeehio.r-universe.dev
