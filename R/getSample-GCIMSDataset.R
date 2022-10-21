@@ -21,7 +21,7 @@ setMethod(
     if (!methods::is(gcimssample, "GCIMSSample")) {
       abort("Expected a GCIMSSample object, but it was not found")
     }
-    gcimssample
+    updateObject(gcimssample)
   }
 )
 
