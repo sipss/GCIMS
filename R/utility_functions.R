@@ -1,23 +1,3 @@
-
-
-new_progress_bar <- function(...) {
-  if (!requireNamespace("progress", quietly = TRUE)) {
-    inform(
-      message = c("i" = 'Use install.packages("progress") to get a progress bar'),
-      class = "GCIMS_suggest_install_progress",
-      .frequency = "once",
-      .frequeny_id = "suggest_progress_installation"
-    )
-    # This code path returns a dummy object exposing a compatible API of
-    # progress:progress_bar$new(...).
-    dummy_pbar <- list(
-      tick = function() {}
-    )
-    return(dummy_pbar)
-  }
-  progress::progress_bar$new(...)
-}
-
 require_pkgs <- function(pkg, msgs = NULL, ...) {
   have_pkgs <- purrr::map_lgl(pkg, function(p) {requireNamespace(p, quietly = TRUE)})
   names(have_pkgs) <- pkg

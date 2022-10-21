@@ -89,7 +89,6 @@ Suggests:
     httr,
     knitr,
     labeling,
-    progress,
     rmarkdown,
     scales,
     shiny,
