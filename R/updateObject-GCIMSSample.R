@@ -25,6 +25,11 @@ methods::setMethod(
   "updateObject", "GCIMSSample",
   function(object, ..., verbose = FALSE) {
     obj_version <- methods::slot(object, "class_version")
+    if (obj_version == "0.0.3") {
+      methods::slot(object, "peaks_debug_info", check = FALSE) <- list()
+      methods::slot(object, "class_version", check = FALSE) <- numeric_version("0.0.4")
+      object <- updateObject(object, ..., verbose = verbose)
+    }
     if (obj_version < "0.0.3") {
       abort("Can't migrate an older verions of the GCIMSSample object")
     }
