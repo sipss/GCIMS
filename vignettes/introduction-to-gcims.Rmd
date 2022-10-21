@@ -1,7 +1,10 @@
 ---
 title: "Introduction to GCIMS"
 output:
+  "BiocStyle::html_document":
+    dev: png
   "BiocStyle::pdf_document":
+    latex_engine: lualatex
     df_print: "kable"
     dev: png
 package: GCIMS
@@ -43,6 +46,7 @@ show_progress_bar <- interactive() && is.null(getOption("knitr.in.progress"))
 # disable parallellization: (Useful for better error reporting)
 #register(SerialParam(progressbar = show_progress_bar), default = TRUE)
 # enable parallellization with 3 workers (you can use more if you have them):
+register(SerialParam(), default = TRUE)
 register(SnowParam(workers = 3, progressbar = show_progress_bar, exportglobals = FALSE), default = TRUE)
 ```
 
@@ -357,14 +361,22 @@ from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too 
 peaks may appear broken into two regions or false detections may occur.
 
 ```{r peak-detection-starts-here}
+# Remove this extra register()
 ket1 <- getSample(dataset, "Ketones1")
 ket1 <- findPeaks(
   ket1,
-  noise_level = 3,
   rt_length_s = 3,
   dt_length_ms = 0.14,
   verbose = TRUE,
-  iou_overlap_threshold = 0.2
+  dt_peakwidth_range_ms = c(0.15, 0.4),
+  rt_peakwidth_range_s = c(10, 25),
+  dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  dt_extension_factor = 0,
+  rt_extension_factor = 0,
+  exclude_rip = FALSE,
+  iou_overlap_threshold = 0.2,
+  debug_idx = list(rt = 1181, dt = 1502)
 )
 peak_list_ket1 <- peaks(ket1)
 plt <- plotRaw(ket1)
@@ -373,15 +385,21 @@ plt
 ```
 
 
-
 Then do it on the whole dataset:
 
 ```{r}
 findPeaks(
   dataset,
-  noise_level = 3,
   rt_length_s = 3,
   dt_length_ms = 0.14,
+  verbose = TRUE,
+  dt_peakwidth_range_ms = c(0.15, 0.4),
+  rt_peakwidth_range_s = c(10, 25),
+  dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  dt_extension_factor = 0,
+  rt_extension_factor = 0,
+  exclude_rip = FALSE,
   iou_overlap_threshold = 0.2
 )
 peak_list <- peaks(dataset)
@@ -415,7 +433,7 @@ plt
 peak_clustering <- clusterPeaks(
   peak_list,
   distance_method = "sd_scaled_euclidean",
-  clustering = list(method = "kmedoids", Nclusters = 13)
+  clustering = list(method = "kmedoids", Nclusters = 50)
 )
 ```
 
@@ -431,7 +449,7 @@ can easily see there is some trouble with the clustering as of today (I'm workin
 
 ```{r fig.height=10, fig.width=10}
 plt <- plotRaw(ket2)
-plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "SampleID") + 
+plt <- add_peaklist_rect(plt, dplyr::filter(peak_list_clustered, cluster < 10), color_by = "SampleID") + 
   lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
   facet_wrap(~cluster, scales = "free")
 plt
@@ -540,11 +558,13 @@ realize(dataset)
 ```
 
 
+Some clusters:
+
 ```{r fig.height=10, fig.width=10}
 plt <- plotRaw(ket2)
 plt <- add_peaklist_rect(
   plt, 
-  dplyr::filter(peak_clustering$peak_list_clustered),
+  dplyr::filter(peak_clustering$peak_list_clustered, cluster < 10),
   color_by = "SampleID",
   col_prefix = "fixedsize_"
 ) + 
