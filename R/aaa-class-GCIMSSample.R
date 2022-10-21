@@ -61,11 +61,12 @@ methods::setClass(
     params = "list", # arbitrary parameters from the instrument
     proc_params = "list",
     peaks = "DataFrameOrNULL",
+    peaks_debug_info = "listOrNULL", # arbitrary debug info from findPeaks()
     baseline = "matrixOrNULL"
   )
 )
 
-.CURRENT_GCIMSSAMPLE_CLASS_VERSION <- numeric_version("0.0.3")
+.CURRENT_GCIMSSAMPLE_CLASS_VERSION <- numeric_version("0.0.4")
 
 methods::setMethod(
   "initialize", "GCIMSSample",
@@ -75,6 +76,7 @@ methods::setMethod(
     .Object@retention_time <- retention_time
     .Object@data <- data
     .Object@peaks <- NULL
+    .Object@peaks_debug_info <- list()
     dots <- list(...)
     if (length(dots) == 0) {
       return(.Object)
