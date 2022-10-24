@@ -38,6 +38,6 @@ remotes::install_github("sipss/GCIMS", auth_token = gh_PAT)
 Once the repository becomes public, you can install the package with:
 
 ```r
-remotes::install_github("sipss/GCIMS")
+remotes::install_github("sipss/GCIMS") # only if the repository is public
 ```
 
