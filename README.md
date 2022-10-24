@@ -9,20 +9,35 @@ GC-IMS samples.
 
 ## Installation
 
-`GCIMS` can be installed with the `remotes` package.
-It uses depebdencies from CRAN and BioConductor repositories:
+`GCIMS` can be installed with the `remotes` package. Ensure you have it installed
+with:
 
-``` r
+```r
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-    
 if (!requireNamespace("remotes", quietly = TRUE))
     install.packages("remotes")
-    
-
-remotes::install_github("sipss/GCIMS")
 ```
 
+If you have cloned this repository in a local folder, you can run from that folder:
 
-========================
+``` r
+remotes::install_local(".")
+```
+
+Alternatively, you can clone and install it from github. Since this repository is 
+for now private, you will need a github
+[personal access token](https://github.com/settings/tokens) to access it:
+
+```r
+# Create your gh_PAT at: https://github.com/settings/tokens
+gh_PAT <- "your-personal-access-token"
+remotes::install_github("sipss/GCIMS", auth_token = gh_PAT)
+```
+
+Once the repository becomes public, you can install the package with:
+
+```r
+remotes::install_github("sipss/GCIMS")
+```
 
