@@ -449,9 +449,9 @@ can easily see there is some trouble with the clustering as of today (I'm workin
 
 ```{r fig.height=10, fig.width=10}
 plt <- plotRaw(ket2)
-plt <- add_peaklist_rect(plt, dplyr::filter(peak_list_clustered, cluster < 10), color_by = "SampleID") + 
-  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
-  facet_wrap(~cluster, scales = "free")
+plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "SampleID") + 
+  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) #+
+  #facet_wrap(~cluster, scales = "free")
 plt
 ```
 
@@ -564,12 +564,12 @@ Some clusters:
 plt <- plotRaw(ket2)
 plt <- add_peaklist_rect(
   plt, 
-  dplyr::filter(peak_clustering$peak_list_clustered, cluster < 10),
+  peak_clustering$peak_list_clustered,
   color_by = "SampleID",
   col_prefix = "fixedsize_"
 ) + 
-  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
-  facet_wrap(~cluster, scales = "free")
+  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) #+
+  #facet_wrap(~cluster, scales = "free")
 plt
 ```
 
