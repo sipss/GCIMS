@@ -17,7 +17,7 @@ setMethod("rtime", "GCIMSChromatogram", function(object) object@retention_time)
 #' Get the intensity vector
 #' @param object A GCIMSChromatogram object
 #' @inheritParams dt_rt_range_normalization
-#' @return The retention intesity vector
+#' @return The retention intensity vector
 #' @importMethodsFrom ProtGenerics intensity
 #' @export
 setMethod("intensity", "GCIMSChromatogram", function(object, rt_range = NULL, rt_idx = NULL) {
