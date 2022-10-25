@@ -363,6 +363,26 @@ peaks may appear broken into two regions or false detections may occur.
 ```{r peak-detection-starts-here}
 # Remove this extra register()
 ket1 <- getSample(dataset, "Ketones1")
+ch1 <- getChromatogram(ket1, dt_range = 10.75)
+```
+
+```{r}
+# I don't like the _xunits in the argument names, I'll find an alternative soon
+ch1 <- findPeaks(
+  ch1,
+  verbose = FALSE,
+  length_in_xunits = 3,
+  peakwidth_range_xunits = c(10, 25),
+  peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  extension_factor = 0,
+  iou_overlap_threshold = 0.2,
+  debug = FALSE
+)
+peak_list_ch1 <- peaks(ch1)
+plot(ch1) + geom_vline(xintercept = peak_list_ch1$apex, color = "red", linetype = "dashed")
+```
+
+```{r}
 ket1 <- findPeaks(
   ket1,
   rt_length_s = 3,
