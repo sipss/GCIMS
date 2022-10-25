@@ -92,6 +92,8 @@ plot.GCIMSChromatogram <- function(x, ...) {
     )
   ) + ggplot2::geom_line(ggplot2::aes(x = .data$x, y = .data$y)) +
     ggplot2::labs(
+      x = "Retention time (s)",
+      y = "Intensity (a.u.)",
       title = description(x),
       subtitle = subtitle
     )
