@@ -67,7 +67,6 @@ Imports:
     glue,
     MassSpecWavelet (>= 1.63.5),
     methods,
-    pracma (>= 2.2.9),
     ProtGenerics (>= 1.24.0),
     ptw (>= 1.9-10),
     purrr (>= 0.3.4),
