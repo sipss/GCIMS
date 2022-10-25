@@ -310,13 +310,13 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
 #'
 #' Detects regions of interest with peaks in a sample.
 #'
-#' Peaks are detected on the partial second derivative of the intensity matrix.
+#' Peaks are detected on the intensity matrix.
 #'
 #' In detail, the approach is as follows:
 #'
 #' 1. We compute the second derivative with respect to the drift and retention times.
 #' 2. Based on the given peak width ranges, mexican hat wavelets are scaled
-#' 3. Peaks on the second derivatives are detected using [MassSpecWavelet::peakDetectionCWT()].
+#' 3. Peaks are detected using [MassSpecWavelet::peakDetectionCWT()].
 #' 4. We intersect the maxima to discard saddle points
 #' 5. We merge similar ROIs using a threshold on the intersection over union
 #' 6. Get some ROI metrics and return.
