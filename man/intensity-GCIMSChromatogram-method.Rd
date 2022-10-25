@@ -14,7 +14,7 @@
 \item{rt_idx}{A numeric vector with the retention time indices to extract (or a logical vector of the length of retention time)}
 }
 \value{
-The retention intesity vector
+The retention intensity vector
 }
 \description{
 Get the intensity vector

@@ -11,14 +11,15 @@ findPeaksImpl(
   verbose = FALSE,
   dt_length_ms = 0.07,
   rt_length_s = 8,
-  dt_peakwidth_range_ms = c(0.05, 3),
-  rt_peakwidth_range_s = c(0.3, 25),
+  dt_peakwidth_range_ms = c(0.15, 0.4),
+  rt_peakwidth_range_s = c(10, 25),
   dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
   rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
   dt_extension_factor = 0,
   rt_extension_factor = 0,
   exclude_rip = FALSE,
-  iou_overlap_threshold = 0.2
+  iou_overlap_threshold = 0.2,
+  debug_idx = list(dt = NULL, rt = NULL)
 )
 }
 \arguments{
@@ -31,9 +32,7 @@ findPeaksImpl(
 \item{verbose}{If \code{TRUE} information will be printed on screen}
 
 \item{dt_length_ms, rt_length_s}{Length of the filters used to compute the
-second derivative. See details. FIXME (experimental): You can set both
-\code{dt_length_ms} and \code{rt_length_s} to \code{-1} if you want to use the raw signal
-for the peak detection instead of the second derivatives.}
+second derivative. See details.}
 
 \item{dt_peakwidth_range_ms, rt_peakwidth_range_s}{A vector of length 2 with the minimum and maximum peak width. See details}
 
@@ -42,18 +41,23 @@ for the peak detection instead of the second derivatives.}
 \item{exclude_rip}{Whether to exclude ROIs with a drift time apex smaller than the RIP drift time end.}
 
 \item{iou_overlap_threshold}{A number, between 0 and 1. Pairs of ROIs with an intersection over union larger than this threshold are merged.}
+
+\item{debug_idx}{A list with two numeric vectors named \code{dt} and \code{rt} each of them having a the indices to where debug info is kept}
+}
+\value{
+A list with the \code{peak_list} and \code{debug_info} elements.
 }
 \description{
 Detects regions of interest with peaks in a sample.
 }
 \details{
-Peaks are detected on the partial second derivative of the intensity matrix.
+Peaks are detected on the intensity matrix.
 
 In detail, the approach is as follows:
 \enumerate{
 \item We compute the second derivative with respect to the drift and retention times.
 \item Based on the given peak width ranges, mexican hat wavelets are scaled
-\item Peaks on the second derivatives are detected using \code{\link[MassSpecWavelet:peakDetectionCWT]{MassSpecWavelet::peakDetectionCWT()}}.
+\item Peaks are detected using \code{\link[MassSpecWavelet:peakDetectionCWT]{MassSpecWavelet::peakDetectionCWT()}}.
 \item We intersect the maxima to discard saddle points
 \item We merge similar ROIs using a threshold on the intersection over union
 \item Get some ROI metrics and return.

@@ -14,12 +14,11 @@
   \describe{
     \item{\code{verbose}}{If \code{TRUE} information will be printed on screen}
     \item{\code{dt_length_ms,rt_length_s}}{Length of the filters used to compute the
-second derivative. See details. FIXME (experimental): You can set both
-\code{dt_length_ms} and \code{rt_length_s} to \code{-1} if you want to use the raw signal
-for the peak detection instead of the second derivatives.}
+second derivative. See details.}
     \item{\code{dt_peakwidth_range_ms,rt_peakwidth_range_s}}{A vector of length 2 with the minimum and maximum peak width. See details}
     \item{\code{exclude_rip}}{Whether to exclude ROIs with a drift time apex smaller than the RIP drift time end.}
     \item{\code{iou_overlap_threshold}}{A number, between 0 and 1. Pairs of ROIs with an intersection over union larger than this threshold are merged.}
+    \item{\code{debug_idx}}{A list with two numeric vectors named \code{dt} and \code{rt} each of them having a the indices to where debug info is kept}
   }}
 }
 \value{
