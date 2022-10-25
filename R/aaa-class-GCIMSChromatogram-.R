@@ -11,6 +11,8 @@
 #' @slot drift_time_idx The index or indices used to get the intensity
 #' @slot drift_time_ms The drift times corresponding to `drift_time_idx`.
 #' @slot description A string with a description (used as plot title, useful e.g. to know the sample it came from)
+#' @slot peaks A data frame with peaks, use [findPeaks()] to fill it, or [peaks()] to set/get it
+#' @slot peaks_debug_info A list with arbitrary debug infor from [findPeaks()]
 #'
 #' @export
 methods::setClass(
@@ -21,13 +23,15 @@ methods::setClass(
     baseline = "numericOrNULL",
     drift_time_idx = "numeric",
     drift_time_ms = "numeric",
-    description = "character"
+    description = "character",
+    peaks = "DataFrameOrNULL",
+    peaks_debug_info = "listOrNULL" # arbitrary debug info from findPeaks()
   )
 )
 
 methods::setMethod(
   "initialize", "GCIMSChromatogram",
-  function(.Object, retention_time, intensity, drift_time_idx, drift_time_ms, description, ..., baseline = NULL) {
+  function(.Object, retention_time, intensity, drift_time_idx, drift_time_ms, description, ..., baseline = NULL, peaks = NULL, peaks_debug_info = NULL) {
     dots <- list(...)
     if (length(dots) > 0) {
       if (!is.null(names(dots))) {
@@ -50,6 +54,8 @@ methods::setMethod(
     .Object@intensity <- intensity
     .Object@description <- description
     .Object@baseline <- baseline
+    .Object@peaks <- peaks
+    .Object@peaks_debug_info <- peaks_debug_info
     .Object
   })
 
