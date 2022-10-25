@@ -334,9 +334,7 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
 #' @param int_mat The intensity matrix, of dimensions `length(drift_time)` rows and `length(retention_time)` columns
 #' @param verbose If `TRUE` information will be printed on screen
 #' @param dt_length_ms,rt_length_s Length of the filters used to compute the
-#' second derivative. See details. FIXME (experimental): You can set both
-#' `dt_length_ms` and `rt_length_s` to `-1` if you want to use the raw signal
-#' for the peak detection instead of the second derivatives.
+#' second derivative. See details.
 #' @param dt_peakwidth_range_ms,rt_peakwidth_range_s A vector of length 2 with the minimum and maximum peak width. See details
 #' @param dt_peakDetectionCWTParams,rt_peakDetectinoCWTParams Additional parameters to [MassSpecWavelet::peakDetectionCWT()]. See details
 #' @param exclude_rip Whether to exclude ROIs with a drift time apex smaller than the RIP drift time end.
@@ -378,12 +376,11 @@ findPeaksImpl <- function(
     num_spec <- ncol(int_mat)
     # int_mat[3, 4] # at drift time index 3, retention time index 4
 
-    # Given how MassSpecWavelet works, maybe we could just do it on the original signal!
-    # Compute the 2nd derivative for both axes
+    # Compute the 2nd derivative for both axes to get the inflection points
     deriv2 <- compute_second_deriv(
       int_mat,
-      dt_length_pts = abs(dt_length_pts),
-      rt_length_pts = abs(rt_length_pts),
+      dt_length_pts = dt_length_pts,
+      rt_length_pts = rt_length_pts,
       dt_order = 2L,
       rt_order = 2L
     )
@@ -413,20 +410,13 @@ findPeaksImpl <- function(
       )
     }
 
-    if (rt_length_pts > 0) {
-      xmat <- drt
-      xzeros <- NULL # same as xmat by default
-    } else {
-      xmat <- int_mat
-      xzeros <- drt
-    }
     peaks_and_zeros_drt_extra <- detect_peaks_and_zeros(
-      xmat = xmat,
+      xmat = int_mat,
       rowwise = TRUE,
       scales = scales_rt,
       peakDetectionCWTParams = rt_peakDetectionCWTParams,
       signals_to_save_extra = debug_idx$rt,
-      xmat_zeros = xzeros
+      xmat_zeros = drt
     )
     peaks_and_zeros_drt <- peaks_and_zeros_drt_extra$peaks_and_zeros
     colnames(peaks_and_zeros_drt) <- c("dt_idx", "rt_idx_apex", "rt_idx_min", "rt_idx_max")
@@ -434,21 +424,13 @@ findPeaksImpl <- function(
       debug_info$rt <- peaks_and_zeros_drt_extra$extra
     }
 
-    if (rt_length_pts > 0) {
-      xmat <- ddt
-      xzeros <- NULL # same as xmat by default
-    } else {
-      xmat <- int_mat
-      xzeros <- ddt
-    }
-
     peaks_and_zeros_ddt_extra <- detect_peaks_and_zeros(
-      xmat = xmat,
+      xmat = int_mat,
       rowwise = FALSE,
       scales = scales_dt,
       peakDetectionCWTParams = dt_peakDetectionCWTParams,
       signals_to_save_extra = debug_idx$dt,
-      xmat_zeros = xzeros
+      xmat_zeros = ddt
     )
     peaks_and_zeros_ddt <- peaks_and_zeros_ddt_extra$peaks_and_zeros
     colnames(peaks_and_zeros_ddt) <- c("rt_idx", "dt_idx_apex", "dt_idx_min", "dt_idx_max")
