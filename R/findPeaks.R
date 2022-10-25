@@ -54,7 +54,7 @@ detect_peaks_and_zeros_one_signal <- function(x, x_zeros, idx, save_debugging, p
     x_zeros <- x
   }
   peak_idx <- unname(peakdet$majorPeakInfo$peakIndex)
-  zero_idx <- GCIMS:::findZeroCrossings(x_zeros)
+  zero_idx <- findZeroCrossings(x_zeros)
   out <- interleave_peaks_with_zeros(peak_idx, zero_idx, signal_idx = idx)
   #stopifnot(ncol(out) == 4L)
   if (save_debugging) {

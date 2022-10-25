@@ -12,7 +12,7 @@ setMethod(
   "GCIMSDataset",
   function(object, peak_list, integration_size_method = c("fixed_size", "free_size"), rip_saturation_threshold = 0.1) {
     integration_size_method <- match.arg(integration_size_method)
-    delayed_op <- GCIMS:::GCIMSDelayedOp(
+    delayed_op <- GCIMSDelayedOp(
       name = "integratePeaks",
       fun = integratePeaks,
       params = list(peak_list = peak_list, integration_size_method = integration_size_method, rip_saturation_threshold = rip_saturation_threshold),
