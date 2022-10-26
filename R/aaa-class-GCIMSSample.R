@@ -25,6 +25,7 @@
 #' @slot proc_params list (internal). Data processing parameters computed and used internally.
 #' @slot peaks A data frame (internal). The peak list, typically set using [findPeaks()].
 #'  Use [peaks()] to get/set this.
+#' @slot peaks_debug_info A list with arbitrary debug information from [findPeaks()].
 #' @slot baseline A matrix of the same dimensions as `data` with the baseline. Use [estimateBaseline()] to estimate it
 #' and `baseline()` to get or set it.
 #' @slot class_version "numeric_version" (internal) The GCIMSSample object defines
