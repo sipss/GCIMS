@@ -19,9 +19,10 @@
 #' plotRaw(dummy_obj)
 #' @export
 plotRaw <- function(object, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE) {
-  # FIXME: Before releasing remove plotRaw
-  #rlang::warn(
-  #  message = "plotRaw(...) is deprecated. Please use plot(..) instead (rename)"
-  #)
+  rlang::warn(
+    message = "plotRaw(...) is deprecated and has been renamed to plot(...). Please use plot() instead",
+    .frequency = "once",
+    .frequency_id = "plotRaw-deprecation"
+  )
   plot(object, dt_range = dt_range, rt_range = rt_range, ..., remove_baseline = remove_baseline)
 }
