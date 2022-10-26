@@ -118,7 +118,7 @@ Explore one sample:
 
 ```{r}
 ket1 <- getSample(dataset, sample = "Ketones1")
-plotRaw(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
+plot(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 ```
 
 ```{r}
@@ -237,8 +237,8 @@ ket1_smoothed <- smooth(
 
 ```{r}
 cowplot::plot_grid(
-  plotRaw(ket1afterfilter, rt_range = c(0, 500), dt_range = c(6, 16)),
-  plotRaw(ket1_smoothed, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(ket1afterfilter, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(ket1_smoothed, rt_range = c(0, 500), dt_range = c(6, 16)),
   ncol = 2
 )
 ```
@@ -399,7 +399,7 @@ ket1 <- findPeaks(
   debug_idx = list(rt = 1181, dt = 1502)
 )
 peak_list_ket1 <- peaks(ket1)
-plt <- plotRaw(ket1)
+plt <- plot(ket1)
 plt <- add_peaklist_rect(plt, peak_list_ket1, color_by = "PeakID")
 plt
 ```
@@ -432,7 +432,7 @@ ket2 <- getSample(dataset, "Ketones2")
 
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peaks(ket2))
 plt + lims(x= c(7.5,15), y = c(0, 500))
 ```
@@ -442,7 +442,7 @@ plt + lims(x= c(7.5,15), y = c(0, 500))
 Or plot all the peaks from all the dataset together, overlayed on a single sample:
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peaks(dataset), color_by = "SampleID")
 plt
 ```
@@ -468,7 +468,7 @@ FIXME: We need a proper API to plot this with a user friendly interface, but we
 can easily see there is some trouble with the clustering as of today (I'm working on it).
 
 ```{r fig.height=10, fig.width=10}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "SampleID") + 
   lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) #+
   #facet_wrap(~cluster, scales = "free")
@@ -479,7 +479,7 @@ The resulting cluster sizes (median position of individual clusters) is not a go
 for integration. We are working on this.
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peak_clustering$cluster_stats, color_by = "cluster")
 plt
 ```
@@ -549,17 +549,17 @@ ket1 <- estimateBaseline(
 
 
 ```{r}
-plotRaw(ket1)
+plot(ket1)
 ```
 
 ```{r}
-plotRaw(ket1, remove_baseline = TRUE)
+plot(ket1, remove_baseline = TRUE)
 ```
 
 ```{r}
 cowplot::plot_grid(
-  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16)),
-  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16), remove_baseline = TRUE),
+  plot(ket1, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(ket1, rt_range = c(0, 500), dt_range = c(6, 16), remove_baseline = TRUE),
   ncol = 2
 )
 ```
@@ -581,7 +581,7 @@ realize(dataset)
 Some clusters:
 
 ```{r fig.height=10, fig.width=10}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(
   plt, 
   peak_clustering$peak_list_clustered,
