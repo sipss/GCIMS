@@ -89,14 +89,6 @@ setGeneric("getTIS", function(object, ...) standardGeneric("getTIS"))
 setGeneric("getRIC", function(object, ...) standardGeneric("getRIC"))
 
 
-#' @describeIn GCIMS-generics Plot raw data
-#'
-#' @return A plot
-#' @param object An object to plot raw data
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @export
-setGeneric("plotRaw", function(object, ...) standardGeneric("plotRaw"))
-
 #' @describeIn GCIMS-generics Plot total ion spectrum
 #'
 #' @return A plot

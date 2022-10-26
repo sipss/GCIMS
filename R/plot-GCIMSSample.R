@@ -1,10 +1,52 @@
 #' Topographical plot of a GCIMSSample object
 #'
+#' @param x A [GCIMSSample] object
+#' @param dt_range A numeric vector of length 2 with the drift time range to plot (in milliseconds)
+#' @param rt_range A numeric vector of length 2 with the retention time range to plot (in seconds)
+#' @param ... Ignored
+#' @param remove_baseline Set to `TRUE` to subtract the estimated baseline first
+#' @param trans The transformation to the intensity values. "cubic_root" is the default. "intensity" is also valid.
+#' See the `trans` argument in [ggplot2::continuous_scale()] for other possibilities.
+#' @return A plot of the GCIMSSample
+#' @examples
+#' dummy_obj <-GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3),
+#'   gc_column = "Optional column name",
+#'   drift_gas = "nitrogen",
+#'   drift_tube_length = 98.0 # in mm
+#' )
+#' plot(dummy_obj)
+#' @export
+plot.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE, trans = "cubic_root") {
+  dt <- dtime(x)
+  rt <- rtime(x)
+  idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range)
+
+  intmat <- intensity(x, idx)
+  if (isTRUE(remove_baseline)) {
+    basel <- baseline(x)[idx$dt_logical, idx$rt_logical]
+    intmat <- intmat - basel
+  }
+  mat_to_gplot(
+    intmat,
+    dt_min = idx$dt_ms_min,
+    dt_max = idx$dt_ms_max,
+    rt_min = idx$rt_s_min,
+    rt_max = idx$rt_s_max,
+    trans = trans
+  )
+}
+
+#' Topographical plot of a GCIMSSample object
+#'
 #' @param object A [GCIMSSample] object
 #' @param dt_range A numeric vector of length 2 with the drift time range to plot (in milliseconds)
 #' @param rt_range A numeric vector of length 2 with the retention time range to plot (in seconds)
 #' @param ... Ignored
 #' @param remove_baseline Set to `TRUE` to subtract the estimated baseline first
+#' @keywords internal
 #' @return A plot of the GCIMSSample
 #' @examples
 #' dummy_obj <-GCIMSSample(
@@ -17,30 +59,17 @@
 #' )
 #' plotRaw(dummy_obj)
 #' @export
-setMethod(
-  "plotRaw",
-  "GCIMSSample",
-  function(object, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE) {
-    dt <- dtime(object)
-    rt <- rtime(object)
-    idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range)
+plotRaw <- function(object, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE) {
+    # FIXME: Before releasing remove plotRaw
+    #rlang::warn(
+    #  message = "plotRaw(...) is deprecated. Please use plot(..) instead (rename)"
+    #)
+    plot(object, dt_range = dt_range, rt_range = rt_range, ..., remove_baseline = remove_baseline)
+}
 
-    intmat <- intensity(object, idx)
-    if (isTRUE(remove_baseline)) {
-      basel <- baseline(object)[idx$dt_logical, idx$rt_logical]
-      intmat <- intmat - basel
-    }
-    mat_to_gplot(
-      intmat,
-      dt_min = idx$dt_ms_min,
-      dt_max = idx$dt_ms_max,
-      rt_min = idx$rt_s_min,
-      rt_max = idx$rt_s_max
-    )
-  }
-)
 
-mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL) {
+
+mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL, trans = "cubic_root") {
   require_pkgs(c("farver", "viridisLite"))
   if (is.null(dt_min)) {
     dt_min <- as.numeric(rownames(intmat)[1L])
@@ -56,8 +85,20 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
   }
   minmax <- range(intmat)
 
-  cubic_root <- cubic_root_trans()
-  intmat_trans <- cubic_root$transform(intmat)
+  if (is.character(trans)) {
+    trans_func <- paste0(trans, "_trans")
+    scales_envir <- getNamespace("scales")
+    if (trans_func == "cubic_root_trans") {
+      trans <- cubic_root_trans()
+    } else if (trans_func %in% ls(scales_envir)) {
+      trans <- get(trans_func, envir = scales_envir)()
+    } else {
+      rlang::abort("unknown trans value")
+    }
+  } else if (!inherits(trans, "trans")) {
+    rlang::abort("unknown trans value")
+  }
+  intmat_trans <- trans$transform(intmat)
   colormap <- farver::encode_native(
     viridisLite::viridis(256L, direction = -1, option = "A")
   )
@@ -89,7 +130,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
       option = "A",
       limits = minmax,
       na.value = "#00000000",
-      trans = cubic_root
+      trans = trans
     ) +
     ggplot2::lims(
       x = c(dt_min, dt_max),
@@ -155,7 +196,7 @@ as.data.frame.GCIMSSample <- function(x, row.names = NULL, optional = FALSE, dt_
 #' Add peak list rectangles to a raw plot
 #'
 #'
-#' @param plt The output of [plotRaw()] when applied to a [GCIMSSample]
+#' @param plt The output of [plot()] when applied to a [GCIMSSample]
 #' @param peaklist A data frame with at least the columns: `dt_min_ms`, `dt_max_ms`, `rt_min_s`, `rt_max_s`
 #' and optionally additional columns (e.g. the column given to `color_by`)
 #' @param color_by A character with a column name of `peaklist`. Used to color the border of
