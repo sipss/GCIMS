@@ -58,6 +58,8 @@ processing details the sample has gone through already}
 \item{\code{peaks}}{A data frame (internal). The peak list, typically set using \code{\link[=findPeaks]{findPeaks()}}.
 Use \code{\link[=peaks]{peaks()}} to get/set this.}
 
+\item{\code{peaks_debug_info}}{A list with arbitrary debug information from \code{\link[=findPeaks]{findPeaks()}}.}
+
 \item{\code{baseline}}{A matrix of the same dimensions as \code{data} with the baseline. Use \code{\link[=estimateBaseline]{estimateBaseline()}} to estimate it
 and \code{baseline()} to get or set it.}
 
