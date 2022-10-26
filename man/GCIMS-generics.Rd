@@ -8,7 +8,6 @@
 \alias{getSample}
 \alias{getTIS}
 \alias{getRIC}
-\alias{plotRaw}
 \alias{plotTIS}
 \alias{plotRIC}
 \alias{filterDt}
@@ -32,8 +31,6 @@ getSample(object, ...)
 getTIS(object, ...)
 
 getRIC(object, ...)
-
-plotRaw(object, ...)
 
 plotTIS(object, ...)
 
@@ -85,8 +82,6 @@ A plot
 
 A plot
 
-A plot
-
 The object, modified
 
 The object, modified
@@ -120,8 +115,6 @@ to an existing generics-only package if you need so.
 \item \code{getTIS()}: Get the Total Ion Spectrum
 
 \item \code{getRIC()}: Get the Reverse Ion Chromatogram
-
-\item \code{plotRaw()}: Plot raw data
 
 \item \code{plotTIS()}: Plot total ion spectrum
 
