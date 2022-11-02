@@ -91,7 +91,6 @@ Suggests:
     labeling,
     rmarkdown,
     scales,
-    shiny,
     testthat (>= 3.0.0),
     viridisLite
 biocViews: Software, Preprocessing, Visualization, Classification,
