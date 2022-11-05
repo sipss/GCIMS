@@ -166,6 +166,15 @@ as.data.frame.GCIMSSample <- function(x, row.names = NULL, optional = FALSE, dt_
   intens_long
 }
 
+# P40 <- unname(Polychrome::createPalette(40, c("#FF0000", "#00FF00", "#0000FF"), range = c(30, 80)))
+# Polychrome::swatch(P40)
+P40 <- c("#FE1C2E", "#1CE50D", "#1C0DFE", "#E6B8C2", "#FD00E3", "#0DD1FC",
+         "#FC9900", "#226516", "#A80D47", "#70228D", "#CACD00", "#386376",
+         "#3BDDC0", "#C70DFD", "#7F5A00", "#EE76C4", "#859BFE", "#F900A7",
+         "#E4B4FE", "#733556", "#C1CB97", "#F49386", "#D94B00", "#7CDA78",
+         "#F92A75", "#F27CFF", "#EFBB5F", "#A3CAC8", "#005698", "#7A0DC8",
+         "#685F51", "#A2BFEE", "#91380D", "#957AA1", "#7A9A00", "#950068",
+         "#C76D89", "#00B1B9", "#C187FF", "#0042BD")
 
 #' Add peak list rectangles to a raw plot
 #'
@@ -179,14 +188,15 @@ as.data.frame.GCIMSSample <- function(x, row.names = NULL, optional = FALSE, dt_
 #' @param pdata A phenotype data data frame, with a SampleID column to be merged into peaklist so color_by can specify
 #' a phenotype
 #' `freesize_dt_min_ms`. Use `col_prefix = "freesize_"` to plot the `freesize` version
-#'
+#' @param palette A character vector with color names to use drawing the rectangles. Use `NULL` to let `ggplot2` set the defaults.
 #' @details
 #' If `peaklist` includes `dt_apex_ms` and `rt_apex_s` a cross will be plotted on the peak apex.
 #'
 #' @return The given `plt` with rectangles showing the ROIs and crosses showing the apexes
 #' @export
 #'
-add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", pdata = NULL) {
+add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", pdata = NULL,
+                              palette = P40) {
   dt_range <- ggplot2::layer_scales(plt)$x$range$range
   rt_range <- ggplot2::layer_scales(plt)$y$range$range
   if (is.null(dt_range)) {
@@ -264,7 +274,7 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
         )
     }
   } else {
-    show_legend <- nrow(peaklist_to_plot_rect) > 10
+    show_legend <- nrow(peaklist_to_plot_rect) <= 10
     plt <- plt +
       ggplot2::geom_rect(
         data = peaklist_to_plot_rect,
@@ -287,10 +297,24 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
             y = .data$rt_apex_s,
             color = !!color_by_sym
           ),
-          shape = "x"
+          shape = "x",
+          show.legend = show_legend
         )
+    }
+    if (!is.null(palette)) {
+      palette <- unname(palette)
+      colours_in_pal <- length(palette)
+      if (colours_in_pal >= how_many_colors) {
+        palette <- palette[seq_len(how_many_colors)]
+      } else {
+        # recycle palette:
+        recycle_times <- floor(how_many_colors / colours_in_pal)
+        palette <- rep(palette, times = recycle_times)
+        palette <- c(palette, palette[seq_len(how_many_colors - length(palette))])
+      }
+      plt <- plt +
+        ggplot2::scale_color_manual(values = palette)
     }
   }
   plt
 }
-
