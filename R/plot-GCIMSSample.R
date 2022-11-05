@@ -19,7 +19,10 @@
 #' )
 #' plot(dummy_obj)
 #' @export
-plot.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE, trans = "cubic_root") {
+setMethod(
+  "plot",
+  "GCIMSSample",
+  function(x, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE, trans = "cubic_root") {
   dt <- dtime(x)
   rt <- rtime(x)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range)
@@ -37,7 +40,7 @@ plot.GCIMSSample <- function(x, dt_range = NULL, rt_range = NULL, ..., remove_ba
     rt_max = idx$rt_s_max,
     trans = trans
   )
-}
+})
 
 
 mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL, trans = "cubic_root") {

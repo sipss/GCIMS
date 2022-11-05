@@ -1,5 +1,8 @@
 #' @export
-plot.GCIMSSpectrum <- function(x, ...) {
+setMethod(
+  "plot",
+  "GCIMSSpectrum",
+  function(x, ...) {
   rts <- rtime(x)
   if (length(rts) == 1) {
     subtitle <- glue("Retention time {rts} s")
@@ -22,3 +25,4 @@ plot.GCIMSSpectrum <- function(x, ...) {
       y = "Intensity (a.u.)"
     )
 }
+)

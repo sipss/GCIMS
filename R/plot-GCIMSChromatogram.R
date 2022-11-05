@@ -1,5 +1,8 @@
 #' @export
-plot.GCIMSChromatogram <- function(x, ...) {
+setMethod(
+  "plot",
+  "GCIMSChromatogram",
+  function(x, ...) {
   dt_ms <- dtime(x)
   if (length(dt_ms) == 1) {
     subtitle <- glue("Drift time {dt_ms} ms")
@@ -21,3 +24,4 @@ plot.GCIMSChromatogram <- function(x, ...) {
       subtitle = subtitle
     )
 }
+)
