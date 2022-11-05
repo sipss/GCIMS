@@ -9,7 +9,8 @@ add_peaklist_rect(
   peaklist,
   color_by = NULL,
   col_prefix = "",
-  pdata = NULL
+  pdata = NULL,
+  palette = P40
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ the added rectangles}
 \item{pdata}{A phenotype data data frame, with a SampleID column to be merged into peaklist so color_by can specify
 a phenotype
 \code{freesize_dt_min_ms}. Use \code{col_prefix = "freesize_"} to plot the \code{freesize} version}
+
+\item{palette}{A character vector with color names to use drawing the rectangles. Use \code{NULL} to let \code{ggplot2} set the defaults.}
 }
 \value{
 The given \code{plt} with rectangles showing the ROIs and crosses showing the apexes
