@@ -14,6 +14,9 @@
 #'
 #'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
 #' @param verbose logical, to control printing in the function
+#' @param ... Ignored. All other parameters beyond `peaks` should be named
+#' @param dt_cluster_spread_ms,rt_cluster_spread_s The typical spread of the clusters. Used for scaling
+#' dimensions when computing distances
 #' @description Peak grouping function, exposing several options useful for benchmarking.
 #'
 #' @return A list with :
@@ -36,7 +39,10 @@
 #' @export
 clusterPeaks <- function(
     peaks,
-    distance_method = "mahalanobis",
+    ...,
+    distance_method = "euclidean",
+    dt_cluster_spread_ms = 0.7,
+    rt_cluster_spread_s = 7,
     distance_between_peaks_from_same_sample = 100,
     clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
     verbose = FALSE
@@ -45,9 +51,13 @@ clusterPeaks <- function(
   # Compute the peak to peak distance:
   peak_matrix <- as.matrix(peaks[,c("dt_apex_ms", "rt_apex_s")])
   rownames(peak_matrix) <- peaks$UniqueID
+  peak_matrix_scaled <- peak_matrix
+  peak_matrix_scaled[,"dt_apex_ms"] <- peak_matrix_scaled[,"dt_apex_ms"]/dt_cluster_spread_ms
+  peak_matrix_scaled[,"rt_apex_s"] <- peak_matrix_scaled[,"rt_apex_s"]/rt_cluster_spread_s
+  colnames(peak_matrix_scaled) <- c("dt_apex_scaled", "rt_apex_scaled")
 
   peak2peak_dist <- peak2peak_distance(
-    peak_matrix = peak_matrix,
+    peak_matrix = peak_matrix_scaled,
     distance_method = distance_method
   )
 
@@ -409,6 +419,17 @@ peak2peak_distance <- function(peak_matrix, distance_method = "mahalanobis") {
   if (distance_method %in% STATS_METHODS) {
     peak2peak_dist <- stats::dist(peak_matrix, method = distance_method)
   } else if (distance_method == "sd_scaled_euclidean") {
+    rlang::warn(
+      message = c(
+        "Deprecated distance metric",
+        "i" = "The 'sd_scaled_euclidean' metric is now deprecated",
+        "i" = "Please use the following arguments instead",
+        "i" = '  distance_method="euclidean"',
+        "i" = '  dt_cluster_spread_ms=<typical cluster spread in drift time in ms>',
+        "i" = '  rt_cluster_spread_s=<typical cluster spread in retention time in s>',
+        "i" = "Do not use the standard deviation of all peaks as the cluster spread, as it doesn't make sense"
+      )
+    )
     peak_matrix_scaled <- scale(peak_matrix, center = FALSE, scale = TRUE)
     peak2peak_dist <- stats::dist(peak_matrix_scaled, method = "euclidean")
   } else if (distance_method == "mahalanobis") {

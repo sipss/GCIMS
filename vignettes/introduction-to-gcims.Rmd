@@ -452,7 +452,9 @@ plt
 ```{r clustering-section-starts-here}
 peak_clustering <- clusterPeaks(
   peak_list,
-  distance_method = "sd_scaled_euclidean",
+  distance_method = "euclidean",
+  dt_cluster_spread_ms = 0.7,
+  rt_cluster_spread_s = 7,
   clustering = list(method = "kmedoids", Nclusters = 50)
 )
 ```

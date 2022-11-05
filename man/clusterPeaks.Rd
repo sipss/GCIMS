@@ -6,7 +6,10 @@
 \usage{
 clusterPeaks(
   peaks,
-  distance_method = "mahalanobis",
+  ...,
+  distance_method = "euclidean",
+  dt_cluster_spread_ms = 0.7,
+  rt_cluster_spread_s = 7,
   distance_between_peaks_from_same_sample = 100,
   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
   verbose = FALSE
@@ -21,7 +24,12 @@ clusterPeaks(
 \item "dt_max_ms", "dt_min_ms", "rt_max_s", "rt_min_s" (for filtering outlier peaks based on their size)
 }}
 
+\item{...}{Ignored. All other parameters beyond \code{peaks} should be named}
+
 \item{distance_method}{A string. One of the distance methods from \link[stats:dist]{stats::dist}, "sd_scaled_euclidean" or "mahalanobis"}
+
+\item{dt_cluster_spread_ms, rt_cluster_spread_s}{The typical spread of the clusters. Used for scaling
+dimensions when computing distances}
 
 \item{distance_between_peaks_from_same_sample}{The distance between two peaks from the same sample will be set to \code{distance_between_peaks_from_same_sample*max(distance_matrix)}}
 
