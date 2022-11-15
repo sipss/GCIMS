@@ -8,10 +8,10 @@ clusterPeaks(
   peaks,
   ...,
   distance_method = "euclidean",
-  dt_cluster_spread_ms = 0.7,
-  rt_cluster_spread_s = 7,
+  dt_cluster_spread_ms = 0.1,
+  rt_cluster_spread_s = 20,
   distance_between_peaks_from_same_sample = 100,
-  clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+  clustering = list(method = "hclust"),
   verbose = FALSE
 )
 }
@@ -28,8 +28,8 @@ clusterPeaks(
 
 \item{distance_method}{A string. One of the distance methods from \link[stats:dist]{stats::dist}, "sd_scaled_euclidean" or "mahalanobis"}
 
-\item{dt_cluster_spread_ms, rt_cluster_spread_s}{The typical spread of the clusters. Used for scaling
-dimensions when computing distances}
+\item{dt_cluster_spread_ms, rt_cluster_spread_s}{The typical spread of the clusters. Used for scaling.
+dimensions when computing distances. When \code{clustering$method} is \code{"hclust"}, these spreads are used to cut cluster sizes.}
 
 \item{distance_between_peaks_from_same_sample}{The distance between two peaks from the same sample will be set to \code{distance_between_peaks_from_same_sample*max(distance_matrix)}}
 
@@ -38,16 +38,18 @@ For \code{method = "kmedoids"}, you must provide \code{Nclusters}, with either t
 to use in the kmedoids algorithm (\link[cluster:pam]{cluster::pam}) or the string \code{"max_peaks_sample"} to use the maximum number of
 detected peaks per sample.
 
-For \code{method = "hclust"}, you can provide \code{hclust_method}, with the \code{method} passed to \link[stats:hclust]{stats::hclust}.}
+For \code{method = "hclust"}, you can provide \code{hclust_method}, with the \code{method} passed to \code{\link[mdendro:linkage]{mdendro::linkage()}}.
+For \code{method = "hclust_old"}, you can provide \code{hclust_method}, with the \code{method} passed to \code{\link[stats:hclust]{stats::hclust()}}.}
 
 \item{verbose}{logical, to control printing in the function}
 }
 \value{
 A list with :
 \itemize{
-\item peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
-\item peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
-\item extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
+\item \code{peak_list_clustered}: The peak list with a "cluster" column
+\item \code{cluster_stats}: Cluster statistics (cluster size...)
+\item \code{dist}: peak to peak distance object
+\item \code{extra_clustering_info}: Arbitrary clustering extra information, that depends on the clustering method
 }
 }
 \description{
@@ -62,7 +64,7 @@ peak_clustering  <- clusterPeaks(
   peaks = peak_list,
   distance_method = "mahalanobis",
   distance_between_peaks_from_same_sample = Inf,
-  clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+  clustering = list(method = "hclust"),
   verbose = FALSE
 )
 }
