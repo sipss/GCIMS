@@ -177,8 +177,12 @@ clusterPeaks <- function(
 
   # Turn numeric peak clusters into IDs:
   if (is.numeric(peaks$cluster)) {
-    ndigits_print <- paste0("Cluster%0", nchar(max(peaks$cluster)), "d")
-    peaks$cluster <- sprintf(ndigits_print, peaks$cluster)
+    ndigits_print <- paste0("Cluster%0", nchar(max(peaks$cluster, na.rm = TRUE)), "d")
+    peaks$cluster <- ifelse(
+      is.na(peaks$cluster),
+      NA_character_,
+      sprintf(ndigits_print, peaks$cluster)
+    )
   }
 
   peak_cluster_stats <- peak_and_cluster_metrics(peaks)
