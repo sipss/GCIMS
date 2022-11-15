@@ -66,6 +66,7 @@ Imports:
     ggplot2 (>= 3.3.2),
     glue,
     MassSpecWavelet (>= 1.63.5),
+    mdendro,
     methods,
     ProtGenerics (>= 1.24.0),
     ptw (>= 1.9-10),

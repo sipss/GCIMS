@@ -12,17 +12,20 @@
 #'   to use in the kmedoids algorithm ([cluster::pam]) or the string `"max_peaks_sample"` to use the maximum number of
 #'   detected peaks per sample.
 #'
-#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust].
+#'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [mdendro::linkage()].
+
+#'   For `method = "hclust_old"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust()].
 #' @param verbose logical, to control printing in the function
 #' @param ... Ignored. All other parameters beyond `peaks` should be named
-#' @param dt_cluster_spread_ms,rt_cluster_spread_s The typical spread of the clusters. Used for scaling
-#' dimensions when computing distances
+#' @param dt_cluster_spread_ms,rt_cluster_spread_s The typical spread of the clusters. Used for scaling.
+#' dimensions when computing distances. When `clustering$method` is `"hclust"`, these spreads are used to cut cluster sizes.
 #' @description Peak grouping function, exposing several options useful for benchmarking.
 #'
 #' @return A list with :
-#' - peak_table: A peak table that includes peak position, median peak minimum/maximum retention and drift times and the peak Volume for each sample
-#' - peak_table_duplicity: How many Volume values have been aggregated. Should be 1 for each sample/peak
-#' - extra_clustering_info: Arbitrary clustering extra information, that depends on the clustering method
+#'  - `peak_list_clustered`: The peak list with a "cluster" column
+#'  - `cluster_stats`: Cluster statistics (cluster size...)
+#'  - `dist`: peak to peak distance object
+#'  - `extra_clustering_info`: Arbitrary clustering extra information, that depends on the clustering method
 #' @examples
 #' \donttest{
 #' dir_in <- system.file("extdata", package = "GCIMS")
@@ -32,7 +35,7 @@
 #'   peaks = peak_list,
 #'   distance_method = "mahalanobis",
 #'   distance_between_peaks_from_same_sample = Inf,
-#'   clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+#'   clustering = list(method = "hclust"),
 #'   verbose = FALSE
 #' )
 #'}
@@ -41,10 +44,10 @@ clusterPeaks <- function(
     peaks,
     ...,
     distance_method = "euclidean",
-    dt_cluster_spread_ms = 0.7,
-    rt_cluster_spread_s = 7,
+    dt_cluster_spread_ms = 0.1,
+    rt_cluster_spread_s = 20,
     distance_between_peaks_from_same_sample = 100,
-    clustering = list(method = "kmedoids", Nclusters = "max_peaks_sample"),
+    clustering = list(method = "hclust"),
     verbose = FALSE
 ) {
 
@@ -89,7 +92,7 @@ clusterPeaks <- function(
     peaks$cluster <- cluster$clustering
     extra_clustering_info$cluster_result <- cluster
     extra_clustering_info$silhouette <- cluster::silhouette(cluster, dist = peak2peak_dist)
-  } else if (clustering$method == "hclust") {
+  } else if (clustering$method == "hclust_old") {
     hclust_method <- ifelse(is.null(clustering$hclust_method), "complete", clustering$hclust_method)
     cluster <- stats::hclust(d = peak2peak_dist, method = hclust_method)
     num_clusters <- clustering$num_clusters
@@ -122,6 +125,52 @@ clusterPeaks <- function(
     extra_clustering_info$cluster <- cluster
     extra_clustering_info$num_clusters <- num_clusters
     extra_clustering_info$num_cluster_estimation <- num_cluster_estimation
+  } else if (clustering$method == "hclust") {
+    hclust_method <- ifelse(is.null(clustering$hclust_method), "complete", clustering$hclust_method)
+    cluster <- mdendro::linkage(peak2peak_dist, method = hclust_method)
+
+    merger_dist <- tibble::tibble(
+      merger_id = seq_along(cluster$merger),
+      dt_length_ms = Inf,
+      rt_length_s = Inf,
+      singletons = vector("list", length = length(cluster$merger))
+    )
+
+    get_merged_idx <- function(idx, merger) {
+      singletons <- idx[idx < 0]
+      clusters <- idx[idx > 0]
+      singletons2 <- c()
+      for (cl in clusters) {
+        thiscl <- get_merged_idx(merger[[cl]], merger)
+        singletons2 <- c(singletons2, thiscl)
+      }
+      abs(c(singletons, singletons2))
+    }
+
+    for (i in seq_len(nrow(merger_dist))) {
+      peaks_merged <- get_merged_idx(cluster$merger[[i]], merger = cluster$merger)
+      merger_dist$dt_length_ms[i] <- diff(range(peaks$dt_apex_ms[peaks_merged]))
+      merger_dist$rt_length_s[i] <- diff(range(peaks$rt_apex_s[peaks_merged]))
+      merger_dist$singletons[[i]] <- peaks_merged
+    }
+    merger_dist <- dplyr::mutate(
+      merger_dist,
+      dt_breaks = .data$rt_length_s > rt_cluster_spread_s,
+      rt_breaks = .data$dt_length_ms > dt_cluster_spread_ms,
+      breaks = .data$dt_breaks | .data$rt_breaks
+    )
+
+    peaks$cluster <- NA_integer_
+    for (i in seq_len(nrow(merger_dist))) {
+      if (!merger_dist$breaks[i]) {
+        peaks$cluster[merger_dist$singletons[[i]]] <- i
+      }
+    }
+    # renumber the values to the 1:N
+    peaks$cluster <- as.integer(as.factor(peaks$cluster))
+    extra_clustering_info$cluster <- cluster
+    extra_clustering_info$num_clusters <- length(unique(peaks$cluster))
+    extra_clustering_info$merger_distances <- merger_dist
   } else {
     stop(sprintf("Unsupported clustering method %s", clustering$method))
   }
@@ -154,6 +203,7 @@ peak_and_cluster_metrics <- function(peaks) {
     )
 
   cluster_stats <- peaks |>
+    dplyr::filter(!is.na(cluster)) |>
     dplyr::mutate(
       dt_apex_to_min_ms = .data$dt_apex_ms - .data$dt_min_ms,
       dt_apex_to_max_ms = .data$dt_max_ms - .data$dt_apex_ms,
