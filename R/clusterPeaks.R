@@ -207,7 +207,7 @@ peak_and_cluster_metrics <- function(peaks) {
     )
 
   cluster_stats <- peaks |>
-    dplyr::filter(!is.na(cluster)) |>
+    dplyr::filter(!is.na(.data$cluster)) |>
     dplyr::mutate(
       dt_apex_to_min_ms = .data$dt_apex_ms - .data$dt_min_ms,
       dt_apex_to_max_ms = .data$dt_max_ms - .data$dt_apex_ms,
