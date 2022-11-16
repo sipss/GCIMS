@@ -105,13 +105,13 @@ ket1 <- getSample(dataset, sample = "S402_Cancer_M")
 ```
 
 ```{r}
-plotRaw(ket1)
+plot(ket1)
 ```
 
 
 
 ```{r}
-plotRaw(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
+plot(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 ```
 
 ```{r}
@@ -149,6 +149,8 @@ plotTIS(dataset)
 ```{r}
 plotRIC(dataset)
 ```
+
+
 ```{r}
 plotRIC(dataset, rt_range = c(0, 250))
 ```
@@ -238,8 +240,8 @@ ket1_smoothed <- smooth(
 
 ```{r}
 cowplot::plot_grid(
-  plotRaw(ket1afterfilter, rt_range = c(0, 500), dt_range = c(6, 16)),
-  plotRaw(ket1_smoothed, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(ket1afterfilter, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(ket1_smoothed, rt_range = c(0, 500), dt_range = c(6, 16)),
   ncol = 2
 )
 ```
@@ -372,14 +374,21 @@ peaks may appear broken into two regions or false detections may occur.
 ket1 <- getSample(dataset, "S402_Cancer_M")
 ket1 <- findPeaks(
   ket1,
-  noise_level = 3,
   rt_length_s = 3,
   dt_length_ms = 0.14,
   verbose = TRUE,
-  iou_overlap_threshold = 0.2
+  dt_peakwidth_range_ms = c(0.15, 0.4),
+  rt_peakwidth_range_s = c(10, 25),
+  dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  dt_extension_factor = 0,
+  rt_extension_factor = 0,
+  exclude_rip = FALSE,
+  iou_overlap_threshold = 0.2,
+  debug_idx = list(rt = 1181, dt = 1502)
 )
 peak_list_ket1 <- peaks(ket1)
-plt <- plotRaw(ket1, dt_range = c(7, 15), rt_range = c(0, 300))
+plt <- plot(ket1, dt_range = c(7, 15), rt_range = c(0, 300))
 plt <- add_peaklist_rect(plt, peak_list_ket1, color_by = "PeakID")
 plt
 ```
@@ -391,13 +400,23 @@ Then do it on the whole dataset:
 ```{r}
 findPeaks(
   dataset,
-  noise_level = 3,
   rt_length_s = 3,
   dt_length_ms = 0.14,
+  verbose = TRUE,
+  dt_peakwidth_range_ms = c(0.15, 0.4),
+  rt_peakwidth_range_s = c(10, 25),
+  dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  dt_extension_factor = 0,
+  rt_extension_factor = 0,
+  exclude_rip = FALSE,
   iou_overlap_threshold = 0.2
 )
 peak_list <- peaks(dataset)
+
 ```
+
+
 You can get any other sample if you like, plot it and plot its peaks on top:
 
 ```{r}
@@ -406,7 +425,7 @@ ket2 <- getSample(dataset, "S246_Control_F")
 
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peaks(ket2))
 plt + lims(x= c(7.5,15), y = c(0, 500))
 ```
@@ -416,21 +435,21 @@ plt + lims(x= c(7.5,15), y = c(0, 500))
 Or plot all the peaks from all the dataset together, overlayed on a single sample:
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peaks(dataset), color_by = "SampleID")
 plt
 ```
 
 
 ```{r}
-plt <- plotRaw(ket2, dt_range = c(7, 12), rt_range = c(0, 250))
+plt <- plot(ket2, dt_range = c(7, 12), rt_range = c(0, 250))
 plt <- add_peaklist_rect(plt, peaks(dataset), color_by = "SampleID")
 plt
 ```
 
 
 ```{r}
-plt <- plotRaw(ket2, dt_range = c(7, 12), rt_range = c(0, 250))
+plt <- plot(ket2, dt_range = c(7, 12), rt_range = c(0, 250))
 plt <- add_peaklist_rect(plt, peaks(dataset))
 plt + facet_wrap(~SampleID)
 ```
@@ -459,7 +478,7 @@ FIXME: We need a proper API to plot this with a user friendly interface, but we
 can easily see there is some trouble with the clustering as of today (I'm working on it).
 
 ```{r fig.height=10, fig.width=10}
-plt <- plotRaw(ket2, dt_range = c(7, 12), rt_range = c(0, 200))
+plt <- plot(ket2, dt_range = c(7, 12), rt_range = c(0, 200))
 plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "SampleID") + 
   lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
   facet_wrap(~cluster, scales = "free")
@@ -469,7 +488,7 @@ plt
 
 
 ```{r fig.height=10, fig.width=10}
-plt <- plotRaw(ket2, dt_range = c(7, 12), rt_range = c(0, 200))
+plt <- plot(ket2, dt_range = c(7, 12), rt_range = c(0, 200))
 plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "cluster") + 
   facet_wrap(~SampleID)
 plt + theme(legend.position = "none")
@@ -492,7 +511,7 @@ peak_clustering_kmed <- clusterPeaks(
 ```
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peak_clustering_kmed$peak_list_clustered, color_by = "cluster") + guides(color=FALSE) +
   lims(x = c(7.5, 15), y = c(0, 500))
 plt
@@ -556,7 +575,7 @@ peak_clustering_hclust2$extra_clustering_info$num_cluster_estimation$rt_plot
 
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peak_clustering_hclust2$peak_list_clustered, color_by = "cluster") + guides(color=FALSE) +
   lims(x = c(7.5, 15), y = c(0, 500))
 plt
@@ -574,7 +593,7 @@ plt + lims(y = c(50, 80), x = c(7.5, 9))
 
 
 ```{r fig.height=10, fig.width=10}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peak_clustering_hclust2$peak_list_clustered, color_by = "SampleID") + 
   lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) +
   facet_wrap(~cluster, scales = "free")
@@ -594,7 +613,7 @@ The resulting cluster sizes (median position of individual clusters) is not a go
 for integration. We are working on this.
 
 ```{r}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(plt, peak_clustering$cluster_stats, color_by = "cluster")
 plt + theme(legend.position ="none")
 ```
@@ -664,17 +683,17 @@ ket1 <- estimateBaseline(
 
 
 ```{r}
-plotRaw(ket1)
+plot(ket1)
 ```
 
 ```{r}
-plotRaw(ket1, remove_baseline = TRUE)
+plot(ket1, remove_baseline = TRUE)
 ```
 
 ```{r}
 cowplot::plot_grid(
-  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16)),
-  plotRaw(ket1, rt_range = c(0, 500), dt_range = c(6, 16), remove_baseline = TRUE),
+  plot(ket1, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(ket1, rt_range = c(0, 500), dt_range = c(6, 16), remove_baseline = TRUE),
   ncol = 2
 )
 ```
@@ -694,7 +713,7 @@ realize(dataset)
 
 
 ```{r fig.height=10, fig.width=10}
-plt <- plotRaw(ket2)
+plt <- plot(ket2)
 plt <- add_peaklist_rect(
   plt, 
   dplyr::filter(peak_clustering$peak_list_clustered),

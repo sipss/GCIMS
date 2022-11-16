@@ -442,98 +442,12 @@ plot(dtime(ket1), ddt[,30], type = "l")
 
 ```{r}
 prof <- profvis::profvis({
-  start <- Sys.time()
+  peaks_and_zeros_drt <- detect_peaks_and_zeros_drt()
   
-  prep_wav <- MassSpecWavelet::prepareWavelets(ncol(drt), scales = c(1, 32, 48, 64))
-  peaks_and_zeros_drt <- purrr::map_dfr(seq_len(nrow(drt)), function(dt_idx) {
-    peak_idx <- unname(MassSpecWavelet::peakDetectionCWT(ms = drt[dt_idx,], prep_wav, exclude0scaleAmpThresh = TRUE)$majorPeakInfo$peakIndex)
-    zero_idx <- GCIMS:::findZeroCrossings(drt[dt_idx,])
-    if (length(peak_idx) == 0 || length(zero_idx) == 0) {
-      return(
-        tibble::tibble(
-          dt_idx_apex = integer(0L),
-          rt_idx_apex = integer(0L),
-          is_rt_peak = logical(0L),
-          rt_idx_min = integer(0L),
-          rt_idx_max = integer(0L)
-        )
-      )
-    }
-    out <- tibble::tibble(
-      dt_idx_apex = rep(dt_idx, length(peak_idx)),
-      rt_idx_apex = peak_idx,
-      rt_idx_min = NA_integer_,
-      rt_idx_max = NA_integer_
-    )
-    zero_idx2 <- 1L
-    for (i in seq_len(nrow(out))) {
-      if (out$rt_idx_apex[i] <= zero_idx[1L]) {
-        next
-      }
-      while (out$rt_idx_apex[i] >= zero_idx[zero_idx2]) {
-        zero_idx2 <- zero_idx2 + 1L
-      }
-      if (zero_idx2 > length(zero_idx)) {
-        break
-      }
-      out$rt_idx_min[i] <- zero_idx[zero_idx2 - 1L]
-      out$rt_idx_max[i] <- zero_idx[zero_idx2]
-    }
-    out <- dplyr::filter(out, !is.na(.data$rt_idx_min))
-    out <- out[, c("dt_idx_apex", "rt_idx_apex", "rt_idx_min", "rt_idx_max")]
-    out
-  })
-  
-  prep_wav <- MassSpecWavelet::prepareWavelets(nrow(ddt), scales = c(1, 32, 48, 64))
-  peaks_and_zeros_ddt <- purrr::map_dfr(seq_len(ncol(ddt)), function(rt_idx) {
-    peak_idx <- unname(MassSpecWavelet::peakDetectionCWT(ms = ddt[,rt_idx], prep_wav, exclude0scaleAmpThresh = TRUE)$majorPeakInfo$peakIndex)
-    zero_idx <- GCIMS:::findZeroCrossings(ddt[,rt_idx])
-    if (length(peak_idx) == 0 || length(zero_idx) == 0) {
-      return(
-        tibble::tibble(
-          dt_idx_apex = integer(0L),
-          rt_idx_apex = integer(0L),
-          dt_idx_min = integer(0L),
-          dt_idx_max = integer(0L)
-        )
-      )
-    }
-    out <- tibble::tibble(
-      dt_idx_apex = peak_idx,
-      rt_idx_apex = rep(rt_idx, length(peak_idx)),
-      dt_idx_min = NA_integer_,
-      dt_idx_max = NA_integer_
-    )
-    zero_idx2 <- 1L
-    for (i in seq_len(nrow(out))) {
-      if (out$dt_idx_apex[i] <= zero_idx[1L]) {
-        next
-      }
-      while (out$dt_idx_apex[i] >= zero_idx[zero_idx2]) {
-        zero_idx2 <- zero_idx2 + 1L
-      }
-      if (zero_idx2 > length(zero_idx)) {
-        break
-      }
-      out$dt_idx_min[i] <- zero_idx[zero_idx2 - 1L]
-      out$dt_idx_max[i] <- zero_idx[zero_idx2]
-    }
-    out <- dplyr::filter(out, !is.na(.data$dt_idx_min))
-    out <- out[, c("dt_idx_apex", "rt_idx_apex", "dt_idx_min", "dt_idx_max")]
-    out
-  })
-  
-  
-  ROIs <- dplyr::inner_join(
-    peaks_and_zeros_drt,
-    peaks_and_zeros_ddt,
-    by = c("dt_idx_apex", "rt_idx_apex")
-  )
-  ROIs <- ROIs[, c("dt_idx_min", "dt_idx_max", "rt_idx_min", "rt_idx_max", "dt_idx_apex", "rt_idx_apex"), drop = FALSE]
-  
-  spent <- Sys.time() - start
-  print(spent)
+  peaks_and_zeros_ddt <- detect_peaks_and_zeros_ddt()
+  ROIs <- intersect_peaks_and_zeros_in_both_axes(peaks_and_zeros_drt, peaks_and_zeros_ddt)
 })
+
 
 ```
 
@@ -556,6 +470,7 @@ overlapPercentage <- function(ROI1, ROI2){
   p <- overlapping_area / (area1 + area2 - overlapping_area)
   return(p)
 }
+
 merge_overlapping_rois <- function(ROIs, int_mat, iou_overlap_threshold) {
   if (iou_overlap_threshold > 1) {
     return(ROIs)
