@@ -395,15 +395,15 @@ ket1 <- findPeaks(
   dt_extension_factor = 0,
   rt_extension_factor = 0,
   exclude_rip = FALSE,
-  iou_overlap_threshold = 0.2,
-  debug_idx = list(rt = 1181, dt = 1502)
+  iou_overlap_threshold = 0.2
 )
-peak_list_ket1 <- peaks(ket1)
-plt <- plot(ket1)
-plt <- add_peaklist_rect(plt, peak_list_ket1, color_by = "PeakID")
-plt
 ```
 
+```{r}
+peak_list_ket1 <- peaks(ket1)
+plot(ket1) +
+  overlay_peaklist(peak_list_ket1, color_by = "PeakID")
+```
 
 Then do it on the whole dataset:
 
@@ -419,7 +419,7 @@ findPeaks(
   rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
   dt_extension_factor = 0,
   rt_extension_factor = 0,
-  exclude_rip = FALSE,
+  exclude_rip = TRUE,
   iou_overlap_threshold = 0.2
 )
 peak_list <- peaks(dataset)
@@ -430,20 +430,20 @@ You can get any other sample if you like, plot it and plot its peaks on top:
 ket2 <- getSample(dataset, "Ketones2")
 ```
 
-
 ```{r}
-plt <- plot(ket2)
-plt <- add_peaklist_rect(plt, peaks(ket2))
-plt + lims(x= c(7.5,15), y = c(0, 500))
+plot(ket2) +
+  overlay_peaklist(peaks(ket2)) +
+  lims(x= c(7.5,15), y = c(0, 500))
 ```
-
-
 
 Or plot all the peaks from all the dataset together, overlayed on a single sample:
 
 ```{r}
-plt <- plot(ket2)
-plt <- add_peaklist_rect(plt, peaks(dataset), color_by = "SampleID")
+plt <- plot(ket2) +
+  overlay_peaklist(peaks(dataset), color_by = "SampleID")
+# We could explore the plot interactively: 
+# plot_interactive(plt)
+# Or use a static version to save memory and render it faster:
 plt
 ```
 
@@ -466,24 +466,28 @@ peak_list_clustered <- peak_clustering$peak_list_clustered
 ```
 
 
-FIXME: We need a proper API to plot this with a user friendly interface, but we
-can easily see there is some trouble with the clustering as of today (I'm working on it).
-
 ```{r fig.height=10, fig.width=10}
-plt <- plot(ket2)
-plt <- add_peaklist_rect(plt, peak_list_clustered, color_by = "SampleID") + 
-  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) #+
-  #facet_wrap(~cluster, scales = "free")
-plt
+plt <- plot(ket2) +
+  overlay_peaklist(peak_list_clustered, color_by = "SampleID")
+print(plt)
+print(plt + lims(x = c(6, 15), y = c(0, 400)))
+```
+
+```{r}
+plt <- plot(ket2) +
+  overlay_peaklist(dplyr::filter(peak_list_clustered, !is.na(cluster)), color_by = "cluster")
+print(plt)
+print(plt + lims(x = c(6, 15), y = c(0, 400)))
 ```
 
 The resulting cluster sizes (median position of individual clusters) is not a good reference
 for integration. We are working on this.
 
 ```{r}
-plt <- plot(ket2)
-plt <- add_peaklist_rect(plt, peak_clustering$cluster_stats, color_by = "cluster")
-plt
+plt <- plot(ket2) +
+  overlay_peaklist(peak_clustering$cluster_stats, color_by = "cluster")
+#plot_interactive(plt)
+plt + lims(x = c(6, 15), y = c(0, 400))
 ```
 
 # Baseline correction
@@ -583,16 +587,18 @@ realize(dataset)
 Some clusters:
 
 ```{r fig.height=10, fig.width=10}
-plt <- plot(ket2)
-plt <- add_peaklist_rect(
-  plt, 
-  peak_clustering$peak_list_clustered,
-  color_by = "SampleID",
-  col_prefix = "fixedsize_"
-) + 
-  lims(x = c(NA_real_, NA_real_), y = c(NA_real_, NA_real_)) #+
-  #facet_wrap(~cluster, scales = "free")
-plt
+plot(ket2) + 
+  overlay_peaklist(
+    peak_clustering$peak_list_clustered,
+    color_by = "SampleID",
+    mapping_roi = c(
+      "dt_min_ms" = "fixedsize_dt_min_ms",
+      "dt_max_ms" = "fixedsize_dt_max_ms",
+      "rt_min_s" = "fixedsize_rt_min_s",
+      "rt_max_s" = "fixedsize_rt_max_s"
+    )
+  ) +
+  lims(x = c(6, 12), y = c(0, 400))
 ```
 
 
