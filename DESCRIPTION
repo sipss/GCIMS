@@ -90,6 +90,7 @@ Suggests:
     httr,
     knitr,
     labeling,
+    plotly (>= 4.10.1),
     rmarkdown,
     scales,
     testthat (>= 3.0.0),
