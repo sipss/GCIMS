@@ -249,9 +249,9 @@ peak_and_cluster_metrics <- function(peaks) {
       by = "cluster"
     ) |>
     dplyr::mutate(
-      fixedsize_dt_min_ms = .data$dt_apex_ms + .data$dt_apex_to_min_ms,
+      fixedsize_dt_min_ms = .data$dt_apex_ms - .data$dt_apex_to_min_ms,
       fixedsize_dt_max_ms = .data$dt_apex_ms + .data$dt_apex_to_max_ms,
-      fixedsize_rt_min_s = .data$rt_apex_s + .data$rt_apex_to_min_s,
+      fixedsize_rt_min_s = .data$rt_apex_s - .data$rt_apex_to_min_s,
       fixedsize_rt_max_s = .data$rt_apex_s + .data$rt_apex_to_max_s,
     ) |>
     dplyr::select(dplyr::all_of(c("UniqueID", "fixedsize_dt_min_ms", "fixedsize_dt_max_ms", "fixedsize_rt_min_s", "fixedsize_rt_max_s")))
