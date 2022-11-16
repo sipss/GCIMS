@@ -33,3 +33,25 @@ mat_to_nativeRaster <- function(x, colormap, rangex = NULL)  {
     channels = 4L
   )
 }
+
+
+#' Make a plot interactive
+#'
+#' Wraps the `plt` with [plotly::ggplotly()] and sets the `xaxis` and `yaxis`
+#' ticks to `"auto"`, so the axis labels are updated when zooming.
+#'
+#' @param plt A ggplot plot
+#'
+#' @return A plotly plot
+#' @export
+#'
+#' @examples
+#' plot_interactive()
+plot_interactive <- function(plt) {
+  require_pkgs("plotly")
+  plotly::layout(
+    plotly::ggplotly(plt),
+    xaxis = list(tickmode = "auto"),
+    yaxis = list(tickmode = "auto")
+  )
+}
