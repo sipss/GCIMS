@@ -318,3 +318,198 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
   }
   plt
 }
+
+
+
+#' Overlay a peak list to a plot
+#'
+#' @param peaklist A data frame with at least the columns: `dt_min_ms`, `dt_max_ms`, `rt_min_s`, `rt_max_s`
+#' and optionally additional columns (e.g. the column given to `color_by`)
+#' @param ... Ignored.
+#' @inheritParams dt_rt_range_normalization
+#' @param pdata A phenotype data data frame, with a `SampleID` column. This column will be used to
+#' merge `pdata` with `peaklist`, so `color_by` can specify a phenotype.
+#' @param color_by A character with a column name of `peaklist` or `pdata`. Used to color the border of
+#' the added rectangles and apices. A string with a color name is also acceptable.
+#' @param mapping_row A 4-elements named character vector with the names of the columns from `peaklist` that will
+#' be used as the rectangle coordinates.
+#' @param palette A character vector with color names to use drawing the rectangles. Use `NULL` to let `ggplot2` set the defaults.
+#' @details
+#' If `peaklist` includes `dt_apex_ms` and `rt_apex_s` a cross will be plotted on the peak apex.
+#'
+#' @return A list with the ggplot layers to overlay, including `geom_rect` and possibly `geom_point` and `scale_fill_manual`.
+#' @export
+#'
+overlay_peaklist <- function(
+    peaklist = NULL,
+    ...,
+    dt_range = NULL,
+    rt_range = NULL,
+    pdata = NULL,
+    color_by = NULL,
+    mapping_roi = c(
+      "dt_min_ms" = "dt_min_ms",
+      "dt_max_ms" = "dt_max_ms",
+      "rt_min_s" = "rt_min_s",
+      "rt_max_s" = "rt_max_s"
+    ),
+    palette = P40
+) {
+  if (is.null(dt_range)) {
+    dt_range <- c(-Inf, Inf)
+  }
+  if (is.null(rt_range)) {
+    rt_range <- c(-Inf, Inf)
+  }
+
+  if (!inherits(peaklist, "data.frame")) {
+    # coerces if it's a S4Vectors::DataFrame.
+    # does not coerce if it's a tibble
+    peaklist <- as.data.frame(peaklist)
+  }
+  if (!is.null(pdata)) {
+    fulldata <- dplyr::left_join(peaklist, pdata, by = "SampleID")
+  } else {
+    fulldata <- peaklist
+  }
+
+  if (is.null(color_by)) {
+    color_by <- "green"
+    how_many_colors <- 1L
+  } else if (purrr::is_scalar_character(color_by)) {
+    if (color_by %in% colnames(fulldata)) {
+      color_by_sym <- rlang::sym(color_by)
+      how_many_colors <- length(unique(fulldata[[color_by]]))
+    } else {
+      is_color <- tryCatch({
+        farver::encode_native(color_by)
+        TRUE
+      }, error = function(e) FALSE)
+      if (is_color) {
+        how_many_colors <- 1L
+      } else {
+        abort(
+          message = c(
+            "Invalid color_by",
+            glue("color_by {color_by} is neither a valid color name nor a column of peaklist or pdata")
+          )
+        )
+      }
+    }
+  } else {
+    abort("color_by should be NULL or a string")
+  }
+
+  if (!identical(names(mapping_roi), c("dt_min_ms", "dt_max_ms", "rt_min_s", "rt_max_s"))) {
+    abort(
+      c("i" = 'mapping_roi should be a named vector with names c("dt_min_ms", "dt_max_ms", "rt_min_s", "rt_max_s")')
+    )
+  }
+
+  fulldata <- fulldata |>
+    dplyr::select(-dplyr::any_of(names(mapping_roi)[!mapping_roi %in% names(mapping_roi)])) |>
+    dplyr::rename(dplyr::all_of(mapping_roi))
+
+
+  peaklist_to_plot_rect <- fulldata |>
+    dplyr::filter(
+      .data$dt_min_ms <= max(dt_range),
+      .data$dt_max_ms >= min(dt_range),
+      .data$rt_min_s <= max(rt_range),
+      .data$rt_max_s >= min(rt_range)
+    )
+
+  has_apex <- all(c("dt_apex_ms", "rt_apex_s") %in% colnames(fulldata))
+
+  if (has_apex) {
+    peaklist_to_plot_apex <- fulldata |>
+      dplyr::filter(
+        .data$dt_apex_ms >= min(dt_range),
+        .data$dt_apex_ms <= max(dt_range),
+        .data$rt_apex_s >= min(rt_range),
+        .data$rt_apex_s <= max(rt_range)
+      )
+  }
+
+  out <- list()
+  if (how_many_colors == 1) {
+    # Only one color, use green
+    out <- c(
+      out,
+      ggplot2::geom_rect(
+        data = peaklist_to_plot_rect,
+        mapping = ggplot2::aes(
+          xmin = .data$dt_min_ms,
+          xmax = .data$dt_max_ms,
+          ymin = .data$rt_min_s,
+          ymax = .data$rt_max_s
+        ),
+        color = color_by,
+        alpha = 0.3
+      )
+    )
+    if (has_apex) {
+      out <- c(
+        out,
+        ggplot2::geom_point(
+          data = peaklist_to_plot_apex,
+          mapping = ggplot2::aes(
+            x = .data$dt_apex_ms,
+            y = .data$rt_apex_s
+          ),
+          color = color_by,
+          shape = "x"
+        )
+      )
+    }
+  } else {
+    show_legend <- how_many_colors <= 10
+    out <- c(
+      out,
+      ggplot2::geom_rect(
+        data = peaklist_to_plot_rect,
+        mapping = ggplot2::aes(
+          xmin = .data$dt_min_ms,
+          xmax = .data$dt_max_ms,
+          ymin = .data$rt_min_s,
+          ymax = .data$rt_max_s,
+          color = !!color_by_sym
+        ),
+        alpha = 0.3,
+        show.legend = show_legend
+      )
+    )
+    if (has_apex) {
+      out <- c(
+        out,
+        ggplot2::geom_point(
+          data = peaklist_to_plot_apex,
+          mapping = ggplot2::aes(
+            x = .data$dt_apex_ms,
+            y = .data$rt_apex_s,
+            color = !!color_by_sym
+          ),
+          shape = "x",
+          show.legend = show_legend
+        )
+      )
+    }
+    if (!is.null(palette)) {
+      palette <- unname(palette)
+      colours_in_pal <- length(palette)
+      if (colours_in_pal >= how_many_colors) {
+        palette <- palette[seq_len(how_many_colors)]
+      } else {
+        # recycle palette:
+        recycle_times <- floor(how_many_colors / colours_in_pal)
+        palette <- rep(palette, times = recycle_times)
+        palette <- c(palette, palette[seq_len(how_many_colors - length(palette))])
+      }
+      out <- c(
+        out,
+        ggplot2::scale_color_manual(values = palette)
+      )
+    }
+  }
+  out
+}
