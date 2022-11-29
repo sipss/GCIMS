@@ -1,6 +1,9 @@
 ---
 title: "Creating a workflow step"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    df_print: "kable"
 vignette: >
   %\VignetteIndexEntry{Creating a workflow step}
   %\VignetteEngine{knitr::rmarkdown}
@@ -19,6 +22,14 @@ library(ggplot2)
 library(cowplot)
 library(GCIMS)
 ```
+
+# WARNING
+
+This vignette still uses some internals of the GCIMS package. We will be exporting
+helper functions and changing the design of the objects to make it more robust,
+so if you plan to create custom methods outside the GCIMS package, please
+stay in touch and coordinate with us.
+
 
 # Introduction
 
@@ -152,5 +163,251 @@ plot_grid(
   plot(sample_after) + labs(title = "After"),
   nrow = 2
 )
+```
+
+
+# Save additional information within each sample
+
+Modifying your samples is something nice. Sometimes you want to save some
+additional information in the sample that can help you analyze the results.
+
+You can do that with the `proc_params` slot.
+
+```{r}
+cutDrift2_Sample <- function(x, dt_from, dt_to) {
+  # dt_from and dt_to are indices of the drift time vector.
+  # This function crops a sample in the drift time axis.
+  
+  # Check that we are given a sample
+  if (!inherits(x, "GCIMSSample")) {
+    stop("Internal error, this will never happen")
+  }
+  
+  # Get the original range of the drift time
+  original_dt_length <- length(dtime(x))
+  
+
+  # In the future we will provide accessors instead of using @ slots directly.
+  x@data <- x@data[dt_from:dt_to,]
+  x@drift_time <- x@drift_time[dt_from:dt_to]
+  
+  new_dt_length <- length(dtime(x))
+  
+  # Save it in the proc_params list:
+  x@proc_params$cutDrift <- list(
+    original_dt_length = original_dt_length,
+    new_dt_length = new_dt_length
+  )
+  
+  # Check that we return a valid sample:
+  if (!validObject(x)) {
+    stop("The sample is not valid.")
+  }
+  return(x)
+}
+```
+
+We use the same function for the dataset:
+
+```{r}
+cutDrift2_Dataset <- function(x, dt_from, dt_to) {
+    delayed_op <- GCIMS:::GCIMSDelayedOp(
+      name = "cutDrift2", # Give a human-readable name
+      fun = cutDrift2_Sample, # The function that is applied to the sample
+      params = list(dt_from = dt_from, dt_to = dt_to) # The arguments that function needs
+    )
+    x <- GCIMS:::appendDelayedOp(x, delayed_op)
+    # Return the dataset, invisibly:
+    invisible(x)
+}
+```
+
+
+## Example
+
+```{r}
+dataset <- GCIMSDataset(
+  annotations,
+  base_dir = samples_directory,
+  on_ram = TRUE # You probably should set this to FALSE if you have more 
+                # than a handful of samples. See ?GCIMSDataset.
+)
+dataset
+
+```
+
+```{r}
+dataset <- cutDrift2_Dataset(dataset, dt_from = 1000, dt_to = 1500) # indices
+dataset
+```
+
+The dataset has now a pending operation, we can execute it:
+
+```{r}
+realize(dataset)
+```
+
+And get the sample, modified:
+
+```{r}
+sample_after <- getSample(dataset, 1)
+```
+
+We have those parameters saved:
+
+```{r}
+sample_after@proc_params$cutDrift
+```
+
+
+
+# Extracting and aggregating information from samples into the dataset
+
+In the previous example, we have to manually `getSample()` on each sample
+to get those additional results. This is going to be very slow.
+
+What we would like to have is a data frame with three columns: the sample name, the original dt_length
+and the new dt_length, so we have a summary for all the dataset.
+
+For this to happen fast and efficiently, we need to do it in two steps:
+
+- Extraction: Extract (a small amount of) information from a sample.
+- Aggregation: Aggregate the extracted information (e.g. to build your dataframe)
+
+## Extraction
+
+The extraction is usually a simple function that extracts from a sample
+the information you need. Some workflow steps use it to extract normalization
+factors, other workflow steps use it to extract the RIC or the TIS.
+
+Avoid extracting the whole data matrix, since it will use too much RAM.
+
+The function must take a GCIMSSample, and may return whatever you need. If
+you need many things, return a list with all of them.
+
+```{r}
+cutDrift_ExtractSample <- function(x) {
+  # Check that we are given a sample
+  if (!inherits(x, "GCIMSSample")) {
+    stop("Internal error, this will never happen")
+  }
+
+  # Extract only what you need:
+  extracted_object <- x@proc_params$cutDrift
+  return(extracted_object)
+}
+```
+
+### Check that it works:
+
+You can check that your `*_ExtractSample` works by applying it to one sample, if it
+has been processed:
+
+```{r}
+cutDrift_ExtractSample(sample_after)
+```
+
+
+## Aggregation
+
+The `realize()` function will extract the information from all your samples and
+save all the extracted information on a list, as long as the number of samples
+in your dataset.
+
+Then, it will call the aggregation function, using the `GCIMSDataset` as first
+argument and the list of extracted information in the second argument.
+
+We must write the aggregation function to convert our objects into whatever
+we want (a data frame in our example) and save the outcome in the dataset object.
+
+```{r}
+cutDrift_Aggregate <- function(x, extracted_objects) {
+  # Check that we are given a dataset
+  if (!inherits(x, "GCIMSDataset")) {
+    stop("Internal error, this will never happen")
+  }
+  
+  # Check that we have as many extracted objects as samples:
+  if (length(extracted_objects) != length(sampleNames(x))) {
+    # This should never happen:
+    stop("Internal error, we always have an extracted object for each sample")
+  }
+  
+  # Build the data frame that we want to generate
+  df <- data.frame(
+    SampleName = sampleNames(x),
+    orig_dt_length = NA_integer_,
+    new_dt_length = NA_integer_
+  )
+  # Fill it with information from the extracted objects:
+  for (i in seq_along(extracted_objects)) {
+    extracted_object <- extracted_objects[[i]]
+    df$orig_dt_length[i] <- extracted_object$original_dt_length
+    df$new_dt_length[i] <- extracted_object$new_dt_length
+  }
+  
+  # Save our dataframe in the dataset object:
+  x@envir$cutDrift <- df
+  # We always return the whole dataset
+  return(x)
+}
+```
+
+We now pass those extraction and aggregation functions as well:
+
+```{r}
+cutDrift3_Dataset <- function(x, dt_from, dt_to) {
+    delayed_op <- GCIMS:::GCIMSDelayedOp(
+      name = "cutDrift3", # Give a human-readable name
+      fun = cutDrift2_Sample, # The function that is applied to the sample
+      params = list(dt_from = dt_from, dt_to = dt_to), # The arguments that function needs
+      fun_extract = cutDrift_ExtractSample,
+      fun_aggregate = cutDrift_Aggregate
+    )
+    x <- GCIMS:::appendDelayedOp(x, delayed_op)
+    # Return the dataset, invisibly:
+    invisible(x)
+}
+```
+
+
+## Example
+
+```{r}
+dataset <- GCIMSDataset(
+  annotations,
+  base_dir = samples_directory,
+  on_ram = TRUE # You probably should set this to FALSE if you have more 
+                # than a handful of samples. See ?GCIMSDataset.
+)
+dataset
+
+```
+
+```{r}
+dataset <- cutDrift3_Dataset(dataset, dt_from = 1000, dt_to = 1500) # indices
+dataset
+```
+
+The dataset has now a pending operation, we can execute it:
+
+```{r}
+realize(dataset)
+```
+
+And then get our data frame:
+
+```{r}
+dataset@envir$cutDrift
+```
+
+
+Done!
+
+# Session info
+
+
+```{r}
+sessionInfo()
 ```
 
