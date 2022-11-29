@@ -1,0 +1,156 @@
+---
+title: "Creating a workflow step"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Creating a workflow step}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggplot2)
+library(cowplot)
+library(GCIMS)
+```
+
+# Introduction
+
+In this vignette we show how samples can be modified in a batch, using delayed
+operations. GCIMS uses delayed evaluations were possible, so dataset modifications can
+be executed in a more efficient way and without using too much RAM.
+
+You may want to read this if you want to add support for a new algorithm that
+modifies all the samples in a dataset.
+
+```{r}
+# The folder where we will download the samples:
+samples_directory <- "threeketones"
+
+# Download the ketones dataset:
+tryCatch({
+  download_three_ketones_dataset(samples_directory)
+  message("Download successful")
+}, error = function(e) {
+  message("The download of the samples did not succeed. The vignette can't continue.")
+  message(conditionMessage(e))
+  knitr::knit_exit()
+})
+
+```
+
+
+# Batch modifying all samples
+
+You will first have to define a function that takes one sample
+as an argument and returns that sample modified:
+
+```{r}
+cutDrift_Sample <- function(x, dt_from, dt_to) {
+  # dt_from and dt_to are indices of the drift time vector.
+  # This function crops a sample in the drift time axis.
+  
+  # Check that we are given a sample
+  if (!inherits(x, "GCIMSSample")) {
+    stop("Internal error, this will never happen")
+  }
+  
+  # In the future we will provide accessors instead of using @ slots directly.
+  x@data <- x@data[dt_from:dt_to,]
+  x@drift_time <- x@drift_time[dt_from:dt_to]
+  
+  # Check that we return a valid sample:
+  if (!validObject(x)) {
+    stop("The sample is not valid.")
+  }
+  return(x)
+}
+```
+
+Then you need a function that applies to the whole dataset and returns the dataset.
+You can use this template for now:
+
+```{r}
+cutDrift_Dataset <- function(x, dt_from, dt_to) {
+    delayed_op <- GCIMS:::GCIMSDelayedOp(
+      name = "cutDrift", # Give a human-readable name
+      fun = cutDrift_Sample, # The function that is applied to the sample
+      params = list(dt_from = dt_from, dt_to = dt_to) # The arguments that function needs
+    )
+    x <- GCIMS:::appendDelayedOp(x, delayed_op)
+    # Return the dataset, invisibly:
+    invisible(x)
+}
+```
+
+
+## Example:
+
+Load the dataset:
+
+```{r}
+annotations <- read.csv(file.path(samples_directory, "annotations.csv"))
+dataset <- GCIMSDataset(
+  annotations,
+  base_dir = samples_directory,
+  on_ram = TRUE # You probably should set this to FALSE if you have more 
+                # than a handful of samples. See ?GCIMSDataset.
+)
+dataset
+
+```
+
+Get the first sample of the dataset, and see the drift time vector at indices 500 and 1200:
+
+```{r}
+sample_before <- getSample(dataset, 1)
+dtime_before <- dtime(sample_before)
+```
+
+```{r}
+dtime_before[1000]
+dtime_before[1500]
+```
+
+Cut the sample:
+
+```{r}
+dataset <- cutDrift_Dataset(dataset, dt_from = 1000, dt_to = 1500) # indices
+dataset
+```
+
+The dataset has now a pending operation, we can execute it:
+
+```{r}
+realize(dataset)
+```
+
+And get the sample, modified:
+
+```{r}
+sample_after <- getSample(dataset, 1)
+dtime_after <- dtime(sample_after)
+```
+
+
+```{r}
+dtime_after[1]
+dtime_after[length(dtime_after)]
+```
+
+Same sample before and after:
+
+```{r fig.height=14, fig.width=7}
+plot_grid(
+  plot(sample_before) + labs(title = "Before"),
+  plot(sample_after) + labs(title = "After"),
+  nrow = 2
+)
+```
+
