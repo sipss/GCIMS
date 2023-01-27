@@ -107,7 +107,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
       out[["dt_ms_min"]] <- dt[out[["dt_idx_min"]]]
       out[["dt_ms_max"]] <- dt[out[["dt_idx_max"]]]
       # If dt_idx is numeric, it can include some of the indices only:
-      out[["dt_logical"]] <- logical(length(dt_idx))
+      out[["dt_logical"]] <- logical(length(dt))
       out[["dt_logical"]][dt_idx] <- TRUE
     }
   } else {
@@ -183,7 +183,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
       out[["rt_s_min"]] <- rt[out[["rt_idx_min"]]]
       out[["rt_s_max"]] <- rt[out[["rt_idx_max"]]]
       # If rt_idx is numeric, it can include some of the indices only:
-      out[["rt_logical"]] <- logical(length(rt_idx))
+      out[["rt_logical"]] <- logical(length(rt))
       out[["rt_logical"]][rt_idx] <- TRUE
     }
   } else {
