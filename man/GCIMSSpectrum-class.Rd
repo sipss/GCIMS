@@ -38,6 +38,10 @@ GCIMSSpectrum(...)
 \item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 
 \item{dt_idx}{A numeric vector with the drift time indices to extract (or a logical vector of the length of drift time)}
+
+\item{x}{A GCIMSSpectrum object to plot}
+
+\item{y}{unused}
 }
 \value{
 A GCIMSSpectrum object

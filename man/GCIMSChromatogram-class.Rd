@@ -31,6 +31,10 @@ GCIMSChromatogram(...)
 \item{object}{A GCIMSChromatogram object}
 
 \item{value}{A data frame with the peak list}
+
+\item{x}{A GCIMSChromatogram object to plot}
+
+\item{y}{unused}
 }
 \value{
 A GCIMSChromatogram object

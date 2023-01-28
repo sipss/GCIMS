@@ -47,7 +47,8 @@ mat_to_nativeRaster <- function(x, colormap, rangex = NULL)  {
 #'
 #' @examples
 #' d <- data.frame(x = c(1,2), y=c(1,2))
-#' plt <- ggplot2::ggplot(d) + ggplot2::geom_point(aes(x = x, y = y))
+#' plt <- ggplot2::ggplot(d) + 
+#'   ggplot2::geom_point(ggplot2::aes(x = x, y = y))
 #' plot_interactive(plt)
 plot_interactive <- function(plt) {
   require_pkgs("plotly")

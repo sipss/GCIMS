@@ -1,4 +1,6 @@
 #' @describeIn GCIMSChromatogram-class plot method
+#' @param x A GCIMSChromatogram object to plot
+#' @param y unused
 #' @export
 setMethod(
   "plot",

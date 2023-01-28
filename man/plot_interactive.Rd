@@ -18,6 +18,7 @@ ticks to \code{"auto"}, so the axis labels are updated when zooming.
 }
 \examples{
 d <- data.frame(x = c(1,2), y=c(1,2))
-plt <- ggplot2::ggplot(d) + ggplot2::geom_point(aes(x = x, y = y))
+plt <- ggplot2::ggplot(d) + 
+  ggplot2::geom_point(ggplot2::aes(x = x, y = y))
 plot_interactive(plt)
 }
