@@ -331,7 +331,7 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
 #' merge `pdata` with `peaklist`, so `color_by` can specify a phenotype.
 #' @param color_by A character with a column name of `peaklist` or `pdata`. Used to color the border of
 #' the added rectangles and apices. A string with a color name is also acceptable.
-#' @param mapping_row A 4-elements named character vector with the names of the columns from `peaklist` that will
+#' @param mapping_roi A 4-elements named character vector with the names of the columns from `peaklist` that will
 #' be used as the rectangle coordinates.
 #' @param palette A character vector with color names to use drawing the rectangles. Use `NULL` to let `ggplot2` set the defaults.
 #' @details

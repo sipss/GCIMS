@@ -17,5 +17,7 @@ Wraps the \code{plt} with \code{\link[plotly:ggplotly]{plotly::ggplotly()}} and 
 ticks to \code{"auto"}, so the axis labels are updated when zooming.
 }
 \examples{
-plot_interactive()
+d <- data.frame(x = c(1,2), y=c(1,2))
+plt <- ggplot2::ggplot(d) + ggplot2::geom_point(aes(x = x, y = y))
+plot_interactive(plt)
 }

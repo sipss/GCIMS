@@ -1,3 +1,4 @@
+#' @describeIn GCIMSChromatogram-class plot method
 #' @export
 setMethod(
   "plot",

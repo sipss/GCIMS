@@ -32,10 +32,10 @@ merge \code{pdata} with \code{peaklist}, so \code{color_by} can specify a phenot
 \item{color_by}{A character with a column name of \code{peaklist} or \code{pdata}. Used to color the border of
 the added rectangles and apices. A string with a color name is also acceptable.}
 
-\item{palette}{A character vector with color names to use drawing the rectangles. Use \code{NULL} to let \code{ggplot2} set the defaults.}
-
-\item{mapping_row}{A 4-elements named character vector with the names of the columns from \code{peaklist} that will
+\item{mapping_roi}{A 4-elements named character vector with the names of the columns from \code{peaklist} that will
 be used as the rectangle coordinates.}
+
+\item{palette}{A character vector with color names to use drawing the rectangles. Use \code{NULL} to let \code{ggplot2} set the defaults.}
 }
 \value{
 A list with the ggplot layers to overlay, including \code{geom_rect} and possibly \code{geom_point} and \code{scale_fill_manual}.

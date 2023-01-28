@@ -1,3 +1,4 @@
+#' @describeIn GCIMSSpectrum-class plot method
 #' @export
 setMethod(
   "plot",
