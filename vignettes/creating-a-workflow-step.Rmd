@@ -1,8 +1,8 @@
 ---
 title: "Creating a workflow step"
 output:
-  rmarkdown::html_vignette:
-    toc: true
+  "BiocStyle::html_document":
+    dev: png
     df_print: "kable"
 vignette: >
   %\VignetteIndexEntry{Creating a workflow step}
