@@ -108,7 +108,9 @@ detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams
   if (!is.null(signals_to_save_extra)) {
     save_debugging[signals_to_save_extra] <- TRUE
   }
-  peaks_and_zeros_and_extra <- mymapply(
+  # Workaround https://github.com/Bioconductor/BiocParallel/issues/239
+  # Disable parallellization at this level:
+  peaks_and_zeros_and_extra <- mapply(
     FUN = detect_peaks_and_zeros_one_signal,
     x = signals,
     x_zeros = signals_zeros,
