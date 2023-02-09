@@ -1,12 +1,12 @@
 # This whole file is a workaround for:
 # - https://github.com/Bioconductor/BiocParallel/pull/227
-#   (merged released on Bioconductor 3.16, BiocParallel 1.31.14)
+#   (merged and released on Bioconductor 3.16, BiocParallel 1.31.14)
 # And a workaround for:
 # - https://github.com/Bioconductor/BiocParallel/pull/228
-#   (as of 2022-11-04 it is under review)
+#   (merged on BiocParallel v1.33.3, will be part from Bioconductor 3.17 on Apr 2023)
 #
 # Please once that's merged and released, ensure you have
-# BiocParallel (>= 1.xx.xx?)
+# BiocParallel (>= 1.34)
 # in the DESCRIPTION file, replace all usages of mymapply() with
 # BiocParallel::bpmapply() and delete this file.
 #
