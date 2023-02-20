@@ -55,7 +55,7 @@ Description: A package for the analysis of ion mobility spectrometry (IMS)
  extracted and total ion chromatograms and IMS spectra.
 Depends:
  R(>= 4.1.0)
-License: GPL-2
+License: MIT + file LICENSE
 Imports: 
     Biobase,
     BiocParallel (>= 1.30.4),

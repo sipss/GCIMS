@@ -8,3 +8,4 @@
 ^ci_scripts$
 ^vignettes/intermediate_files$
 ^vignettes/threeketones$
+^LICENSE\.md$
