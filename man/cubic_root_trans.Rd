@@ -16,3 +16,12 @@ A scales transformation to be used with ggplot2.
 This function is exported because we are using it in vignettes, but it may
 become unavailable in future versions
 }
+\examples{
+library(ggplot2)
+x <- 1:10
+y <- x^3
+df <- data.frame(x = x, y = y)
+ggplot(data.frame(x=x, y=y)) +
+ geom_point(aes(x = x, y = y)) +
+  scale_y_continuous(trans=cubic_root_trans())
+}
