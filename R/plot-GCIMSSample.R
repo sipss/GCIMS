@@ -128,6 +128,14 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
 #'
 #' @return A scale transformation object of name "cubic_root"
 #'
+#' @examples
+#' library(ggplot2)
+#' x <- 1:10
+#' y <- x^3
+#' df <- data.frame(x = x, y = y)
+#' ggplot(data.frame(x=x, y=y)) +
+#'  geom_point(aes(x = x, y = y)) +
+#'   scale_y_continuous(trans=cubic_root_trans())
 #' @export
 cubic_root_trans <- function() {
   require_pkgs(c("scales", "labeling"))
@@ -193,8 +201,37 @@ P40 <- c("#FE1C2E", "#1CE50D", "#1C0DFE", "#E6B8C2", "#FD00E3", "#0DD1FC",
 #' If `peaklist` includes `dt_apex_ms` and `rt_apex_s` a cross will be plotted on the peak apex.
 #'
 #' @return The given `plt` with rectangles showing the ROIs and crosses showing the apexes
-#' @export
+#' @examples
+#' dt <- 1:10
+#' rt <- 1:10
+#' int <- matrix(0.0, nrow = length(dt), ncol = length(rt))
 #'
+#' int[2, 4:8] <- c(.5, .5, 1, .5, 0.5)
+#' int[3, 4:8] <- c(0.5, 2, 2, 2, 0.5)
+#' int[4, 4:8] <- c(1, 2, 5, 2, 1)
+#' int[5, 4:8] <- c(0.5, 2, 2, 2, 0.5)
+#' int[6, 4:8] <- c(.5, .5, 1, .5, 0.5)
+#'
+#' dummy_obj <-GCIMSSample(
+#'   drift_time = dt,
+#'   retention_time = rt,
+#'   data = int
+#' )
+#' plt <- plot(dummy_obj)
+#'
+#' # Add a rectangle on top of the plot
+#' rect <- data.frame(
+#'   dt_min_ms = 2.75,
+#'   dt_max_ms = 5.6,
+#'   rt_min_s = 4.6,
+#'   rt_max_s = 7.4,
+#' )
+#'
+#' add_peaklist_rect(
+#'   plt = plt,
+#'   peaklist = rect
+#' )
+#' @export
 add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", pdata = NULL,
                               palette = P40) {
   dt_range <- ggplot2::layer_scales(plt)$x$range$range
