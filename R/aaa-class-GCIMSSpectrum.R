@@ -27,7 +27,7 @@ methods::setClass(
 
 methods::setMethod(
   "initialize", "GCIMSSpectrum",
-  function(.Object, drift_time, intensity, retention_time_idx, retention_time_s, description, ..., baseline = NULL) {
+  function(.Object, drift_time, intensity, retention_time_idx = NA_integer_, retention_time_s = NA_real_, description = "", ..., baseline = NULL) {
     dots <- list(...)
     if (length(dots) > 0) {
       if (!is.null(names(dots))) {
