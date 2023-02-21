@@ -36,7 +36,7 @@ name: R-CMD-check-bioc
 env:
   has_testthat: 'true'
   run_covr: 'true'
-  run_pkgdown: 'false'
+  run_pkgdown: 'true'
   pkgdown_repo: 'sipss/GCIMS'
   uses_latex: true
   has_RUnit: 'false'
