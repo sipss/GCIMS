@@ -56,16 +56,8 @@ A list with :
 Peak grouping function, exposing several options useful for benchmarking.
 }
 \examples{
-\donttest{
-dir_in <- system.file("extdata", package = "GCIMS")
-peak_list <- readRDS(file.path(dir_in, "peak_list.rds"))
+peak_list_fn <- system.file("extdata", "peak_list.rds", package = "GCIMS")
+peak_list <- readRDS(peak_list_fn)
 
-peak_clustering  <- clusterPeaks(
-  peaks = peak_list,
-  distance_method = "mahalanobis",
-  distance_between_peaks_from_same_sample = Inf,
-  clustering = list(method = "hclust"),
-  verbose = FALSE
-)
-}
+peak_clustering  <- clusterPeaks(peak_list)
 }

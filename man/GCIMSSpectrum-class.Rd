@@ -84,3 +84,6 @@ or \code{NULL} if not set. Use \code{\link[=estimateBaseline]{estimateBaseline()
 \item{\code{description}}{A string with a description (used as plot title, useful e.g. to know the sample it came from)}
 }}
 
+\examples{
+spec <- GCIMSSpectrum(drift_time = 1:10, intensity = c(1:5, 6:2))
+}
