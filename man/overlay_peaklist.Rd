@@ -46,3 +46,33 @@ Overlay a peak list to a plot
 \details{
 If \code{peaklist} includes \code{dt_apex_ms} and \code{rt_apex_s} a cross will be plotted on the peak apex.
 }
+\examples{
+dt <- 1:10
+rt <- 1:10
+int <- matrix(0.0, nrow = length(dt), ncol = length(rt))
+
+int[2, 4:8] <- c(.5, .5, 1, .5, 0.5)
+int[3, 4:8] <- c(0.5, 2, 2, 2, 0.5)
+int[4, 4:8] <- c(1, 2, 5, 2, 1)
+int[5, 4:8] <- c(0.5, 2, 2, 2, 0.5)
+int[6, 4:8] <- c(.5, .5, 1, .5, 0.5)
+
+dummy_obj <-GCIMSSample(
+  drift_time = dt,
+  retention_time = rt,
+  data = int
+)
+plt <- plot(dummy_obj)
+
+# Add a rectangle on top of the plot
+rect <- data.frame(
+  dt_min_ms = 2.75,
+  dt_max_ms = 5.6,
+  rt_min_s = 4.6,
+  rt_max_s = 7.4
+)
+
+plt + overlay_peaklist(
+  peaklist = rect
+)
+}

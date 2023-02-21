@@ -224,7 +224,7 @@ P40 <- c("#FE1C2E", "#1CE50D", "#1C0DFE", "#E6B8C2", "#FD00E3", "#0DD1FC",
 #'   dt_min_ms = 2.75,
 #'   dt_max_ms = 5.6,
 #'   rt_min_s = 4.6,
-#'   rt_max_s = 7.4,
+#'   rt_max_s = 7.4
 #' )
 #'
 #' add_peaklist_rect(
@@ -375,6 +375,35 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
 #' If `peaklist` includes `dt_apex_ms` and `rt_apex_s` a cross will be plotted on the peak apex.
 #'
 #' @return A list with the ggplot layers to overlay, including `geom_rect` and possibly `geom_point` and `scale_fill_manual`.
+#' @examples
+#' dt <- 1:10
+#' rt <- 1:10
+#' int <- matrix(0.0, nrow = length(dt), ncol = length(rt))
+#'
+#' int[2, 4:8] <- c(.5, .5, 1, .5, 0.5)
+#' int[3, 4:8] <- c(0.5, 2, 2, 2, 0.5)
+#' int[4, 4:8] <- c(1, 2, 5, 2, 1)
+#' int[5, 4:8] <- c(0.5, 2, 2, 2, 0.5)
+#' int[6, 4:8] <- c(.5, .5, 1, .5, 0.5)
+#'
+#' dummy_obj <-GCIMSSample(
+#'   drift_time = dt,
+#'   retention_time = rt,
+#'   data = int
+#' )
+#' plt <- plot(dummy_obj)
+#'
+#' # Add a rectangle on top of the plot
+#' rect <- data.frame(
+#'   dt_min_ms = 2.75,
+#'   dt_max_ms = 5.6,
+#'   rt_min_s = 4.6,
+#'   rt_max_s = 7.4
+#' )
+#'
+#' plt + overlay_peaklist(
+#'   peaklist = rect
+#' )
 #' @export
 #'
 overlay_peaklist <- function(

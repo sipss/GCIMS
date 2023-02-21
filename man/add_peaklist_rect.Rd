@@ -62,7 +62,7 @@ rect <- data.frame(
   dt_min_ms = 2.75,
   dt_max_ms = 5.6,
   rt_min_s = 4.6,
-  rt_max_s = 7.4,
+  rt_max_s = 7.4
 )
 
 add_peaklist_rect(
