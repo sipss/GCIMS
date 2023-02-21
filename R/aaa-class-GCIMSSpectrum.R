@@ -58,6 +58,8 @@ methods::setMethod(
 #' @param ... See the slots section
 #' @return A GCIMSSpectrum object
 #' @export
+#' @examples
+#' spec <- GCIMSSpectrum(drift_time = 1:10, intensity = c(1:5, 6:2))
 GCIMSSpectrum <- function(...) {
   methods::new("GCIMSSpectrum", ...)
 }
