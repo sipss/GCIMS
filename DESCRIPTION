@@ -3,7 +3,7 @@ Type: Package
 Title: Pre-processing for GC-IMS data
 Version: 0.1.0
 Encoding: UTF-8
-Date: 2020-09-25
+Date: 2023-02-21
 Authors@R: c(
   person(
     given = "Celia",
@@ -54,7 +54,7 @@ Description: A package for the analysis of ion mobility spectrometry (IMS)
  The package also includes visualization helpers, to represent topographic plots,
  extracted and total ion chromatograms and IMS spectra.
 Depends:
- R(>= 4.1.0)
+ R(>= 4.2.0)
 License: MIT + file LICENSE
 Imports: 
     Biobase,
@@ -102,4 +102,3 @@ RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-Additional_repositories: https://zeehio.r-universe.dev
