@@ -60,6 +60,7 @@ Imports:
     Biobase,
     BiocParallel (>= 1.30.4),
     BiocGenerics,
+    cli,
     cluster,
     digest,
     dplyr (>= 1.0.2),
