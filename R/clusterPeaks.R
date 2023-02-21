@@ -42,7 +42,6 @@ clusterPeaks <- function(
     clustering = list(method = "hclust"),
     verbose = FALSE
 ) {
-
   # Compute the peak to peak distance:
   peak_matrix <- as.matrix(peaks[,c("dt_apex_ms", "rt_apex_s")])
   rownames(peak_matrix) <- peaks$UniqueID
@@ -164,7 +163,7 @@ clusterPeaks <- function(
     extra_clustering_info$num_clusters <- length(unique(peaks$cluster))
     extra_clustering_info$merger_distances <- merger_dist
   } else {
-    stop(sprintf("Unsupported clustering method %s", clustering$method))
+    cli::cli_abort("Unsupported clustering method {clustering$method}")
   }
 
   # Turn numeric peak clusters into IDs:
