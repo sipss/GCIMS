@@ -268,36 +268,47 @@ validate_samples <- function(samples) {
   samples
 }
 
+validate_parser <- function(parser) {
+  if (!identical(parser, "default") && !is.function(parser)) {
+    cli_abort("Parser must be either 'default' or a function")
+  }
+  parser
+}
+
+
 methods::setMethod(
   "initialize", "GCIMSDataset",
   function(
     .Object,
     pData = NULL,
+    ...,
     samples = NULL,
     base_dir = NULL,
+    parser = "default",
     scratch_dir = tempfile("GCIMSDataset_tempdir_"),
     keep_intermediate = FALSE,
     on_ram = FALSE
   ) {
-    # The GCIMSDataset object uses the pData dataframe to store phenotype data,
-    # (sample annotations)
+    # The GCIMSDataset object always uses the pData dataframe to store phenotype data,
+    # (often also called metadata or sample annotations).
     #
-    #
-    # Besides, there are two possibilities for initializing the GCIMSDataset object:
-    #  (a) Initialize reading samples from disk, at file.path(base_dir, pData$FileName)
+    # Besides, there are several possibilities for initializing the GCIMSDataset object:
+    #  (a) Initialize reading samples from "disk", at file.path(base_dir, pData$FileName)
     #    (a.1) If on_ram, the samples slot will be populated with GCIMSSample objects. This is suitable for small datasets
     #    (a.2) If not on_ram, the samples slot will not be populated, scratch_dir will be used instead to store sample objects
     #
-    #  (b) Initialize using a named list of GCIMSSample objects, with names according to pData$SampleID
+    #  (b) Initialize using a named "list" of GCIMSSample objects, with names according to pData$SampleID
     #    (b.1) If on_ram, the samples slot will be populated with that list
-    #    (b.1) If not on_ram, the samples will be dumped to scratch_dir
-
+    #    (b.2) If not on_ram, the samples will be dumped to scratch_dir
+    #
+    #
     pds <- validate_pData_samples(pData, samples)
     pData <- pds$pData
     samples <- pds$samples
     on_ram <- validate_on_ram(on_ram)
     scratch_dir <- validate_scratch_dir(scratch_dir, on_ram)
     keep_intermediate <- validate_keep_intermediate(keep_intermediate)
+    parser <- validate_parser(parser)
 
     # We want the GCIMSDataset object to be mutable, so any pending delayed operation
     # can be applied in-place if needed.
@@ -328,7 +339,10 @@ methods::setMethod(
         GCIMSDelayedOp(
           name = "read_sample",
           fun = read_sample,
-          params = list(base_dir = base_dir)
+          params = list(
+            base_dir = base_dir,
+            parser = parser
+          )
         )
       )
       # Some sample stats:
@@ -404,22 +418,26 @@ NextHashedDir <- function(object) {
 }
 
 
-read_sample <- function(filename, base_dir = NULL) {
-  if (!is.null(base_dir)) {
-    filename <- file.path(base_dir, filename)
-  }
+read_sample <- function(filename, base_dir, parser = "default") {
+  filename <- file.path(base_dir, filename)
   filename_l <- tolower(filename)
-  if (endsWith(filename_l, ".mea.gz") || endsWith(filename_l, ".mea")) {
-    return(read_mea(filename))
-  }
-  if (endsWith(filename_l, ".rds")) {
-    obj <- readRDS(filename)
-    if (methods::is(obj, "GCIMSSample")) {
-      return(obj)
+  sample <- NULL
+  if (identical(parser, "default")) {
+    if (endsWith(filename_l, ".mea.gz") || endsWith(filename_l, ".mea")) {
+      sample <- read_mea(filename)
     }
+    else if (endsWith(filename_l, ".rds")) {
+      sample <- readRDS(filename)
+    } else {
+      cli::cli_abort("Support for reading {filename} not yet implemented")
+    }
+  } else {
+    sample <- parser(filename)
+  }
+  if (!methods::is(sample, "GCIMSSample")) {
     cli::cli_abort("R Object in {filename} is not of type GCIMSSample")
   }
-  cli::cli_abort("Support for reading {filename} not yet implemented")
+  sample
 }
 
 
@@ -427,6 +445,7 @@ read_sample <- function(filename, base_dir = NULL) {
 #'
 #' @param pData A data frame with at least the `SampleID` and `FileName` columns.
 #' @param base_dir A directory containing the file names described in `pData`
+#' @param parser Either a string `"default"` or a function that takes a filename and returns a [GCIMSSample-class] object
 #' @param scratch_dir A directory to save intermediate results.
 #' @param keep_intermediate A logical. Whether to keep or not intermediate files when realizing the GCIMSDataset object
 #' @param on_ram A logical. If `TRUE`, samples are kept on RAM. This is faster
@@ -441,9 +460,9 @@ read_sample <- function(filename, base_dir = NULL) {
 #'   pData = data.frame(SampleID = character(), filename = character(0)),
 #'   base_dir = tempdir()
 #' )
-GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, on_ram = FALSE) {
+GCIMSDataset <- function(pData, base_dir, parser = "default", scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, on_ram = FALSE) {
   methods::new(
-    "GCIMSDataset", pData = pData, base_dir = base_dir,
+    "GCIMSDataset", pData = pData, base_dir = base_dir, parser = parser,
     scratch_dir = scratch_dir, keep_intermediate = keep_intermediate, on_ram = on_ram
   )
 }
@@ -472,3 +491,4 @@ GCIMSDataset_fromList <- function(samples, pData=NULL, scratch_dir = tempfile("G
     scratch_dir = scratch_dir, keep_intermediate = keep_intermediate, on_ram = on_ram
   )
 }
+
