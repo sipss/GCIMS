@@ -35,7 +35,7 @@ test_that("Invalid argument gives an error", {
   drift_gas <- "nitrogen"
   expect_error(
     GCIMSSample(drift_time = dt, retention_time = rt, data=data, wrong_argument = drift_gas),
-    "Invalid named arguments in GCIMSSample initialization"
+    "Invalid named arguments in GCIMSSample()"
   )
 })
 
