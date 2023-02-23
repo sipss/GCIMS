@@ -9,3 +9,6 @@
 ^vignettes/intermediate_files$
 ^vignettes/threeketones$
 ^LICENSE\.md$
+^vignettes/GCIMSDataset_demo1_$
+^vignettes/.*\.csv$
+^vignettes/.*\.log$
