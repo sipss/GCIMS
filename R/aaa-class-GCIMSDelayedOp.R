@@ -135,6 +135,9 @@ methods::setMethod(
       if (inherits(p[[i]], "data.frame")) {
         p[[i]] <- glue("< A data.frame with {nrow(p[[i]])} rows and {ncol(p[[i]])} columns >")
       }
+      if (is.function(p[[i]])) {
+        p[[i]] <- "< function >"
+      }
     }
     out <- list()
     out[[txt]] <- p
