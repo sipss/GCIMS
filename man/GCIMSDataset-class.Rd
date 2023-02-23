@@ -124,10 +124,10 @@ dummy_obj <-GCIMSDataset(
   base_dir = tempdir()
 )
 # Create a new GCIMSDataset with the convenient constructor function:
-sample1 <-GCIMSSample(
+sample1 <- GCIMSSample(
   drift_time = 1:2,
   retention_time = 1:3,
-  data = matrix(1:6, nrow = 2, ncol = 3),
+  data = matrix(1:6, nrow = 2, ncol = 3)
 )
 dummy_obj <- GCIMSDataset_fromList(
   pData = data.frame(SampleID = "Sample1", Sex = "female"),
