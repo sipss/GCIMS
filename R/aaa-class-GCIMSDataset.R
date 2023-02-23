@@ -73,19 +73,7 @@ abort_if_errors <- function(errors, title = "Errors found") {
   }
 }
 
-validate_pData_samples <- function(pData, samples) {
-  samples <- validate_samples(samples)
-  if (!is.null(samples) && is.null(pData)) {
-    pData <- data.frame(SampleID = names(samples))
-  }
-  if (is.null(samples) && is.null(pData)) {
-      pData <- data.frame(
-        SampleID = character(0L),
-        FileName = character(0L)
-      )
-      samples <- structure(list(), names = character(0))
-      return(list(pData = pData, samples = samples))
-  }
+validate_pData <- function(pData) {
   # Convert to S4Vectors::DataFrame so it fits in a slot
   # FIXME: We can review and possibly avoid this conversion:
   pData <- S4Vectors::DataFrame(pData)
@@ -116,7 +104,6 @@ validate_pData_samples <- function(pData, samples) {
   }
   pData[[sampleid_col]] <- sampleids
 
-
   # If we are creating a dataset reading from files, then samples==NULL and we need a FileName column
   filename_col <- which(pheno_names == "filename")
   if (length(filename_col) > 1) {
@@ -125,23 +112,50 @@ validate_pData_samples <- function(pData, samples) {
   if (length(filename_col) > 0) {
     colnames(pData)[filename_col] <- "FileName"
   }
+  if (length(filename_col) == 0) {
+    pData[["FileName"]] <- NA_character_
+  }
+
+  abort_if_errors(errors, title = "pData is not valid")
+
+  # Return corrected pData, with SampleID on the first column and FileName on the second column
+  pData <- pData[, c("SampleID", "FileName", setdiff(colnames(pData), c("SampleID", "FileName")))]
+
+  pData
+}
+
+validate_pData_samples <- function(pData, samples) {
+  samples <- validate_samples(samples)
+  if (!is.null(samples) && is.null(pData)) {
+    pData <- data.frame(SampleID = names(samples))
+  }
+  if (is.null(samples) && is.null(pData)) {
+      pData <- data.frame(
+        SampleID = character(0L),
+        FileName = character(0L)
+      )
+      samples <- structure(list(), names = character(0))
+      return(list(pData = pData, samples = samples))
+  }
+
+  pData <- validate_pData(pData)
+  # A place to store errors for reporting afterwards:
+  errors <- character(0L)
+
 
   if (is.null(samples)) {
     # Must be loaded from disk
-    if (length(filename_col) == 0) {
+    if (!"FileName" %in% colnames(pData)) {
       errors <- c(errors, "pData should have a FileName column with the paths to the sample files")
     }
   } else {
     # Samples are on RAM.
-    if (length(filename_col) == 1) {
+    if (any(!is.na(pData[["FileName"]]))) {
       cli_inform("GCIMSDataset: pData$FileName will be ignored since samples are already given")
-    } else {
-      # no filename column, create it and set it to NA_character_ for consistency
-      pData[["FileName"]] <- NA_character_
     }
     # ensure no sample is missing
-    missing_samples <- which(!sampleids %in% names(samples))
-    missing_annotations <- which(!names(samples) %in% sampleids)
+    missing_samples <- which(!pData[["SampleID"]] %in% names(samples))
+    missing_annotations <- which(!names(samples) %in% pData[["SampleID"]])
     if (length(missing_annotations) > 0) {
       cli_warn(
         c(
@@ -151,22 +165,17 @@ validate_pData_samples <- function(pData, samples) {
       )
     }
     if (length(missing_samples) > 0) {
-      cli_abort(
-        c(
-          "Samples given as a list, but are missing in pData.",
-          "x" = "Samples for {length(missing_samples)} SampleIDs were not found",
-          "i" = "Either remove them from pData or provide the samples",
-          "i" = "For instance: {head(sampleids[missing_samples])}"
-        )
+      errors <- c(
+        errors,
+        "Samples given as a list, but are missing in pData.",
+        "x" = "Samples for {length(missing_samples)} SampleIDs were not found",
+        "i" = "Either remove them from pData or provide the samples",
+        "i" = "For instance: {head(sampleids[missing_samples])}"
       )
     }
-
   }
 
   abort_if_errors(errors, title = "pData is not valid")
-
-  # Return corrected pData, with SampleID on the first column and FileName on the second column
-  pData <- pData[, c("SampleID", "FileName", setdiff(colnames(pData), c("SampleID", "FileName")))]
 
   if (!is.null(samples)) {
     # pData is valid, samples is valid, but we ensure they match:
