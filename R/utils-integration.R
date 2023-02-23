@@ -142,11 +142,12 @@ find_rip <- function(intensity_mat, verbose = FALSE, retention_time = NULL, drif
     dt_ms_apex <- drift_time[dt_idx_rip]
     rt_s_apex <- retention_time[rt_idx_apex]
 
-    inform(message = c(
-      "RIP was detected",
-      "i" = glue(" - At drift time: [{dt_ms_start} - {dt_ms_end}] {dt_units}"),
-      "i" = glue(" - Maximum RIP intensity at: (dt: {dt_ms_apex} {dt_units}, rt: {rt_s_apex} {rt_units})")
-    )
+    cli_inform(
+      c(
+        "i" = "RIP was detected",
+        "*" = "At drift time: [{round(dt_ms_start, 3)} - {round(dt_ms_end, 3)}] {dt_units}",
+        "*" = "Maximum RIP intensity at: (dt: {round(dt_ms_apex, 3)} {dt_units}, rt: {round(rt_s_apex, 3)} {rt_units})"
+      )
     )
   }
   list(
