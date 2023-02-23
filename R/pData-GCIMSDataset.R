@@ -18,16 +18,16 @@ setReplaceMethod(
     value <- validate_pData(value)
     current_pData <- Biobase::pData(object)
     if (nrow(value) != nrow(current_pData)) {
-      abort(
-        message = c(
+      cli_abort(
+        c(
           "Invalid replacement for pData",
-          "x" = glue("The number of rows of the given pData ({nrow(value)}) does not match the rows of current pData ({nrow(current_pData)})")
+          "x" = "The number of rows given ({nrow(value)}) != Number of rows expected ({nrow(current_pData)})"
         )
       )
     }
-    if (!all(current_pData$FileName == value$FileName)) {
-      warn(
-        message = c(
+    if (any(!is.na(current_pData$FileName) & current_pData$FileName != value$FileName)) {
+      cli_warn(
+        c(
           "FileName changed in pData",
           "i" = "It is not advisable to replace the filenames, please create a new dataset instead if possible"
         )
