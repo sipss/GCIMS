@@ -73,32 +73,109 @@ abort_if_errors <- function(errors, title = "Errors found") {
   }
 }
 
-validate_pData <- function(pData) {
+validate_pData_samples <- function(pData, samples) {
+  samples <- validate_samples(samples)
+  if (!is.null(samples) && is.null(pData)) {
+    pData <- data.frame(SampleID = names(samples))
+  }
+  if (is.null(samples) && is.null(pData)) {
+      pData <- data.frame(
+        SampleID = character(0L),
+        FileName = character(0L)
+      )
+      samples <- structure(list(), names = character(0))
+      return(list(pData = pData, samples = samples))
+  }
+  # Convert to S4Vectors::DataFrame so it fits in a slot
+  # FIXME: We can review and possibly avoid this conversion:
   pData <- S4Vectors::DataFrame(pData)
+  # Find columns where SampleID and FileName are, tolerating other case conventions
   pheno_names <- tolower(colnames(pData))
   sampleid_col <- which(pheno_names == "sampleid")
-  filename_col <- which(pheno_names == "filename")
+  colnames(pData)[sampleid_col] <- "SampleID"
+
+  # A place to store errors for reporting afterwards:
   errors <- character(0L)
+
+  # One and only one SampleID is always mandatory
   if (length(sampleid_col) == 0) {
     errors <- c(errors, "pData should have a SampleID column with a sample name")
   }
   if (length(sampleid_col) > 1) {
     errors <- c(errors, "pData should only have one SampleID column (don't use sampleid or other casing)")
   }
-  if (length(filename_col) == 0) {
-    errors <- c(errors, "pData should have a FileName column with the paths to the sample files")
+
+  # SampleID should be a character column. If it is integer we warn.
+  sampleids <- pData[[sampleid_col]]
+  if (is.factor(sampleids)) {
+    sampleids <- as.character(sampleids)
   }
+  if (is.integer(sampleids)) {
+    cli_warn("pData$SampleID is coerced to a character column (integers were found instead).")
+    sampleids <- as.character(sampleids)
+  }
+  pData[[sampleid_col]] <- sampleids
+
+
+  # If we are creating a dataset reading from files, then samples==NULL and we need a FileName column
+  filename_col <- which(pheno_names == "filename")
   if (length(filename_col) > 1) {
     errors <- c(errors, "pData should only have one FileName column (don't use filename or other casing)")
   }
+  if (length(filename_col) > 0) {
+    colnames(pData)[filename_col] <- "FileName"
+  }
+
+  if (is.null(samples)) {
+    # Must be loaded from disk
+    if (length(filename_col) == 0) {
+      errors <- c(errors, "pData should have a FileName column with the paths to the sample files")
+    }
+  } else {
+    # Samples are on RAM.
+    if (length(filename_col) == 1) {
+      cli_inform("GCIMSDataset: pData$FileName will be ignored since samples are already given")
+    } else {
+      # no filename column, create it and set it to NA_character_ for consistency
+      pData[["FileName"]] <- NA_character_
+    }
+    # ensure no sample is missing
+    missing_samples <- which(!sampleids %in% names(samples))
+    missing_annotations <- which(!names(samples) %in% sampleids)
+    if (length(missing_annotations) > 0) {
+      cli_warn(
+        c(
+          "{length(missing_annotations)} samples are not present in the pData and will not be included in the GCIMSDataset",
+          "i" = "For instance samples {head(names(samples)[missing_annotations])}"
+        )
+      )
+    }
+    if (length(missing_samples) > 0) {
+      cli_abort(
+        c(
+          "Samples given as a list, but are missing in pData.",
+          "x" = "Samples for {length(missing_samples)} SampleIDs were not found",
+          "i" = "Either remove them from pData or provide the samples",
+          "i" = "For instance: {head(sampleids[missing_samples])}"
+        )
+      )
+    }
+
+  }
+
   abort_if_errors(errors, title = "pData is not valid")
 
-  # CaSiNg MaY bE wRoNg, sO We sEt iT juSt in CaSe.
-  colnames(pData)[filename_col] <- "FileName"
-  colnames(pData)[sampleid_col] <- "SampleID"
   # Return corrected pData, with SampleID on the first column and FileName on the second column
   pData <- pData[, c("SampleID", "FileName", setdiff(colnames(pData), c("SampleID", "FileName")))]
-  pData
+
+  if (!is.null(samples)) {
+    # pData is valid, samples is valid, but we ensure they match:
+    samples <- samples[pData$SampleID]
+  }
+  list(
+    pData = pData,
+    samples = samples
+  )
 }
 
 validate_base_dir <- function(base_dir) {
@@ -157,22 +234,75 @@ validate_on_ram <- function(on_ram) {
   on_ram
 }
 
+validate_samples <- function(samples) {
+  if (is.null(samples)) {
+    # Expected to read them from disk
+    return(samples)
+  }
+  if (!is.list(samples)) {
+    cli_abort(
+      c(
+        "samples should be either NULL or a named list of GCIMSSample objects.",
+        "i" = "Found {class(samples)} instead"
+      )
+    )
+  }
+
+  if (is.null(names(samples))) {
+    cli_abort("samples should be a named list of GCIMSSample objects. Sample names should correspond to SampleIDs")
+  }
+  empty_names_idx <- which(names(samples) == "")
+  if (length(empty_names_idx) > 0) {
+    cli_abort("{length(empty_names_idx)} samples did not have names. Please name them (e.g. {head(empty_names_idx)})")
+  }
+  # check for duplicated names:
+  repeated_names <- unique(names(samples)[duplicated(names(samples))])
+  if (length(repeated_names) > 0) {
+    cli_abort("sample names should be unique. Samples {repeated_names} appeared more than once")
+  }
+  are_gcimssample <- purrr::map_lgl(samples, function(x) methods::is(x, "GCIMSSample"))
+  not_gcims_samples <- which(!are_gcimssample)
+  if (length(not_gcims_samples) > 0) {
+    cli_abort("{length(not_gcims_samples)} samples were not of type `GCIMSSample`. (e.g. at {head(not_gcims_samples)}))")
+  }
+  samples
+}
+
 methods::setMethod(
   "initialize", "GCIMSDataset",
   function(
     .Object,
-    pData,
-    base_dir,
+    pData = NULL,
+    samples = NULL,
+    base_dir = NULL,
     scratch_dir = tempfile("GCIMSDataset_tempdir_"),
     keep_intermediate = FALSE,
     on_ram = FALSE
   ) {
-    pData <- validate_pData(pData)
-    base_dir <- validate_base_dir(base_dir)
-    check_files(pData$FileName, base_dir)
+    # The GCIMSDataset object uses the pData dataframe to store phenotype data,
+    # (sample annotations)
+    #
+    #
+    # Besides, there are two possibilities for initializing the GCIMSDataset object:
+    #  (a) Initialize reading samples from disk, at file.path(base_dir, pData$FileName)
+    #    (a.1) If on_ram, the samples slot will be populated with GCIMSSample objects. This is suitable for small datasets
+    #    (a.2) If not on_ram, the samples slot will not be populated, scratch_dir will be used instead to store sample objects
+    #
+    #  (b) Initialize using a named list of GCIMSSample objects, with names according to pData$SampleID
+    #    (b.1) If on_ram, the samples slot will be populated with that list
+    #    (b.1) If not on_ram, the samples will be dumped to scratch_dir
+
+    pds <- validate_pData_samples(pData, samples)
+    pData <- pds$pData
+    samples <- pds$samples
     on_ram <- validate_on_ram(on_ram)
     scratch_dir <- validate_scratch_dir(scratch_dir, on_ram)
     keep_intermediate <- validate_keep_intermediate(keep_intermediate)
+
+    # We want the GCIMSDataset object to be mutable, so any pending delayed operation
+    # can be applied in-place if needed.
+    # Therefore, instead of using immutable slots for our attributes, we will
+    # use an environment where we will place.
     .Object@envir <- rlang::new_environment()
     .Object@envir$pData <- pData
     .Object@envir$scratch_dir <- scratch_dir
@@ -187,17 +317,43 @@ methods::setMethod(
     .Object@envir$on_ram <- on_ram
     .Object@envir$samples <- NULL # Only used if on_ram is TRUE
     canRealize(.Object) <- TRUE
-    .Object <- appendDelayedOp(
-      .Object,
-      GCIMSDelayedOp(
-        name = "read_sample",
-        fun = read_sample,
-        params = list(base_dir = base_dir)
+    # How samples will be loaded:
+    if (is.null(samples)) {
+      # Check base_dir and files:
+      base_dir <- validate_base_dir(base_dir)
+      check_files(pData$FileName, base_dir)
+      # From disk
+      .Object <- appendDelayedOp(
+        .Object,
+        GCIMSDelayedOp(
+          name = "read_sample",
+          fun = read_sample,
+          params = list(base_dir = base_dir)
+        )
       )
-    )
-    # Some sample stats:
-    .Object <- extract_dtime_rtime(.Object)
-    .Object <- extract_RIC_and_TIS(.Object)
+      # Some sample stats:
+      .Object <- extract_dtime_rtime(.Object)
+      .Object <- extract_RIC_and_TIS(.Object)
+    } else {
+      # From list, to RAM or to disk?
+      if (on_ram) {
+        .Object@envir$samples <- unname(samples)
+      } else {
+        # Dump samples to disk and prepare...
+        CurrentHashedDir(.Object) <- "from_list"
+        save_to <- CurrentHashedDir(.Object)
+        purrr::walk2(
+          pData$SampleID,
+          samples,
+          function(sample_name, sample) {
+            next_filename <- file.path(save_to, paste0(sample_name, ".rds"))
+            saveRDS(sample, next_filename)
+          },
+          save_to = save_to,
+          .progress = "Saving list of samples to disk..."
+        )
+      }
+    }
     .Object
   }
 )
@@ -226,7 +382,7 @@ NextHashedDir <- function(object) {
   # A hash chain:
   current_hash <- object@envir$hasheddir
   if (current_hash == "") {
-    # The first hash comes from the base_dir, sampleID and FileNames
+    # The first hash comes from the sampleID and FileNames
     pd <- pData(object)
     if (!all(c("SampleID", "FileName") %in% colnames(pd))) {
       abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
@@ -286,5 +442,33 @@ read_sample <- function(filename, base_dir = NULL) {
 #'   base_dir = tempdir()
 #' )
 GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, on_ram = FALSE) {
-  methods::new("GCIMSDataset", pData, base_dir, scratch_dir, keep_intermediate, on_ram)
+  methods::new(
+    "GCIMSDataset", pData = pData, base_dir = base_dir,
+    scratch_dir = scratch_dir, keep_intermediate = keep_intermediate, on_ram = on_ram
+  )
+}
+
+#' @describeIn GCIMSDataset-class Constructor method
+#'
+#' @inheritParams GCIMSDataset
+#' @param samples A named list of [GCIMSSample] objects. names should match `pData$SampleID`
+#' @export
+#' @return A GCIMSDataset object
+#'
+#' @examples
+#' # Create a new GCIMSDataset with the convenient constructor function:
+#' sample1 <- GCIMSSample(
+#'   drift_time = 1:2,
+#'   retention_time = 1:3,
+#'   data = matrix(1:6, nrow = 2, ncol = 3)
+#' )
+#' dummy_obj <- GCIMSDataset_fromList(
+#'   pData = data.frame(SampleID = "Sample1", Sex = "female"),
+#'   samples = list(Sample1 = sample1)
+#' )
+GCIMSDataset_fromList <- function(samples, pData=NULL, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, on_ram = TRUE) {
+  methods::new(
+    "GCIMSDataset", pData = pData, samples = samples,
+    scratch_dir = scratch_dir, keep_intermediate = keep_intermediate, on_ram = on_ram
+  )
 }

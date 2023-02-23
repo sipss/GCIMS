@@ -6,6 +6,7 @@
 \name{GCIMSDataset-class}
 \alias{GCIMSDataset-class}
 \alias{GCIMSDataset}
+\alias{GCIMSDataset_fromList}
 \alias{getSample,GCIMSDataset-method}
 \alias{getTIS,GCIMSDataset-method}
 \alias{plotRIC,GCIMSDataset-method}
@@ -21,6 +22,14 @@ GCIMSDataset(
   scratch_dir = tempfile("GCIMSDataset_tempdir_"),
   keep_intermediate = FALSE,
   on_ram = FALSE
+)
+
+GCIMSDataset_fromList(
+  samples,
+  pData = NULL,
+  scratch_dir = tempfile("GCIMSDataset_tempdir_"),
+  keep_intermediate = FALSE,
+  on_ram = TRUE
 )
 
 \S4method{getSample}{GCIMSDataset}(object, sample)
@@ -50,6 +59,8 @@ GCIMSDataset(
 as long as you have enough memory to keep all samples. If this is \code{TRUE}, then
 \code{scratch_dir} and \code{keep_intermediate} are ignored.}
 
+\item{samples}{A named list of \link{GCIMSSample} objects. names should match \code{pData$SampleID}}
+
 \item{object}{A \link{GCIMSDataset} object}
 
 \item{sample}{A number or a string with the sample index or name. If \code{NULL}, all samples are returned}
@@ -59,6 +70,8 @@ as long as you have enough memory to keep all samples. If this is \code{TRUE}, t
 \item{value}{The data frame with a peak list}
 }
 \value{
+A GCIMSDataset object
+
 A GCIMSDataset object
 
 The corresponding \link{GCIMSSample}
@@ -87,6 +100,8 @@ needed, so the dataset object scales with large number of samples.
 \itemize{
 \item \code{GCIMSDataset()}: Constructor method
 
+\item \code{GCIMSDataset_fromList()}: Constructor method
+
 \item \code{pData(GCIMSDataset)}: Get the phenotype data
 
 \item \code{pData(object = GCIMSDataset) <- value}: Set the phenotype data
@@ -107,5 +122,15 @@ dummy_obj <- methods::new(
 dummy_obj <-GCIMSDataset(
   pData = data.frame(SampleID = character(), filename = character(0)),
   base_dir = tempdir()
+)
+# Create a new GCIMSDataset with the convenient constructor function:
+sample1 <-GCIMSSample(
+  drift_time = 1:2,
+  retention_time = 1:3,
+  data = matrix(1:6, nrow = 2, ncol = 3),
+)
+dummy_obj <- GCIMSDataset_fromList(
+  pData = data.frame(SampleID = "Sample1", Sex = "female"),
+  samples = list(Sample1 = sample1)
 )
 }
