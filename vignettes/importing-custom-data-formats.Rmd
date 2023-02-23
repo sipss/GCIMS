@@ -1,0 +1,217 @@
+---
+title: "Importing custom data formats"
+output:
+  "BiocStyle::html_document":
+    dev: png
+  "BiocStyle::pdf_document":
+    latex_engine: lualatex
+    df_print: "kable"
+    dev: png
+package: GCIMS
+author: "Sergio Oller"
+date: "`r format(Sys.Date(), '%F')`"
+abstract: >
+  This vignette shows how to import your custom data so it can be used
+  with the GCIMS package. Data formats are typically vendor-dependant, and
+  exports to CSV can have subtle differences.
+vignette: >
+  %\VignetteIndexEntry{Importing custom data formats}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = ""
+)
+```
+
+```{r setup}
+library(GCIMS)
+library(cowplot)
+```
+
+
+# Introduction
+
+This vignette aims to show you how to create a GCIMSDataset object from your
+own files, if those are not supported natively by the GCIMS package.
+
+We do so, by showing how we can add support for importing CSV files.
+
+The first step is to read the drift time, the retention time and the intensity
+matrices from your data file. Then we create a GCIMSSample object.
+
+Once we have solved that, we wrap all our written code into a function, and we
+create the dataset.
+
+# Creating GCIMSSample objects
+
+To create a GCIMSSample object you need to have at least:
+
+- A numeric vector with drift times in ms
+- A numeric vector with retention times in s
+- An intensity matrix, with dimensions $length(drift\_time) \times length(retention\_time)$
+
+If your time vectors have different units, GCIMS will work, although you may see wrong labels in plots.
+We plan to include support for more units in the future.
+
+Let's imagine your sample is on a CSV file, with retention times on the first column,
+drift times on the first row, and the corresponding intensity values.
+
+We will now create two samples: sample1.csv and sample2.csv
+
+```{r}
+your_csv_file <- (
+",0.0,0.1,0.2,0.3,0.4
+0.0,  0, 20, 80, 84, 23
+0.8,123,200,190,295, 17
+1.6,230,300,200, 92, 15
+2.4,120,150,120, 33, 22
+3.2, 70,121, 74, 31, 34
+")
+write(your_csv_file, "sample1.csv")
+write(your_csv_file, "sample2.csv")
+```
+
+You can read it using `read.csv()` or the `readr::read_csv()` function from the `readr` package.
+
+```{r}
+your_csv_file <- "sample1.csv"
+csv_data <- read.csv(your_csv_file, check.names = FALSE)
+```
+
+Once loaded, your data will look like:
+
+```{r}
+csv_data
+```
+
+- The first column contains the retention time.
+- The column names (with the exception of the first column, which is empty) contain the drift time
+- The values of all columns but the first are the intensities
+
+```{r}
+retention_time <- csv_data[[1]]
+drift_time <- as.numeric(colnames(csv_data)[-1])
+intensity <- as.matrix(csv_data[,-1])
+rownames(intensity) <- retention_time
+
+```
+
+The retention time:
+
+```{r}
+retention_time
+```
+
+The drift time:
+
+```{r}
+drift_time
+```
+
+
+The intensity matrix:
+
+```{r}
+intensity
+```
+
+With these three elements, we can create a GCIMSSample:
+
+```{r}
+s1 <- GCIMSSample(
+  drift_time = drift_time, 
+  retention_time = retention_time,
+  data = intensity
+)
+s1
+```
+
+
+We are now ready to define a `parser` function that returns a GCIMSSample given a filename:
+
+```{r}
+GCIMSSample_from_csv <- function(filename) {
+  csv_data <- read.csv(your_csv_file, check.names = FALSE)
+  retention_time <- csv_data[[1]]
+  drift_time <- as.numeric(colnames(csv_data)[-1])
+  intensity <- as.matrix(csv_data[,-1])
+  rownames(intensity) <- retention_time
+  return(
+    GCIMSSample(
+      drift_time = drift_time,
+      retention_time = retention_time,
+      data = intensity
+    )
+  )
+}
+```
+
+Try it with a single sample:
+
+```{r}
+s1 <- GCIMSSample_from_csv("sample1.csv")
+s1
+```
+
+
+You can check the intensity matrix and you can plot the sample to check that
+it behaves as expected:
+
+```{r}
+intensity(s1)
+```
+
+
+```{r}
+plot(s1)
+```
+
+
+# Create the GCIMSDataset
+
+Once you are satisfied with your function, prepare the phenotype data frame:
+
+```{r}
+pdata <- data.frame(
+  SampleID = c("Sample1", "Sample2"),
+  FileName = c("sample1.csv", "sample2.csv"),
+  Sex = c("female", "male")
+)
+pdata
+```
+
+And create the dataset object, passing your `parser` function:
+
+```{r}
+ds <- GCIMSDataset(
+  pData = pdata,
+  base_dir = ".",
+  parser = GCIMSSample_from_csv,
+  scratch_dir = "GCIMSDataset_demo1"
+)
+ds
+```
+
+```{r}
+cowplot::plot_grid(
+  plot(getSample(ds, "Sample1")),
+  plot(getSample(ds, "Sample2")),
+  ncol = 2
+)
+```
+
+
+You now have a dataset ready to be used.
+
+# Session info
+
+```{r}
+sessionInfo()
+```
+
+
