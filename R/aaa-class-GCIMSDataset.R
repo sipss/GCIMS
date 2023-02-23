@@ -252,15 +252,6 @@ read_sample <- function(filename) {
     obj <- readRDS(filename)
     if (methods::is(obj, "GCIMSSample")) {
       return(obj)
-    } else if (methods::is(obj, "list")) {
-      # FIXME: Remove this if we drop the old API
-      #Convert old list to GCIMSSample:
-      sample <- GCIMSSample(
-        drift_time = obj$data$drift_time,
-        retention_time = obj$data$retention_time,
-        data = as.matrix(obj$data$data_df),
-      )
-      return(sample)
     }
   } else {
     abort(glue("Support for reading {filename} not yet implemented"))
