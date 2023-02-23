@@ -46,6 +46,10 @@ read_mea <- function(filename) {
     "Pressure record interval"
   )
 
+  filename_l <- tolower(filename)
+  if (!endsWith(filename_l, ".mea.gz") && !endsWith(filename_l, ".mea")) {
+    cli_abort("read_mea expects either a .mea or .mea.gz file")
+  }
   params <- list()
 
 
