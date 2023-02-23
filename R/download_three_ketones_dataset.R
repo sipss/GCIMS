@@ -17,6 +17,7 @@
 #' @export
 download_three_ketones_dataset <- function(outdir = "2021-mixture-six-ketones-demo") {
   require_pkgs(c("httr", "curl"))
+  # FIXME: Demo dataset should be elsewhere
   req <- httr::GET("https://api.github.com/repos/sipss/datasets-gcims-demo/contents/2021-mixture-six-ketones-demo")
   httr::stop_for_status(req)
   req_content <- httr::content(req)
