@@ -35,6 +35,9 @@
       <a href="../articles/creating-a-workflow-step.html">Creating a workflow step</a>
     </li>
     <li>
+      <a href="../articles/importing-custom-data-formats.html">Importing custom data formats</a>
+    </li>
+    <li>
       <a href="../articles/introduction-to-gcims.html">Introduction to GCIMS</a>
     </li>
   </ul></li>
@@ -93,44 +96,37 @@ among clusters. Ideally, only one peak per sample should belong to a cluster.</p
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create your peak table from scratch:</span></span></span>
 <span class="r-in"><span><span class="va">pl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  SampleID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S1"</span>, <span class="st">"S1"</span>, <span class="st">"S2"</span>, <span class="st">"S2"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cluster1"</span>, <span class="st">"Cluster2"</span>, <span class="st">"Cluster1"</span>, <span class="st">"Cluster2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  Volume <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">8</span>, <span class="fl">18</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">peakTable</span><span class="op">(</span><span class="va">pl</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $peak_table</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster    S1    S2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>       1    10     8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>       2    20    18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $peak_table_matrix</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S1 10 20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> S2  8 18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $peak_table_duplicity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster    S1    S2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>       1     1     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>       2     1     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a peak table</span></span></span>
-<span class="r-in"><span><span class="va">peak_list_fom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"peak_list_fom.rds"</span>, package <span class="op">=</span> <span class="st">"GCIMS"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">peak_table</span> <span class="op">&lt;-</span> <span class="fu">peakTable</span><span class="op">(</span><span class="va">peak_list_fom</span>, aggregate_conflicting_peaks <span class="op">=</span> <span class="va">max</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">peak_table</span> <span class="op">&lt;-</span> <span class="fu">peakTable</span><span class="op">(</span><span class="va">pl</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">peak_table</span><span class="op">$</span><span class="va">peak_table_matrix</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        Cluster01 Cluster02 Cluster03 Cluster04 Cluster05 Cluster06 Cluster07</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> M3.rds  68936126  68936126  68936126  68936126  68936126  68936126  68936126</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> M7.rds  69125261  69125261  69125261  69125261  69125261  69125261  69125261</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        Cluster08 Cluster09 Cluster10 Cluster11 Cluster12 Cluster13 Cluster14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> M3.rds  68936126        NA        NA        NA        NA        NA        NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> M7.rds  69125261  69125261  69125261  69125261  69125261  69125261  69125261</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        Cluster15 Cluster16 Cluster17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> M3.rds        NA        NA        NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> M7.rds  69125261  69125261  69125261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Cluster1 Cluster2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S1       10       20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> S2        8       18</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># You can use imputePeakTable() to fill in the missing values</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># If the clustering doesn't work great, you may end up with two peaks</span></span></span>
+<span class="r-in"><span><span class="co"># from the same sample on the same cluster. This does not make sense</span></span></span>
+<span class="r-in"><span><span class="co"># empirically, because it's either one or the other. In case of such</span></span></span>
+<span class="r-in"><span><span class="co"># ambiguity, peakTable() will give an error.</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># If you want, you can override the error by taking the average volume</span></span></span>
+<span class="r-in"><span><span class="co"># of those ambiguous peaks, or the maximum, using,</span></span></span>
+<span class="r-in"><span><span class="co"># e.g. `aggregate_conflicting_peaks = max`.</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># In any case, you will get information on how many peaks were aggregated</span></span></span>
+<span class="r-in"><span><span class="co"># in the `peak_table_duplicity` field (ideally should be full of `1`):</span></span></span>
+<span class="r-in"><span><span class="va">peak_table</span><span class="op">$</span><span class="va">peak_table_duplicity</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster     S1    S2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Cluster1     1     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Cluster2     1     1</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

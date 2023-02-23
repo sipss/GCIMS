@@ -35,6 +35,9 @@
       <a href="../articles/creating-a-workflow-step.html">Creating a workflow step</a>
     </li>
     <li>
+      <a href="../articles/importing-custom-data-formats.html">Importing custom data formats</a>
+    </li>
+    <li>
       <a href="../articles/introduction-to-gcims.html">Introduction to GCIMS</a>
     </li>
   </ul></li>
@@ -74,7 +77,7 @@
 
 
 <dt>cluster_stats</dt>
-<dd><p>A data frame with the <code>dt_min_ms</code> and family columns</p></dd>
+<dd><p>A data frame with the <code>[dt|rt]_[min|max]_[ms|s]</code> columns</p></dd>
 
 </dl></div>
     <div id="value">
@@ -84,6 +87,99 @@
 <p>The imputed peak_table</p>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># We are going to create a peak table matrix, typically resulting from [peakTable()]</span></span></span>
+<span class="r-in"><span><span class="co"># The peak table may have some missing values</span></span></span>
+<span class="r-in"><span><span class="co"># Since the missing values correspond to peaks that have not been detected</span></span></span>
+<span class="r-in"><span><span class="co"># in those particular samples, we can integrate the region where they should appear</span></span></span>
+<span class="r-in"><span><span class="co"># to get a value different than zero that reflects the noise level.</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Ingredients:</span></span></span>
+<span class="r-in"><span><span class="co"># - The GCIMSSample objects, so we can integrate the regions of interest (given as a GCIMSDataset)</span></span></span>
+<span class="r-in"><span><span class="co"># - The peak table matrix we want to impute</span></span></span>
+<span class="r-in"><span><span class="co"># - The definition of the regions corresponding to each cluster (cluster_stats)</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># We will prepare here a synthetic example, check the vignette for a real use case</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Imagine we have information on the location of Cluster1 and Cluster2</span></span></span>
+<span class="r-in"><span><span class="va">cluster_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  cluster <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cluster1"</span>, <span class="st">"Cluster2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  dt_min_ms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  dt_max_ms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">9</span>, <span class="fl">12</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  rt_min_s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">300</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  rt_max_s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">128</span>, <span class="fl">320</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># We have a peak table for two samples and two peaks</span></span></span>
+<span class="r-in"><span><span class="va">peak_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">peak_table</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sample1"</span>, <span class="st">"Sample2"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">peak_table</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cluster1"</span>, <span class="st">"Cluster2"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># where we previously integrated Cluster2 in Sample 1 and Cluster1 in Sample2:</span></span></span>
+<span class="r-in"><span><span class="va">peak_table</span><span class="op">[</span><span class="st">"Sample1"</span>, <span class="st">"Cluster2"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">9.5</span></span></span>
+<span class="r-in"><span><span class="va">peak_table</span><span class="op">[</span><span class="st">"Sample2"</span>, <span class="st">"Cluster1"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3.6</span></span></span>
+<span class="r-in"><span><span class="co"># The table has missing values, because some peaks were not detected.</span></span></span>
+<span class="r-in"><span><span class="co"># Maybe they are close to the noise level, or maybe they do not exist</span></span></span>
+<span class="r-in"><span><span class="va">peak_table</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Cluster1 Cluster2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sample1       NA      9.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sample2      3.6       NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># We will fill the missing values by integrating whatever we find</span></span></span>
+<span class="r-in"><span><span class="co"># (typically noise or small peaks) in the cluster regions of each sample. So we</span></span></span>
+<span class="r-in"><span><span class="co"># need the sample matrices.</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Let's build dummy Sample1 and Sample2:</span></span></span>
+<span class="r-in"><span><span class="co">## Create drift time and retention time vectors:</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">13</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>  <span class="co"># ms</span></span></span>
+<span class="r-in"><span><span class="va">rt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">350</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>   <span class="co"># s</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Create matrices with random gaussian noise.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s1_intensity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rt</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rt</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s2_intensity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rt</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rt</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The matrix will have a pleateau in a region where the peak is supposed</span></span></span>
+<span class="r-in"><span><span class="co"># to be, so when we impute the region corresponding to Sample1-Cluster1 we see a</span></span></span>
+<span class="r-in"><span><span class="co"># higher value:</span></span></span>
+<span class="r-in"><span><span class="va">s1_intensity</span><span class="op">[</span><span class="va">dt</span> <span class="op">&gt;</span> <span class="fl">8.25</span> <span class="op">&amp;</span> <span class="va">dt</span> <span class="op">&lt;</span> <span class="fl">8.75</span>, <span class="va">rt</span> <span class="op">&gt;</span> <span class="fl">122</span> <span class="op">&amp;</span> <span class="va">rt</span> <span class="op">&lt;</span> <span class="fl">126</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Create GCIMSSample objects</span></span></span>
+<span class="r-in"><span><span class="va">s1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  drift_time <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  retention_time <span class="op">=</span> <span class="va">rt</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">s1_intensity</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s2</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  drift_time <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  retention_time <span class="op">=</span> <span class="va">rt</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">s2_intensity</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## And a dataset with the samples:</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSDataset-class.html">GCIMSDataset_fromList</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Sample1 <span class="op">=</span> <span class="va">s1</span>, Sample2 <span class="op">=</span> <span class="va">s2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Now we can impute the table</span></span></span>
+<span class="r-in"><span><span class="va">peak_table_imp</span> <span class="op">&lt;-</span> <span class="fu">imputePeakTable</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  peak_table <span class="op">=</span> <span class="va">peak_table</span>,</span></span>
+<span class="r-in"><span>  dataset <span class="op">=</span> <span class="va">dataset</span>,</span></span>
+<span class="r-in"><span>  cluster_stats <span class="op">=</span> <span class="va">cluster_stats</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">peak_table_imp</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Cluster1   Cluster2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sample1 1.476875  9.5000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sample2 3.600000 -0.2335684</span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

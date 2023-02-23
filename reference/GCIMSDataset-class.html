@@ -35,6 +35,9 @@
       <a href="../articles/creating-a-workflow-step.html">Creating a workflow step</a>
     </li>
     <li>
+      <a href="../articles/importing-custom-data-formats.html">Importing custom data formats</a>
+    </li>
+    <li>
       <a href="../articles/introduction-to-gcims.html">Introduction to GCIMS</a>
     </li>
   </ul></li>
@@ -63,9 +66,18 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GCIMSDataset</span><span class="op">(</span></span>
 <span>  <span class="va">pData</span>,</span>
 <span>  <span class="va">base_dir</span>,</span>
+<span>  parser <span class="op">=</span> <span class="st">"default"</span>,</span>
 <span>  scratch_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"GCIMSDataset_tempdir_"</span><span class="op">)</span>,</span>
 <span>  keep_intermediate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  on_ram <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">GCIMSDataset_fromList</span><span class="op">(</span></span>
+<span>  <span class="va">samples</span>,</span>
+<span>  pData <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  scratch_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"GCIMSDataset_tempdir_"</span><span class="op">)</span>,</span>
+<span>  keep_intermediate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  on_ram <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for GCIMSDataset</span></span>
@@ -100,6 +112,10 @@
 <dd><p>A directory containing the file names described in <code>pData</code></p></dd>
 
 
+<dt>parser</dt>
+<dd><p>Either a string <code>"default"</code> or a function that takes a filename and returns a <a href="GCIMSSample-class.html">GCIMSSample</a> object</p></dd>
+
+
 <dt>scratch_dir</dt>
 <dd><p>A directory to save intermediate results.</p></dd>
 
@@ -112,6 +128,10 @@
 <dd><p>A logical. If <code>TRUE</code>, samples are kept on RAM. This is faster
 as long as you have enough memory to keep all samples. If this is <code>TRUE</code>, then
 <code>scratch_dir</code> and <code>keep_intermediate</code> are ignored.</p></dd>
+
+
+<dt>samples</dt>
+<dd><p>A named list of <a href="GCIMSSample-class.html">GCIMSSample</a> objects. names should match <code>pData$SampleID</code></p></dd>
 
 
 <dt>object</dt>
@@ -133,6 +153,9 @@ as long as you have enough memory to keep all samples. If this is <code>TRUE</co
     <div id="value">
     <h2>Value</h2>
     
+
+<p>A GCIMSDataset object</p>
+
 
 <p>A GCIMSDataset object</p>
 
@@ -162,6 +185,7 @@ needed, so the dataset object scales with large number of samples.</p>
     <h2>Functions</h2>
     
 <ul><li><p><code>GCIMSDataset()</code>: Constructor method</p></li>
+<li><p><code>GCIMSDataset_fromList()</code>: Constructor method</p></li>
 <li><p><code>pData(GCIMSDataset)</code>: Get the phenotype data</p></li>
 <li><p><code>pData(object = GCIMSDataset) &lt;- value</code>: Set the phenotype data</p></li>
 <li><p><code>peaks(GCIMSDataset)</code>: Get the peak list</p></li>
@@ -180,6 +204,16 @@ needed, so the dataset object scales with large number of samples.</p>
 <span class="r-in"><span><span class="va">dummy_obj</span> <span class="op">&lt;-</span><span class="fu">GCIMSDataset</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  pData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>SampleID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>, filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  base_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Create a new GCIMSDataset with the convenient constructor function:</span></span></span>
+<span class="r-in"><span><span class="va">sample1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  drift_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span></span>
+<span class="r-in"><span>  retention_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dummy_obj</span> <span class="op">&lt;-</span> <span class="fu">GCIMSDataset_fromList</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  pData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>SampleID <span class="op">=</span> <span class="st">"Sample1"</span>, Sex <span class="op">=</span> <span class="st">"female"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Sample1 <span class="op">=</span> <span class="va">sample1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

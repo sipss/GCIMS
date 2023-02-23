@@ -53,6 +53,9 @@
       <a href="../articles/creating-a-workflow-step.html">Creating a workflow step</a>
     </li>
     <li>
+      <a href="../articles/importing-custom-data-formats.html">Importing custom data formats</a>
+    </li>
+    <li>
       <a href="../articles/introduction-to-gcims.html">Introduction to GCIMS</a>
     </li>
   </ul>
@@ -176,7 +179,9 @@ returns the dataset. You can use this template for now:</p>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span></code></pre></div>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
 <p>Get the first sample of the dataset, and see the drift time vector at
 indices 500 and 1200:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -195,7 +200,9 @@ indices 500 and 1200:</p>
 <span><span class="co">#&gt; - With 3 samples on RAM</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - History:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
 <span><span class="co">#&gt;   - cutDrift:</span></span>
 <span><span class="co">#&gt;       dt_from: 1000.0</span></span>
@@ -289,7 +296,9 @@ results.</p>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span></code></pre></div>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift2_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
 <span><span class="va">dataset</span></span>
@@ -298,7 +307,9 @@ results.</p>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span>
 <span><span class="co">#&gt;   - cutDrift2:</span></span>
 <span><span class="co">#&gt;       dt_from: 1000.0</span></span>
 <span><span class="co">#&gt;       dt_to: 1500.0</span></span></code></pre></div>
@@ -446,7 +457,9 @@ the dataset object.</p>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span></code></pre></div>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift3_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
 <span><span class="va">dataset</span></span>
@@ -455,7 +468,9 @@ the dataset object.</p>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span>
 <span><span class="co">#&gt;   - cutDrift3:</span></span>
 <span><span class="co">#&gt;       dt_from: 1000.0</span></span>
 <span><span class="co">#&gt;       dt_to: 1500.0</span></span></code></pre></div>

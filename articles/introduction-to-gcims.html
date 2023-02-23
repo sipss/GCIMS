@@ -53,6 +53,9 @@
       <a href="../articles/creating-a-workflow-step.html">Creating a workflow step</a>
     </li>
     <li>
+      <a href="../articles/importing-custom-data-formats.html">Importing custom data formats</a>
+    </li>
+    <li>
       <a href="../articles/introduction-to-gcims.html">Introduction to GCIMS</a>
     </li>
   </ul>
@@ -78,7 +81,7 @@
                         <h4 data-toc-skip class="author">GCIMS
 authors</h4>
             
-            <h4 data-toc-skip class="date">2023-02-22</h4>
+            <h4 data-toc-skip class="date">2023-02-23</h4>
       
       
       <div class="hidden name"><code>introduction-to-gcims.Rmd</code></div>
@@ -172,7 +175,9 @@ samples, please follow the example from
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span></code></pre></div>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
 <p>Most operations on the <code>dataset</code> are not executed until
 you need to get the actual samples or data. This is done to perform them
 in batch, more efficiently, if possible. However, you can manually
@@ -186,7 +191,9 @@ operation becomes part of the dataset history:</p>
 <span><span class="co">#&gt; - With 3 samples on RAM</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - History:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span>
 <span><span class="co">#&gt; - No pending operations</span></span></code></pre></div>
 <p>Explore one sample:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -232,7 +239,9 @@ operation becomes part of the dataset history:</p>
 <span><span class="co">#&gt; - With 3 samples on RAM</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - History:</span></span>
-<span><span class="co">#&gt;   - read_sample</span></span>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span>
 <span><span class="co">#&gt; - Pending operations:</span></span>
 <span><span class="co">#&gt;   - filterRt:</span></span>
 <span><span class="co">#&gt;       rt_range:</span></span>
@@ -461,21 +470,21 @@ two regions or false detections may occur.</p>
 <span><span class="co">#&gt; Using the following scales</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Retention time scales: 1, 26, 39, 59, 64</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Drift time scales: 1, 11, 17, 25, 30</span></span>
-<span><span class="co">#&gt; RIP was detected</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span>  - At drift time: [7.50666666666667 - 7.90666666666667] ms</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span>  - Maximum RIP intensity at: (dt: 7.78666666666667 ms, rt: 50.31 s)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> RIP was detected</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> At drift time: [7.507 - 7.907] ms</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 50.31 s)</span></span>
 <span><span class="co">#&gt; Using the following scales</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Retention time scales: 1, 26, 39, 59, 64</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Drift time scales: 1, 11, 17, 25, 30</span></span>
-<span><span class="co">#&gt; RIP was detected</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span>  - At drift time: [7.54666666666667 - 7.90666666666667] ms</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span>  - Maximum RIP intensity at: (dt: 7.78666666666667 ms, rt: 56.55 s)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> RIP was detected</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> At drift time: [7.547 - 7.907] ms</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 56.55 s)</span></span>
 <span><span class="co">#&gt; Using the following scales</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Retention time scales: 1, 26, 39, 59, 64</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Drift time scales: 1, 11, 17, 25, 30</span></span>
-<span><span class="co">#&gt; RIP was detected</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span>  - At drift time: [7.50666666666667 - 7.90666666666667] ms</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span>  - Maximum RIP intensity at: (dt: 7.78666666666667 ms, rt: 51.48 s)</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> RIP was detected</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> At drift time: [7.507 - 7.907] ms</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 51.48 s)</span></span></code></pre></div>
 <p>You can get any other sample if you like, plot it and plot its peaks
 on top:</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
@@ -718,7 +727,7 @@ is not a good reference for integration. We are working on this.</p>
 <code class="sourceCode R"><span><span class="co"># Implemented until here</span></span>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"The vignette ran in  "</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; The vignette ran in  5.003271 mins</span></span></code></pre></div>
+<span><span class="co">#&gt; The vignette ran in  4.689431 mins</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session Info:<a class="anchor" aria-label="anchor" href="#session-info"></a>
