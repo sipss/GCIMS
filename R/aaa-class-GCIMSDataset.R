@@ -16,7 +16,6 @@
 #' @importClassesFrom S4Vectors DataFrame
 # All the slots are in an environment because I want the dataset to be mutable.
 # @slot pData A data frame with at least the SampleID and filename columns.
-# @slot base_dir A directory containing the file names described in `pData`
 # @slot scratch_dir A directory to save intermediate results.
 # @slot delayed_ops Delayed operations
 # @slot TIS A matrix of n_samples vs drift time, with the Total Ion Spectrum of each sample
@@ -176,7 +175,6 @@ methods::setMethod(
     keep_intermediate <- validate_keep_intermediate(keep_intermediate)
     .Object@envir <- rlang::new_environment()
     .Object@envir$pData <- pData
-    .Object@envir$base_dir <- base_dir
     .Object@envir$scratch_dir <- scratch_dir
     .Object@envir$dt_ref <- NULL
     .Object@envir$rt_ref <- NULL
@@ -189,7 +187,14 @@ methods::setMethod(
     .Object@envir$on_ram <- on_ram
     .Object@envir$samples <- NULL # Only used if on_ram is TRUE
     canRealize(.Object) <- TRUE
-    .Object <- appendDelayedOp(.Object, GCIMSDelayedOp(name = "read_sample", fun = read_sample))
+    .Object <- appendDelayedOp(
+      .Object,
+      GCIMSDelayedOp(
+        name = "read_sample",
+        fun = read_sample,
+        params = list(base_dir = base_dir)
+      )
+    )
     # Some sample stats:
     .Object <- extract_dtime_rtime(.Object)
     .Object <- extract_RIC_and_TIS(.Object)
@@ -228,7 +233,6 @@ NextHashedDir <- function(object) {
     }
     current_hash <- digest::digest(
       list(
-        object@envir$base_dir,
         pd[["SampleID"]],
         pd[["FileName"]]
       )
@@ -244,18 +248,22 @@ NextHashedDir <- function(object) {
 }
 
 
-read_sample <- function(filename) {
+read_sample <- function(filename, base_dir = NULL) {
+  if (!is.null(base_dir)) {
+    filename <- file.path(base_dir, filename)
+  }
   filename_l <- tolower(filename)
   if (endsWith(filename_l, ".mea.gz") || endsWith(filename_l, ".mea")) {
     return(read_mea(filename))
-  } else if (endsWith(filename_l, ".rds")) {
+  }
+  if (endsWith(filename_l, ".rds")) {
     obj <- readRDS(filename)
     if (methods::is(obj, "GCIMSSample")) {
       return(obj)
     }
-  } else {
-    abort(glue("Support for reading {filename} not yet implemented"))
+    cli::cli_abort("R Object in {filename} is not of type GCIMSSample")
   }
+  cli::cli_abort("Support for reading {filename} not yet implemented")
 }
 
 
@@ -280,5 +288,3 @@ read_sample <- function(filename) {
 GCIMSDataset <- function(pData, base_dir, scratch_dir = tempfile("GCIMSDataset_tempdir_"), keep_intermediate = FALSE, on_ram = FALSE) {
   methods::new("GCIMSDataset", pData, base_dir, scratch_dir, keep_intermediate, on_ram)
 }
-
-

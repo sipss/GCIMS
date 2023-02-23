@@ -117,7 +117,7 @@ realize_ram <- function(object) {
   sample_objs <- object@envir$samples
   if (is.null(sample_objs)) {
     pdata <- Biobase::pData(object)
-    sample_objs <- file.path(object@envir$base_dir, pdata$FileName)
+    sample_objs <- pdata$FileName
   }
   delayed_ops <- rlang::as_list(object@envir$delayed_ops)
   results <- mymapply(
@@ -161,7 +161,6 @@ realize_disk <- function(object, keep_intermediate) {
   sample_names <- sampleNames(object)
 
   pdata <- Biobase::pData(object)
-  orig_filenames <- file.path(object@envir$base_dir, pdata$FileName)
 
   if (is.null(current_dir)) {
     current_filenames <- list(NULL)
@@ -174,7 +173,7 @@ realize_disk <- function(object, keep_intermediate) {
   extracted_results <- mymapply(
     FUN = realize_one_sample_disk,
     sample_name = sample_names,
-    orig_filename = orig_filenames,
+    orig_filename = pdata$FileName,
     current_filename = current_filenames,
     next_filename = next_filenames,
     MoreArgs = list(
