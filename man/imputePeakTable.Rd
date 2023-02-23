@@ -11,7 +11,7 @@ imputePeakTable(peak_table, dataset, cluster_stats)
 
 \item{dataset}{The dataset object to extract samples from}
 
-\item{cluster_stats}{A data frame with the \code{dt_min_ms} and similar columns}
+\item{cluster_stats}{A data frame with the \verb{[dt|rt]_[min|max]_[ms|s]} columns}
 }
 \value{
 The imputed peak_table
