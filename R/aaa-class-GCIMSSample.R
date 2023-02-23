@@ -72,29 +72,54 @@ methods::setClass(
 methods::setMethod(
   "initialize", "GCIMSSample",
   function(.Object, drift_time, retention_time, data, ...) {
+    # class_version and proc_params are internal and should not be given
+    # drift_time, retention_time, data are mandatory and already given outside of ...
+    invalid_dot_names <-  c(
+      "drift_time", "retention_time", "data",
+      "class_version", "proc_params", "baseline"
+    )
+    valid_dot_names <- setdiff(methods::slotNames("GCIMSSample"), invalid_dot_names)
+    names(valid_dot_names) <- rep("*", length(valid_dot_names))
+    dots <- list(...)
+    if (length(dots) > 0) {
+      if (is.null(names(dots)) || any(nchar(names(dots)) == 0) ) {
+        cli_abort(
+          c(
+            "Error creating GCIMSSample object",
+            "x" = "All extra arguments should be named",
+            "Valid extra arguments are:",
+            valid_dot_names
+          )
+        )
+      }
+
+      if (!all(names(dots) %in% valid_dot_names)) {
+        wrong_dot_names <- setdiff(names(dots), c(valid_dot_names))
+        names(wrong_dot_names) <- rep("x", length(wrong_dot_names))
+        cli_abort(
+          c(
+            "Invalid named arguments in GCIMSSample()",
+            wrong_dot_names,
+            "Valid options are",
+            "*" = "drift_time",
+            "*" = "retention_time",
+            "*" = "data",
+            valid_dot_names
+          )
+        )
+      }
+    }
+
     .Object@class_version <- .CURRENT_GCIMSSAMPLE_CLASS_VERSION
     .Object@drift_time <- drift_time
     .Object@retention_time <- retention_time
     .Object@data <- data
     .Object@peaks <- NULL
     .Object@peaks_debug_info <- list()
-    dots <- list(...)
     if (length(dots) == 0) {
       return(.Object)
     }
-    if (is.null(names(dots)) || any(nchar(names(dots)) == 0) ) {
-      abort(c("Error creating GCIMSSample object",
-                     "x" = "All arguments should be named"))
-    }
-    # class_version and proc_params are internal and should not be given
-    # drift_time, retention_time, data are mandatory and already given outside of ...
-    invalid_dot_names <-  c("drift_time", "retention_time", "data", "class_version", "proc_params", "baseline")
-    valid_dot_names <- setdiff(methods::slotNames("GCIMSSample"), invalid_dot_names)
-    if (!all(names(dots) %in% valid_dot_names)) {
-      wrong_dot_names <- setdiff(names(dots), valid_dot_names)
-      names(wrong_dot_names) <- rep("x", length(wrong_dot_names))
-      abort(c("Invalid named arguments in GCIMSSample initialization", wrong_dot_names))
-    }
+
     for (arg in names(dots)) {
       methods::slot(.Object, arg) <- dots[[arg]]
     }
