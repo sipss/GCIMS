@@ -19,6 +19,7 @@
 GCIMSDataset(
   pData,
   base_dir,
+  parser = "default",
   scratch_dir = tempfile("GCIMSDataset_tempdir_"),
   keep_intermediate = FALSE,
   on_ram = FALSE
@@ -50,6 +51,8 @@ GCIMSDataset_fromList(
 \item{pData}{A data frame with at least the \code{SampleID} and \code{FileName} columns.}
 
 \item{base_dir}{A directory containing the file names described in \code{pData}}
+
+\item{parser}{Either a string \code{"default"} or a function that takes a filename and returns a \linkS4class{GCIMSSample} object}
 
 \item{scratch_dir}{A directory to save intermediate results.}
 

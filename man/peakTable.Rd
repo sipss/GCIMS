@@ -29,15 +29,28 @@ Extract the volume of each ROI across samples to create a peak table.
 # Create your peak table from scratch:
 pl <- data.frame(
   SampleID = c("S1", "S1", "S2", "S2"),
-  cluster = c(1, 2, 1, 2),
+  cluster = c("Cluster1", "Cluster2", "Cluster1", "Cluster2"),
   Volume = c(10, 20, 8, 18)
 )
-peakTable(pl)
-
-# Create a peak table
-peak_list_fom <- readRDS(system.file("extdata", "peak_list_fom.rds", package = "GCIMS"))
-peak_table <- peakTable(peak_list_fom, aggregate_conflicting_peaks = max)
+peak_table <- peakTable(pl)
 
 peak_table$peak_table_matrix
+
+# You can use imputePeakTable() to fill in the missing values
+
+# If the clustering doesn't work great, you may end up with two peaks
+# from the same sample on the same cluster. This does not make sense
+# empirically, because it's either one or the other. In case of such
+# ambiguity, peakTable() will give an error.
+#
+# If you want, you can override the error by taking the average volume
+# of those ambiguous peaks, or the maximum, using,
+# e.g. `aggregate_conflicting_peaks = max`.
+#
+# In any case, you will get information on how many peaks were aggregated
+# in the `peak_table_duplicity` field (ideally should be full of `1`):
+peak_table$peak_table_duplicity
+
+
 
 }
