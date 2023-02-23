@@ -234,6 +234,12 @@ P40 <- c("#FE1C2E", "#1CE50D", "#1C0DFE", "#E6B8C2", "#FD00E3", "#0DD1FC",
 #' @export
 add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", pdata = NULL,
                               palette = P40) {
+  cli_warn(
+    c(
+      "add_peaklist_rect is deprecated",
+      "i" = "Replace add_peaklist_rect(plt, peaklist) with {.code plt + overlay_peaklist(peaklist)} instead"
+    )
+  )
   dt_range <- ggplot2::layer_scales(plt)$x$range$range
   rt_range <- ggplot2::layer_scales(plt)$y$range$range
   if (is.null(dt_range)) {
@@ -454,10 +460,10 @@ overlay_peaklist <- function(
       if (is_color) {
         how_many_colors <- 1L
       } else {
-        abort(
-          message = c(
-            "Invalid color_by",
-            glue("color_by {color_by} is neither a valid color name nor a column of peaklist or pdata")
+        cli_abort(
+          c(
+            "Invalid {.arg color_by}",
+            "x" = "{.arg color_by} {color_by} is neither a valid color name nor a column of peaklist or pdata"
           )
         )
       }
