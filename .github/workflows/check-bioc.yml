@@ -127,6 +127,14 @@ jobs:
           key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_${{ env.BIOC_VERSION }}-r-${{ env.R_VERSION }}-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_${{ env.BIOC_VERSION }}-r-${{ env.R_VERSION }}-
 
+      - name: Cache vignette files
+        if: "!contains(github.event.head_commit.message, '/nocache')"
+        uses: actions/cache@v3
+        with:
+          path: vignettes/threeketones/
+          key: 'threeketonesdataset'
+          enableCrossOsArchive: true
+
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
