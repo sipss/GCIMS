@@ -469,11 +469,11 @@ overlay_peaklist <- function(
       }
     }
   } else {
-    abort("color_by should be NULL or a string")
+    cli_abort("{.arg color_by} should be {.code NULL} or a string")
   }
 
   if (!identical(names(mapping_roi), c("dt_min_ms", "dt_max_ms", "rt_min_s", "rt_max_s"))) {
-    abort(
+    cli_abort(
       c("i" = 'mapping_roi should be a named vector with names c("dt_min_ms", "dt_max_ms", "rt_min_s", "rt_max_s")')
     )
   }
