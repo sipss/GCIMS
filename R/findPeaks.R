@@ -76,6 +76,7 @@ detect_peaks_and_zeros_one_signal <- function(x, x_zeros, idx, save_debugging, p
 detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
                                    signals_to_save_extra = NULL, xmat_zeros = NULL) {
   if (rowwise) {
+    direction <- "rowwise"
     signal_length <- ncol(xmat)
     num_signals <- nrow(xmat)
     signals <- vector("list", num_signals)
@@ -89,6 +90,7 @@ detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams
       }
     }
   } else {
+    direction <- "columnwise"
     signal_length <- nrow(xmat)
     num_signals <- ncol(xmat)
     signals <- vector("list", num_signals)
@@ -110,18 +112,31 @@ detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams
   }
   # Workaround https://github.com/Bioconductor/BiocParallel/issues/239
   # Disable parallellization at this level:
-  peaks_and_zeros_and_extra <- mapply(
-    FUN = detect_peaks_and_zeros_one_signal,
-    x = signals,
-    x_zeros = signals_zeros,
-    idx = seq_len(num_signals),
-    save_debugging = save_debugging,
-    MoreArgs = list(
-      prep_wav = prep_wav,
-      peakDetectionCWTParams = peakDetectionCWTParams
+  peaks_and_zeros_and_extra <- purrr::pmap(
+    list(
+      x = signals,
+      x_zeros = signals_zeros,
+      idx = seq_len(num_signals),
+      save_debugging = save_debugging
     ),
-    SIMPLIFY = FALSE
+    detect_peaks_and_zeros_one_signal,
+    prep_wav = prep_wav,
+    peakDetectionCWTParams = peakDetectionCWTParams,
+    .progress = glue("Detecting peaks and zeros ({direction})")
   )
+  # peaks_and_zeros_and_extra <- mapply(
+  #   FUN = detect_peaks_and_zeros_one_signal,
+  #   x = signals,
+  #   x_zeros = signals_zeros,
+  #   idx = seq_len(num_signals),
+  #   save_debugging = save_debugging,
+  #   MoreArgs = list(
+  #     prep_wav = prep_wav,
+  #     peakDetectionCWTParams = peakDetectionCWTParams
+  #   ),
+  #   SIMPLIFY = FALSE
+  # )
+
   peaks_and_zeros <- purrr::map_dfr(peaks_and_zeros_and_extra, "peaks_and_zeros")
   stopifnot(ncol(peaks_and_zeros) == 4L)
   if (!is.null(signals_to_save_extra)) {
