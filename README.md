@@ -1,10 +1,14 @@
-# GCIMS
+# GCIMS <a href="https://sipss.github.io/GCIMS"><img src="man/figures/logo.png" align="right" height="138" /></a>
+
+<!-- badges: start -->
 
 [![Build Status](https://github.com/sipss/GCIMS/workflows/R-CMD-check-bioc/badge.svg?branch=master)](https://github.com/sipss/GCIMS/actions/)
 [![Documentation](https://img.shields.io/badge/documentation-pkgdown-informational)](https://sipss.github.io/GCIMS/)
 
-The goal of `GCIMS` is to offer a data analysis preprocessing pipeline for
-GC-IMS samples.
+<!-- badges: end -->
+
+GCIMS is an R package implementing a preprocessing pipeline for Gas Chromatography – Ion
+Mobility Spectrometry samples.
 
 ## Installation
 
@@ -18,9 +22,10 @@ if (!requireNamespace("remotes", quietly = TRUE))
     install.packages("remotes")
 ```
 
-You can install the package with:
+You can then install the package with:
 
 ```r
 remotes::install_github("sipss/GCIMS")
 ```
 
+Checkout our [Introduction to GCIMS](https://sipss.github.io/GCIMS/articles/introduction-to-gcims.html) to start.
