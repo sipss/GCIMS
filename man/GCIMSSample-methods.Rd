@@ -114,8 +114,8 @@ x <- GCIMSSample(
 )
 getChromatogram(x)
 # Take the maximum intensity in the region for each retention time:
-sp1 <- getChromatogram(s1, aggregate = function(x) apply(x, 2, max))
-x <- dummy_obj <-GCIMSSample(
+sp1 <- getChromatogram(x, aggregate = function(x) apply(x, 2, max))
+x <- GCIMSSample(
   drift_time = 1:2,
   retention_time = 1:3,
   data = matrix(1:6, nrow = 2, ncol = 3)
@@ -123,7 +123,7 @@ x <- dummy_obj <-GCIMSSample(
 getSpectrum(x, rt_idx = 2)
 
 # Take the maximum intensity in the region for each drift time:
-sp1 <- getSpectrum(s1, aggregate = function(x) apply(x, 1, max))
+sp1 <- getSpectrum(x, aggregate = function(x) apply(x, 1, max))
 }
 \seealso{
 \code{\link[base:subset]{base::subset()}}

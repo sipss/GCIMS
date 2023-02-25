@@ -6,6 +6,8 @@
 \alias{GCIMS-package}
 \title{GCIMS: Pre-processing for GC-IMS data}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 A package for the analysis of ion mobility spectrometry (IMS) measurements, as well as samples from multicapillary columns coupled with IMS (MCC-IMS) and gas chromatography coupled to ion mobility spectrometry (GC-IMS). The package provides a complete workflow for the analysis, importing the data, preprocessing the spectra as well as classification and regression techniques for the modelling of the spectra. The package also includes visualization helpers, to represent topographic plots, extracted and total ion chromatograms and IMS spectra.
 }
 \author{
