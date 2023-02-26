@@ -533,6 +533,21 @@ overlay_peaklist <- function(
           shape = "x"
         )
       )
+    } else {
+      # This else block is needed just because of plotly:
+      # plotly can't place an annotation_raster between geoms, it must be either below or
+      # above the whole plot.
+      # See https://github.com/sipss/GCIMS/issues/16
+      #
+      # When plotly finds a raster between geoms, chooses to place it "above" or "below"
+      # all of them by checking how many layers it has above and how many below, and picking the
+      # one with the majority (e.g. if the raster is the 3rd out of 4 layers it would be placed above)
+      # so to force it to appear below, we add a geom_blank on top, that will be invisible, but will
+      # make the annotation_raster to be 2/4 (First half) instead of 2/3 (second out of 3)
+      out <- c(
+        out,
+        ggplot2::geom_blank()
+      )
     }
   } else {
     show_legend <- how_many_colors <= 10
@@ -549,7 +564,8 @@ overlay_peaklist <- function(
         ),
         alpha = 0.3,
         show.legend = show_legend
-      )
+      ),
+      ggplot2::geom_blank()
     )
     if (has_apex) {
       out <- c(
@@ -564,6 +580,21 @@ overlay_peaklist <- function(
           shape = "x",
           show.legend = show_legend
         )
+      )
+    } else {
+      # This else block is needed just because of plotly:
+      # plotly can't place an annotation_raster between geoms, it must be either below or
+      # above the whole plot.
+      # See https://github.com/sipss/GCIMS/issues/16
+      #
+      # When plotly finds a raster between geoms, chooses to place it "above" or "below"
+      # all of them by checking how many layers it has above and how many below, and picking the
+      # one with the majority (e.g. if the raster is the 3rd out of 4 layers it would be placed above)
+      # so to force it to appear below, we add a geom_blank on top, that will be invisible, but will
+      # make the annotation_raster to be 2/4 (First half) instead of 2/3 (second out of 3)
+      out <- c(
+        out,
+        ggplot2::geom_blank()
       )
     }
     if (!is.null(palette)) {
@@ -580,6 +611,15 @@ overlay_peaklist <- function(
       out <- c(
         out,
         ggplot2::scale_color_manual(values = palette)
+      )
+    }
+    # Even if we used show.legend = FALSE, plotly (4.10.1.9000) needs
+    # guides(colour = "none").
+    # So we force it here anyway:
+    if (!show_legend) {
+      out <- c(
+        out,
+        list(ggplot2::guides(colour = "none"))
       )
     }
   }
