@@ -142,19 +142,19 @@ setMethod(
     # Different steps, interpolate to a common step
     dt_ref <- ds@envir$dt_ref
     rt_ref <- ds@envir$rt_ref
-    ds@envir$TIS <- matrix(NA, nrow = num_samples, ncol = length(dt_ref))
-    ds@envir$RIC <- matrix(NA, nrow = num_samples, ncol = length(rt_ref))
-    for (i in length(tiss)) {
+    ds@envir$TIS <- matrix(NA_real_, nrow = num_samples, ncol = length(dt_ref))
+    ds@envir$RIC <- matrix(NA_real_, nrow = num_samples, ncol = length(rt_ref))
+    for (i in seq_along(tiss)) {
       dt <- dtimes[[i]]
       rt <- rtimes[[i]]
-      ds@envir$RIC[i,] <- signal::interp1(dt, tiss[[i]], dt_ref)
-      ds@envir$TIS[i,] <- signal::interp1(rt, rics[[i]], rt_ref)
+      ds@envir$TIS[i,] <- signal::interp1(dt, tiss[[i]], dt_ref)
+      ds@envir$RIC[i,] <- signal::interp1(rt, rics[[i]], rt_ref)
     }
   } else if (axes_heterogeneity == "needs_cutting") {
     dt_ref <- ds@envir$dt_ref
     rt_ref <- ds@envir$rt_ref
-    ds@envir$TIS <- matrix(NA, nrow = num_samples, ncol = length(dt_ref))
-    ds@envir$RIC <- matrix(NA, nrow = num_samples, ncol = length(rt_ref))
+    ds@envir$TIS <- matrix(NA_real_, nrow = num_samples, ncol = length(dt_ref))
+    ds@envir$RIC <- matrix(NA_real_, nrow = num_samples, ncol = length(rt_ref))
     for (i in seq_len(num_samples)) {
       dt <- dtimes[[i]]
       rt <- rtimes[[i]]

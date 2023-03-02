@@ -95,7 +95,7 @@ setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
   needs_cutting <- any(has_different_dt_start, has_different_dt_end, has_different_rt_start, has_different_rt_end)
 
   has_different_dt_step <- any(dt_rt_metrics$dt_step_ms != dt_rt_metrics$dt_step_ms[1])
-  has_different_rt_step <- any(dt_rt_metrics$rt_step_ms != dt_rt_metrics$rt_step_ms[1])
+  has_different_rt_step <- any(dt_rt_metrics$rt_step_s != dt_rt_metrics$rt_step_s[1])
 
   needs_interpolate <- any(has_different_dt_step, has_different_rt_step)
 
