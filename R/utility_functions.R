@@ -24,3 +24,8 @@ units_to_points <- function(length_phys, step_phys, must_odd = FALSE) {
   }
   length_pts
 }
+
+
+show_progress_bar <- function() {
+  interactive() && is.null(getOption("knitr.in.progress"))
+}

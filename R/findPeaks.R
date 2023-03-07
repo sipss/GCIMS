@@ -112,6 +112,7 @@ detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams
   }
   # Workaround https://github.com/Bioconductor/BiocParallel/issues/239
   # Disable parallellization at this level:
+
   peaks_and_zeros_and_extra <- purrr::pmap(
     list(
       x = signals,
@@ -122,7 +123,7 @@ detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams
     detect_peaks_and_zeros_one_signal,
     prep_wav = prep_wav,
     peakDetectionCWTParams = peakDetectionCWTParams,
-    .progress = glue("Detecting peaks and zeros ({direction})")
+    .progress = ifelse(show_progress_bar(), glue("Detecting peaks and zeros ({direction})"), FALSE)
   )
   # peaks_and_zeros_and_extra <- mapply(
   #   FUN = detect_peaks_and_zeros_one_signal,
