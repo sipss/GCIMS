@@ -365,6 +365,7 @@ methods::setMethod(
         # Dump samples to disk and prepare...
         CurrentHashedDir(.Object) <- "from_list"
         save_to <- CurrentHashedDir(.Object)
+        dir.create(save_to, showWarnings = FALSE, recursive = TRUE)
         purrr::walk2(
           pData$SampleID,
           samples,
