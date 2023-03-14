@@ -191,9 +191,9 @@ clusterPeaks <- function(
 peak_and_cluster_metrics <- function(peaks) {
   peaks <- peaks |>
     dplyr::mutate(
-      dt_length_ms = .data$dt_max_ms - .data$rt_min_s,
+      dt_length_ms = .data$dt_max_ms - .data$dt_min_ms,
       rt_length_s = .data$rt_max_s - .data$rt_min_s,
-      dt_center_ms = (.data$dt_max_ms + .data$rt_min_s)/2,
+      dt_center_ms = (.data$dt_max_ms + .data$dt_min_ms)/2,
       rt_center_s = (.data$rt_max_s + .data$rt_min_s)/2,
     )
 
