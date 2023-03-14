@@ -11,15 +11,8 @@ setMethod("dtime", "GCIMSDataset", function(object, sample = NULL) {
   if (is.null(sample)) {
     return(object@envir$dt_ref)
   } else {
-    sample_idx_name <- sample_name_or_number_to_both(sample)
-    time_metrics <- as.list(object@envir$dt_rt_metrics[sample_idx_name$idx,])
-    return(
-      seq(
-        from = time_metrics$dt_min_ms,
-        to = time_metrics$dt_max_ms,
-        length.out = time_metrics$dt_length_points
-      )
-    )
+    sample <- getSample(object, sample = sample)
+    return(dtime(sample))
   }
 })
 
@@ -37,15 +30,8 @@ setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
   if (is.null(sample)) {
     return(object@envir$rt_ref)
   } else {
-    sample_idx_name <- sample_name_or_number_to_both(sample)
-    time_metrics <- as.list(object@envir$dt_rt_metrics[sample_idx_name$idx,])
-    return(
-      seq(
-        from = time_metrics$rt_min_s,
-        to = time_metrics$rt_max_s,
-        length.out = time_metrics$rt_length_points
-      )
-    )
+    sample <- getSample(object, sample = sample)
+    return(rtime(sample))
   }
 })
 
@@ -82,30 +68,9 @@ setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
   max_rt_length <- floor(round((min_rt_max - max_rt_min)/min_rt_step, digits = 8)) + 1L
   dt_ref <- seq(from = max_dt_min, to = min_dt_max, length.out = max_dt_length)
   rt_ref <- seq(from = max_rt_min, to = min_rt_max, length.out = max_rt_length)
-  gcimsdataset@envir$dt_rt_metrics <- dt_rt_metrics
   gcimsdataset@envir$dt_ref <- dt_ref
   gcimsdataset@envir$rt_ref <- rt_ref
 
-  # Check all have the same dimensions:
-  has_different_dt_start <- any(dt_rt_metrics$dt_min_ms != dt_rt_metrics$dt_min_ms[1])
-  has_different_dt_end <- any(dt_rt_metrics$dt_max_ms != dt_rt_metrics$dt_max_ms[1])
-  has_different_rt_start <- any(dt_rt_metrics$rt_min_s != dt_rt_metrics$rt_min_s[1])
-  has_different_rt_end <- any(dt_rt_metrics$rt_max_s != dt_rt_metrics$rt_max_s[1])
-
-  needs_cutting <- any(has_different_dt_start, has_different_dt_end, has_different_rt_start, has_different_rt_end)
-
-  has_different_dt_step <- any(dt_rt_metrics$dt_step_ms != dt_rt_metrics$dt_step_ms[1])
-  has_different_rt_step <- any(dt_rt_metrics$rt_step_s != dt_rt_metrics$rt_step_s[1])
-
-  needs_interpolate <- any(has_different_dt_step, has_different_rt_step)
-
-  if (needs_interpolate) {
-    axesHeterogeneity(gcimsdataset) <- "needs_interpolate"
-  } else if (needs_cutting) {
-    axesHeterogeneity(gcimsdataset) <- "needs_cutting"
-  } else {
-    axesHeterogeneity(gcimsdataset) <- "all_equal"
-  }
   # fun_aggregate must return the GCIMSDataset object
   gcimsdataset
 }
@@ -121,24 +86,6 @@ extract_dtime_rtime <- function(object) {
   object
 }
 
-"axesHeterogeneity<-" <- function(object, value) {
-  valid_values <- c("needs_interpolate", "needs_cutting", "all_equal")
-  if (!value %in% valid_values) {
-    abort(
-      message = c(
-        "Invalid value for axesHeterogeneity",
-        "x" = glue("You gave {value}"),
-        "i" = glue("Expected one of: {paste0(valid_values, collapse = ', ')}")
-        )
-    )
-  }
-  object@envir$axes_heterogeneity <- value
-  object
-}
-
-axesHeterogeneity <- function(object) {
-  object@envir$axes_heterogeneity
-}
 
 
 

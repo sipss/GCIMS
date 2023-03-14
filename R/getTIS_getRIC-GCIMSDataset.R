@@ -134,57 +134,23 @@ setMethod(
   dtimes <- purrr::map(objs, "dt")
   rtimes <- purrr::map(objs, "rt")
 
-  axes_heterogeneity <- axesHeterogeneity(ds)
-  if (is.null(axes_heterogeneity)) {
-    abort(c("UnexpectedError", "extract_dtime_rtime() should have been called before extract_RIC_and_TIS()"))
-  }
-  if (axes_heterogeneity == "needs_interpolate") {
-    # Different steps, interpolate to a common step
-    dt_ref <- ds@envir$dt_ref
-    rt_ref <- ds@envir$rt_ref
-    ds@envir$TIS <- matrix(NA_real_, nrow = num_samples, ncol = length(dt_ref))
-    ds@envir$RIC <- matrix(NA_real_, nrow = num_samples, ncol = length(rt_ref))
-    for (i in seq_along(tiss)) {
-      dt <- dtimes[[i]]
-      rt <- rtimes[[i]]
+  dt_ref <- ds@envir$dt_ref
+  rt_ref <- ds@envir$rt_ref
+  ds@envir$TIS <- matrix(NA_real_, nrow = num_samples, ncol = length(dt_ref))
+  ds@envir$RIC <- matrix(NA_real_, nrow = num_samples, ncol = length(rt_ref))
+  for (i in seq_len(num_samples)) {
+    dt <- dtimes[[i]]
+    rt <- rtimes[[i]]
+    if (identical(dt, dt_ref)) {
+      ds@envir$TIS[i, ] <- tiss[[i]]
+    } else {
       ds@envir$TIS[i,] <- signal::interp1(dt, tiss[[i]], dt_ref)
+    }
+    if (identical(rt, rt_ref)) {
+      ds@envir$RIC[i,] <- rics[[i]]
+    } else {
       ds@envir$RIC[i,] <- signal::interp1(rt, rics[[i]], rt_ref)
     }
-  } else if (axes_heterogeneity == "needs_cutting") {
-    dt_ref <- ds@envir$dt_ref
-    rt_ref <- ds@envir$rt_ref
-    ds@envir$TIS <- matrix(NA_real_, nrow = num_samples, ncol = length(dt_ref))
-    ds@envir$RIC <- matrix(NA_real_, nrow = num_samples, ncol = length(rt_ref))
-    for (i in seq_len(num_samples)) {
-      dt <- dtimes[[i]]
-      rt <- rtimes[[i]]
-      dt_start_idx <- utils::head(which(dt >= dt_ref[1L]), 1L)
-      dt_end_idx <- utils::tail(which(dt <= dt_ref[length(dt_ref)]), 1L)
-
-      rt_start_idx <- utils::head(which(rt >= rt_ref[1L]), 1L)
-      rt_end_idx <- utils::tail(which(rt <= rt_ref[length(rt_ref)]), 1L)
-      if (any(
-        length(dt_start_idx) == 0,
-        length(dt_end_idx) == 0,
-        length(rt_start_idx) == 0,
-        length(rt_end_idx) == 0
-      )) {
-        abort("Unexpected error: No overlap between sample retention and drift times.")
-      }
-      this_ric <- rics[[i]][rt_start_idx:rt_end_idx]
-      if (length(this_ric) != ncol(ds@envir$RIC)) {
-        abort("Unexpected length of RIC")
-      }
-      ds@envir$RIC[i,] <- this_ric
-      this_tiss <- tiss[[i]][dt_start_idx:dt_end_idx]
-      if (length(this_tiss) != ncol(ds@envir$TIS)) {
-        abort("Unexpected length of TIS")
-      }
-      ds@envir$TIS[i,] <- this_tiss
-    }
-  } else {
-    ds@envir$TIS <- do.call(rbind, tiss)
-    ds@envir$RIC <- do.call(rbind, rics)
   }
   stopifnot(nrow(ds@envir$TIS) == num_samples)
   stopifnot(nrow(ds@envir$RIC) == num_samples)
