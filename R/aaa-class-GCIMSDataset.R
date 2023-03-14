@@ -368,7 +368,7 @@ methods::setMethod(
         purrr::walk2(
           pData$SampleID,
           samples,
-          function(sample_name, sample) {
+          function(sample_name, sample, save_to) {
             next_filename <- file.path(save_to, paste0(sample_name, ".rds"))
             saveRDS(sample, next_filename)
           },
