@@ -1,4 +1,4 @@
-FROM docker.io/bioconductor/bioconductor_docker:RELEASE_3_15
+FROM docker.io/bioconductor/bioconductor_docker:RELEASE_3_16
 
 RUN apt-get update && apt-get install -y \
     libmagick++-dev \
