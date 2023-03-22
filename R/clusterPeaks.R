@@ -93,14 +93,14 @@ clusterPeaks <- function(
       if (is.null(dt_ms_max_dist_thres)) {
         dt_ms_max_dist_thres <- signif(3*stats::median(peaks$dt_max_ms - peaks$dt_min_ms), digits = 2)
         if (verbose) {
-          rlang::inform(c("i" = glue("The maximum distance between two peaks in the same cluster is of {dt_ms_max_dist_thres} ms")))
+          cli_inform(c("i" = "The maximum distance between two peaks in the same cluster is of {dt_ms_max_dist_thres} ms"))
         }
       }
       rt_s_max_dist_thres <- clustering$rt_s_max_dist_thres
       if (is.null(rt_s_max_dist_thres)) {
         rt_s_max_dist_thres <- signif(3*stats::median(peaks$rt_max_s - peaks$rt_min_s), digits = 2)
         if (verbose) {
-          rlang::inform(c("i" = glue("The maximum distance between two peaks in the same cluster is of {rt_s_max_dist_thres} s")))
+          cli_inform(c("i" = "The maximum distance between two peaks in the same cluster is of {rt_s_max_dist_thres} s"))
         }
       }
 
@@ -464,7 +464,7 @@ peak2peak_distance <- function(peak_matrix, distance_method = "mahalanobis") {
   if (distance_method %in% STATS_METHODS) {
     peak2peak_dist <- stats::dist(peak_matrix, method = distance_method)
   } else if (distance_method == "sd_scaled_euclidean") {
-    rlang::warn(
+    cli_warn(
       message = c(
         "Deprecated distance metric",
         "i" = "The 'sd_scaled_euclidean' metric is now deprecated",

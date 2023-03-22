@@ -15,7 +15,7 @@ methods::setMethod(
   "description<-", "GCIMSChromatogram",
   function(object, value) {
     if (!rlang::is_string(value)) {
-      abort("description should be a string")
+      cli_abort("description should be a string")
     }
     object@description <- value
     object

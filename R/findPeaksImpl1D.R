@@ -136,9 +136,9 @@ findPeaksImpl1D <- function(
   )
 
   if (verbose) {
-    rlang::inform(
+    cli_inform(
       message = c(
-        "i" = paste0("Using the following scales: ", glue::glue_collapse(scales$scales, sep = ", "))
+        "i" = "Using the following scales: {glue::glue_collapse(scales$scales, sep = ', ')}"
       )
     )
   }

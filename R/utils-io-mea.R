@@ -136,10 +136,10 @@ read_mea <- function(filename) {
       unit <- val_unit[3]
       params[[key]] <- list(value = value, unit = unit)
     } else {
-      warn(
-        message = sprintf("Unknown key: %s (please open an issue to implement this)", key),
+      cli_warn(
+        message = "Unknown key: {key} (please open an issue to implement this)",
         .frequency = "once",
-        .frequency_id = sprintf("GCIMS-warn-unknown-key-%s", key)
+        .frequency_id = glue("GCIMS-warn-unknown-key-{key}")
       )
       params[[key]] <- value
     }

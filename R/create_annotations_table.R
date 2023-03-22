@@ -69,14 +69,14 @@ create_annotations_table <- function(
     FileName = filenames
   )
   if (verbose) {
-    inform(
+    cli_inform(
       message = c(
         "An annotation table was created",
-        "i" = glue("The table now includes {nrow(annotations)} samples"),
+        "i" = "The table now includes {nrow(annotations)} samples",
         "i" = "Feel free to edit the table to include additional annotations as extra columns (for groups, phenotypes...), please avoid renaming the SampleID and FileName columns",
         "i" = "You may freely add/remove rows to include/exclude additional samples",
         "i" = paste0(
-          "For editing, you can do it from R or you can check the examples at help(\"create_annotations_table\") to",
+          "For editing, you can do it from R or you can check the examples at {.code help(\"create_annotations_table\")} to",
           "learn how to save the table to an Excel file at your convenience"
         )
       )

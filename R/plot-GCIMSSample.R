@@ -236,8 +236,8 @@ add_peaklist_rect <- function(plt, peaklist, color_by = NULL, col_prefix = "", p
                               palette = P40) {
   cli_warn(
     c(
-      "add_peaklist_rect is deprecated",
-      "i" = "Replace add_peaklist_rect(plt, peaklist) with {.code plt + overlay_peaklist(peaklist)} instead"
+      "{.code add_peaklist_rect} is deprecated",
+      "i" = "Replace {.code add_peaklist_rect(plt, peaklist)} with {.code plt + overlay_peaklist(peaklist)} instead"
     )
   )
   dt_range <- ggplot2::layer_scales(plt)$x$range$range

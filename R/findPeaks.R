@@ -419,11 +419,11 @@ findPeaksImpl <- function(
     )
 
     if (verbose) {
-      rlang::inform(
+      cli_inform(
         message = c(
           "Using the following scales",
-          "i" = paste0("Retention time scales: ", glue::glue_collapse(scales_rt$scales, sep = ", ")),
-          "i" = paste0("Drift time scales: ", glue::glue_collapse(scales_dt$scales, sep = ", "))
+          "i" = "Retention time scales: {glue::glue_collapse(scales_rt$scales, sep = ', ')}",
+          "i" = "Drift time scales: {glue::glue_collapse(scales_dt$scales, sep = ', ')}"
         )
       )
     }
