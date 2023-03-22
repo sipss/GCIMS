@@ -10,7 +10,6 @@ GCIMSChromatogram(
   drift_time_idx = NA_integer_,
   drift_time_ms = NA_real_,
   description = "",
-  ...,
   baseline = NULL,
   peaks = NULL,
   peaks_debug_info = NULL
@@ -48,6 +47,12 @@ GCIMSChromatogram(
 }
 \seealso{
 Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram-class}}
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{dtime,GCIMSChromatogram-method}},
+\code{\link{estimateBaseline,GCIMSChromatogram-method}},
+\code{\link{findPeaks,GCIMSChromatogram-method}},
+\code{\link{intensity,GCIMSChromatogram-method}},
+\code{\link{rtime,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
 }
 \concept{GCIMSChromatogram}

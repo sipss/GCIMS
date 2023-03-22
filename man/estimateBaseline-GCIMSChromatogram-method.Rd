@@ -41,3 +41,32 @@ The length of the regions are given in seconds in the \code{region_s} parameter.
 \item \code{baseline(GCIMSChromatogram) <- value}: Set the baseline
 
 }}
+\seealso{
+Other GCIMSChromatogram: 
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogram}},
+\code{\link{dtime,GCIMSChromatogram-method}},
+\code{\link{findPeaks,GCIMSChromatogram-method}},
+\code{\link{intensity,GCIMSChromatogram-method}},
+\code{\link{rtime,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
+
+Other GCIMSChromatogram: 
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogram}},
+\code{\link{dtime,GCIMSChromatogram-method}},
+\code{\link{findPeaks,GCIMSChromatogram-method}},
+\code{\link{intensity,GCIMSChromatogram-method}},
+\code{\link{rtime,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
+
+Other GCIMSChromatogram: 
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogram}},
+\code{\link{dtime,GCIMSChromatogram-method}},
+\code{\link{findPeaks,GCIMSChromatogram-method}},
+\code{\link{intensity,GCIMSChromatogram-method}},
+\code{\link{rtime,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
+}
+\concept{GCIMSChromatogram}

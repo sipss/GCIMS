@@ -27,3 +27,14 @@ The modified \link{GCIMSChromatogram}, with a peak list
 \description{
 Peak detection for a GCIMSChromatogram
 }
+\seealso{
+Other GCIMSChromatogram: 
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogram}},
+\code{\link{dtime,GCIMSChromatogram-method}},
+\code{\link{estimateBaseline,GCIMSChromatogram-method}},
+\code{\link{intensity,GCIMSChromatogram-method}},
+\code{\link{rtime,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
+}
+\concept{GCIMSChromatogram}

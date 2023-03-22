@@ -19,3 +19,14 @@ The retention intensity vector
 \description{
 Get the intensity vector
 }
+\seealso{
+Other GCIMSChromatogram: 
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogram}},
+\code{\link{dtime,GCIMSChromatogram-method}},
+\code{\link{estimateBaseline,GCIMSChromatogram-method}},
+\code{\link{findPeaks,GCIMSChromatogram-method}},
+\code{\link{rtime,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
+}
+\concept{GCIMSChromatogram}

@@ -15,3 +15,14 @@ The retention time vector (in s)
 \description{
 Get the retention time vector
 }
+\seealso{
+Other GCIMSChromatogram: 
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogram}},
+\code{\link{dtime,GCIMSChromatogram-method}},
+\code{\link{estimateBaseline,GCIMSChromatogram-method}},
+\code{\link{findPeaks,GCIMSChromatogram-method}},
+\code{\link{intensity,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
+}
+\concept{GCIMSChromatogram}

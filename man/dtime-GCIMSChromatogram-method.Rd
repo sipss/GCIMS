@@ -15,3 +15,14 @@ The drift time where this chromatogram was extracted from (in ms)
 \description{
 Get the drift time of the chromatogram
 }
+\seealso{
+Other GCIMSChromatogram: 
+\code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogram}},
+\code{\link{estimateBaseline,GCIMSChromatogram-method}},
+\code{\link{findPeaks,GCIMSChromatogram-method}},
+\code{\link{intensity,GCIMSChromatogram-method}},
+\code{\link{rtime,GCIMSChromatogram-method}},
+\code{\link{smooth,GCIMSChromatogram-method}}
+}
+\concept{GCIMSChromatogram}
