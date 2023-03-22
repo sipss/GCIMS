@@ -114,7 +114,7 @@ find_rip <- function(intensity_mat, verbose = FALSE, retention_time = NULL, drif
   # To workaround this, we estimate the FWHM and we clip the boundaries at the apex +- 2*FWHM
   bounds_and_widths <- find_half_max_boundaries(total_ion_spectrum)
   if (is.na(bounds_and_widths$fwhm_sym)) {
-    abort(
+    cli_abort(
       message = c(
         "The ROI selection could not locate the RIP width",
         "i" = "Please contact the GCIMS authors at https://github.com/sipss/GCIMS/issues and if possible submit them your sample")

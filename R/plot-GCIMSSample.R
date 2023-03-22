@@ -67,10 +67,10 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
     } else if (trans_func %in% ls(scales_envir)) {
       trans <- get(trans_func, envir = scales_envir)()
     } else {
-      rlang::abort("unknown trans value")
+      cli_abort("unknown trans value")
     }
   } else if (!inherits(trans, "trans")) {
-    rlang::abort("unknown trans value")
+    cli_abort("unknown trans value")
   }
   intmat_trans <- trans$transform(intmat)
   colormap <- farver::encode_native(

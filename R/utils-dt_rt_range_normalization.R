@@ -52,7 +52,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
     return(dt_range)
   }
   if (!is.null(dt_range) && !is.null(dt_idx)) {
-    abort("Please provide either dt_range or dt_idx, but not both in the same call")
+    cli_abort("Please provide either dt_range or dt_idx, but not both in the same call")
   }
 
   if (!is.null(dt_range)) {
@@ -65,7 +65,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
       dt_idx_closest <- which.min(dt_distance)
       dt_ms_distance <- dt_distance[dt_idx_closest]
       if (dt_ms_distance > (dt[2] - dt[1])) {
-        abort(glue("The given dt_range {dt_range} is not in [{dt[1]} - {dt[length(dt)]}]"))
+        cli_abort("The given dt_range {dt_range} is not in [{dt[1]} - {dt[length(dt)]}]")
       }
       out[["dt_ms_min"]] <- dt_range
       out[["dt_ms_max"]] <- dt_range
@@ -82,13 +82,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
   } else if (!is.null(dt_idx)) {
     if (is.logical(dt_idx)) {
       if (length(dt_idx) != length(dt)) {
-        abort(
-          sprintf(
-            "dt_idx is a logical vector of length %d and it should be of length %d",
-            length(dt_idx),
-            length(dt)
-          )
-        )
+        cli_abort("dt_idx is a logical vector of length {length(dt_idx)} and it should be of length {length(dt)}")
       }
       out[["dt_logical"]] <- dt_idx
       dt_idx <- which(out[["dt_logical"]])
@@ -102,7 +96,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
       out[["dt_idx_min"]] <- min(dt_idx)
       out[["dt_idx_max"]] <- max(dt_idx)
       if (out[["dt_idx_min"]] < 1 || out[["dt_idx_max"]] > length(dt)) {
-        abort("dt_idx out of range")
+        cli_abort("dt_idx out of range")
       }
       out[["dt_ms_min"]] <- dt[out[["dt_idx_min"]]]
       out[["dt_ms_max"]] <- dt[out[["dt_idx_max"]]]
@@ -127,7 +121,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
   }
 
   if (!is.null(rt_range) && !is.null(rt_idx)) {
-    abort("Please provide either rt_range or rt_idx, but not both in the same call")
+    cli_abort("Please provide either rt_range or rt_idx, but not both in the same call")
   }
 
   if (!is.null(rt_range)) {
@@ -140,7 +134,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
       rt_idx_closest <- which.min(rt_distance)
       rt_s_distance <- rt_distance[rt_idx_closest]
       if (rt_s_distance > (rt[2] - rt[1])) {
-        abort(glue("The given rt_range {rt_range} is not in [{rt[1L]} - {rt[length(rt)]}]"))
+        cli_abort("The given rt_range {rt_range} is not in [{rt[1L]} - {rt[length(rt)]}]")
       }
       out[["rt_s_min"]] <- rt_range
       out[["rt_s_max"]] <- rt_range
@@ -158,13 +152,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
   } else if (!is.null(rt_idx)) {
     if (is.logical(rt_idx)) {
       if (length(rt_idx) != length(rt)) {
-        abort(
-          sprintf(
-            "rt_idx is a logical vector of length %d and it should be of length %d",
-            length(rt_idx),
-            length(rt)
-          )
-        )
+        cli_abort("rt_idx is a logical vector of length {length(rt_idx)} and it should be of length {length(rt)}")
       }
       out[["rt_logical"]] <- rt_idx
       rt_idx <- which(out[["rt_logical"]])
@@ -178,7 +166,7 @@ dt_rt_range_normalization <- function(dt = numeric(0L), rt = numeric(0L), dt_ran
       out[["rt_idx_min"]] <- min(rt_idx)
       out[["rt_idx_max"]] <- max(rt_idx)
       if (out[["rt_idx_min"]] < 1 || out[["rt_idx_max"]] > length(rt)) {
-        abort("rt_idx out of range")
+        cli_abort("rt_idx out of range")
       }
       out[["rt_s_min"]] <- rt[out[["rt_idx_min"]]]
       out[["rt_s_max"]] <- rt[out[["rt_idx_max"]]]

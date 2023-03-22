@@ -53,10 +53,10 @@ setMethod("intensity", "GCIMSSample", function(object, dt_range = NULL, rt_range
 #' intensity(gcims_sample) <- my_matrix/100
 setMethod("intensity<-", "GCIMSSample", function(object, value) {
   if (!is.matrix(value)) {
-    abort("The given intensity should be a matrix")
+    cli_abort("The given intensity should be a matrix")
   }
   if (!identical(dim(object), dim(value))) {
-    abort("The given intensity should have dimensions {dim(object)} and it has dimensions {dim(value)}")
+    cli_abort("The given intensity should have dimensions {dim(object)} and it has dimensions {dim(value)}")
   }
   object@data <- value
   object

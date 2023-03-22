@@ -6,10 +6,10 @@ require_pkgs <- function(pkg, msgs = NULL, ...) {
     if (!all(have_pkgs)) {
         missing_pkgs <- names(have_pkgs)[!have_pkgs]
         parent_call <- format(rlang::caller_call())
-        rlang::abort(
+        cli_abort(
             message = c(
-                glue::glue("{parent_call} requires additional packages. Please install them. You may want to use:", parent_call = parent_call),
-                glue::glue("    BiocManager::install({deparse(missing_pkgs)})", missing_pkgs = missing_pkgs),
+                "{parent_call} requires additional packages. Please install them. You may want to use:",
+                "    BiocManager::install({deparse(missing_pkgs)})",
                 msgs
             ),
             ...

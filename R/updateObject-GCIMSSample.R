@@ -31,7 +31,7 @@ methods::setMethod(
       object <- updateObject(object, ..., verbose = verbose)
     }
     if (obj_version < "0.0.3") {
-      abort("Can't migrate an older verions of the GCIMSSample object")
+      cli_abort("Can't migrate an older verions of the GCIMSSample object")
     }
     return(object)
   }

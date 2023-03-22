@@ -34,11 +34,11 @@ methods::setMethod(
         invalid_names <- paste0(names(dots), collapse = ", ")
       }
       valid_names <- paste0(setdiff(names(formals()), c(".Object", "...")), collapse = ", ")
-      abort(
+      cli_abort(
         message = c(
           "Invalid argument to GCIMSSpectrum constructor",
-          "x" = paste0("The following arguments are invalid: ", invalid_names),
-          "i" = paste0("The valid argument names are: ", valid_names)
+          "x" = "The following arguments are invalid: {invalid_names}",
+          "i" = "The valid argument names are: {valid_names}"
           )
       )
     }

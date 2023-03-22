@@ -39,10 +39,10 @@ methods::setMethod(
   "initialize", "GCIMSDelayedOp",
   function(.Object, name, fun = NULL, params = list(), fun_extract = NULL, fun_aggregate = NULL) {
     if (!grepl(pattern = "^[a-zA-Z0-9][-a-zA-Z_0-9]*$", x = name)) {
-      abort(
+      cli_abort(
         message = c(
           "Invalid delayed operation name",
-          "x" = glue("{name} is not a valid operation name"),
+          "x" = "{name} is not a valid operation name",
           "i" = "The operation name must start with an alphanumeric character",
           "i" = "The operation name may only contain alphanumeric characters hyphens and underscores"
           )
@@ -65,10 +65,10 @@ aggregate_result <- function(delayed_op, extracted_result, dataset) {
   f <- delayed_op@fun_aggregate
   dataset <- f(dataset, extracted_result)
   if (!methods::is(dataset, dataset_class)) {
-    abort(
+    cli_abort(
       message = c(
         "Delayed operation contract was broken",
-        "x" = glue("The delayed action {name(delayed_op)} has a `fun_aggregate` slot that does not return a {dataset_class} object"),
+        "x" = "The delayed action {name(delayed_op)} has a `fun_aggregate` slot that does not return a {dataset_class} object",
         "i" = "If you did not write the delayed action, this is not your fault. Please report this error at https://github.com/sipss/GCIMS."
       )
     )

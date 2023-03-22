@@ -55,11 +55,11 @@ check_files <- function(filenames, base_dir) {
       to_show <- length(missing_files)
       and_n_more <- ""
     }
-    abort(
+    cli_abort(
       message = c(
         "Files not found",
-        "x" = paste0("The following files", and_n_more, " were not found"),
-        "i" = utils::head(missing_files, to_show)
+        "x" = "The following files {and_n_more} were not found",
+        "i" = "{utils::head(missing_files, to_show)}"
       )
     )
   }
@@ -69,7 +69,7 @@ check_files <- function(filenames, base_dir) {
 abort_if_errors <- function(errors, title = "Errors found") {
   if (length(errors) > 0) {
     names(errors) <- rep("x", length(errors))
-    abort(message = c(title, errors))
+    cli_abort(message = c(title, errors))
   }
 }
 
@@ -409,7 +409,7 @@ NextHashedDir <- function(object) {
     # The first hash comes from the sampleID and FileNames
     pd <- pData(object)
     if (!all(c("SampleID", "FileName") %in% colnames(pd))) {
-      abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
+      cli_abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
     }
     current_hash <- digest::digest(
       list(
@@ -439,13 +439,13 @@ read_sample <- function(filename, base_dir, parser = "default") {
     else if (endsWith(filename_l, ".rds")) {
       sample <- readRDS(filename)
     } else {
-      cli::cli_abort("Support for reading {filename} not yet implemented")
+      cli_abort("Support for reading {filename} not yet implemented")
     }
   } else {
     sample <- parser(filename)
   }
   if (!methods::is(sample, "GCIMSSample")) {
-    cli::cli_abort("R Object in {filename} is not of type GCIMSSample")
+    cli_abort("R Object in {filename} is not of type GCIMSSample")
   }
   sample
 }

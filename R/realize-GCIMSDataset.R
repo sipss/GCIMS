@@ -9,7 +9,7 @@ realize_one_sample_ram <- function(sample_name, sample_obj, delayed_ops) {
     }
   } else if (is.character(sample_obj)) {
   } else {
-    abort("sample_obj should be a GCIMSSample or a file name")
+    cli_abort("sample_obj should be a GCIMSSample or a file name")
   }
   # Execute:
   for (i in seq_along(delayed_ops)) {
@@ -42,10 +42,10 @@ realize_one_sample_disk <- function(sample_name, orig_filename, current_filename
   } else {
     # We load the file
     if (!file.exists(current_filename)) {
-      abort(
+      cli_abort(
         message = c(
           "UnexpectedError",
-          "x" = glue("The file {current_filename} should exist"),
+          "x" = "The file {current_filename} should exist",
           "i" = "Try re running the pipeline from scratch or report the error to GCIMS authors"
         )
       )
@@ -62,7 +62,7 @@ realize_one_sample_disk <- function(sample_name, orig_filename, current_filename
       current_filename,
       next_filename
     )) {
-      abort(glue("Could not copy {current_filename} to {next_filename}."))
+      cli_abort("Could not copy {current_filename} to {next_filename}.")
     }
   }
   res$extracted_objects
@@ -143,10 +143,10 @@ realize_disk <- function(object, keep_intermediate) {
   current_dir <- CurrentHashedDir(object)
   if (is.null(current_dir)) {
     if (name(delayed_ops[[1]]) != "read_sample") {
-      abort(
+      cli_abort(
         message = c(
           "UnexpectedError",
-          "x" = glue("The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}"),
+          "x" = "The first operation should have been named read_sample instead of {name(delayed_ops[[1]])}",
           "i" = "This is an unexpected problem. You can try deleting the scratch directory and restart again"
         )
       )
@@ -154,7 +154,7 @@ realize_disk <- function(object, keep_intermediate) {
   }
   next_dir <- NextHashedDir(object)
   if (is.null(next_dir)) {
-    abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
+    cli_abort(message = c("UnexpectedError", "x" = "next_dir should not have been NULL"))
   }
   dir.create(next_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -220,7 +220,7 @@ setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
   }
 
   if (!canRealize(object)) {
-    abort(
+    cli_abort(
       message = c(
         "UnexpectedError",
         paste0(
@@ -250,7 +250,7 @@ canRealize <- function(object) {
 "canRealize<-" <- function(object, value) {
   value <- as.logical(value)
   if (length(value) != 1 || is.na(value)) {
-    abort("canRealize can't be NA or NULL and must be of length one")
+    cli_abort("canRealize can't be NA or NULL and must be of length one")
   }
   object@envir$can_realize <- value
   object

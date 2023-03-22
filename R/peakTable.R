@@ -46,7 +46,7 @@
 #'
 peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
   if (!"Volume" %in% colnames(peak_list_clustered)) {
-    abort("Please compute a 'Volume' column in peak_list_clustered")
+    cli_abort("Please compute a 'Volume' column in peak_list_clustered")
   }
 
   peak_table_duplicity <- peak_list_clustered |>

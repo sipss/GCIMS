@@ -378,13 +378,13 @@ estimate_num_clusters <- function(peak_list, cluster, dt_ms_max_dist_thres, rt_s
     ggplot2::geom_hline(yintercept = rt_s_max_dist_thres, color = "gray") +
     ggplot2::labs(x = "Number of clusters", y = "Max retention time distance within cluster (s)")
   if (length(num_clusters) == 0) {
-    rlang::abort(
+    cli_abort(
       c(
         "Can't find a suitable number of clusters",
         "Probably the distance threshold is too small",
         "i" = "Please consider increasing the threshold of the maximum distance",
-        "i" = glue("Current thresholds are dt_ms_max_dist_thres={dt_ms_max_dist_thres} ms and rt_s_max_dist_thres={rt_s_max_dist_thres} ss.)"),
-        "i" = "Use `rlang::last_error()$dt_plot` and `rlang::last_error()$dt_plot` to see plots showing the maximum distance vs the number of clusters explored and guide you"
+        "i" = "Current thresholds are dt_ms_max_dist_thres={dt_ms_max_dist_thres} ms and rt_s_max_dist_thres={rt_s_max_dist_thres} ss.",
+        "i" = "Use {.code rlang::last_error()$dt_plot} and {.code rlang::last_error()$dt_plot} to see plots showing the maximum distance vs the number of clusters explored and guide you"
       ),
       dt_plot = dt_gplt,
       rt_plot = rt_gplt,
