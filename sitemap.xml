@@ -40,6 +40,9 @@
     <loc>https://sipss.github.io/GCIMS/reference/GCIMSChromatogram-class.html</loc>
   </url>
   <url>
+    <loc>https://sipss.github.io/GCIMS/reference/GCIMSChromatogram.html</loc>
+  </url>
+  <url>
     <loc>https://sipss.github.io/GCIMS/reference/GCIMSDataset-class.html</loc>
   </url>
   <url>
@@ -53,6 +56,9 @@
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/GCIMSSample-rtime-dtime-intensity.html</loc>
+  </url>
+  <url>
+    <loc>https://sipss.github.io/GCIMS/reference/GCIMSSample.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/GCIMSSpectrum-class.html</loc>

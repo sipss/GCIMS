@@ -131,7 +131,7 @@ as long as you have enough memory to keep all samples. If this is <code>TRUE</co
 
 
 <dt>samples</dt>
-<dd><p>A named list of <a href="GCIMSSample-class.html">GCIMSSample</a> objects. names should match <code>pData$SampleID</code></p></dd>
+<dd><p>A named list of <a href="GCIMSSample.html">GCIMSSample</a> objects. names should match <code>pData$SampleID</code></p></dd>
 
 
 <dt>object</dt>
@@ -160,7 +160,7 @@ as long as you have enough memory to keep all samples. If this is <code>TRUE</co
 <p>A GCIMSDataset object</p>
 
 
-<p>The corresponding <a href="GCIMSSample-class.html">GCIMSSample</a></p>
+<p>The corresponding <a href="GCIMSSample.html">GCIMSSample</a></p>
 
 
 
@@ -206,7 +206,7 @@ needed, so the dataset object scales with large number of samples.</p>
 <span class="r-in"><span>  base_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Create a new GCIMSDataset with the convenient constructor function:</span></span></span>
-<span class="r-in"><span><span class="va">sample1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">sample1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span></span>
 <span class="r-in"><span>  retention_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>

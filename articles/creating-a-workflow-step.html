@@ -193,6 +193,12 @@ returns the dataset. You can use this template for now:</p>
 indices 500 and 1200:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_before</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `as_list()` is deprecated as of rlang 0.4.0</span></span>
+<span><span class="co">#&gt; Please use `vctrs::vec_cast()` instead.</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
+<span><span class="co">#&gt; Warning: `switch_type()` is soft-deprecated as of rlang 0.4.0.</span></span>
+<span><span class="co">#&gt; Please use `switch(typeof())` or `switch(my_typeof())` instead.</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
 <span><span class="va">dtime_before</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">dtime</a></span><span class="op">(</span><span class="va">sample_before</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dtime_before</span><span class="op">[</span><span class="fl">1000</span><span class="op">]</span></span>
@@ -523,14 +529,14 @@ the dataset object.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] tidyselect_1.2.0    xfun_0.37           bslib_0.4.2        </span></span>
-<span><span class="co">#&gt;  [4] purrr_1.0.1         colorspace_2.1-0    vctrs_0.5.2        </span></span>
+<span><span class="co">#&gt;  [4] purrr_1.0.1         colorspace_2.1-0    vctrs_0.6.0        </span></span>
 <span><span class="co">#&gt;  [7] generics_0.1.3      viridisLite_0.4.1   htmltools_0.5.4    </span></span>
 <span><span class="co">#&gt; [10] stats4_4.2.2        yaml_2.3.7          utf8_1.2.3         </span></span>
-<span><span class="co">#&gt; [13] rlang_1.0.6         pkgdown_2.0.7       jquerylib_0.1.4    </span></span>
+<span><span class="co">#&gt; [13] rlang_1.1.0         pkgdown_2.0.7       jquerylib_0.1.4    </span></span>
 <span><span class="co">#&gt; [16] pillar_1.8.1        glue_1.6.2          withr_2.5.0        </span></span>
-<span><span class="co">#&gt; [19] BiocParallel_1.32.5 BiocGenerics_0.44.0 lifecycle_1.0.3    </span></span>
+<span><span class="co">#&gt; [19] BiocParallel_1.32.6 BiocGenerics_0.44.0 lifecycle_1.0.3    </span></span>
 <span><span class="co">#&gt; [22] stringr_1.5.0       ProtGenerics_1.30.0 munsell_0.5.0      </span></span>
-<span><span class="co">#&gt; [25] gtable_0.3.1        ragg_1.2.5          codetools_0.2-19   </span></span>
+<span><span class="co">#&gt; [25] gtable_0.3.2        ragg_1.2.5          codetools_0.2-19   </span></span>
 <span><span class="co">#&gt; [28] memoise_2.0.1       evaluate_0.20       labeling_0.4.2     </span></span>
 <span><span class="co">#&gt; [31] Biobase_2.58.0      knitr_1.42          fastmap_1.1.1      </span></span>
 <span><span class="co">#&gt; [34] parallel_4.2.2      curl_5.0.0          fansi_1.0.4        </span></span>
@@ -541,7 +547,7 @@ the dataset object.</p>
 <span><span class="co">#&gt; [49] digest_0.6.31       stringi_1.7.12      bookdown_0.33      </span></span>
 <span><span class="co">#&gt; [52] dplyr_1.1.0         grid_4.2.2          rprojroot_2.0.3    </span></span>
 <span><span class="co">#&gt; [55] cli_3.6.0           tools_4.2.2         magrittr_2.0.3     </span></span>
-<span><span class="co">#&gt; [58] sass_0.4.5          tibble_3.2.0        pkgconfig_2.0.3    </span></span>
+<span><span class="co">#&gt; [58] sass_0.4.5          tibble_3.2.1        pkgconfig_2.0.3    </span></span>
 <span><span class="co">#&gt; [61] MASS_7.3-58.3       rmarkdown_2.20      httr_1.4.5         </span></span>
 <span><span class="co">#&gt; [64] R6_2.5.1            signal_0.7-7        compiler_4.2.2</span></span></code></pre></div>
 </div>

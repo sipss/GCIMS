@@ -65,7 +65,8 @@ or the aggregation of several chromatograms.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GCIMSChromatogram</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for GCIMSChromatogram</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">x</span>, row.names <span class="op">=</span> <span class="cn">NULL</span>, optional <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for GCIMSChromatogram</span></span>
 <span><span class="fu">description</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
@@ -85,8 +86,27 @@ or the aggregation of several chromatograms.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>...</dt>
-<dd><p>See the slots section below</p></dd>
+    <dl><dt>x</dt>
+<dd><p>A GCIMSChromatogram object to plot</p></dd>
+
+
+<dt>row.names</dt>
+<dd><p><code>NULL</code> or a character vector giving the row
+    names for the data frame.  Missing values are not allowed.</p></dd>
+
+
+<dt>optional</dt>
+<dd><p>logical. If <code>TRUE</code>, setting row names and
+    converting column names (to syntactic names: see
+    <code><a href="https://rdrr.io/r/base/make.names.html" class="external-link">make.names</a></code>) is optional.  Note that all of <span style="R">R</span>'s
+    <span class="pkg">base</span> package <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> methods use
+    <code>optional</code> only for column names treatment, basically with the
+    meaning of <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>(*, check.names = !optional)</code>.
+    See also the <code>make.names</code> argument of the <code>matrix</code> method.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>additional arguments to be passed to or from methods.</p></dd>
 
 
 <dt>object</dt>
@@ -97,24 +117,14 @@ or the aggregation of several chromatograms.</p>
 <dd><p>A data frame with the peak list</p></dd>
 
 
-<dt>x</dt>
-<dd><p>A GCIMSChromatogram object to plot</p></dd>
-
-
 <dt>y</dt>
-<dd><p>unused</p></dd>
+<dd><p>From the generic <code>plot</code> function, ignored for <code>GCIMSChromatogram</code> class objects</p></dd>
 
 </dl></div>
-    <div id="value">
-    <h2>Value</h2>
-    
-
-<p>A GCIMSChromatogram object</p>
-    </div>
     <div id="functions">
     <h2>Functions</h2>
     
-<ul><li><p><code>GCIMSChromatogram()</code>: Friendly constructor</p></li>
+<ul><li><p><code>as.data.frame(GCIMSChromatogram)</code>: Coerce to data frame</p></li>
 <li><p><code>description(GCIMSChromatogram)</code>: Get the description</p></li>
 <li><p><code>description(object = GCIMSChromatogram) &lt;- value</code>: Set the description</p></li>
 <li><p><code>peaks(GCIMSChromatogram)</code>: Get the peak list</p></li>
@@ -155,10 +165,69 @@ or <code>NULL</code> if not set. Use <code><a href="GCIMS-generics.html">estimat
 
 
 <dt><code>peaks_debug_info</code></dt>
-<dd><p>A list with arbitrary debug infor from <code><a href="findPeaks.html">findPeaks()</a></code></p></dd>
+<dd><p>A list with arbitrary debug information from <code><a href="findPeaks.html">findPeaks()</a></code></p></dd>
 
 
 </dl></div>
+    <div id="see-also">
+    <h2>See also</h2>
+    <div class="dont-index"><p>Other GCIMSChromatogram: 
+<code><a href="GCIMSChromatogram.html">GCIMSChromatogram</a></code>,
+<code><a href="dtime-GCIMSChromatogram-method.html">dtime,GCIMSChromatogram-method</a></code>,
+<code><a href="estimateBaseline-GCIMSChromatogram-method.html">estimateBaseline,GCIMSChromatogram-method</a></code>,
+<code><a href="findPeaks-GCIMSChromatogram-method.html">findPeaks,GCIMSChromatogram-method</a></code>,
+<code><a href="intensity-GCIMSChromatogram-method.html">intensity,GCIMSChromatogram-method</a></code>,
+<code><a href="rtime-GCIMSChromatogram-method.html">rtime,GCIMSChromatogram-method</a></code>,
+<code><a href="smooth-GCIMSChromatogram-method.html">smooth,GCIMSChromatogram-method</a></code></p>
+<p>Other GCIMSChromatogram: 
+<code><a href="GCIMSChromatogram.html">GCIMSChromatogram</a></code>,
+<code><a href="dtime-GCIMSChromatogram-method.html">dtime,GCIMSChromatogram-method</a></code>,
+<code><a href="estimateBaseline-GCIMSChromatogram-method.html">estimateBaseline,GCIMSChromatogram-method</a></code>,
+<code><a href="findPeaks-GCIMSChromatogram-method.html">findPeaks,GCIMSChromatogram-method</a></code>,
+<code><a href="intensity-GCIMSChromatogram-method.html">intensity,GCIMSChromatogram-method</a></code>,
+<code><a href="rtime-GCIMSChromatogram-method.html">rtime,GCIMSChromatogram-method</a></code>,
+<code><a href="smooth-GCIMSChromatogram-method.html">smooth,GCIMSChromatogram-method</a></code></p>
+<p>Other GCIMSChromatogram: 
+<code><a href="GCIMSChromatogram.html">GCIMSChromatogram</a></code>,
+<code><a href="dtime-GCIMSChromatogram-method.html">dtime,GCIMSChromatogram-method</a></code>,
+<code><a href="estimateBaseline-GCIMSChromatogram-method.html">estimateBaseline,GCIMSChromatogram-method</a></code>,
+<code><a href="findPeaks-GCIMSChromatogram-method.html">findPeaks,GCIMSChromatogram-method</a></code>,
+<code><a href="intensity-GCIMSChromatogram-method.html">intensity,GCIMSChromatogram-method</a></code>,
+<code><a href="rtime-GCIMSChromatogram-method.html">rtime,GCIMSChromatogram-method</a></code>,
+<code><a href="smooth-GCIMSChromatogram-method.html">smooth,GCIMSChromatogram-method</a></code></p>
+<p>Other GCIMSChromatogram: 
+<code><a href="GCIMSChromatogram.html">GCIMSChromatogram</a></code>,
+<code><a href="dtime-GCIMSChromatogram-method.html">dtime,GCIMSChromatogram-method</a></code>,
+<code><a href="estimateBaseline-GCIMSChromatogram-method.html">estimateBaseline,GCIMSChromatogram-method</a></code>,
+<code><a href="findPeaks-GCIMSChromatogram-method.html">findPeaks,GCIMSChromatogram-method</a></code>,
+<code><a href="intensity-GCIMSChromatogram-method.html">intensity,GCIMSChromatogram-method</a></code>,
+<code><a href="rtime-GCIMSChromatogram-method.html">rtime,GCIMSChromatogram-method</a></code>,
+<code><a href="smooth-GCIMSChromatogram-method.html">smooth,GCIMSChromatogram-method</a></code></p>
+<p>Other GCIMSChromatogram: 
+<code><a href="GCIMSChromatogram.html">GCIMSChromatogram</a></code>,
+<code><a href="dtime-GCIMSChromatogram-method.html">dtime,GCIMSChromatogram-method</a></code>,
+<code><a href="estimateBaseline-GCIMSChromatogram-method.html">estimateBaseline,GCIMSChromatogram-method</a></code>,
+<code><a href="findPeaks-GCIMSChromatogram-method.html">findPeaks,GCIMSChromatogram-method</a></code>,
+<code><a href="intensity-GCIMSChromatogram-method.html">intensity,GCIMSChromatogram-method</a></code>,
+<code><a href="rtime-GCIMSChromatogram-method.html">rtime,GCIMSChromatogram-method</a></code>,
+<code><a href="smooth-GCIMSChromatogram-method.html">smooth,GCIMSChromatogram-method</a></code></p>
+<p>Other GCIMSChromatogram: 
+<code><a href="GCIMSChromatogram.html">GCIMSChromatogram</a></code>,
+<code><a href="dtime-GCIMSChromatogram-method.html">dtime,GCIMSChromatogram-method</a></code>,
+<code><a href="estimateBaseline-GCIMSChromatogram-method.html">estimateBaseline,GCIMSChromatogram-method</a></code>,
+<code><a href="findPeaks-GCIMSChromatogram-method.html">findPeaks,GCIMSChromatogram-method</a></code>,
+<code><a href="intensity-GCIMSChromatogram-method.html">intensity,GCIMSChromatogram-method</a></code>,
+<code><a href="rtime-GCIMSChromatogram-method.html">rtime,GCIMSChromatogram-method</a></code>,
+<code><a href="smooth-GCIMSChromatogram-method.html">smooth,GCIMSChromatogram-method</a></code></p>
+<p>Other GCIMSChromatogram: 
+<code><a href="GCIMSChromatogram.html">GCIMSChromatogram</a></code>,
+<code><a href="dtime-GCIMSChromatogram-method.html">dtime,GCIMSChromatogram-method</a></code>,
+<code><a href="estimateBaseline-GCIMSChromatogram-method.html">estimateBaseline,GCIMSChromatogram-method</a></code>,
+<code><a href="findPeaks-GCIMSChromatogram-method.html">findPeaks,GCIMSChromatogram-method</a></code>,
+<code><a href="intensity-GCIMSChromatogram-method.html">intensity,GCIMSChromatogram-method</a></code>,
+<code><a href="rtime-GCIMSChromatogram-method.html">rtime,GCIMSChromatogram-method</a></code>,
+<code><a href="smooth-GCIMSChromatogram-method.html">smooth,GCIMSChromatogram-method</a></code></p></div>
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
