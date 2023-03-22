@@ -258,7 +258,13 @@ validate_samples <- function(samples) {
   }
 
   if (is.null(names(samples))) {
-    cli_abort("samples should be a named list of GCIMSSample objects. Sample names should correspond to SampleIDs")
+    cli_warn(
+      c("samples should be a named list of GCIMSSample objects.",
+        "i" = "Sample names should correspond to SampleIDs",
+        "!" = "Using Sample1...Sample{length(samples)} as SampleID by default"
+      )
+    )
+    names(samples) <- paste0("Sample", seq_len(length(samples)))
   }
   empty_names_idx <- which(names(samples) == "")
   if (length(empty_names_idx) > 0) {
