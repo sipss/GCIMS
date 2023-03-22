@@ -127,9 +127,9 @@ methods::setMethod(
   })
 
 
-#' @describeIn GCIMSSample Create a GCIMSSample object
+#' Create a [GCIMSSample-class] object
 #'
-#' @param ... See the slots section in this page
+#' @param drift_time,retention_time,data,... See the Slots section in [GCIMSSample-class] page
 #' @export
 #' @return A GCIMSSample object
 #'
@@ -144,9 +144,9 @@ methods::setMethod(
 #'   drift_tube_length = 98.0 # in mm
 #' )
 GCIMSSample <- function(
-  ...
+  drift_time, retention_time, data, ...
 ) {
-  methods::new("GCIMSSample", ...)
+  methods::new("GCIMSSample", drift_time, retention_time, data, ...)
 }
 
 
