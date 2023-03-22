@@ -8,6 +8,7 @@
 #' @param rt_length_s The length of the baseline region. It should be
 #' comparable or longer than the peak width
 #' @return The modified [GCIMSChromatogram]
+#' @family GCIMSChromatogram
 #' @export
 methods::setMethod(
   "estimateBaseline", "GCIMSChromatogram",
@@ -27,13 +28,14 @@ methods::setMethod(
 #' @describeIn estimateBaseline-GCIMSChromatogram-method Get the baseline
 #' @inheritParams dt_rt_range_normalization
 #' @param .error_if_missing A logical. If `TRUE` (default) give an error if baseline is not estimated. Returns `NULL` otherwise.
+#' @family GCIMSChromatogram
 #' @export
 methods::setMethod(
   "baseline", "GCIMSChromatogram",
   function(object, rt_range = NULL, rt_idx = NULL, .error_if_missing = TRUE) {
     if (is.null(object@baseline)) {
       if (.error_if_missing) {
-        abort("Please use estimateBaseline() first")
+        cli_abort("Please use {.code estimateBaseline()} first")
       }
       return(NULL)
     }
@@ -48,12 +50,13 @@ methods::setMethod(
 
 #' @describeIn estimateBaseline-GCIMSChromatogram-method Set the baseline
 #' @param value A vector with a baseline of the same length as `intensity(object)`
+#' @family GCIMSChromatogram
 #' @export
 methods::setMethod(
   "baseline<-", "GCIMSChromatogram",
   function(object, value) {
     if (length(value) != length(object@intensity)) {
-      abort("The baseline should be of the same length as the intensity")
+      cli_abort("The baseline (length {length(value)}) should be of the same length as the intensity (length {length(object@intensity)})")
     }
     object@baseline <- value
     object
