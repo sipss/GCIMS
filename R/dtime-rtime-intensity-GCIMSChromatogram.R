@@ -2,6 +2,7 @@
 #'
 #' @param object A GCIMSChromatogram
 #' @return The drift time where this chromatogram was extracted from (in ms)
+#' @family GCIMSChromatogram
 #' @export
 setMethod("dtime", "GCIMSChromatogram", function(object) object@drift_time_ms)
 
@@ -11,6 +12,7 @@ setMethod("dtime", "GCIMSChromatogram", function(object) object@drift_time_ms)
 #' @return The retention time vector (in s)
 #' @export
 #' @importMethodsFrom ProtGenerics rtime
+#' @family GCIMSChromatogram
 #' @export
 setMethod("rtime", "GCIMSChromatogram", function(object) object@retention_time)
 
@@ -19,6 +21,7 @@ setMethod("rtime", "GCIMSChromatogram", function(object) object@retention_time)
 #' @inheritParams dt_rt_range_normalization
 #' @return The retention intensity vector
 #' @importMethodsFrom ProtGenerics intensity
+#' @family GCIMSChromatogram
 #' @export
 setMethod("intensity", "GCIMSChromatogram", function(object, rt_range = NULL, rt_idx = NULL) {
   rt <- rtime(object)

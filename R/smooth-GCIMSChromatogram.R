@@ -3,6 +3,7 @@
 #' @param rt_length_s The length of the filter in retention time (in s)
 #' @param rt_order The order of the filter in retention time
 #' @return The modified [GCIMSChromatogram]
+#' @family GCIMSChromatogram
 #' @export
 methods::setMethod(
   "smooth", "GCIMSChromatogram",

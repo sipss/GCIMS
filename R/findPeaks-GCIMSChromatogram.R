@@ -2,6 +2,7 @@
 #' @param object A [GCIMSChromatogram] object
 #' @inheritDotParams findPeaksImpl1D -x -y
 #' @return The modified [GCIMSChromatogram], with a peak list
+#' @family GCIMSChromatogram
 #' @export
 setMethod(
   "findPeaks",
