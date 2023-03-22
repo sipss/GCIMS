@@ -33,22 +33,8 @@ methods::setClass(
 methods::setMethod(
   "initialize", "GCIMSChromatogram",
   function(.Object, retention_time, intensity, drift_time_idx = NA_integer_,
-           drift_time_ms = NA_real_, description = "", ..., baseline = NULL,
+           drift_time_ms = NA_real_, description = "", baseline = NULL,
            peaks = NULL, peaks_debug_info = NULL) {
-    dots <- list(...)
-    if (length(dots) > 0) {
-      if (!is.null(names(dots))) {
-        invalid_names <- paste0(names(dots), collapse = ", ")
-      }
-      valid_names <- paste0(setdiff(names(formals()), c(".Object", "...")), collapse = ", ")
-      cli_abort(
-        message = c(
-          "Invalid argument to GCIMSChromatogram constructor",
-          "x" = "The following arguments are invalid: {invalid_names}",
-          "i" = "The valid argument names are: {valid_names}"
-        )
-      )
-    }
     stopifnot(length(retention_time) == length(intensity))
     stopifnot(is.null(baseline) || length(retention_time) == length(baseline))
     .Object@retention_time <- retention_time
@@ -84,10 +70,10 @@ methods::setMethod(
 #' @family GCIMSChromatogram
 GCIMSChromatogram <- function(
     retention_time, intensity, drift_time_idx = NA_integer_,
-    drift_time_ms = NA_real_, description = "", ...,
+    drift_time_ms = NA_real_, description = "",
     baseline = NULL, peaks = NULL, peaks_debug_info = NULL) {
   methods::new("GCIMSChromatogram", retention_time, intensity, drift_time_idx,
-               drift_time_ms, description, ..., baseline = NULL, peaks = NULL,
+               drift_time_ms, description, baseline = NULL, peaks = NULL,
                peaks_debug_info = NULL)
 }
 
