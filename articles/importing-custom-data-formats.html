@@ -209,7 +209,7 @@ returns a GCIMSSample given a filename:</p>
 <span>  <span class="va">intensity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">intensity</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">retention_time</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="../reference/GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span>
 <span>      drift_time <span class="op">=</span> <span class="va">drift_time</span>,</span>
 <span>      retention_time <span class="op">=</span> <span class="va">retention_time</span>,</span>
 <span>      data <span class="op">=</span> <span class="va">intensity</span></span>

@@ -61,7 +61,7 @@ using a new version of the package."><meta property="og:image" content="https://
     </div>
 
     <div class="ref-description">
-    <p>This function is useful when you have saved a <a href="GCIMSSample.html">GCIMSSample</a> object
+    <p>This function is useful when you have saved a <a href="GCIMSSample-class.html">GCIMSSample</a> object
 with a previous version of the GCIMS package and you want to load it
 using a new version of the package.</p>
     </div>
@@ -74,7 +74,7 @@ using a new version of the package.</p>
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
-<dd><p>A <a href="GCIMSSample.html">GCIMSSample</a> object, typically that has been serialized and loaded from disk</p></dd>
+<dd><p>A <a href="GCIMSSample-class.html">GCIMSSample</a> object, typically that has been serialized and loaded from disk</p></dd>
 
 
 <dt>...</dt>
@@ -89,7 +89,7 @@ using a new version of the package.</p>
     <h2>Value</h2>
     
 
-<p>The updated <a href="GCIMSSample.html">GCIMSSample</a> object</p>
+<p>The updated <a href="GCIMSSample-class.html">GCIMSSample</a> object</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -99,7 +99,7 @@ slots, etc so it is fully compatible with the new class definition.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span>drift_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, retention_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span>drift_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, retention_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Update the object:</span></span></span>
 <span class="r-in"><span><span class="va">newobj</span> <span class="op">&lt;-</span> <span class="fu">updateObject</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
