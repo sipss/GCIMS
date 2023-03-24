@@ -27,12 +27,85 @@ methods::setClass(
   )
 )
 
-#' @describeIn GCIMSDelayedOp class
+#' Create a [GCIMSDelayedOp] object
 #'
-#' @param ... See the slots section in this page
+#'
+#' Delayed operations enable GCIMS to process our samples faster on big datasets.
+#' See the details section for details on how they work.
+#'
+#' @details
+#'
+#' Let's say we have a pipeline with two actions (e.g. smooth() and detectPeaks()).
+#' and we want to apply it to a dataset with two samples (e.g s1, s2).
+#'
+#' This is a simple pseudocode to execute all actions in all samples:
+#'
+#' ```
+#' dataset = list(s1, s2)
+#' actions = list(smooth, detectPeaks)
+#' for (action in actions) {
+#'   for (i in seq_along(dataset)) {
+#'       dataset[[i]] <- action(dataset[[i]])
+#'   }
+#' }
+#' ```
+#'
+#' When the dataset is big, samples are stored in disk, and loaded/saved when used:
+#'
+#' ```
+#' dataset = list(s1, s2)
+#' actions = list(smooth, detectPeaks)
+#' for (action in actions) {
+#'   for (i in seq_along(dataset)) {
+#'       sample <- read_from_disk(i)
+#'       sample <- action(sample)
+#'       save_to_disk(sample)
+#'   }
+#' }
+#' ```
+#'
+#' So actually, we can avoid "saving and loading" by changing the loop order:
+#'
+#' ```
+#' dataset = list(s1, s2)
+#' actions = list(smooth, detectPeaks)
+#' for (i in seq_along(dataset)) {
+#'   sample <- read_from_disk(i)
+#'   for (action in actions) {
+#'       sample <- action(sample)
+#'   }
+#'   save_to_disk(sample)
+#' }
+#' ```
+#'
+#' This requires that when we apply an operation to the dataset, the operation
+#' is delayed, so we can stack many delayed operations and run them all at once.
+#'
+#' The GCIMSDelayedOp class allows us to store all pending actions and run them
+#' afterwards when the data is needed.
+#'
+#' Besides, samples can be processed in parallel if enough cores and RAM are
+#' available.
+#'
+#' The GCIMSDelayedOp class also considers that sometimes we want to extract
+#' some information from each sample (e.g. the Reverse Ion Chromatogram)
+#' and build some matrix with the Reverse Ion Chromatograms of all samples. It changes
+#' the loops above, so after each action modifies each sample, we can extract something
+#' out of the sample and save it. After all actions have executed, we can aggregate
+#' the results we have extracted and save them into the dataset. This is used for instance
+#' in the [getRIC()] implementation, to extract the RIC from each sample and afterwards
+#' aggregate it into a matrix. This is implemented here with the `fun_extract` and
+#' `fun_aggregate` functions.
+#'
+#'
+#' @param name A named for de delayed operation, only used for printing.
+#' @param fun A function that takes a [GCIMSSample] and returns a [GCIMSSample] (modified)
+#' @param params A named list with additional arguments to be passed to function
+#' @param fun_extract A function that takes a modified [GCIMSSample] and returns an extracted object.
+#' @param fun_aggregate A function that takes a [GCIMSDataset] and a list of extracted objects and returns a modified [GCIMSDataset].
 #' @return A GCIMSDelayedOp object
-GCIMSDelayedOp <- function(...) {
-  methods::new("GCIMSDelayedOp", ...)
+GCIMSDelayedOp <- function(name, fun = NULL, params = list(), fun_extract = NULL, fun_aggregate = NULL) {
+  methods::new("GCIMSDelayedOp", name = name, fun = fun, params = params, fun_extract = fun_extract, fun_aggregate = fun_aggregate)
 }
 
 methods::setMethod(
