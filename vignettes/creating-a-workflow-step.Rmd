@@ -23,14 +23,6 @@ library(cowplot)
 library(GCIMS)
 ```
 
-# WARNING
-
-This vignette still uses some internals of the GCIMS package. We will be exporting
-helper functions and changing the design of the objects to make it more robust,
-so if you plan to create custom methods outside the GCIMS package, please
-stay in touch and coordinate with us.
-
-
 # Introduction
 
 In this vignette we show how samples can be modified in a batch, using delayed
@@ -72,10 +64,12 @@ cutDrift_Sample <- function(x, dt_from, dt_to) {
     stop("Internal error, this will never happen")
   }
   
-  # In the future we will provide accessors instead of using @ slots directly.
-  x@data <- x@data[dt_from:dt_to,]
-  x@drift_time <- x@drift_time[dt_from:dt_to]
-  
+  # You can use internal slots, or accessor functions. Accessors are more reliable
+  # because the class internal representation may change in the future
+  x <- subset(x, dt_idx = dt_from:dt_to)
+  #x@data <- x@data[dt_from:dt_to,]
+  #x@drift_time <- x@drift_time[dt_from:dt_to]
+
   # Check that we return a valid sample:
   if (!validObject(x)) {
     stop("The sample is not valid.")
@@ -107,7 +101,7 @@ Load the dataset:
 
 ```{r}
 annotations <- read.csv(file.path(samples_directory, "annotations.csv"))
-dataset <- GCIMSDataset(
+dataset <- GCIMSDataset$new(
   annotations,
   base_dir = samples_directory,
   on_ram = TRUE # You probably should set this to FALSE if you have more 
@@ -120,7 +114,7 @@ dataset
 Get the first sample of the dataset, and see the drift time vector at indices 500 and 1200:
 
 ```{r}
-sample_before <- getSample(dataset, 1)
+sample_before <- dataset$getSample(1)
 dtime_before <- dtime(sample_before)
 ```
 
@@ -139,7 +133,7 @@ dataset
 The dataset has now a pending operation, we can execute it:
 
 ```{r}
-realize(dataset)
+dataset$realize()
 ```
 
 And get the sample, modified:
@@ -216,7 +210,7 @@ cutDrift2_Dataset <- function(x, dt_from, dt_to) {
       fun = cutDrift2_Sample, # The function that is applied to the sample
       params = list(dt_from = dt_from, dt_to = dt_to) # The arguments that function needs
     )
-    x$appendDelayedOp(x, delayed_op)
+    x$appendDelayedOp(delayed_op)
     # Return the dataset, invisibly:
     invisible(x)
 }
@@ -226,7 +220,7 @@ cutDrift2_Dataset <- function(x, dt_from, dt_to) {
 ## Example
 
 ```{r}
-dataset <- GCIMSDataset(
+dataset <- GCIMSDataset$new(
   annotations,
   base_dir = samples_directory,
   on_ram = TRUE # You probably should set this to FALSE if you have more 
@@ -244,13 +238,13 @@ dataset
 The dataset has now a pending operation, we can execute it:
 
 ```{r}
-realize(dataset)
+dataset$realize()
 ```
 
 And get the sample, modified:
 
 ```{r}
-sample_after <- getSample(dataset, 1)
+sample_after <- dataset$getSample(1)
 ```
 
 We have those parameters saved:
@@ -310,7 +304,7 @@ cutDrift_ExtractSample(sample_after)
 
 ## Aggregation
 
-The `realize()` function will extract the information from all your samples and
+The `realize()` method will extract the information from all your samples and
 save all the extracted information on a list, as long as the number of samples
 in your dataset.
 
@@ -364,7 +358,7 @@ cutDrift3_Dataset <- function(x, dt_from, dt_to) {
       fun_extract = cutDrift_ExtractSample,
       fun_aggregate = cutDrift_Aggregate
     )
-    x$appendDelayedOp(x, delayed_op)
+    x$appendDelayedOp(delayed_op)
     # Return the dataset, invisibly:
     invisible(x)
 }
@@ -374,7 +368,7 @@ cutDrift3_Dataset <- function(x, dt_from, dt_to) {
 ## Example
 
 ```{r}
-dataset <- GCIMSDataset(
+dataset <- GCIMSDataset$new(
   annotations,
   base_dir = samples_directory,
   on_ram = TRUE # You probably should set this to FALSE if you have more 
@@ -392,7 +386,7 @@ dataset
 The dataset has now a pending operation, we can execute it:
 
 ```{r}
-realize(dataset)
+dataset$realize()
 ```
 
 And then get our data frame:

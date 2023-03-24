@@ -1,69 +1,269 @@
 #' GCIMSDataset
 #'
-#' @description
-#' GCIMSDataset is an S4 reference class to store a dataset
+#' @description GCIMSDataset is an R6 class to store a dataset.
 #'
 #' When the dataset is created, the `on_ram` option controls whether the actual
 #' data is stored not in memory or it is read/saved from/to files as
 #' needed, so the dataset object scales with large number of samples.
 #'
-#' @field pData A data frame with at least the SampleID and filename columns.
-#' @field scratch_dir A directory to save intermediate results.
-#' @field delayed_ops Delayed operations
-#' @field TIS A matrix of n_samples vs drift time, with the Total Ion Spectrum of each sample
-#' @field RIC A matrix of n_samples vs retention time, with the Reverse Ion Chromatogram of each sample
-#' @field dt_ref A numeric drift time of reference
-#' @field rt_ref A numeric retention time of reference
 #'
-#' @examples
-#' dataset <- GCIMSDataset(
-#'   pData = data.frame(SampleID = character(), filename = character(0)),
-#'   base_dir = tempdir()
-#' )
 #' @importClassesFrom S4Vectors DataFrame
 #' @export GCIMSDataset
 #' @exportClass GCIMSDataset
-GCIMSDataset <- setRefClass(
-  # All the slots are in an environment because I want the dataset to be mutable.
-  # We want the GCIMSDataset object to be mutable, so any pending delayed operation
-  # can be applied in-place if needed.
-  "GCIMSDataset",
-  fields = list(
-    pData = "DataFrame",
-    scratch_dir = "character",
-    delayed_ops = "list",
-    previous_ops = "list",
-    hasheddir = "character",
-    keep_intermediate = "logical",
-    on_ram = "logical",
-    samples = "listOrNULL",
-    can_realize = "logical",
-    align = "listOrNULL",
-    peaks = "DataFrameOrNULL",
-    TIS = "matrixOrNULL",
-    RIC = "matrixOrNULL",
-    dt_ref = "numericOrNULL",
-    rt_ref = "numericOrNULL",
-    userData = "list"
-  ),
-  methods = list(
-    #' @description Get a sample from a GCIMSDataset
+GCIMSDataset <- R6::R6Class("GCIMSDataset",
+  public = list(
+    # FIXME Make some private, accessors, validation...
+    # Fields:
+    #' @field pData A data frame with at least the SampleID and filename columns.
+    pData = NULL,
+    #' @field scratch_dir A directory to save intermediate results.
+    scratch_dir = NA_character_, # string
+    #' @field delayed_ops Delayed operations
+    delayed_ops = list(), # FIXME: This should be private
+    #' @field previous_ops History of previous operations
+    previous_ops = list(), # FIXME: This should be private
+    #' @field hasheddir The basename of the current hashed directory in scracth_dir
+    hasheddir = NA_character_, # string
+    #' @field keep_intermediate Whether to keep intermediate files
+    keep_intermediate = FALSE, # logical
+    #' @field on_ram Whether samples should be kept on RAM or stored on disk.
+    on_ram = FALSE, # logical
+    #' @field samples List of samples, if on_ram or NULL otherwise
+    samples = NULL, # list or NULL
+    #' @field can_realize Whether we can realize the object, internal
+    can_realize = FALSE, # logical
+    #' @field align To store alignment results
+    align = NULL, # list or NULL
+    #' @field peaks To store the peak list
+    peaks = NULL, # data frame or NULL
+    #' @field TIS A matrix of n_samples vs drift time, with the Total Ion Spectrum of each sample
+    TIS = NULL, # matrix or NULL
+    #' @field RIC A matrix of n_samples vs retention time, with the Reverse Ion Chromatogram of each sample
+    RIC = NULL, # matrix or NULL
+    #' @field dt_ref A numeric drift time of reference
+    dt_ref = NULL, # numeric or NULL
+    #' @field rt_ref A numeric retention time of reference
+    rt_ref = NULL, # numeric or NULL
+    #' @field userData A list to store arbitrary data in the dataset
+    userData = list(), # list
+    # Methods:
+    #' @description
+    #' Create a new GCIMSDataset object
+    #' @param pData A data frame holding phenotype data for the samples (or `NULL`). The data frame
+    #'  should at least have a `SampleID` column, and a `filename` column if samples are stored in files.
+    #' @param ... Unused
+    #' @param samples A named list of `GCIMSSample` objects to be included in the dataset (or `NULL`). Names
+    #' should correspond to the `SampleID` column in the `pData` data frame.
+    #' @param base_dir The base directory. Sample `i` is found on `file.path(base_dir, pData$filename[i])`.
+    #' @param parser Function that takes a file path and returns a [GCIMSSample] object. Use `"default"` to use the
+    #' default parser in the GCIMS package, that supports `.mea` files (from GAS). Check
+    #' out `vignette("importing-custom-data-formats", package = "GCIMS")` for more information
+    #' @param scratch_dir A directory where intermediate and processed samples will be stored
+    #' @param keep_intermediate If `TRUE`, intermediate results will not be deleted (ignored if `on_ram` is `TRUE`).
+    #' @param on_ram If `TRUE`, samples are not stored on disk, but rather kept on RAM. Set it to `TRUE` only with
+    #' small datasets.
+    #' @examples
+    #' dummy_dataset <- GCIMSDataset$new(
+    #'   pData = data.frame(SampleID = character(), filename = character(0)),
+    #'   base_dir = tempdir()
+    #' )
+    initialize = function(pData = NULL,
+                          ...,
+                          samples = NULL,
+                          base_dir = NULL,
+                          parser = "default",
+                          scratch_dir = tempfile("GCIMSDataset_tempdir_"),
+                          keep_intermediate = FALSE,
+                          on_ram = FALSE
+    ) {
+        # The GCIMSDataset object always uses the pData dataframe to store phenotype data,
+        # (often also called metadata or sample annotations).
+        #
+        # Besides, there are several possibilities for initializing the GCIMSDataset object:
+        #  (a) Initialize reading samples from "disk", at file.path(base_dir, pData$FileName)
+        #    (a.1) If on_ram, the samples slot will be populated with GCIMSSample objects. This is suitable for small datasets
+        #    (a.2) If not on_ram, the samples slot will not be populated, scratch_dir will be used instead to store sample objects
+        #
+        #  (b) Initialize using a named "list" of GCIMSSample objects, with names according to pData$SampleID
+        #    (b.1) If on_ram, the samples slot will be populated with that list
+        #    (b.2) If not on_ram, the samples will be dumped to scratch_dir
+        #
+        #
+        pds <- validate_pData_samples(pData, samples)
+        pData <- pds$pData
+        samples <- pds$samples
+        on_ram <- validate_on_ram(on_ram)
+        scratch_dir <- validate_scratch_dir(scratch_dir, on_ram)
+        keep_intermediate <- validate_keep_intermediate(keep_intermediate)
+        parser <- validate_parser(parser)
+
+        self$pData <- pData
+        self$scratch_dir <- scratch_dir
+        self$dt_ref <- NULL
+        self$rt_ref <- NULL
+        self$TIS <- NULL
+        self$RIC <- NULL
+        self$delayed_ops <- list()
+        self$previous_ops <- list()
+        self$hasheddir <- ""
+        self$keep_intermediate <- keep_intermediate
+        self$on_ram <- on_ram
+        self$samples <- NULL # Only used if on_ram is TRUE
+        self$align <- NULL
+        self$peaks <- NULL
+        self$can_realize <- TRUE
+        self$userData <- list()
+
+        # How samples will be loaded:
+        if (is.null(samples)) {
+          # Check base_dir and files:
+          base_dir <- validate_base_dir(base_dir)
+          check_files(pData$FileName, base_dir)
+          # From disk
+
+          self$appendDelayedOp(
+            operation = GCIMSDelayedOp(
+              name = "read_sample",
+              fun = read_sample,
+              params = list(
+                base_dir = base_dir,
+                parser = parser
+              )
+            )
+          )
+          # Some sample stats:
+          self$extract_dtime_rtime()
+          self$extract_RIC_and_TIS()
+        } else {
+          # From list, to RAM or to disk?
+          if (on_ram) {
+            self$samples <- unname(samples)
+          } else {
+            # Dump samples to disk and prepare...
+            self$hasheddir <- "from_list"
+            save_to <- self$currentHashedDir()
+            dir.create(save_to, showWarnings = FALSE, recursive = TRUE)
+            purrr::walk2(
+              pData$SampleID,
+              samples,
+              function(sample_name, sample, save_to) {
+                next_filename <- file.path(save_to, paste0(sample_name, ".rds"))
+                saveRDS(sample, next_filename)
+              },
+              save_to = save_to,
+              .progress = "Saving list of samples to disk..."
+            )
+          }
+        }
+        self
+      },
+    #' @description prints the dataset to the screen
+    print = function() {
+      # FIXME: Refactor
+      show(self)
+    },
+    #' @description Executes any pending action
+    #' @param keep_intermediate Keep intermediate results. If `NA`, the setting from the dataset is used
+    realize = function(keep_intermediate = NA) {
+      if (!self$hasDelayedOps()) {
+        return(self)
+      }
+
+      if (!canRealize(self)) {
+        cli_abort(
+          message = c(
+            "UnexpectedError",
+            paste0(
+              "Tried to realize a dataset that could not be realized. This is ",
+              "a bug in the package. Please report it to https://github.com/sipss/GCIMS/issues"
+            )
+          )
+        )
+      }
+      canRealize(self) <- FALSE
+      on.exit({canRealize(self) <- TRUE})
+
+      self <- optimize_delayed_operations(self)
+      if (isTRUE(self$on_ram)) {
+        self <- realize_ram(self)
+      } else {
+        self <- realize_disk(self, keep_intermediate = keep_intermediate)
+      }
+      invisible(self)
+    },
+    #' @description
+    #' Appends a delayed operation to the dataset so it will run afterwards
+    #' @param operation A [GCIMSDelayedOp] object
+    #' @return The modified GCIMSDataset object
+    appendDelayedOp = function(operation) {
+      self$delayed_ops <- c(self$delayed_ops, list(operation))
+      self
+    },
+    #' @description
+    #' Find out if the dataset has pending operations
+    #' @return Returns `TRUE` if the dataset has pending operations, `FALSE` otherwise
+    hasDelayedOps = function() {
+      length(self$delayed_ops) > 0
+    },
+    # FIXME: Private?
+    #' @description
+    #' The directory where processed samples are saved
+    #' @return A path to the directory where processed samples are kept, or `NULL`
+    currentHashedDir = function() {
+      hasheddir <- self$hasheddir
+      if (hasheddir == "") {
+        return(NULL)
+      }
+      file.path(
+        self$scratch_dir,
+        hasheddir
+      )
+    },
+    # FIXME: Private
+    #' @description
+    #' The directory where samples will be saved after processing
+    #' @return A path
+    nextHashedDir = function() {
+      if (!self$hasDelayedOps()) {
+        return(self$currentHashedDir())
+      }
+
+      # A hash chain:
+      current_hash <- self$hasheddir
+      if (current_hash == "") {
+        # The first hash comes from the SampleID and FileNames
+        pd <- self$pData
+        if (!all(c("SampleID", "FileName") %in% colnames(pd))) {
+          cli_abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
+        }
+        current_hash <- digest::digest(
+          list(
+            pd[["SampleID"]],
+            pd[["FileName"]]
+          )
+        )
+      }
+      for (op in purrr::keep(self$delayed_ops, modifiesSample)) {
+        current_hash <- paste0(name(op), "_", digest::digest(list(current_hash, hashableDelayedOp(op))))
+      }
+      file.path(
+        self$scratch_dir,
+        current_hash
+      )
+    },
+    #' @description
+    #' Get a sample from a GCIMSDataset
     #'
     #' @param sample Either an integer (sample index) or a string (sample name)
     #' @return The GCIMSSample object
-    getSample = function(.self, sample) {
-      "
-    Get a sample from a GCIMSDataset
-    @param sample Either an integer (sample index) or a string (sample name)
-    @return The GCIMSSample object
-    "
-      realize(.self)
-      sample_id_num <- sample_name_or_number_to_both(sample, sampleNames(.self))
-      if (.self$on_ram) {
-        gcimssample <- .self$samples[[sample_id_num$idx]]
+    getSample = function(sample) {
+      self$realize()
+      sample_id_num <- sample_name_or_number_to_both(sample, sampleNames(self))
+      if (self$on_ram) {
+        gcimssample <- self$samples[[sample_id_num$idx]]
       } else {
         filename <- paste0(sample_id_num$name, ".rds")
-        current_intermediate_dir <- .self$currentHashedDir()
+        current_intermediate_dir <- self$currentHashedDir()
         sample_file <- file.path(current_intermediate_dir, filename)
         if (!file.exists(sample_file)) {
           cli_abort("File not found: {sample_file} should have been created")
@@ -74,9 +274,100 @@ GCIMSDataset <- setRefClass(
         cli_abort("Expected a GCIMSSample object, but it was not found")
       }
       updateObject(gcimssample)
+    },
+    #' @description
+    #' Sets an action to extract the reference retention and drift times
+    extract_dtime_rtime = function() {
+      delayed_op <- GCIMSDelayedOp(
+        name = "extract_dtime_rtime",
+        fun_extract = .extract_dtime_rtime_fun_extract,
+        fun_aggregate = .extract_dtime_rtime_fun_aggregate
+      )
+      self$appendDelayedOp(delayed_op)
+      self
+    },
+    #' @description
+    #' Get the Reverse Ion Chromatogram
+    #' @return A matrix with the reverse ion chromatograms for all samples
+    getRIC = function() {
+      if (self$hasDelayedOps() || is.null(self$RIC)) {
+        self$extract_RIC_and_TIS()
+        self$realize()
+      }
+      out <- self$RIC
+      dimnames(out) <- list(
+        SampleID = self$sampleNames,
+        retention_time_s = self$rt_ref
+      )
+      out
+    },
+    #' @description
+    #' Extracts the RIC and the TIS
+    #' @return The GCIMSDataset
+    extract_RIC_and_TIS = function() {
+      self$extract_dtime_rtime()
+      delayed_op <- GCIMSDelayedOp(
+        name = "extract_RIC_and_TIS",
+        fun = NULL,
+        fun_extract = .extract_RIC_and_TIS_fun_extract,
+        fun_aggregate = .extract_RIC_and_TIS_fun_aggregate
+      )
+      self$appendDelayedOp(delayed_op)
+      invisible(self)
+    }
+  ),
+  active = list(
+    #' @field sampleNames The sample names of the GCIMSDataset samples
+    sampleNames = function(value) {
+      # Getter
+      if (missing(value)) return(self$pData$SampleID)
+      # Setter
+      if (nrow(self$pData) != length(value)) {
+        cli_abort(
+          c(
+            "Invalid sample names",
+            "x" = "The number of sample names given ({length(value)}) != Number of samples ({nrow(self$pData)})"
+          )
+        )
+      }
+      if (anyNA(value) || anyDuplicated(value)) {
+        cli_abort("Sample names must be unique and not missing")
+      }
+      private$rename_intermediate_files(value)
+      self$pData$SampleID <- value
+      self
+    }
+  ),
+  private = list(
+    rename_intermediate_files = function(new_names) {
+      current_dir <- self$currentHashedDir()
+      if (is.null(current_dir)) {
+        return()
+      }
+      current_dir_old <- paste0(current_dir, "_old")
+      if (!dir.exists(current_dir)) {
+        return()
+      }
+      file.rename(current_dir, current_dir_old)
+      dir.create(current_dir, showWarnings = FALSE, recursive = TRUE)
+      old_names <- names(self)
+      for (i in seq_along(new_names)) {
+        old_name <- paste0(old_names[i], ".rds")
+        new_name <- paste0(new_names[i], ".rds")
+        if (file.exists(file.path(current_dir_old, old_name))) {
+          file.rename(
+            file.path(current_dir_old, old_name),
+            file.path(current_dir, new_name)
+          )
+        }
+      }
+      unlink(current_dir_old, recursive = TRUE)
+      invisible(NULL)
     }
   )
 )
+
+
 
 check_files <- function(filenames, base_dir) {
   files_exist <- purrr::map_lgl(
@@ -106,6 +397,8 @@ check_files <- function(filenames, base_dir) {
   }
 
 }
+# So we can use S4 methods:
+setOldClass("GCIMSDataset")
 
 abort_if_errors <- function(errors, title = "Errors found") {
   if (length(errors) > 0) {
@@ -332,118 +625,6 @@ validate_parser <- function(parser) {
 }
 
 
-GCIMSDataset$methods(
-  initialize = function(.self,
-                        pData = NULL,
-                        ...,
-                        samples = NULL,
-                        base_dir = NULL,
-                        parser = "default",
-                        scratch_dir = tempfile("GCIMSDataset_tempdir_"),
-                        keep_intermediate = FALSE,
-                        on_ram = FALSE) {
-    # The GCIMSDataset object always uses the pData dataframe to store phenotype data,
-    # (often also called metadata or sample annotations).
-    #
-    # Besides, there are several possibilities for initializing the GCIMSDataset object:
-    #  (a) Initialize reading samples from "disk", at file.path(base_dir, pData$FileName)
-    #    (a.1) If on_ram, the samples slot will be populated with GCIMSSample objects. This is suitable for small datasets
-    #    (a.2) If not on_ram, the samples slot will not be populated, scratch_dir will be used instead to store sample objects
-    #
-    #  (b) Initialize using a named "list" of GCIMSSample objects, with names according to pData$SampleID
-    #    (b.1) If on_ram, the samples slot will be populated with that list
-    #    (b.2) If not on_ram, the samples will be dumped to scratch_dir
-    #
-    #
-    pds <- validate_pData_samples(pData, samples)
-    pData <- pds$pData
-    samples <- pds$samples
-    on_ram <- validate_on_ram(on_ram)
-    scratch_dir <- validate_scratch_dir(scratch_dir, on_ram)
-    keep_intermediate <- validate_keep_intermediate(keep_intermediate)
-    parser <- validate_parser(parser)
-
-    .self$pData <- pData
-    .self$scratch_dir <- scratch_dir
-    .self$dt_ref <- NULL
-    .self$rt_ref <- NULL
-    .self$TIS <- NULL
-    .self$RIC <- NULL
-    .self$delayed_ops <- list()
-    .self$previous_ops <- list()
-    .self$hasheddir <- ""
-    .self$keep_intermediate <- keep_intermediate
-    .self$on_ram <- on_ram
-    .self$samples <- NULL # Only used if on_ram is TRUE
-    .self$align <- NULL
-    .self$peaks <- NULL
-    .self$can_realize <- TRUE
-    .self$userData <- list()
-
-    # How samples will be loaded:
-    if (is.null(samples)) {
-      # Check base_dir and files:
-      base_dir <- validate_base_dir(base_dir)
-      check_files(pData$FileName, base_dir)
-      # From disk
-
-      .self$appendDelayedOp(
-        operation = GCIMSDelayedOp(
-          name = "read_sample",
-          fun = read_sample,
-          params = list(
-            base_dir = base_dir,
-            parser = parser
-          )
-        )
-      )
-      # Some sample stats:
-      .self$extract_dtime_rtime()
-      .self$extract_RIC_and_TIS()
-    } else {
-      # From list, to RAM or to disk?
-      if (on_ram) {
-        .self$samples <- unname(samples)
-      } else {
-        # Dump samples to disk and prepare...
-        .self$hasheddir <- "from_list"
-        save_to <- .self$currentHashedDir()
-        dir.create(save_to, showWarnings = FALSE, recursive = TRUE)
-        purrr::walk2(
-          pData$SampleID,
-          samples,
-          function(sample_name, sample, save_to) {
-            next_filename <- file.path(save_to, paste0(sample_name, ".rds"))
-            saveRDS(sample, next_filename)
-          },
-          save_to = save_to,
-          .progress = "Saving list of samples to disk..."
-        )
-      }
-    }
-    .self
-  },
-  appendDelayedOp = function(.self, operation) {
-    .self$delayed_ops <- c(.self$delayed_ops, list(operation))
-    .self
-  },
-  hasDelayedOps = function(.self) {
-    length(.self$delayed_ops) > 0
-  },
-  currentHashedDir = function(.self) {
-    hasheddir <- .self$hasheddir
-    if (hasheddir == "") {
-      return(NULL)
-    }
-    file.path(
-      .self$scratch_dir,
-      hasheddir
-    )
-  }
-)
-
-
-
 
 CurrentHashedDir <- function(object) {
   cli_warn("CurrentHashedDir(obj) is deprecated. Use obj$currentHashedDir() instead")
@@ -455,37 +636,6 @@ CurrentHashedDir <- function(object) {
   object$hasheddir <- basename(value)
   object
 }
-
-GCIMSDataset$methods(
-  nextHashedDir = function(.self) {
-    if (!.self$hasDelayedOps()) {
-      return(.self$currentHashedDir())
-    }
-
-    # A hash chain:
-    current_hash <- .self$hasheddir
-    if (current_hash == "") {
-      # The first hash comes from the SampleID and FileNames
-      pd <- .self$pData
-      if (!all(c("SampleID", "FileName") %in% colnames(pd))) {
-        cli_abort(c("Unexpected Error", "x" = "Expected pData with SampleID and FileName columns"))
-      }
-      current_hash <- digest::digest(
-        list(
-          pd[["SampleID"]],
-          pd[["FileName"]]
-        )
-      )
-    }
-    for (op in purrr::keep(.self$delayed_ops, modifiesSample)) {
-      current_hash <- paste0(name(op), "_", digest::digest(list(current_hash, hashableDelayedOp(op))))
-    }
-    file.path(
-      .self$scratch_dir,
-      current_hash
-    )
-  }
-)
 
 NextHashedDir <- function(object) {
   cli_warn("Deprecated: NextHashedDir(obj) is deprecated. Use obj$nextHashedDir() instead.")
@@ -531,7 +681,7 @@ read_sample <- function(filename, base_dir, parser = "default") {
 #'
 #' @examples
 #' # Create a new GCIMSDataset with the convenient constructor function:
-#' dummy_obj <-GCIMSDataset(
+#' dummy_obj <-GCIMSDataset$new(
 #'   pData = data.frame(SampleID = character(), filename = character(0)),
 #'   base_dir = tempdir()
 #' )
@@ -561,7 +711,7 @@ NULL
 GCIMSDataset_fromList <- function(samples, pData=NULL,
                                   scratch_dir = tempfile("GCIMSDataset_tempdir_"),
                                   keep_intermediate = FALSE, on_ram = TRUE) {
-  GCIMSDataset(
+  GCIMSDataset$new(
     pData = pData,
     samples = samples,
     scratch_dir = scratch_dir,

@@ -188,7 +188,7 @@ pdata
 And create the dataset object, passing your `parser` function:
 
 ```{r}
-ds <- GCIMSDataset(
+ds <- GCIMSDataset$new(
   pData = pdata,
   base_dir = ".",
   parser = GCIMSSample_from_csv,

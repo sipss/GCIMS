@@ -6,7 +6,7 @@
 setMethod("dtime", "GCIMSDataset", function(object, sample = NULL) {
   if (object$hasDelayedOps() || is.null(object$dt_ref)) {
     object$extract_dtime_rtime()
-    object <- realize(object)
+    object$realize()
   }
   if (is.null(sample)) {
     return(object$dt_ref)
@@ -25,7 +25,7 @@ setMethod("dtime", "GCIMSDataset", function(object, sample = NULL) {
 setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
   if (object$hasDelayedOps() || is.null(object$rt_ref)) {
     object$extract_dtime_rtime()
-    object <- realize(object)
+    object$realize()
   }
   if (is.null(sample)) {
     return(object$rt_ref)
@@ -81,17 +81,6 @@ extract_dtime_rtime <- function(object) {
   object
 }
 
-GCIMSDataset$methods(
-  extract_dtime_rtime = function(.self) {
-    delayed_op <- GCIMSDelayedOp(
-      name = "extract_dtime_rtime",
-      fun_extract = .extract_dtime_rtime_fun_extract,
-      fun_aggregate = .extract_dtime_rtime_fun_aggregate
-    )
-    .self$appendDelayedOp(delayed_op)
-    .self
-  }
-)
 
 
 

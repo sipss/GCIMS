@@ -226,19 +226,6 @@ setGeneric("findPeaks", function(object, ...) standardGeneric("findPeaks"))
 #setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))
 
 
-# FIXME: Consider asking the delayedArray maintainer to move the realize()
-#        generic to a package I can depend on. I redefine the generic just in case
-#' Realize the object by executing all delayed operations
-#' @param object An object with delayed operations
-#'
-#' @param ... Additional arguments for downstream methods
-#' @return The object, without delayed operations
-#'
-#' @export
-setGeneric("realize", function(object, ...) standardGeneric("realize"))
-#setGeneric("realize", getGeneric("realize", package = "delayedArray"))
-
-
 #' @describeIn GCIMS-generics Estimate the baseline in an object
 #' @param object An object to estimate the baseline
 #' @param ... Additional arguments for downstream methods

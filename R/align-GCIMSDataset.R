@@ -150,7 +150,7 @@ alignPlots <- function(object) {
     tibble::as_tibble(reshape2::melt(rt_diff, value.name = "correction_s"))
   }
 
-  object <- realize(object)
+  object$realize()
   rt <- rtime(object)
   dt <- dtime(object)
 

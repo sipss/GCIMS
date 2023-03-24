@@ -95,7 +95,7 @@ follow the example from `help("create_annotations_table")` for further details.
 # Create a GCIMSDataset object
 
 ```{r}
-dataset <- GCIMSDataset(
+dataset <- GCIMSDataset$new(
   annotations,
   base_dir = samples_directory,
   on_ram = TRUE # You probably should set this to FALSE if you have more 
@@ -111,8 +111,7 @@ you can manually `realize` the `GCIMSDataset` object so it executes all its pend
 We can see how the "read_sample" pending operation becomes part of the dataset history:
 
 ```{r}
-realize(dataset)
-dataset
+dataset$realize()
 ```
 Explore one sample:
 
@@ -156,8 +155,8 @@ plotRIC(dataset)
 # Filter the retention and drift time of your samples
 
 ```{r}
-filterRt(dataset, rt = c(0, 1300)) # in s
-filterDt(dataset, dt = c(1, 17)) # in ms
+filterRt(dataset, rt = c(0, 1100)) # in s
+filterDt(dataset, dt = c(5, 16)) # in ms
 dataset
 ```
 
@@ -249,7 +248,7 @@ Or to the whole dataset (the default order is 2 for both axes):
 
 ```{r}
 dataset <- smooth(dataset, rt_length_s = 3, dt_length_ms = 0.14)
-realize(dataset)
+dataset$realize()
 ```
 
 # Decimation
@@ -332,7 +331,7 @@ align(dataset)
 ```
 
 ```{r}
-realize(dataset)
+dataset$realize()
 ```
 
 ```{r}
@@ -580,7 +579,7 @@ dataset <- estimateBaseline(
   dt_region_multiplier = 12,
   rt_length_s = 200
 )
-realize(dataset)
+dataset$realize()
 ```
 
 

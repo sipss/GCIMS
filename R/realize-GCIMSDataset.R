@@ -119,7 +119,7 @@ realize_ram <- function(object) {
     pdata <- Biobase::pData(object)
     sample_objs <- pdata$FileName
   }
-  delayed_ops <- rlang::as_list(object$delayed_ops)
+  delayed_ops <- object$delayed_ops
   results <- mymapply(
     FUN = realize_one_sample_ram,
     sample_name = sampleNames(object),
@@ -209,38 +209,19 @@ realize_disk <- function(object, keep_intermediate) {
 #' @examples
 #' base_dir <- system.file("extdata", "sample_formats", package = "GCIMS")
 #' annot <- data.frame(SampleID = "Sample1", FileName = "small.mea.gz")
-#' dataset <- GCIMSDataset(annot, base_dir)
+#' dataset <- GCIMSDataset$new(annot, base_dir)
 #' print(dataset)
 #' realize(dataset)
 #' print(dataset)
 #'
-setMethod("realize", "GCIMSDataset",  function(object, keep_intermediate = NA) {
-  if (!object$hasDelayedOps()) {
-    return(object)
-  }
-
-  if (!canRealize(object)) {
-    cli_abort(
-      message = c(
-        "UnexpectedError",
-        paste0(
-          "Tried to realize a dataset that could not be realized. This is ",
-          "a bug in the package. Please report it to https://github.com/sipss/GCIMS/issues"
-        )
-      )
-    )
-  }
-  canRealize(object) <- FALSE
-  on.exit({canRealize(object) <- TRUE})
-
-  object <- optimize_delayed_operations(object)
-  if (isTRUE(object$on_ram)) {
-    object <- realize_ram(object)
-  } else {
-    object <- realize_disk(object, keep_intermediate = keep_intermediate)
-  }
-  invisible(object)
-})
+realize <- function(object, keep_intermediate = NA) {
+  cli_warn(
+    "realize(object) is deprecated, use object$realize() instead",
+    .frequency = "once",
+    .frequency_id = "realize-deprecated",
+  )
+  object$realize(keep_intermediate = keep_intermediate)
+}
 
 
 canRealize <- function(object) {

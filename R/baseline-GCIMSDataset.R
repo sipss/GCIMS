@@ -18,9 +18,9 @@ setMethod(
       fun = estimateBaseline,
       params = list(dt_peak_fwhm_ms = dt_peak_fwhm_ms, dt_region_multiplier = dt_region_multiplier, rt_length_s = rt_length_s)
     )
-    x <- appendDelayedOp(object, delayed_op)
+    object$appendDelayedOp(delayed_op)
     # We recompute these, but  maybe we could just reset them to zero...
-    x <- extract_RIC_and_TIS(x)
-    invisible(x)
+    object <- extract_RIC_and_TIS(object)
+    invisible(object)
   }
 )

@@ -6,7 +6,7 @@ setMethod(
   "peaks",
   "GCIMSDataset",
   function(object) {
-    object <- realize(object)
+    object$realize()
     if (is.null(object$peaks)) {
       cli_abort("Please run {.code findPeaks()} on your dataset first")
     }

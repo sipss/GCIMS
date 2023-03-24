@@ -72,6 +72,7 @@ Imports:
     ProtGenerics (>= 1.24.0),
     ptw (>= 1.9-10),
     purrr (>= 0.3.4),
+    R6,
     reshape2 (>= 1.1.4),
     rlang,
     S4Vectors,

@@ -7,7 +7,7 @@
 setMethod("getTIS", "GCIMSDataset", function(object) {
   if (object$hasDelayedOps() || is.null(object$TIS)) {
     object$extract_RIC_and_TIS()
-    object <- realize(object)
+    object$realize()
   }
   out <- object$TIS
   dimnames(out) <- list(
@@ -27,24 +27,7 @@ setMethod("getRIC", "GCIMSDataset", function(object) {
   object$getRIC()
 })
 
-GCIMSDataset$methods(
-  #' @describeIn GCIMSDataset Get the Reverse Ion Chromatogram
-  #' @name GCIMSDataset-class
-  #'
-  #' @return A matrix with the reverse ion chromatograms for all samples
-  getRIC = function(.self) {
-    if (.self$hasDelayedOps() || is.null(.self$RIC)) {
-      .self$extract_RIC_and_TIS()
-      .self <- realize(.self)
-    }
-    out <- .self$RIC
-    dimnames(out) <- list(
-      SampleID = sampleNames(.self),
-      retention_time_s = .self$rt_ref
-    )
-    out
-  }
-)
+
 
 
 #' Plot Total Ion Spectra
@@ -179,16 +162,3 @@ extract_RIC_and_TIS <- function(object) {
   invisible(object)
 }
 
-GCIMSDataset$methods(
-  extract_RIC_and_TIS = function(.self) {
-    .self$extract_dtime_rtime()
-    delayed_op <- GCIMSDelayedOp(
-      name = "extract_RIC_and_TIS",
-      fun = NULL,
-      fun_extract = .extract_RIC_and_TIS_fun_extract,
-      fun_aggregate = .extract_RIC_and_TIS_fun_aggregate
-    )
-    .self$appendDelayedOp(delayed_op)
-    invisible(.self)
-  }
-)

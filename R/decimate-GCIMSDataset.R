@@ -21,7 +21,7 @@ setMethod(
       fun = decimate,
       params = list(dt_factor = dt_factor, rt_factor = rt_factor)
     )
-    object <- appendDelayedOp(object, delayed_op)
+    object$appendDelayedOp(delayed_op)
     # We recompute these, but  maybe we could just reset them to zero...
     object <- extract_dtime_rtime(object)
     object <- extract_RIC_and_TIS(object)
