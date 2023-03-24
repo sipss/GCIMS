@@ -94,7 +94,7 @@ cutDrift_Dataset <- function(x, dt_from, dt_to) {
       fun = cutDrift_Sample, # The function that is applied to the sample
       params = list(dt_from = dt_from, dt_to = dt_to) # The arguments that function needs
     )
-    x <- GCIMS:::appendDelayedOp(x, delayed_op)
+    x$appendDelayedOp(delayed_op)
     # Return the dataset, invisibly:
     invisible(x)
 }
@@ -216,7 +216,7 @@ cutDrift2_Dataset <- function(x, dt_from, dt_to) {
       fun = cutDrift2_Sample, # The function that is applied to the sample
       params = list(dt_from = dt_from, dt_to = dt_to) # The arguments that function needs
     )
-    x <- GCIMS:::appendDelayedOp(x, delayed_op)
+    x$appendDelayedOp(x, delayed_op)
     # Return the dataset, invisibly:
     invisible(x)
 }
@@ -364,7 +364,7 @@ cutDrift3_Dataset <- function(x, dt_from, dt_to) {
       fun_extract = cutDrift_ExtractSample,
       fun_aggregate = cutDrift_Aggregate
     )
-    x <- GCIMS:::appendDelayedOp(x, delayed_op)
+    x$appendDelayedOp(x, delayed_op)
     # Return the dataset, invisibly:
     invisible(x)
 }

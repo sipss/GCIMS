@@ -29,11 +29,10 @@ setMethod(
       fun_extract = .align_fun_extract,
       fun_aggregate = .align_fun_aggregate
     )
-    object <- appendDelayedOp(object, delayed_op)
-
+    object$appendDelayedOp(delayed_op)
     # We recompute these, but  maybe we could just reset them to zero...
-    object <- extract_dtime_rtime(object)
-    object <- extract_RIC_and_TIS(object)
+    object$extract_dtime_rtime()
+    object$extract_RIC_and_TIS()
     invisible(object)
   }
 )
@@ -46,17 +45,17 @@ setMethod(
 }
 
 .align_fun_aggregate <- function(ds, extracted_obj) {
-  if (!"align" %in% names(ds@envir)) {
-    ds@envir$align <- list()
+  if (is.null(ds$align)) {
+    ds$align <- list()
   }
-  ds@envir$align[["dt_kcorr"]] <- purrr::map_dbl(extracted_obj, "dt_kcorr")
+  ds$align[["dt_kcorr"]] <- purrr::map_dbl(extracted_obj, "dt_kcorr")
   poly_order <- purrr::map_int(
     extracted_obj,
     function(obj) {
       length(obj$rt_poly_coefs) - 1L
     }
   )
-  ds@envir$align[["rt_poly_order"]] <- poly_order
+  ds$align[["rt_poly_order"]] <- poly_order
   poly_coefs <- matrix(0.0, nrow = length(extracted_obj), ncol = max(poly_order) + 1L)
   poly_coefs[,2] <- 1
   for (i in  seq_along(extracted_obj)) {
@@ -67,7 +66,7 @@ setMethod(
     SampleID = sampleNames(ds),
     PolyOrder = paste0("Order_", seq_len(ncol(poly_coefs)) - 1L)
   )
-  ds@envir$align[["rt_poly_coefs"]] <- poly_coefs
+  ds$align[["rt_poly_coefs"]] <- poly_coefs
   ds
 }
 
@@ -155,14 +154,14 @@ alignPlots <- function(object) {
   rt <- rtime(object)
   dt <- dtime(object)
 
-  rt_diff <- get_corrected_rt(rt, object@envir$align$rt_poly_coefs)
+  rt_diff <- get_corrected_rt(rt, object$align$rt_poly_coefs)
 
   rt_diff_plot <- ggplot2::ggplot(rt_diff) +
     ggplot2::geom_line(ggplot2::aes(x = .data$ret_time_s, y = .data$correction_s, group = .data$SampleID, color = .data$SampleID)) +
     ggplot2::labs(x = "Retention time (s)", y = "Ret. time correction (s)", color = "SampleID")
 
 
-  dt_diff <- get_corrected_dt(dt, object@envir$align$dt_kcorr)
+  dt_diff <- get_corrected_dt(dt, object$align$dt_kcorr)
 
   dt_diff_plot <- ggplot2::ggplot(dt_diff) +
     ggplot2::geom_line(ggplot2::aes(x = .data$drift_time_ms, y = .data$correction_ms, group = .data$SampleID, color = .data$SampleID)) +
@@ -170,8 +169,8 @@ alignPlots <- function(object) {
 
   dt_kcorr_plot <- ggplot2::ggplot(
     data.frame(
-      x = names(object@envir$align$dt_kcorr),
-      y = object@envir$align$dt_kcorr
+      x = names(object$align$dt_kcorr),
+      y = object$align$dt_kcorr
     )
   ) + ggplot2::geom_col(ggplot2::aes(x = .data$x, y = .data$y)) +
     ggplot2::labs(x = "SampleID", y = "Multiplicative factor (drift time correction, unitless)") +

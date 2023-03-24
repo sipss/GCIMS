@@ -5,15 +5,15 @@
 #' @return The [GCIMSDataset] object
 #' @importMethodsFrom Biobase sampleNames
 #' @importMethodsFrom Biobase "sampleNames<-"
-setMethod("sampleNames", "GCIMSDataset", function(object) object@envir$pData$SampleID)
+setMethod("sampleNames", "GCIMSDataset", function(object) object$pData$SampleID)
 
 #' @describeIn sampleNames-GCIMSDataset-method Sample names
 setReplaceMethod("sampleNames", "GCIMSDataset", function(object, value) {
-  if (nrow(object@envir$pData) != length(value)) {
+  if (nrow(object$pData) != length(value)) {
     cli_abort(
       c(
         "Invalid sample names",
-        "x" = "The number of sample names given ({length(value)}) != Number of samples ({nrow(object@envir$pData)})"
+        "x" = "The number of sample names given ({length(value)}) != Number of samples ({nrow(object$pData)})"
       )
     )
   }
@@ -21,12 +21,12 @@ setReplaceMethod("sampleNames", "GCIMSDataset", function(object, value) {
     cli_abort("Sample names must be unique and not missing")
   }
   rename_intermediate_files(object, value)
-  object@envir$pData$SampleID <- value
+  object$pData$SampleID <- value
   object
 })
 
 rename_intermediate_files <- function(object, new_names) {
-  current_dir <- CurrentHashedDir(object)
+  current_dir <- object$currentHashedDir()
   if (is.null(current_dir)) {
     return()
   }

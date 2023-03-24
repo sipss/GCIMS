@@ -1,29 +1,14 @@
-#' @describeIn GCIMSDataset class
-#' @param sample Either an integer (sample index) or a string (sample name)
-#' @return The corresponding [GCIMSSample]
-setMethod(
-  "getSample",
-  "GCIMSDataset",
-  function(object, sample) {
-    object <- realize(object)
-    sample_id_num <- sample_name_or_number_to_both(sample, sampleNames(object))
-    if (object@envir$on_ram) {
-      gcimssample <- object@envir$samples[[sample_id_num$idx]]
-    } else {
-      filename <- paste0(sample_id_num$name, ".rds")
-      current_intermediate_dir <- CurrentHashedDir(object)
-      sample_file <- file.path(current_intermediate_dir, filename)
-      if (!file.exists(sample_file)) {
-        cli_abort("File not found: {sample_file} should have been created")
-      }
-      gcimssample <- readRDS(sample_file)
-    }
-    if (!methods::is(gcimssample, "GCIMSSample")) {
-      cli_abort("Expected a GCIMSSample object, but it was not found")
-    }
-    updateObject(gcimssample)
-  }
-)
+# #' Get a sample from a GCIMSDataset object
+# #'
+# #' @param sample Either an integer (sample index) or a string (sample name)
+# #' @return The corresponding [GCIMSSample]
+# setMethod(
+#   "getSample",
+#   "GCIMSDataset",
+#   function(object, sample) {
+#     object$getSample(sample)
+#   }
+# )
 
 
 sample_name_or_number_to_both <- function(sample, sample_names) {

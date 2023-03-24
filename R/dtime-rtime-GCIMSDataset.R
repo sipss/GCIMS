@@ -4,12 +4,12 @@
 #' @return a drift time vector
 #' @export
 setMethod("dtime", "GCIMSDataset", function(object, sample = NULL) {
-  if (hasDelayedOps(object) || is.null(object@envir$dt_ref)) {
-    object <- extract_dtime_rtime(object)
+  if (object$hasDelayedOps() || is.null(object$dt_ref)) {
+    object$extract_dtime_rtime()
     object <- realize(object)
   }
   if (is.null(sample)) {
-    return(object@envir$dt_ref)
+    return(object$dt_ref)
   } else {
     sample <- getSample(object, sample = sample)
     return(dtime(sample))
@@ -23,12 +23,12 @@ setMethod("dtime", "GCIMSDataset", function(object, sample = NULL) {
 #' @param sample A number or a string with the sample index or name. If `NULL`, the reference drift time is returned
 #' @export
 setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
-  if (hasDelayedOps(object) || is.null(object@envir$rt_ref)) {
-    object <- extract_dtime_rtime(object)
+  if (object$hasDelayedOps() || is.null(object$rt_ref)) {
+    object$extract_dtime_rtime()
     object <- realize(object)
   }
   if (is.null(sample)) {
-    return(object@envir$rt_ref)
+    return(object$rt_ref)
   } else {
     sample <- getSample(object, sample = sample)
     return(rtime(sample))
@@ -68,8 +68,8 @@ setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
   max_rt_length <- floor(round((min_rt_max - max_rt_min)/min_rt_step, digits = 8)) + 1L
   dt_ref <- seq(from = max_dt_min, to = min_dt_max, length.out = max_dt_length)
   rt_ref <- seq(from = max_rt_min, to = min_rt_max, length.out = max_rt_length)
-  gcimsdataset@envir$dt_ref <- dt_ref
-  gcimsdataset@envir$rt_ref <- rt_ref
+  gcimsdataset$dt_ref <- dt_ref
+  gcimsdataset$rt_ref <- rt_ref
 
   # fun_aggregate must return the GCIMSDataset object
   gcimsdataset
@@ -77,15 +77,21 @@ setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
 
 
 extract_dtime_rtime <- function(object) {
-  delayed_op <- GCIMSDelayedOp(
-    name = "extract_dtime_rtime",
-    fun_extract = .extract_dtime_rtime_fun_extract,
-    fun_aggregate = .extract_dtime_rtime_fun_aggregate
-  )
-  object <- appendDelayedOp(object, delayed_op)
+  object$extract_dtime_rtime()
   object
 }
 
+GCIMSDataset$methods(
+  extract_dtime_rtime = function(.self) {
+    delayed_op <- GCIMSDelayedOp(
+      name = "extract_dtime_rtime",
+      fun_extract = .extract_dtime_rtime_fun_extract,
+      fun_aggregate = .extract_dtime_rtime_fun_aggregate
+    )
+    .self$appendDelayedOp(delayed_op)
+    .self
+  }
+)
 
 
 

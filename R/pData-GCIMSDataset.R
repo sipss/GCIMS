@@ -1,14 +1,16 @@
-#' @describeIn GCIMSDataset-class Get the phenotype data
+#' Get the phenotype data
+#'
 #' @importMethodsFrom Biobase pData
 setMethod(
   "pData",
   "GCIMSDataset",
   function(object) {
-    object@envir$pData
+    object$pData
   }
 )
 
-#' @describeIn GCIMSDataset-class Set the phenotype data
+#' Set the phenotype data
+#'
 #' @param value The data frame with annotations, it should have a FileName column and a SampleID column.
 #' @importMethodsFrom Biobase "pData<-"
 setReplaceMethod(
@@ -33,7 +35,7 @@ setReplaceMethod(
         )
       )
     }
-    object@envir$pData <- value
+    object$pData <- value
     object
   }
 )

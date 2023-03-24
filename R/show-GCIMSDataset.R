@@ -19,7 +19,7 @@ methods::setMethod(
   "describeAsList", "GCIMSDataset",
   function(object) {
     out <- list()
-    on_ram <- object@envir$on_ram
+    on_ram <- object$on_ram
     root_txt <- "A GCIMSDataset object"
     sample_info <- paste0(
       "With ", length(sampleNames(object)), " samples",
@@ -28,7 +28,7 @@ methods::setMethod(
     pheno_info <- phenos_to_string(object)
     # history info:
     # Previous operations
-    pops <- object@envir$previous_ops
+    pops <- object$previous_ops
     pops <- purrr::keep(pops, modifiesSample)
     pops <- purrr::map(pops, describeAsList)
     if (length(pops) > 0) {
@@ -38,7 +38,7 @@ methods::setMethod(
     }
 
     # Pending operations
-    pops <- object@envir$delayed_ops
+    pops <- object$delayed_ops
     pops <- purrr::keep(pops, modifiesSample)
     pops <- purrr::map(pops, describeAsList)
     if (length(pops) > 0) {
