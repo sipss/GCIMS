@@ -3,17 +3,7 @@
 \docType{class}
 \name{GCIMSDelayedOp-class}
 \alias{GCIMSDelayedOp-class}
-\alias{GCIMSDelayedOp}
 \title{GCIMSDelayedOp class}
-\usage{
-GCIMSDelayedOp(...)
-}
-\arguments{
-\item{...}{See the slots section in this page}
-}
-\value{
-A GCIMSDelayedOp object
-}
 \description{
 GCIMSDelayedOp is an S4 class to store a delayed operation
 
@@ -23,11 +13,6 @@ the advantage that some operations that are applied to each sample can be applie
 sequentially to each sample, reducing the amount of reads and writes to
 the data files, and increasing the performance.
 }
-\section{Functions}{
-\itemize{
-\item \code{GCIMSDelayedOp()}: class
-
-}}
 \section{Slots}{
 
 \describe{
