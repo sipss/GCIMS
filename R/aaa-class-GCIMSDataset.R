@@ -1,4 +1,5 @@
 #' GCIMSDataset
+#' @aliases GCIMSDataset-class
 #'
 #' @description GCIMSDataset is an R6 class to store a dataset.
 #'
@@ -159,7 +160,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       },
     #' @description prints the dataset to the screen
     print = function() {
-      outstring <- yaml::as.yaml(self$describe_as_list())
+      outstring <- yaml::as.yaml(private$describe_as_list())
       cat(outstring)
     },
     #' @description Executes any pending action
@@ -183,7 +184,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       canRealize(self) <- FALSE
       on.exit({canRealize(self) <- TRUE})
 
-      self$optimize_delayed_operations()
+      private$optimize_delayed_operations()
       # FIXME: realize_ram and realize_disk should be private methods
       if (isTRUE(self$on_ram)) {
         realize_ram(self)
@@ -373,7 +374,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
         "With ", length(self$sampleNames), " samples",
         if (on_ram) " on RAM" else " on disk"
       )
-      phenotypes <- Biobase::pData(object)
+      phenotypes <- Biobase::pData(self)
       pheno_info <- phenos_to_string(phenotypes)
       # history info:
       # Previous operations
@@ -403,11 +404,11 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       )
       out
     },
-    optimize_delayed_operations = function(object) {
-      if (!object$hasDelayedOps()) {
-        return(object)
+    optimize_delayed_operations = function() {
+      if (!self$hasDelayedOps()) {
+        return()
       }
-      delayed_ops <- object$delayed_ops
+      delayed_ops <- self$delayed_ops
       # Extra operations that extract the rtime and dtime or TIS and RIC from the object can be delayed
       # Find them:
       where_extract_times <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_dtime_rtime"})
@@ -415,18 +416,17 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       where_extract <- where_extract_times | where_extract_RIC_TIS
       # Not found, return:
       if (!any(where_extract)) {
-        return(object)
+        return()
       }
       # Remove those ops:
       delayed_ops[where_extract] <- NULL
-      object$delayed_ops <- delayed_ops
+      self$delayed_ops <- delayed_ops
       if (any(where_extract_times)) {
-        object$extract_dtime_rtime()
+        self$extract_dtime_rtime()
       }
       if (any(where_extract_RIC_TIS)) {
-        object$extract_RIC_and_TIS()
+        self$extract_RIC_and_TIS()
       }
-      object
     }
   )
 )
