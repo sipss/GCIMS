@@ -691,24 +691,6 @@ validate_parser <- function(parser) {
 }
 
 
-
-CurrentHashedDir <- function(object) {
-  cli_warn("CurrentHashedDir(obj) is deprecated. Use obj$currentHashedDir() instead")
-  object$currentHashedDir()
-}
-
-"CurrentHashedDir<-" <- function(object, value) {
-  cli_warn("{.code CurrentHashedDir(obj) <- value} is deprecated. Use {.code obj$hasheddir <- basename(value)} instead")
-  object$hasheddir <- basename(value)
-  object
-}
-
-NextHashedDir <- function(object) {
-  cli_warn("Deprecated: NextHashedDir(obj) is deprecated. Use obj$nextHashedDir() instead.")
-  object$nextHashedDir()
-}
-
-
 read_sample <- function(filename, base_dir, parser = "default") {
   filename <- file.path(base_dir, filename)
   filename_l <- tolower(filename)
