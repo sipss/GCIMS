@@ -8,6 +8,8 @@
 #' needed, so the dataset object scales with large number of samples.
 #'
 #'
+#' @importFrom digest digest
+#' @importFrom R6 R6Class
 #' @importClassesFrom S4Vectors DataFrame
 #' @export GCIMSDataset
 #' @exportClass GCIMSDataset
