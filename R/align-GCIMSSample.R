@@ -9,15 +9,15 @@ methods::setMethod(
   "align", "GCIMSSample",
   function(object, rip_ref_ms, ric_ref, ric_ref_rt){
     if (all(is.na(object@data))) {
-      stop("all na 1")
+      stop("all na 1") # FIXME: Improve error msg
     }
     object <- alignDt(object, rip_ref_ms = rip_ref_ms)
     if (all(is.na(object@data))) {
-      stop("all na 2")
+      stop("all na 2") # FIXME: Improve error msg
     }
     object <- alignRt(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
     if (all(is.na(object@data))) {
-      stop("all na 3")
+      stop("all na 3") # FIXME: Improve error msg
     }
 
     dt_range <- c(
@@ -30,7 +30,7 @@ methods::setMethod(
     )
     object <- subset(object, dt_range = dt_range, rt_range = rt_range)
     if (all(is.na(object@data))) {
-      stop("all na 4")
+      stop("all na 4") # FIXME: Improve error msg
     }
     object
   })
