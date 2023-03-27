@@ -199,8 +199,8 @@ ds
 
 ```{r}
 cowplot::plot_grid(
-  plot(getSample(ds, "Sample1")),
-  plot(getSample(ds, "Sample2")),
+  plot(ds$getSample("Sample1")),
+  plot(ds$getSample("Sample2")),
   ncol = 2
 )
 ```

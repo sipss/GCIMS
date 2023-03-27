@@ -116,7 +116,7 @@ dataset$realize()
 Explore one sample:
 
 ```{r}
-ket1 <- getSample(dataset, sample = "Ketones1")
+ket1 <- dataset$getSample(sample = "Ketones1")
 plot(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 ```
 
@@ -163,7 +163,7 @@ dataset
 
 
 ```{r}
-ket1afterfilter <- getSample(dataset, sample = "Ketones1")
+ket1afterfilter <- dataset$getSample(sample = "Ketones1")
 ket1afterfilter
 ```
 
@@ -360,8 +360,7 @@ from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too 
 peaks may appear broken into two regions or false detections may occur.
 
 ```{r peak-detection-starts-here}
-# Remove this extra register()
-ket1 <- getSample(dataset, "Ketones1")
+ket1 <- dataset$getSample("Ketones1")
 ch1 <- getChromatogram(ket1, dt_range = 10.75)
 ```
 
@@ -426,13 +425,13 @@ peak_list <- peaks(dataset)
 You can get any other sample if you like, plot it and plot its peaks on top:
 
 ```{r}
-ket2 <- getSample(dataset, "Ketones2")
+ket2 <- dataset$getSample("Ketones2")
 ```
 
 ```{r}
 plot(ket2) +
   overlay_peaklist(peaks(ket2)) +
-  lims(x= c(7.5,15), y = c(0, 500))
+  lims(x = c(7.5,15), y = c(0, 500))
 ```
 
 Or plot all the peaks from all the dataset together, overlayed on a single sample:
@@ -492,7 +491,7 @@ plt + lims(x = c(6, 15), y = c(0, 400))
 # Baseline correction
 
 ```{r baseline-section-starts-here}
-ket1 <- getSample(dataset, "Ketones1")
+ket1 <- dataset$getSample("Ketones1")
 ```
 
 

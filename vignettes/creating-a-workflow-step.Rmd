@@ -139,7 +139,7 @@ dataset$realize()
 And get the sample, modified:
 
 ```{r}
-sample_after <- getSample(dataset, 1)
+sample_after <- dataset$getSample(1)
 dtime_after <- dtime(sample_after)
 ```
 
