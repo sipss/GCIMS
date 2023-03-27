@@ -173,32 +173,6 @@ realize_disk <- function(object, keep_intermediate) {
 }
 
 
-#' Runs all delayed operations on the object
-#'
-#' @param object A [GCIMSDataset] object, modified in-place
-#' @param keep_intermediate A logical, whether to keep the intermediate files of
-#' the previous realization once this one finishes. If `NA`, keeping will depend
-#' on the `object`.
-#' @return The same [GCIMSDataset] object, without pending operations
-#' @export
-#' @examples
-#' base_dir <- system.file("extdata", "sample_formats", package = "GCIMS")
-#' annot <- data.frame(SampleID = "Sample1", FileName = "small.mea.gz")
-#' dataset <- GCIMSDataset$new(annot, base_dir)
-#' print(dataset)
-#' realize(dataset)
-#' print(dataset)
-#'
-realize <- function(object, keep_intermediate = NA) {
-  cli_warn(
-    "realize(object) is deprecated, use object$realize() instead",
-    .frequency = "once",
-    .frequency_id = "realize-deprecated",
-  )
-  object$realize(keep_intermediate = keep_intermediate)
-}
-
-
 canRealize <- function(object) {
   object$can_realize
 }

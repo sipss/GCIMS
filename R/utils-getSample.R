@@ -1,20 +1,3 @@
-#' Get a sample from a GCIMSDataset object
-#'
-#' @param object a [GCIMSDataset] object
-#' @param sample Either an integer (sample index) or a string (sample name)
-#' @return The corresponding [GCIMSSample]
-#' @keywords internal
-#' @export
-getSample <- function(object, sample) {
-  cli_warn(
-    "getSample(object, sample) is deprecated. Use object$getSample(sample) instead.",
-    frequency = "once",
-    frequency_id = "getSample-method-deprecated"
-  )
-  object$getSample(sample)
-}
-
-
 sample_name_or_number_to_both <- function(sample, sample_names) {
   if (is.numeric(sample)) {
     sample_num <- sample

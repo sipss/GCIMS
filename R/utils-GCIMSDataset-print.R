@@ -13,17 +13,3 @@ phenos_to_string <- function(phenotypes) {
   phen <- paste0(utils::head(colnames(only_phenotypes), n = to_show), collapse = ", ")
   phen
 }
-
-
-setMethod(
-  "show",
-  "GCIMSDataset",
-  function(object) {
-    cli_warn(
-      "show(gcimsdataset) is deprecated. Use gcimsdataset$print() instead.",
-      frequency = "once",
-      frequency_id = "show-gcimsdataset-deprecated"
-    )
-    object$print()
-  }
-)
