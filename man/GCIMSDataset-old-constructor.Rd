@@ -26,7 +26,7 @@ GCIMSDataset old constructor
 }
 \examples{
 # Create a new GCIMSDataset with the convenient constructor function:
-dummy_obj <-GCIMSDataset(
+dummy_obj <-GCIMSDataset$new(
   pData = data.frame(SampleID = character(), filename = character(0)),
   base_dir = tempdir()
 )

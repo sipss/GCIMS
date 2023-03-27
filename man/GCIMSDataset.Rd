@@ -16,7 +16,7 @@ needed, so the dataset object scales with large number of samples.
 ## Method `GCIMSDataset$new`
 ## ------------------------------------------------
 
-dummy_dataset <- GCIMSDataset(
+dummy_dataset <- GCIMSDataset$new(
   pData = data.frame(SampleID = character(), filename = character(0)),
   base_dir = tempdir()
 )
@@ -69,6 +69,8 @@ dummy_dataset <- GCIMSDataset(
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-GCIMSDataset-new}{\code{GCIMSDataset$new()}}
+\item \href{#method-GCIMSDataset-print}{\code{GCIMSDataset$print()}}
+\item \href{#method-GCIMSDataset-realize}{\code{GCIMSDataset$realize()}}
 \item \href{#method-GCIMSDataset-appendDelayedOp}{\code{GCIMSDataset$appendDelayedOp()}}
 \item \href{#method-GCIMSDataset-hasDelayedOps}{\code{GCIMSDataset$hasDelayedOps()}}
 \item \href{#method-GCIMSDataset-currentHashedDir}{\code{GCIMSDataset$currentHashedDir()}}
@@ -126,7 +128,7 @@ small datasets.}
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{dummy_dataset <- GCIMSDataset(
+\preformatted{dummy_dataset <- GCIMSDataset$new(
   pData = data.frame(SampleID = character(), filename = character(0)),
   base_dir = tempdir()
 )
@@ -135,6 +137,33 @@ small datasets.}
 
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-print}{}}}
+\subsection{Method \code{print()}}{
+prints the dataset to the screen
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-realize"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-realize}{}}}
+\subsection{Method \code{realize()}}{
+Executes any pending action
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$realize(keep_intermediate = NA)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{keep_intermediate}}{Keep intermediate results. If \code{NA}, the setting from the dataset is used}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GCIMSDataset-appendDelayedOp"></a>}}
