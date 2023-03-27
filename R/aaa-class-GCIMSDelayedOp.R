@@ -195,31 +195,32 @@ apply_op_to_sample <- function(delayed_op, sample) {
   )
 }
 
-methods::setMethod(
-  "describeAsList", "GCIMSDelayedOp",
-  function(object) {
-    num_params <- length(object@params)
-    txt <- name(object)
-    if (num_params == 0) {
-      return(txt)
-    }
-    p <- object@params
-    for (i in seq_along(p)) {
-      if (is.atomic(p[[i]]) && length(p[[i]]) > 10) {
-        p[[i]] <- glue("< A {mode(p[[i]])} vector of {length(p[[i]])} elements >")
-      }
-      if (inherits(p[[i]], "data.frame")) {
-        p[[i]] <- glue("< A data.frame with {nrow(p[[i]])} rows and {ncol(p[[i]])} columns >")
-      }
-      if (is.function(p[[i]])) {
-        p[[i]] <- "< function >"
-      }
-    }
-    out <- list()
-    out[[txt]] <- p
-    return(out)
+#' Format a delayed operation as a list
+#' @noRd
+#' @return A list with a brief description/representation of the object
+#'
+describeAsList <- function(object) {
+  num_params <- length(object@params)
+  txt <- name(object)
+  if (num_params == 0) {
+    return(txt)
   }
-)
+  p <- object@params
+  for (i in seq_along(p)) {
+    if (is.atomic(p[[i]]) && length(p[[i]]) > 10) {
+      p[[i]] <- glue("< A {mode(p[[i]])} vector of {length(p[[i]])} elements >")
+    }
+    if (inherits(p[[i]], "data.frame")) {
+      p[[i]] <- glue("< A data.frame with {nrow(p[[i]])} rows and {ncol(p[[i]])} columns >")
+    }
+    if (is.function(p[[i]])) {
+      p[[i]] <- "< function >"
+    }
+  }
+  out <- list()
+  out[[txt]] <- p
+  return(out)
+}
 
 methods::setMethod(
   "show", "GCIMSDelayedOp",

@@ -89,13 +89,6 @@ setGeneric("plotRIC", function(object, ...) standardGeneric("plotRIC"))
 setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))
 
 
-#' Format as a list
-#'
-#' @return A list with a brief description/representation of the object
-#'
-#' @keywords internal
-setGeneric("describeAsList", function(object, ...) standardGeneric("describeAsList"))
-
 #' @describeIn GCIMS-generics Decimate an object
 #'
 #' @param object An object to decimate
