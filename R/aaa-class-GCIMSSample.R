@@ -153,6 +153,7 @@ GCIMSSample <- function(
 
 #' @name GCIMSSample-methods
 #' @title Methods for the GCIMSSample class
+#' @param object A [GCIMSSample] object
 NULL
 
 
