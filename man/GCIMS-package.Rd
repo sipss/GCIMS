@@ -11,12 +11,12 @@
 A package for the analysis of ion mobility spectrometry (IMS) measurements, as well as samples from multicapillary columns coupled with IMS (MCC-IMS) and gas chromatography coupled to ion mobility spectrometry (GC-IMS). The package provides a complete workflow for the analysis, importing the data, preprocessing the spectra as well as classification and regression techniques for the modelling of the spectra. The package also includes visualization helpers, to represent topographic plots, extracted and total ion chromatograms and IMS spectra.
 }
 \author{
-\strong{Maintainer}: Luis Fernandez \email{lfernandez@ibecbarcelona.eu} (\href{https://orcid.org/0000-0001-9790-6287}{ORCID})
+\strong{Maintainer}: Sergio Oller Moreno \email{soller@ibecbarcelona.eu} (\href{https://orcid.org/0000-0002-8994-1549}{ORCID})
 
 Authors:
 \itemize{
   \item Celia Mallafré Muro \email{cmallafre@ibecbarcelona.eu} (\href{https://orcid.org/0000-0001-8247-1719}{ORCID})
-  \item Sergio Oller Moreno \email{soller@ibecbarcelona.eu} (\href{https://orcid.org/0000-0002-8994-1549}{ORCID})
+  \item Luis Fernandez \email{lfernandez@ibecbarcelona.eu} (\href{https://orcid.org/0000-0001-9790-6287}{ORCID})
   \item Arnau Blanco Borrego \email{blancoarnau@gmail.com} (\href{https://orcid.org/0000-0002-5287-7491}{ORCID})
   \item Santiago Marco Colás \email{smarco@ibecbarcelona.eu} (\href{https://orcid.org/0000-0003-2663-2965}{ORCID})
 }

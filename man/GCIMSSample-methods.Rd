@@ -44,6 +44,8 @@
 
 \item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
 
+\item{object}{A \link{GCIMSSample} object}
+
 \item{value}{A data frame with the peak list}
 }
 \value{
