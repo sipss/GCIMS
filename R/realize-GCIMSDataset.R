@@ -68,31 +68,6 @@ realize_one_sample_disk <- function(sample_name, orig_filename, current_filename
   res$extracted_objects
 }
 
-optimize_delayed_operations <- function(object) {
-  if (!object$hasDelayedOps()) {
-    return(object)
-  }
-  delayed_ops <- object$delayed_ops
-  # Extra operations that extract the rtime and dtime or TIS and RIC from the object can be delayed
-  # Find them:
-  where_extract_times <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_dtime_rtime"})
-  where_extract_RIC_TIS <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_RIC_and_TIS"})
-  where_extract <- where_extract_times | where_extract_RIC_TIS
-  # Not found, return:
-  if (!any(where_extract)) {
-    return(object)
-  }
-  # Remove those ops:
-  delayed_ops[where_extract] <- NULL
-  object$delayed_ops <- delayed_ops
-  if (any(where_extract_times)) {
-    object$extract_dtime_rtime()
-  }
-  if (any(where_extract_RIC_TIS)) {
-    object$extract_RIC_and_TIS()
-  }
-  object
-}
 
 move_delayed_to_history <- function(object) {
   # Make delayed_ops history and remove them from pending

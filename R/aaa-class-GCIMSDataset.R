@@ -183,11 +183,12 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       canRealize(self) <- FALSE
       on.exit({canRealize(self) <- TRUE})
 
-      self <- optimize_delayed_operations(self)
+      self$optimize_delayed_operations()
+      # FIXME: realize_ram and realize_disk should be private methods
       if (isTRUE(self$on_ram)) {
-        self <- realize_ram(self)
+        realize_ram(self)
       } else {
-        self <- realize_disk(self, keep_intermediate = keep_intermediate)
+        realize_disk(self, keep_intermediate = keep_intermediate)
       }
       invisible(self)
     },
