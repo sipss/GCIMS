@@ -13,8 +13,6 @@
 #'   detected peaks per sample.
 #'
 #'   For `method = "hclust"`, you can provide `hclust_method`, with the `method` passed to [mdendro::linkage()].
-
-#'   For `method = "hclust_old"`, you can provide `hclust_method`, with the `method` passed to [stats::hclust()].
 #' @param verbose logical, to control printing in the function
 #' @param ... Ignored. All other parameters beyond `peaks` should be named
 #' @param dt_cluster_spread_ms,rt_cluster_spread_s The typical spread of the clusters. Used for scaling.
@@ -72,50 +70,18 @@ clusterPeaks <- function(
 
   extra_clustering_info <- list()
   if (clustering$method == "kmedoids") {
+    require_pkgs("cluster")
     if (clustering$Nclusters == "max_peaks_sample") {
       N_clusters <- max(purrr::map_int(peakuids_by_sample, length))
     } else if (is.numeric(clustering$Nclusters)) {
       N_clusters <- clustering$Nclusters
     } else {
-      stop("When clustering$method is kmedoids, clustering$Nclusters must be an integer or the string 'max_peaks_sample'")
+      cli_abort("When clustering$method is kmedoids, clustering$Nclusters must be an integer or the string 'max_peaks_sample'")
     }
     cluster <- cluster::pam(x = peak2peak_dist, k = N_clusters, pamonce = 3)
     peaks$cluster <- cluster$clustering
     extra_clustering_info$cluster_result <- cluster
     extra_clustering_info$silhouette <- cluster::silhouette(cluster, dist = peak2peak_dist)
-  } else if (clustering$method == "hclust_old") {
-    hclust_method <- ifelse(is.null(clustering$hclust_method), "complete", clustering$hclust_method)
-    cluster <- stats::hclust(d = peak2peak_dist, method = hclust_method)
-    num_clusters <- clustering$num_clusters
-    num_cluster_estimation <- NULL
-    if (is.null(num_clusters)) {
-      dt_ms_max_dist_thres <- clustering$dt_ms_max_dist_thres
-      if (is.null(dt_ms_max_dist_thres)) {
-        dt_ms_max_dist_thres <- signif(3*stats::median(peaks$dt_max_ms - peaks$dt_min_ms), digits = 2)
-        if (verbose) {
-          cli_inform(c("i" = "The maximum distance between two peaks in the same cluster is of {dt_ms_max_dist_thres} ms"))
-        }
-      }
-      rt_s_max_dist_thres <- clustering$rt_s_max_dist_thres
-      if (is.null(rt_s_max_dist_thres)) {
-        rt_s_max_dist_thres <- signif(3*stats::median(peaks$rt_max_s - peaks$rt_min_s), digits = 2)
-        if (verbose) {
-          cli_inform(c("i" = "The maximum distance between two peaks in the same cluster is of {rt_s_max_dist_thres} s"))
-        }
-      }
-
-      num_cluster_estimation <- estimate_num_clusters(
-        peak_list = peaks,
-        cluster = cluster,
-        dt_ms_max_dist_thres = dt_ms_max_dist_thres,
-        rt_s_max_dist_thres = rt_s_max_dist_thres
-      )
-      num_clusters <- num_cluster_estimation$num_clusters
-    }
-    peaks$cluster <- stats::cutree(cluster, k = num_clusters)
-    extra_clustering_info$cluster <- cluster
-    extra_clustering_info$num_clusters <- num_clusters
-    extra_clustering_info$num_cluster_estimation <- num_cluster_estimation
   } else if (clustering$method == "hclust") {
     hclust_method <- ifelse(is.null(clustering$hclust_method), "complete", clustering$hclust_method)
     cluster <- mdendro::linkage(peak2peak_dist, method = hclust_method)
@@ -254,167 +220,6 @@ peak_and_cluster_metrics <- function(peaks) {
   list(peaks = peaks, cluster_stats = cluster_stats)
 }
 
-#' @param num_clusters: A numeric vector with candidates for the number of clusters to choose
-#' @param peak_list: A data frame with peaks, including "UniqueID", "dt_apex_ms", "rt_apex_s"
-#' @param cluster: The outcome of the hierarchical clustering
-#' @param max_dist_thresh_ppb, the maximum distance allowed within a cluster
-#' @return A data frame with two columns: The given num_clusters and the maximum measured cluster size within
-#'         clusters
-#' @noRd
-get_max_dist_ppb_for_num_clusters <- function(num_clusters, peak_list, cluster, dt_ms_max_dist_thres, rt_s_max_dist_thres) {
-  peak_assignments <- stats::cutree(cluster, k = num_clusters)
-  peak_assignments <- peak_assignments[peak_list$UniqueID, ]
-  peak_list$cluster <- NULL
-  dt_ms_max_dist <- numeric(length(num_clusters))
-  rt_s_max_dist <- numeric(length(num_clusters))
-  dt_break_in <- NULL
-  rt_break_in <- NULL
-  limiting_threshold <- "none"
-  for (i in seq_len(ncol(peak_assignments))) {
-    peak_list$cluster <- peak_assignments[,i]
-    max_distances <- peak_list |>
-      dplyr::group_by(.data$cluster)  |>
-      dplyr::summarize(
-        dt_max_dist_ms = max(.data$dt_apex_ms) - min(.data$dt_apex_ms),
-        rt_max_dist_s = max(.data$rt_apex_s) - min(.data$rt_apex_s),
-        .groups = "drop")
-
-    dt_ms_max_dist[i] <- max(max_distances$dt_max_dist_ms)
-    rt_s_max_dist[i] <- max(max_distances$rt_max_dist_s)
-
-    if (!is.null(dt_ms_max_dist_thres) && is.null(dt_break_in) && dt_ms_max_dist[i] < dt_ms_max_dist_thres) {
-      dt_break_in <- i + 10
-    }
-    if (!is.null(rt_s_max_dist_thres) && is.null(rt_break_in) && rt_s_max_dist[i] < rt_s_max_dist_thres) {
-      rt_break_in <- i + 10
-    }
-    # Do least stringent to have more exploration
-    if (is.null(dt_break_in) || is.null(rt_break_in)) {
-      next
-    }
-    if (dt_break_in > rt_break_in) {
-      limiting_threshold <- "rt"
-    } else if (dt_break_in < rt_break_in) {
-      limiting_threshold <- "dt"
-    } else {
-      limiting_threshold <- "both"
-    }
-    break
-  }
-  list(
-    clust_dist = data.frame(
-      num_clusters = num_clusters[seq_len(i)],
-      dt_ms_max_dist = dt_ms_max_dist[seq_len(i)],
-      rt_s_max_dist = rt_s_max_dist[seq_len(i)]
-    ),
-    limiting_threshold = limiting_threshold
-  )
-}
-
-estimate_num_clusters <- function(peak_list, cluster, dt_ms_max_dist_thres, rt_s_max_dist_thres) {
-  peaks_per_sample <- peak_list |>
-    dplyr::group_by(.data$SampleID) |>
-    dplyr::summarize(n = dplyr::n()) |>
-    dplyr::pull("n")
-  min_clusters_to_test <- max(peaks_per_sample)
-  max_clusters_to_test <- sum(peaks_per_sample)
-  if ((max_clusters_to_test - min_clusters_to_test) > 20) {
-    num_clusters_coarse <- seq.int(from = max(peaks_per_sample), to = sum(peaks_per_sample), by = 10)
-  } else {
-    num_clusters_coarse <- seq.int(from = max(peaks_per_sample), to = sum(peaks_per_sample), by = 1)
-  }
-  clust_dist_and_limiting <- get_max_dist_ppb_for_num_clusters(
-    num_clusters_coarse,
-    peak_list,
-    cluster,
-    dt_ms_max_dist_thres,
-    rt_s_max_dist_thres
-  )
-  clust_dist <- clust_dist_and_limiting$clust_dist
-  limiting_threshold <- clust_dist_and_limiting$limiting_threshold
-  # FIXME: FIX NEXT LINE
-  num_clusters <- clust_dist$num_clusters[
-    clust_dist$dt_ms_max_dist < dt_ms_max_dist_thres & clust_dist$rt_s_max_dist < rt_s_max_dist_thres
-  ][1]
-  # Refine:
-  num_clusters_fine <- seq.int(
-    from = max(min_clusters_to_test, num_clusters - 19),
-    to = min(max_clusters_to_test, num_clusters + 11)
-  )
-  clust_dist2 <- get_max_dist_ppb_for_num_clusters(num_clusters_fine, peak_list, cluster, dt_ms_max_dist_thres = NULL, rt_s_max_dist_thres = NULL)
-  # Combine:
-  num_clusters_vs_max_distance <- dplyr::bind_rows(clust_dist, clust_dist2$clust_dist) |>
-    dplyr::arrange(num_clusters) |>
-    dplyr::distinct()
-  dt_num_clusters <- num_clusters_vs_max_distance |>
-    dplyr::filter(.data$dt_ms_max_dist < !!dt_ms_max_dist_thres) |>
-    dplyr::pull("num_clusters")
-  rt_num_clusters <- num_clusters_vs_max_distance |>
-    dplyr::filter(.data$rt_s_max_dist < !!rt_s_max_dist_thres) |>
-    dplyr::pull("num_clusters")
-  num_clusters <- num_clusters_vs_max_distance |>
-    dplyr::filter(.data$dt_ms_max_dist < !!dt_ms_max_dist_thres, .data$rt_s_max_dist < !!rt_s_max_dist_thres) |>
-    dplyr::pull("num_clusters")
-  dt_gplt <- ggplot2::ggplot() +
-    ggplot2::geom_point(
-      ggplot2::aes(
-        x = .data$num_clusters,
-        y = .data$dt_ms_max_dist
-      ),
-      data = num_clusters_vs_max_distance,
-      na.rm = TRUE
-    ) +
-    ggplot2::geom_hline(yintercept = dt_ms_max_dist_thres, color = "gray") +
-    ggplot2::labs(x = "Number of clusters", y = "Max drift time distance within cluster (ms)")
-  rt_gplt <- ggplot2::ggplot() +
-    ggplot2::geom_point(
-      ggplot2::aes(
-        x = .data$num_clusters,
-        y = .data$rt_s_max_dist
-      ),
-      data = num_clusters_vs_max_distance,
-      na.rm = TRUE
-    ) +
-    ggplot2::geom_hline(yintercept = rt_s_max_dist_thres, color = "gray") +
-    ggplot2::labs(x = "Number of clusters", y = "Max retention time distance within cluster (s)")
-  if (length(num_clusters) == 0) {
-    cli_abort(
-      c(
-        "Can't find a suitable number of clusters",
-        "Probably the distance threshold is too small",
-        "i" = "Please consider increasing the threshold of the maximum distance",
-        "i" = "Current thresholds are dt_ms_max_dist_thres={dt_ms_max_dist_thres} ms and rt_s_max_dist_thres={rt_s_max_dist_thres} ss.",
-        "i" = "Use {.code rlang::last_error()$dt_plot} and {.code rlang::last_error()$dt_plot} to see plots showing the maximum distance vs the number of clusters explored and guide you"
-      ),
-      dt_plot = dt_gplt,
-      rt_plot = rt_gplt,
-    )
-  }
-  num_clusters <- num_clusters[1]
-  dt_gplt <- dt_gplt +
-    ggplot2::geom_vline(xintercept = num_clusters, color = "red")
-  rt_gplt <- rt_gplt +
-    ggplot2::geom_vline(xintercept = num_clusters, color = "red")
-  if (length(dt_num_clusters) > 0) {
-    dt_gplt <- dt_gplt +
-      ggplot2::geom_vline(xintercept = !!dt_num_clusters[1], color = "red", linetype = "dashed")
-  }
-  if (length(rt_num_clusters) > 0) {
-    rt_gplt <- rt_gplt +
-      ggplot2::geom_vline(xintercept = !!rt_num_clusters[1], color = "red", linetype = "dashed")
-  }
-  list(
-    num_clusters = num_clusters,
-    dt_num_clusters = utils::head(dt_num_clusters, 1),
-    rt_num_clusters = utils::head(rt_num_clusters, 1),
-    limiting_threshold = limiting_threshold,
-    table = num_clusters_vs_max_distance,
-    dt_ms_max_dist_thres = dt_ms_max_dist_thres,
-    rt_s_max_dist_thres = rt_s_max_dist_thres,
-    dt_plot = dt_gplt,
-    rt_plot = rt_gplt
-  )
-}
 
 #' Override peak distances to infinity
 #'
@@ -463,24 +268,10 @@ peak2peak_distance <- function(peak_matrix, distance_method = "mahalanobis") {
                      "binary", "minkowski")
   if (distance_method %in% STATS_METHODS) {
     peak2peak_dist <- stats::dist(peak_matrix, method = distance_method)
-  } else if (distance_method == "sd_scaled_euclidean") {
-    cli_warn(
-      message = c(
-        "Deprecated distance metric",
-        "i" = "The 'sd_scaled_euclidean' metric is now deprecated",
-        "i" = "Please use the following arguments instead",
-        "i" = '  distance_method="euclidean"',
-        "i" = '  dt_cluster_spread_ms=<typical cluster spread in drift time in ms>',
-        "i" = '  rt_cluster_spread_s=<typical cluster spread in retention time in s>',
-        "i" = "Do not use the standard deviation of all peaks as the cluster spread, as it doesn't make sense"
-      )
-    )
-    peak_matrix_scaled <- scale(peak_matrix, center = FALSE, scale = TRUE)
-    peak2peak_dist <- stats::dist(peak_matrix_scaled, method = "euclidean")
   } else if (distance_method == "mahalanobis") {
     peak2peak_dist <- mahalanobis_distance(peak_matrix)
   } else {
-    stop(sprintf("Unsupported distance %s", distance_method))
+    cli_abort("Unsupported distance {distance_method}")
   }
   peak2peak_dist
 }
