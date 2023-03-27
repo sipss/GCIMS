@@ -71,9 +71,9 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     #'   base_dir = tempdir()
     #' )
     initialize = function(pData = NULL,
+                          base_dir = NULL,
                           ...,
                           samples = NULL,
-                          base_dir = NULL,
                           parser = "default",
                           scratch_dir = tempfile("GCIMSDataset_tempdir_"),
                           keep_intermediate = FALSE,

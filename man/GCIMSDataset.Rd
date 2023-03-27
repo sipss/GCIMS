@@ -91,9 +91,9 @@ Create a new GCIMSDataset object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$new(
   pData = NULL,
+  base_dir = NULL,
   ...,
   samples = NULL,
-  base_dir = NULL,
   parser = "default",
   scratch_dir = tempfile("GCIMSDataset_tempdir_"),
   keep_intermediate = FALSE,
@@ -107,12 +107,12 @@ Create a new GCIMSDataset object
 \item{\code{pData}}{A data frame holding phenotype data for the samples (or \code{NULL}). The data frame
 should at least have a \code{SampleID} column, and a \code{filename} column if samples are stored in files.}
 
+\item{\code{base_dir}}{The base directory. Sample \code{i} is found on \code{file.path(base_dir, pData$filename[i])}.}
+
 \item{\code{...}}{Unused}
 
 \item{\code{samples}}{A named list of \code{GCIMSSample} objects to be included in the dataset (or \code{NULL}). Names
 should correspond to the \code{SampleID} column in the \code{pData} data frame.}
-
-\item{\code{base_dir}}{The base directory. Sample \code{i} is found on \code{file.path(base_dir, pData$filename[i])}.}
 
 \item{\code{parser}}{Function that takes a file path and returns a \link{GCIMSSample} object. Use \code{"default"} to use the
 default parser in the GCIMS package, that supports \code{.mea} files (from GAS). Check
