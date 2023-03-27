@@ -1,5 +1,4 @@
-phenos_to_string <- function(object) {
-  phenotypes <- Biobase::pData(object)
+phenos_to_string <- function(phenotypes) {
   only_phenotypes <- phenotypes[,c(-1, -2)]
   num_of_phenotypes <- length(colnames(only_phenotypes))
   if (num_of_phenotypes > 10) {
@@ -15,52 +14,16 @@ phenos_to_string <- function(object) {
   phen
 }
 
-methods::setMethod(
-  "describeAsList", "GCIMSDataset",
-  function(object) {
-    out <- list()
-    on_ram <- object$on_ram
-    root_txt <- "A GCIMSDataset object"
-    sample_info <- paste0(
-      "With ", length(sampleNames(object)), " samples",
-      if (on_ram) " on RAM" else " on disk"
-    )
-    pheno_info <- phenos_to_string(object)
-    # history info:
-    # Previous operations
-    pops <- object$previous_ops
-    pops <- purrr::keep(pops, modifiesSample)
-    pops <- purrr::map(pops, describeAsList)
-    if (length(pops) > 0) {
-      history_info <- list("History" = pops)
-    } else {
-      history_info <- "No previous history"
-    }
-
-    # Pending operations
-    pops <- object$delayed_ops
-    pops <- purrr::keep(pops, modifiesSample)
-    pops <- purrr::map(pops, describeAsList)
-    if (length(pops) > 0) {
-      pending_info <- list("Pending operations" = pops)
-    } else {
-      pending_info <- "No pending operations"
-    }
-    out[[root_txt]] <- list(
-      sample_info,
-      pheno_info,
-      history_info,
-      pending_info
-    )
-    out
-  }
-)
 
 setMethod(
   "show",
   "GCIMSDataset",
   function(object) {
-    outstring <- yaml::as.yaml(describeAsList(object))
-    cat(outstring)
+    cli_warn(
+      "show(gcimsdataset) is deprecated. Use gcimsdataset$print() instead.",
+      frequency = "once",
+      frequency_id = "show-gcimsdataset-deprecated"
+    )
+    object$print()
   }
 )

@@ -159,8 +159,8 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       },
     #' @description prints the dataset to the screen
     print = function() {
-      # FIXME: Refactor
-      show(self)
+      outstring <- yaml::as.yaml(self$describe_as_list())
+      cat(outstring)
     },
     #' @description Executes any pending action
     #' @param keep_intermediate Keep intermediate results. If `NA`, the setting from the dataset is used
@@ -363,6 +363,69 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       }
       unlink(current_dir_old, recursive = TRUE)
       invisible(NULL)
+    },
+    describe_as_list = function() {
+      out <- list()
+      on_ram <- self$on_ram
+      root_txt <- "A GCIMSDataset"
+      sample_info <- paste0(
+        "With ", length(self$sampleNames), " samples",
+        if (on_ram) " on RAM" else " on disk"
+      )
+      phenotypes <- Biobase::pData(object)
+      pheno_info <- phenos_to_string(phenotypes)
+      # history info:
+      # Previous operations
+      pops <- self$previous_ops
+      pops <- purrr::keep(pops, modifiesSample)
+      pops <- purrr::map(pops, describeAsList)
+      if (length(pops) > 0) {
+        history_info <- list("History" = pops)
+      } else {
+        history_info <- "No previous history"
+      }
+
+      # Pending operations
+      pops <- self$delayed_ops
+      pops <- purrr::keep(pops, modifiesSample)
+      pops <- purrr::map(pops, describeAsList)
+      if (length(pops) > 0) {
+        pending_info <- list("Pending operations" = pops)
+      } else {
+        pending_info <- "No pending operations"
+      }
+      out[[root_txt]] <- list(
+        sample_info,
+        pheno_info,
+        history_info,
+        pending_info
+      )
+      out
+    },
+    optimize_delayed_operations = function(object) {
+      if (!object$hasDelayedOps()) {
+        return(object)
+      }
+      delayed_ops <- object$delayed_ops
+      # Extra operations that extract the rtime and dtime or TIS and RIC from the object can be delayed
+      # Find them:
+      where_extract_times <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_dtime_rtime"})
+      where_extract_RIC_TIS <- purrr::map_lgl(delayed_ops, function(op) {name(op) == "extract_RIC_and_TIS"})
+      where_extract <- where_extract_times | where_extract_RIC_TIS
+      # Not found, return:
+      if (!any(where_extract)) {
+        return(object)
+      }
+      # Remove those ops:
+      delayed_ops[where_extract] <- NULL
+      object$delayed_ops <- delayed_ops
+      if (any(where_extract_times)) {
+        object$extract_dtime_rtime()
+      }
+      if (any(where_extract_RIC_TIS)) {
+        object$extract_RIC_and_TIS()
+      }
+      object
     }
   )
 )
