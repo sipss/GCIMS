@@ -130,6 +130,9 @@ methods::setMethod(
   }
 )
 
+# FIXME: Create an R6 parent class of GCIMSDataset named DelayedDataset with
+# all the realize and delayed stuff
+# FIXME: This should be a private method of GCIMSDataset
 aggregate_result <- function(delayed_op, extracted_result, dataset) {
   if (is.null(delayed_op@fun_aggregate)) {
     return(dataset)
