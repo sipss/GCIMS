@@ -3,6 +3,7 @@
 #' @param object a [GCIMSDataset] object
 #' @param sample Either an integer (sample index) or a string (sample name)
 #' @return The corresponding [GCIMSSample]
+#' @keywords internal
 #' @export
 getSample <- function(object, sample) {
   cli_warn(

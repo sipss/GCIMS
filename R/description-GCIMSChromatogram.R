@@ -1,5 +1,4 @@
 #' @describeIn GCIMSChromatogram-class Get the description
-#' @family GCIMSChromatogram
 #' @param object A [GCIMSChromatogram] object
 #' @export
 methods::setMethod(
@@ -12,7 +11,6 @@ methods::setMethod(
 #' @describeIn GCIMSChromatogram-class Set the description
 #' @param object A GCIMSChromatogram object
 #' @param value A string with the description
-#' @family GCIMSChromatogram
 #' @export
 methods::setMethod(
   "description<-", "GCIMSChromatogram",

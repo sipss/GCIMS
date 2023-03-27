@@ -1,7 +1,6 @@
 #' @describeIn GCIMSChromatogram-class plot method
 #' @param x A GCIMSChromatogram object to plot
 #' @param y From the generic `plot` function, ignored for `GCIMSChromatogram` class objects
-#' @family GCIMSChromatogram
 #' @export
 setMethod(
   "plot",

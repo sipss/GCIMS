@@ -28,7 +28,6 @@ methods::setMethod(
 #' @describeIn estimateBaseline-GCIMSChromatogram-method Get the baseline
 #' @inheritParams dt_rt_range_normalization
 #' @param .error_if_missing A logical. If `TRUE` (default) give an error if baseline is not estimated. Returns `NULL` otherwise.
-#' @family GCIMSChromatogram
 #' @export
 methods::setMethod(
   "baseline", "GCIMSChromatogram",
@@ -50,7 +49,6 @@ methods::setMethod(
 
 #' @describeIn estimateBaseline-GCIMSChromatogram-method Set the baseline
 #' @param value A vector with a baseline of the same length as `intensity(object)`
-#' @family GCIMSChromatogram
 #' @export
 methods::setMethod(
   "baseline<-", "GCIMSChromatogram",
