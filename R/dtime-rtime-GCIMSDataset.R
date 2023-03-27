@@ -11,7 +11,7 @@ setMethod("dtime", "GCIMSDataset", function(object, sample = NULL) {
   if (is.null(sample)) {
     return(object$dt_ref)
   } else {
-    sample <- getSample(object, sample = sample)
+    sample <- object$getSample(sample = sample)
     return(dtime(sample))
   }
 })
@@ -30,7 +30,7 @@ setMethod("rtime", "GCIMSDataset", function(object, sample = NULL) {
   if (is.null(sample)) {
     return(object$rt_ref)
   } else {
-    sample <- getSample(object, sample = sample)
+    sample <- object$getSample(sample = sample)
     return(rtime(sample))
   }
 })

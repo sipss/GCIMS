@@ -45,31 +45,6 @@ NULL
 #'
 setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 
-#' @describeIn GCIMS-generics Get chromatogram
-#'
-#' @return A chromatogram
-#'
-#' @param object An object with chromatograms
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @export
-setGeneric("getChromatogram", function(object, ...) standardGeneric("getChromatogram"))
-
-#' @describeIn GCIMS-generics Get spectrums
-#'
-#' @return An ion mobility spectrum
-#' @param object An object that has spectra
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @export
-setGeneric("getSpectrum", function(object, ...) standardGeneric("getSpectrum"))
-
-#' @describeIn GCIMS-generics Get a Sample
-#'
-#' @param object An object where we can extract samples from
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @return A sample object
-#' @export
-setGeneric("getSample", function(object, ...) standardGeneric("getSample"))
-
 #' @describeIn GCIMS-generics Get the Total Ion Spectrum
 #'
 #' @return The Total Ion Spectrum as a numeric vector or a matrix

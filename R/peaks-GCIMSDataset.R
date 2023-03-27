@@ -1,6 +1,7 @@
 #' Get the peak list
 #'
 #' @importMethodsFrom ProtGenerics peaks
+#' @param object A [GCIMSDataset] object
 #' @export
 setMethod(
   "peaks",
@@ -18,6 +19,7 @@ setMethod(
 
 #' Set the peak list
 #'
+#' @param object A [GCIMSDataset] object
 #' @param value The data frame with a peak list
 #' @importMethodsFrom ProtGenerics "peaks<-"
 #' @export
