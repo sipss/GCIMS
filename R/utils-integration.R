@@ -88,7 +88,7 @@ find_rip <- function(intensity_mat, verbose = FALSE, retention_time = NULL, drif
     attributes(x2) <- NULL
     n <- length(x1)
     xv <- xp <- numeric(n)
-    for (i in 1:n) {
+    for (i in seq_len(n)) {
       xp[i] <- which.max(x[x1[i]:x2[i]]) + x1[i] - 1
       xv[i] <- x[xp[i]]
     }

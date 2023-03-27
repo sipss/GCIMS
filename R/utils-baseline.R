@@ -40,7 +40,7 @@ compute_baseline <- function(aux, x, number_of_regions, region_size){
   baseline <- 0*aux
   for (j in seq_len(ncol(aux))) {
     z <- aux[, j]
-    for (i in 1:number_of_regions) {
+    for (i in seq_len(number_of_regions)) {
       first_point_i <- (i - 1)*region_size + 1
       last_point_i <- first_point_i + region_size - 1
       last_point_i <- min(last_point_i, length(z))
@@ -56,7 +56,7 @@ compute_baseline <- function(aux, x, number_of_regions, region_size){
     # To create the full baseline, we repeat the minimum value throughout its region
     local_minima_baseline <- rep(local_minima_intensities, each = region_size)
     # The last region may be shorter, so we just cut the vector at the end:
-    local_minima_baseline <- local_minima_baseline[1:length(z)]
+    local_minima_baseline <- local_minima_baseline[seq_len(length(z))]
     baseline[, j] <- signal::interp1(x = local_minima_idx, y = local_minima_intensities, xi = seq_len(dim(aux)[1]),method = "linear", extrap = TRUE)
   }
   return(baseline)

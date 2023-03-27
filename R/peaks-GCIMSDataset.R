@@ -2,6 +2,7 @@
 #'
 #' @importMethodsFrom ProtGenerics peaks
 #' @param object A [GCIMSDataset] object
+#' @return A data frame with the detected peaks
 #' @export
 setMethod(
   "peaks",
@@ -17,7 +18,7 @@ setMethod(
   }
 )
 
-#' Set the peak list
+#' @describeIn peaks-GCIMSDataset-method Set the peak list
 #'
 #' @param object A [GCIMSDataset] object
 #' @param value The data frame with a peak list
