@@ -7,6 +7,8 @@
 \S4method{peaks}{GCIMSDataset}(object) <- value
 }
 \arguments{
+\item{object}{A \link{GCIMSDataset} object}
+
 \item{value}{The data frame with a peak list}
 }
 \description{

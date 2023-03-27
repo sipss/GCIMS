@@ -6,6 +6,9 @@
 \usage{
 \S4method{pData}{GCIMSDataset}(object)
 }
+\arguments{
+\item{object}{A \link{GCIMSDataset} object}
+}
 \description{
 Get the phenotype data
 }

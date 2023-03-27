@@ -2,6 +2,7 @@
 % Please edit documentation in R/aaa-class-GCIMSDataset.R
 \name{GCIMSDataset}
 \alias{GCIMSDataset}
+\alias{GCIMSDataset-class}
 \title{GCIMSDataset}
 \description{
 GCIMSDataset is an R6 class to store a dataset.

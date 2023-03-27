@@ -7,6 +7,8 @@
 \S4method{pData}{GCIMSDataset,ANY}(object) <- value
 }
 \arguments{
+\item{object}{A \link{GCIMSDataset} object}
+
 \item{value}{The data frame with annotations, it should have a FileName column and a SampleID column.}
 }
 \description{
