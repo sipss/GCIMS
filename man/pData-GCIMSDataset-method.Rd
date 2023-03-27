@@ -2,13 +2,26 @@
 % Please edit documentation in R/pData-GCIMSDataset.R
 \name{pData,GCIMSDataset-method}
 \alias{pData,GCIMSDataset-method}
-\title{Get the phenotype data}
+\alias{pData<-,GCIMSDataset,ANY-method}
+\title{Get/Set the phenotype data}
 \usage{
 \S4method{pData}{GCIMSDataset}(object)
+
+\S4method{pData}{GCIMSDataset,ANY}(object) <- value
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object}
+
+\item{value}{The data frame with annotations, it should have a FileName column and a SampleID column.}
+}
+\value{
+A data frame with the phenotype data
 }
 \description{
-Get the phenotype data
+Get/Set the phenotype data
 }
+\section{Functions}{
+\itemize{
+\item \code{pData(object = GCIMSDataset) <- value}: Set pData
+
+}}

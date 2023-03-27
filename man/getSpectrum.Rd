@@ -14,7 +14,7 @@ getSpectrum(
 )
 }
 \arguments{
-\item{object}{A GCIMSSample object}
+\item{object}{A \link{GCIMSSample} object}
 
 \item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 

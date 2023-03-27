@@ -2,13 +2,26 @@
 % Please edit documentation in R/peaks-GCIMSDataset.R
 \name{peaks,GCIMSDataset-method}
 \alias{peaks,GCIMSDataset-method}
+\alias{peaks<-,GCIMSDataset-method}
 \title{Get the peak list}
 \usage{
 \S4method{peaks}{GCIMSDataset}(object)
+
+\S4method{peaks}{GCIMSDataset}(object) <- value
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object}
+
+\item{value}{The data frame with a peak list}
+}
+\value{
+A data frame with the detected peaks
 }
 \description{
 Get the peak list
 }
+\section{Functions}{
+\itemize{
+\item \code{peaks(GCIMSDataset) <- value}: Set the peak list
+
+}}
