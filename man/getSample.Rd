@@ -17,3 +17,4 @@ The corresponding \link{GCIMSSample}
 \description{
 Get a sample from a GCIMSDataset object
 }
+\keyword{internal}

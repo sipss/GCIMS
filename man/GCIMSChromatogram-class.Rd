@@ -96,59 +96,5 @@ Other GCIMSChromatogram:
 \code{\link{intensity,GCIMSChromatogram-method}},
 \code{\link{rtime,GCIMSChromatogram-method}},
 \code{\link{smooth,GCIMSChromatogram-method}}
-
-Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram}},
-\code{\link{dtime,GCIMSChromatogram-method}},
-\code{\link{estimateBaseline,GCIMSChromatogram-method}},
-\code{\link{findPeaks,GCIMSChromatogram-method}},
-\code{\link{intensity,GCIMSChromatogram-method}},
-\code{\link{rtime,GCIMSChromatogram-method}},
-\code{\link{smooth,GCIMSChromatogram-method}}
-
-Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram}},
-\code{\link{dtime,GCIMSChromatogram-method}},
-\code{\link{estimateBaseline,GCIMSChromatogram-method}},
-\code{\link{findPeaks,GCIMSChromatogram-method}},
-\code{\link{intensity,GCIMSChromatogram-method}},
-\code{\link{rtime,GCIMSChromatogram-method}},
-\code{\link{smooth,GCIMSChromatogram-method}}
-
-Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram}},
-\code{\link{dtime,GCIMSChromatogram-method}},
-\code{\link{estimateBaseline,GCIMSChromatogram-method}},
-\code{\link{findPeaks,GCIMSChromatogram-method}},
-\code{\link{intensity,GCIMSChromatogram-method}},
-\code{\link{rtime,GCIMSChromatogram-method}},
-\code{\link{smooth,GCIMSChromatogram-method}}
-
-Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram}},
-\code{\link{dtime,GCIMSChromatogram-method}},
-\code{\link{estimateBaseline,GCIMSChromatogram-method}},
-\code{\link{findPeaks,GCIMSChromatogram-method}},
-\code{\link{intensity,GCIMSChromatogram-method}},
-\code{\link{rtime,GCIMSChromatogram-method}},
-\code{\link{smooth,GCIMSChromatogram-method}}
-
-Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram}},
-\code{\link{dtime,GCIMSChromatogram-method}},
-\code{\link{estimateBaseline,GCIMSChromatogram-method}},
-\code{\link{findPeaks,GCIMSChromatogram-method}},
-\code{\link{intensity,GCIMSChromatogram-method}},
-\code{\link{rtime,GCIMSChromatogram-method}},
-\code{\link{smooth,GCIMSChromatogram-method}}
-
-Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram}},
-\code{\link{dtime,GCIMSChromatogram-method}},
-\code{\link{estimateBaseline,GCIMSChromatogram-method}},
-\code{\link{findPeaks,GCIMSChromatogram-method}},
-\code{\link{intensity,GCIMSChromatogram-method}},
-\code{\link{rtime,GCIMSChromatogram-method}},
-\code{\link{smooth,GCIMSChromatogram-method}}
 }
 \concept{GCIMSChromatogram}
