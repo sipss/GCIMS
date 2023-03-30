@@ -1,5 +1,6 @@
 phenos_to_string <- function(phenotypes) {
-  only_phenotypes <- phenotypes[,c(-1, -2)]
+  phenotypes <- as.data.frame(phenotypes)
+  only_phenotypes <- phenotypes[,c(-1, -2)]  # Remove SampleID and FileName
   num_of_phenotypes <- length(colnames(only_phenotypes))
   if (num_of_phenotypes > 10) {
     to_show <- 5

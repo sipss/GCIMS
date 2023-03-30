@@ -12,6 +12,9 @@
 #' @slot name A named for de delayed operation, only used for printing.
 #' @slot fun A function that takes a [GCIMSSample] and returns a [GCIMSSample] (modified)
 #' @slot params A named list with additional arguments to be passed to function
+#' @slot params_iter A named list with additinoal arguments to be passed to
+#' function. Compared to `params`, each argument must be a named list of length the number of samples, so
+#' each sample will receive its corresponding parameter according to its name
 #' @slot fun_extract A function that takes a modified [GCIMSSample] and returns an extracted object.
 #' @slot fun_aggregate A function that takes a [GCIMSDataset] and a list of extracted objects and returns a modified [GCIMSDataset].
 #'
@@ -22,6 +25,7 @@ methods::setClass(
     name = "character",
     fun = "functionOrNULL",
     params = "list",
+    params_iter = "list",
     fun_extract = "functionOrNULL",
     fun_aggregate = "functionOrNULL"
   )
@@ -101,16 +105,19 @@ methods::setClass(
 #' @param name A named for de delayed operation, only used for printing.
 #' @param fun A function that takes a [GCIMSSample] and returns a [GCIMSSample] (modified)
 #' @param params A named list with additional arguments to be passed to function
+#' @param params_iter A named list with additinoal arguments to be passed to
+#' function. Compared to `params`, each argument must be a named list of length the number of samples, so
+#' each sample will receive its corresponding parameter according to its name
 #' @param fun_extract A function that takes a modified [GCIMSSample] and returns an extracted object.
 #' @param fun_aggregate A function that takes a [GCIMSDataset] and a list of extracted objects and returns a modified [GCIMSDataset].
 #' @return A GCIMSDelayedOp object
-GCIMSDelayedOp <- function(name, fun = NULL, params = list(), fun_extract = NULL, fun_aggregate = NULL) {
-  methods::new("GCIMSDelayedOp", name = name, fun = fun, params = params, fun_extract = fun_extract, fun_aggregate = fun_aggregate)
+GCIMSDelayedOp <- function(name, fun = NULL, params = list(), params_iter = list(), fun_extract = NULL, fun_aggregate = NULL) {
+  methods::new("GCIMSDelayedOp", name = name, fun = fun, params = params, params_iter = params_iter, fun_extract = fun_extract, fun_aggregate = fun_aggregate)
 }
 
 methods::setMethod(
   "initialize", "GCIMSDelayedOp",
-  function(.Object, name, fun = NULL, params = list(), fun_extract = NULL, fun_aggregate = NULL) {
+  function(.Object, name, fun = NULL, params = list(), params_iter = list(), fun_extract = NULL, fun_aggregate = NULL) {
     if (!grepl(pattern = "^[a-zA-Z0-9][-a-zA-Z_0-9]*$", x = name)) {
       cli_abort(
         message = c(
@@ -124,33 +131,12 @@ methods::setMethod(
     .Object@name <- name
     .Object@fun <- fun
     .Object@params <- params
+    .Object@params_iter <- params_iter
     .Object@fun_extract <- fun_extract
     .Object@fun_aggregate <- fun_aggregate
     .Object
   }
 )
-
-# FIXME: Create an R6 parent class of GCIMSDataset named DelayedDataset with
-# all the realize and delayed stuff
-# FIXME: This should be a private method of GCIMSDataset
-aggregate_result <- function(delayed_op, extracted_result, dataset) {
-  if (is.null(delayed_op@fun_aggregate)) {
-    return(dataset)
-  }
-  dataset_class <- class(dataset)
-  f <- delayed_op@fun_aggregate
-  dataset <- f(dataset, extracted_result)
-  if (!inherits(dataset, dataset_class)) {
-    cli_abort(
-      message = c(
-        "Delayed operation contract was broken",
-        "x" = "The delayed action {name(delayed_op)} has a `fun_aggregate` slot that does not return a {dataset_class} object",
-        "i" = "If you did not write the delayed action, this is not your fault. Please report this error at https://github.com/sipss/GCIMS."
-      )
-    )
-  }
-  dataset
-}
 
 hashableDelayedOp <- function(object) {
   # Functions have associated environments that change from session to session.
@@ -160,6 +146,7 @@ hashableDelayedOp <- function(object) {
     name = object@name,
     fun = format(object@fun),
     params = object@params,
+    params_iter = object@params_iter,
     fun_extract = format(object@fun_extract),
     fun_aggregate = format(object@fun_aggregate)
   )
@@ -174,14 +161,15 @@ modifiesSample <- function(delayed_op) {
   !is.null(delayed_op@fun)
 }
 
-apply_op_to_sample <- function(delayed_op, sample) {
+apply_op_to_sample <- function(delayed_op, sample, sample_name) {
   fun <- delayed_op@fun
   extracted_obj <- NULL
   if (!is.null(fun)) {
     params <- delayed_op@params
+    params_iter <- purrr::map(delayed_op@params_iter, sample_name)
     sample <- do.call(
       fun,
-      c(list(sample), params)
+      c(list(sample), params_iter, params)
     )
   }
   if (!is.null(delayed_op@fun_extract)) {

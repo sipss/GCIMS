@@ -12,6 +12,8 @@ sample_name_or_number_to_both <- function(sample, sample_names) {
     if (length(missing_sample_names) > 0) {
       cli_abort("Missing sample names: {paste0(missing_sample_names, collapse = ', ')}")
     }
+  } else {
+    cli_abort("Sample should be a numeric or a character vector, not {sample}")
   }
   logic <- rep(FALSE, length(sample_names))
   logic[sample_num] <- TRUE

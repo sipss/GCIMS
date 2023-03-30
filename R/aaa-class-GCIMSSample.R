@@ -338,6 +338,7 @@ getChromatogram <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = N
 #' @param object A [GCIMSSample] object
 #' @param aggregate Function that takes the subsetted intensity matrix according to the region of interest
 #'  and aggregates the retention times, returning a vector representing the spectrum intensity. `rowSums` by default.
+#' @return A [GCIMSSpectrum] object
 #' @export
 #' @examples
 #' x <- GCIMSSample(
