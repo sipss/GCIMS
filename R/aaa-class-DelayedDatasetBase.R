@@ -42,6 +42,8 @@ DelayedDatasetBase <- R6::R6Class(
     #' Create a new object, initialize the slots
     #' @param dataset The dataset R6 object where aggregated results from queued operations are stored
     initialize = function(dataset) {
+      # FIXME: Provide arguments so consumers of this class can hint how this class should validate
+      # the results of delayed actions.
       private$can_realize <- TRUE
       private$dataset <- dataset
     },
@@ -195,7 +197,9 @@ DelayedDatasetBase <- R6::R6Class(
         return()
       }
       f <- delayed_op@fun_aggregate
-      private$dataset <- f(private$dataset, extracted_result)
+      d <- f(private$dataset, extracted_result)
+      # FIXME: Validate dataset
+      private$dataset <- d
       return()
     }
   )

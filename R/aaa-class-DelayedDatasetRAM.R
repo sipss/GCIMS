@@ -98,6 +98,7 @@ realize_one_sample_ram <- function(sample_obj, sample_name, delayed_ops) {
   for (i in seq_along(delayed_ops)) {
     result <- apply_op_to_sample(delayed_ops[[i]], sample_obj, sample_name)
     sample_obj <- result[["sample"]]
+    # FIXME: Validate sample_obj
     out[i] <- result["extracted_obj"]
     if (result$needs_resaving) {
       needs_re_saving <- TRUE
