@@ -27,6 +27,9 @@ getSpectrum(
 \item{aggregate}{Function that takes the subsetted intensity matrix according to the region of interest
 and aggregates the retention times, returning a vector representing the spectrum intensity. \code{rowSums} by default.}
 }
+\value{
+A \link{GCIMSSpectrum} object
+}
 \description{
 Get IMS spectrum from a sample
 }

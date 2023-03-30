@@ -47,6 +47,17 @@
 
 \item{y}{From the generic \code{plot} function, ignored for \code{GCIMSChromatogram} class objects}
 }
+\value{
+The description of the chromatogram
+
+The chromatogram object
+
+A data frame with the peaks in the chromatogram
+
+The GCIMSChromatogram object
+
+A ggplot2 plot object
+}
 \description{
 GCIMSChromatogram is an S4 class to store a GCIMS Chromatogram It can be a single chromatogram
 or the aggregation of several chromatograms.

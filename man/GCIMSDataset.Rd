@@ -27,22 +27,6 @@ dummy_dataset <- GCIMSDataset$new(
 \describe{
 \item{\code{pData}}{A data frame with at least the SampleID and filename columns.}
 
-\item{\code{scratch_dir}}{A directory to save intermediate results.}
-
-\item{\code{delayed_ops}}{Delayed operations}
-
-\item{\code{previous_ops}}{History of previous operations}
-
-\item{\code{hasheddir}}{The basename of the current hashed directory in scracth_dir}
-
-\item{\code{keep_intermediate}}{Whether to keep intermediate files}
-
-\item{\code{on_ram}}{Whether samples should be kept on RAM or stored on disk.}
-
-\item{\code{samples}}{List of samples, if on_ram or NULL otherwise}
-
-\item{\code{can_realize}}{Whether we can realize the object, internal}
-
 \item{\code{align}}{To store alignment results}
 
 \item{\code{peaks}}{To store the peak list}
@@ -71,11 +55,9 @@ dummy_dataset <- GCIMSDataset$new(
 \itemize{
 \item \href{#method-GCIMSDataset-new}{\code{GCIMSDataset$new()}}
 \item \href{#method-GCIMSDataset-print}{\code{GCIMSDataset$print()}}
-\item \href{#method-GCIMSDataset-realize}{\code{GCIMSDataset$realize()}}
 \item \href{#method-GCIMSDataset-appendDelayedOp}{\code{GCIMSDataset$appendDelayedOp()}}
 \item \href{#method-GCIMSDataset-hasDelayedOps}{\code{GCIMSDataset$hasDelayedOps()}}
-\item \href{#method-GCIMSDataset-currentHashedDir}{\code{GCIMSDataset$currentHashedDir()}}
-\item \href{#method-GCIMSDataset-nextHashedDir}{\code{GCIMSDataset$nextHashedDir()}}
+\item \href{#method-GCIMSDataset-realize}{\code{GCIMSDataset$realize()}}
 \item \href{#method-GCIMSDataset-getSample}{\code{GCIMSDataset$getSample()}}
 \item \href{#method-GCIMSDataset-extract_dtime_rtime}{\code{GCIMSDataset$extract_dtime_rtime()}}
 \item \href{#method-GCIMSDataset-getRIC}{\code{GCIMSDataset$getRIC()}}
@@ -95,7 +77,7 @@ Create a new GCIMSDataset object
   ...,
   samples = NULL,
   parser = "default",
-  scratch_dir = tempfile("GCIMSDataset_tempdir_"),
+  scratch_dir = NULL,
   keep_intermediate = FALSE,
   on_ram = FALSE
 )}\if{html}{\out{</div>}}
@@ -150,23 +132,6 @@ prints the dataset to the screen
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GCIMSDataset-realize"></a>}}
-\if{latex}{\out{\hypertarget{method-GCIMSDataset-realize}{}}}
-\subsection{Method \code{realize()}}{
-Executes any pending action
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$realize(keep_intermediate = NA)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{keep_intermediate}}{Keep intermediate results. If \code{NA}, the setting from the dataset is used}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GCIMSDataset-appendDelayedOp"></a>}}
 \if{latex}{\out{\hypertarget{method-GCIMSDataset-appendDelayedOp}{}}}
 \subsection{Method \code{appendDelayedOp()}}{
@@ -200,29 +165,24 @@ Returns \code{TRUE} if the dataset has pending operations, \code{FALSE} otherwis
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GCIMSDataset-currentHashedDir"></a>}}
-\if{latex}{\out{\hypertarget{method-GCIMSDataset-currentHashedDir}{}}}
-\subsection{Method \code{currentHashedDir()}}{
-The directory where processed samples are saved
+\if{html}{\out{<a id="method-GCIMSDataset-realize"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-realize}{}}}
+\subsection{Method \code{realize()}}{
+Execute all pending operations on the dataset
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$currentHashedDir()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$realize(keep_intermediate = NA)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{keep_intermediate}}{logical or \code{NA}. Only when the analysis is on disk, keep intermediate result files.
+If \code{NA}, the \code{keep_intermediate} option given at the dataset initialization takes precedence.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
-A path to the directory where processed samples are kept, or \code{NULL}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GCIMSDataset-nextHashedDir"></a>}}
-\if{latex}{\out{\hypertarget{method-GCIMSDataset-nextHashedDir}{}}}
-\subsection{Method \code{nextHashedDir()}}{
-The directory where samples will be saved after processing
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$nextHashedDir()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-A path
+The dataset object, invisibly
 }
 }
 \if{html}{\out{<hr>}}

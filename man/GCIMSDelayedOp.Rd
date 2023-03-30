@@ -8,6 +8,7 @@ GCIMSDelayedOp(
   name,
   fun = NULL,
   params = list(),
+  params_iter = list(),
   fun_extract = NULL,
   fun_aggregate = NULL
 )
@@ -18,6 +19,10 @@ GCIMSDelayedOp(
 \item{fun}{A function that takes a \link{GCIMSSample} and returns a \link{GCIMSSample} (modified)}
 
 \item{params}{A named list with additional arguments to be passed to function}
+
+\item{params_iter}{A named list with additinoal arguments to be passed to
+function. Compared to \code{params}, each argument must be a named list of length the number of samples, so
+each sample will receive its corresponding parameter according to its name}
 
 \item{fun_extract}{A function that takes a modified \link{GCIMSSample} and returns an extracted object.}
 

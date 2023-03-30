@@ -22,6 +22,10 @@ the data files, and increasing the performance.
 
 \item{\code{params}}{A named list with additional arguments to be passed to function}
 
+\item{\code{params_iter}}{A named list with additinoal arguments to be passed to
+function. Compared to \code{params}, each argument must be a named list of length the number of samples, so
+each sample will receive its corresponding parameter according to its name}
+
 \item{\code{fun_extract}}{A function that takes a modified \link{GCIMSSample} and returns an extracted object.}
 
 \item{\code{fun_aggregate}}{A function that takes a \link{GCIMSDataset} and a list of extracted objects and returns a modified \link{GCIMSDataset}.}

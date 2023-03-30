@@ -7,7 +7,7 @@
 GCIMSDataset_fromList(
   samples,
   pData = NULL,
-  scratch_dir = tempfile("GCIMSDataset_tempdir_"),
+  scratch_dir = NULL,
   keep_intermediate = FALSE,
   on_ram = TRUE
 )
