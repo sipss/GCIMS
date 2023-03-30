@@ -281,7 +281,7 @@ Once you are satisfied with de decimation factor (if you want to apply it) just
 use it on the whole dataset:
 
 ```{r}
-dataset <- decimate(dataset, rt_factor = 1, dt_factor = 2)
+decimate(dataset, rt_factor = 1, dt_factor = 2)
 ```
 
 One alternative is to start with a higher decimation factor (lets say
