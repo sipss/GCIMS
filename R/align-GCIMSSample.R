@@ -9,15 +9,15 @@ methods::setMethod(
   "align", "GCIMSSample",
   function(object, rip_ref_ms, ric_ref, ric_ref_rt){
     if (all(is.na(object@data))) {
-      stop("all na 1") # FIXME: Improve error msg
+      cli_abort("All the data matrix of {description(object)} are missing values. Align is impossible")
     }
     object <- alignDt(object, rip_ref_ms = rip_ref_ms)
     if (all(is.na(object@data))) {
-      stop("all na 2") # FIXME: Improve error msg
+      cli_abort("After aligning drift times, all the data matrix of {description(object)} are missing values. This should not happen")
     }
     object <- alignRt(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
     if (all(is.na(object@data))) {
-      stop("all na 3") # FIXME: Improve error msg
+      cli_abort("After aligning drift and retention times, all the data matrix of {description(object)} are missing values. This should not happen")
     }
 
     dt_range <- c(
@@ -30,7 +30,7 @@ methods::setMethod(
     )
     object <- subset(object, dt_range = dt_range, rt_range = rt_range)
     if (all(is.na(object@data))) {
-      stop("all na 4") # FIXME: Improve error msg
+      cli_abort("After aligning and subsetting all the data matrix of {description(object)} are missing values. This should not happen")
     }
     object
   })
