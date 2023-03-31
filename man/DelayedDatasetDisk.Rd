@@ -54,7 +54,9 @@ Create a delayed dataset on disk
   samples,
   scratch_dir,
   keep_intermediate = FALSE,
-  dataset = NULL
+  dataset = NULL,
+  dataset_class = NULL,
+  sample_class = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -69,7 +71,13 @@ If they are filenames, the filenames are relative to \code{base_dir}.}
 
 \item{\code{keep_intermediate}}{A logical value, whether intermediate realization steps should be saved.}
 
-\item{\code{dataset}}{The dataset that stores aggregated results from the processing}
+\item{\code{dataset}}{The dataset R6 object where aggregated results from queued operations are stored}
+
+\item{\code{dataset_class}}{The class of the given dataset, used just to validate the contract between
+the delayed actions and the dataset. If \code{NULL} action return values are not checked}
+
+\item{\code{sample_class}}{The class of the samples in the dataset, used just to validate the contract between
+the delayed actions and the samples. If \code{NULL} action return values are not checked}
 }
 \if{html}{\out{</div>}}
 }
