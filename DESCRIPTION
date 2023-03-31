@@ -16,14 +16,14 @@ Authors@R: c(
     given = "Luis",
     family = "Fernandez",
     email = "lfernandez@ibecbarcelona.eu",
-    role = c("aut", "cre"),
+    role = "aut",
     comment = c(ORCID = "0000-0001-9790-6287")
   ),
   person(
     given = "Sergio",
     family = "Oller Moreno",
     email = "soller@ibecbarcelona.eu",
-    role = c("aut"),
+    role = c("aut", "cre"),
     comment = c(ORCID = "0000-0002-8994-1549")
   ),
   person(
@@ -72,6 +72,7 @@ Imports:
     ProtGenerics (>= 1.24.0),
     ptw (>= 1.9-10),
     purrr (>= 0.3.4),
+    R6,
     reshape2 (>= 1.1.4),
     rlang,
     S4Vectors,

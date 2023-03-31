@@ -3,17 +3,7 @@
 \docType{class}
 \name{GCIMSDelayedOp-class}
 \alias{GCIMSDelayedOp-class}
-\alias{GCIMSDelayedOp}
 \title{GCIMSDelayedOp class}
-\usage{
-GCIMSDelayedOp(...)
-}
-\arguments{
-\item{...}{See the slots section in this page}
-}
-\value{
-A GCIMSDelayedOp object
-}
 \description{
 GCIMSDelayedOp is an S4 class to store a delayed operation
 
@@ -23,11 +13,6 @@ the advantage that some operations that are applied to each sample can be applie
 sequentially to each sample, reducing the amount of reads and writes to
 the data files, and increasing the performance.
 }
-\section{Functions}{
-\itemize{
-\item \code{GCIMSDelayedOp()}: class
-
-}}
 \section{Slots}{
 
 \describe{
@@ -36,6 +21,10 @@ the data files, and increasing the performance.
 \item{\code{fun}}{A function that takes a \link{GCIMSSample} and returns a \link{GCIMSSample} (modified)}
 
 \item{\code{params}}{A named list with additional arguments to be passed to function}
+
+\item{\code{params_iter}}{A named list with additinoal arguments to be passed to
+function. Compared to \code{params}, each argument must be a named list of length the number of samples, so
+each sample will receive its corresponding parameter according to its name}
 
 \item{\code{fun_extract}}{A function that takes a modified \link{GCIMSSample} and returns an extracted object.}
 

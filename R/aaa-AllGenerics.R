@@ -45,31 +45,6 @@ NULL
 #'
 setGeneric("dtime", function(object, ...) standardGeneric("dtime"))
 
-#' @describeIn GCIMS-generics Get chromatogram
-#'
-#' @return A chromatogram
-#'
-#' @param object An object with chromatograms
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @export
-setGeneric("getChromatogram", function(object, ...) standardGeneric("getChromatogram"))
-
-#' @describeIn GCIMS-generics Get spectrums
-#'
-#' @return An ion mobility spectrum
-#' @param object An object that has spectra
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @export
-setGeneric("getSpectrum", function(object, ...) standardGeneric("getSpectrum"))
-
-#' @describeIn GCIMS-generics Get a Sample
-#'
-#' @param object An object where we can extract samples from
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @return A sample object
-#' @export
-setGeneric("getSample", function(object, ...) standardGeneric("getSample"))
-
 #' @describeIn GCIMS-generics Get the Total Ion Spectrum
 #'
 #' @return The Total Ion Spectrum as a numeric vector or a matrix
@@ -113,13 +88,6 @@ setGeneric("plotRIC", function(object, ...) standardGeneric("plotRIC"))
 #' @export
 setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))
 
-
-#' Format as a list
-#'
-#' @return A list with a brief description/representation of the object
-#'
-#' @keywords internal
-setGeneric("describeAsList", function(object, ...) standardGeneric("describeAsList"))
 
 #' @describeIn GCIMS-generics Decimate an object
 #'
@@ -224,19 +192,6 @@ setGeneric("smooth", getGeneric("smooth", package = "ProtGenerics"))
 #' @export
 setGeneric("findPeaks", function(object, ...) standardGeneric("findPeaks"))
 #setGeneric("findPeaks", getGeneric("findPeaks", package = "xcms"))
-
-
-# FIXME: Consider asking the delayedArray maintainer to move the realize()
-#        generic to a package I can depend on. I redefine the generic just in case
-#' Realize the object by executing all delayed operations
-#' @param object An object with delayed operations
-#'
-#' @param ... Additional arguments for downstream methods
-#' @return The object, without delayed operations
-#'
-#' @export
-setGeneric("realize", function(object, ...) standardGeneric("realize"))
-#setGeneric("realize", getGeneric("realize", package = "delayedArray"))
 
 
 #' @describeIn GCIMS-generics Estimate the baseline in an object

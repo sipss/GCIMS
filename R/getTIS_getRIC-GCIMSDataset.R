@@ -1,18 +1,18 @@
-#' @describeIn GCIMSDataset Get Total Ion Spectra matrix
+#' Get Total Ion Spectra matrix
 #'
 #' @param object A [GCIMSDataset] object
 #'
 #' @return A matrix with samples in rows and the drift time in columns
 #' @export
 setMethod("getTIS", "GCIMSDataset", function(object) {
-  if (hasDelayedOps(object) || is.null(object@envir$TIS)) {
-    object <- extract_RIC_and_TIS(object)
-    object <- realize(object)
+  if (object$hasDelayedOps() || is.null(object$TIS)) {
+    object$extract_RIC_and_TIS()
+    object$realize()
   }
-  out <- object@envir$TIS
+  out <- object$TIS
   dimnames(out) <- list(
     SampleID = sampleNames(object),
-    drift_time_ms = object@envir$dt_ref
+    drift_time_ms = object$dt_ref
   )
   out
 })
@@ -24,17 +24,10 @@ setMethod("getTIS", "GCIMSDataset", function(object) {
 #' @return  The RIC matrix
 #' @export
 setMethod("getRIC", "GCIMSDataset", function(object) {
-  if (hasDelayedOps(object) || is.null(object@envir$RIC)) {
-    object <- extract_RIC_and_TIS(object)
-    object <- realize(object)
-  }
-  out <- object@envir$RIC
-  dimnames(out) <- list(
-    SampleID = sampleNames(object),
-    retention_time_s = object@envir$rt_ref
-  )
-  out
+  object$getRIC()
 })
+
+
 
 
 #' Plot Total Ion Spectra
@@ -75,7 +68,7 @@ setMethod(
   }
 )
 
-#' @describeIn GCIMSDataset Plot Reverse Ion Chromatograms
+#' Plot Reverse Ion Chromatograms
 #'
 #' @param object A [GCIMSDataset] object
 #' @inheritParams dt_rt_range_normalization
@@ -134,26 +127,26 @@ setMethod(
   dtimes <- purrr::map(objs, "dt")
   rtimes <- purrr::map(objs, "rt")
 
-  dt_ref <- ds@envir$dt_ref
-  rt_ref <- ds@envir$rt_ref
-  ds@envir$TIS <- matrix(NA_real_, nrow = num_samples, ncol = length(dt_ref))
-  ds@envir$RIC <- matrix(NA_real_, nrow = num_samples, ncol = length(rt_ref))
+  dt_ref <- ds$dt_ref
+  rt_ref <- ds$rt_ref
+  ds$TIS <- matrix(NA_real_, nrow = num_samples, ncol = length(dt_ref))
+  ds$RIC <- matrix(NA_real_, nrow = num_samples, ncol = length(rt_ref))
   for (i in seq_len(num_samples)) {
     dt <- dtimes[[i]]
     rt <- rtimes[[i]]
     if (identical(dt, dt_ref)) {
-      ds@envir$TIS[i, ] <- tiss[[i]]
+      ds$TIS[i, ] <- tiss[[i]]
     } else {
-      ds@envir$TIS[i,] <- signal::interp1(dt, tiss[[i]], dt_ref)
+      ds$TIS[i,] <- signal::interp1(dt, tiss[[i]], dt_ref)
     }
     if (identical(rt, rt_ref)) {
-      ds@envir$RIC[i,] <- rics[[i]]
+      ds$RIC[i,] <- rics[[i]]
     } else {
-      ds@envir$RIC[i,] <- signal::interp1(rt, rics[[i]], rt_ref)
+      ds$RIC[i,] <- signal::interp1(rt, rics[[i]], rt_ref)
     }
   }
-  stopifnot(nrow(ds@envir$TIS) == num_samples)
-  stopifnot(nrow(ds@envir$RIC) == num_samples)
+  stopifnot(nrow(ds$TIS) == num_samples)
+  stopifnot(nrow(ds$RIC) == num_samples)
   ds
 }
 
@@ -165,15 +158,7 @@ setMethod(
 #' RIC and TIS matrices.
 #' @noRd
 extract_RIC_and_TIS <- function(object) {
-  object <- extract_dtime_rtime(object)
-  delayed_op <- GCIMSDelayedOp(
-    name = "extract_RIC_and_TIS",
-    fun = NULL,
-    fun_extract = .extract_RIC_and_TIS_fun_extract,
-    fun_aggregate = .extract_RIC_and_TIS_fun_aggregate
-  )
-  object <- appendDelayedOp(object, delayed_op)
+  object$extract_RIC_and_TIS()
   invisible(object)
 }
-
 

@@ -7,8 +7,6 @@
 \alias{dim.GCIMSSample}
 \alias{subset.GCIMSSample}
 \alias{subset}
-\alias{getChromatogram,GCIMSSample-method}
-\alias{getSpectrum,GCIMSSample-method}
 \alias{description,GCIMSSample-method}
 \alias{description<-,GCIMSSample,ANY-method}
 \alias{peaks,GCIMSSample-method}
@@ -20,24 +18,6 @@
 \method{dim}{GCIMSSample}(x)
 
 \method{subset}{GCIMSSample}(x, dt_idx = NULL, rt_idx = NULL, dt_range = NULL, rt_range = NULL, ...)
-
-\S4method{getChromatogram}{GCIMSSample}(
-  object,
-  dt_range = NULL,
-  rt_range = NULL,
-  dt_idx = NULL,
-  rt_idx = NULL,
-  aggregate = colSums
-)
-
-\S4method{getSpectrum}{GCIMSSample}(
-  object,
-  dt_range = NULL,
-  rt_range = NULL,
-  dt_idx = NULL,
-  rt_idx = NULL,
-  aggregate = rowSums
-)
 
 \S4method{description}{GCIMSSample}(object)
 
@@ -64,10 +44,7 @@
 
 \item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
 
-\item{object}{A GCIMSSample object}
-
-\item{aggregate}{Function that takes the subsetted intensity matrix according to the region of interest
-and aggregates the retention times, returning a vector representing the spectrum intensity. \code{rowSums} by default.}
+\item{object}{A \link{GCIMSSample} object}
 
 \item{value}{A data frame with the peak list}
 }
@@ -89,10 +66,6 @@ Methods for the GCIMSSample class
 
 \item \code{subset(GCIMSSample)}: Subset a \linkS4class{GCIMSSample} object
 
-\item \code{getChromatogram(GCIMSSample)}: Get the extracted ion chromatogram
-
-\item \code{getSpectrum(GCIMSSample)}: Get IMS spectrum
-
 \item \code{description(GCIMSSample)}: Get the description
 
 \item \code{description(object = GCIMSSample) <- value}: Set the description
@@ -107,23 +80,6 @@ Methods for the GCIMSSample class
 
 obj <- GCIMSSample(drift_time=1:2, retention_time=1:3, data = matrix(1:6, nrow=2, ncol=3))
 dim(obj)
-x <- GCIMSSample(
-  drift_time = 1:2,
-  retention_time = 1:3,
-  data = matrix(1:6, nrow = 2, ncol = 3)
-)
-getChromatogram(x)
-# Take the maximum intensity in the region for each retention time:
-sp1 <- getChromatogram(x, aggregate = function(x) apply(x, 2, max))
-x <- GCIMSSample(
-  drift_time = 1:2,
-  retention_time = 1:3,
-  data = matrix(1:6, nrow = 2, ncol = 3)
-)
-getSpectrum(x, rt_idx = 2)
-
-# Take the maximum intensity in the region for each drift time:
-sp1 <- getSpectrum(x, aggregate = function(x) apply(x, 1, max))
 }
 \seealso{
 \code{\link[base:subset]{base::subset()}}

@@ -20,6 +20,6 @@ Filter GCIMSDataset samples by drift time
 \examples{
 base_dir <- system.file("extdata", "sample_formats", package = "GCIMS")
 annot <- data.frame(SampleID = "Sample1", FileName = "small.mea.gz")
-dataset <- GCIMSDataset(annot, base_dir)
+dataset <- GCIMSDataset$new(annot, base_dir)
 filterDt(dataset, dt_range = c(5, 10))
 }

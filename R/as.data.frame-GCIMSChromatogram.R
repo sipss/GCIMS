@@ -1,6 +1,5 @@
 #' @describeIn GCIMSChromatogram-class Coerce to data frame
 #' @inheritParams base::as.data.frame
-#' @family GCIMSChromatogram
 #' @export
 as.data.frame.GCIMSChromatogram <- function(x, row.names = NULL, optional = FALSE, ...) {
   # Why would anyone give row.names or optional is beyond my understanding...

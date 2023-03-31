@@ -95,7 +95,7 @@ follow the example from `help("create_annotations_table")` for further details.
 # Create a GCIMSDataset object
 
 ```{r}
-dataset <- GCIMSDataset(
+dataset <- GCIMSDataset$new(
   annotations,
   base_dir = samples_directory,
   on_ram = TRUE # You probably should set this to FALSE if you have more 
@@ -111,13 +111,12 @@ you can manually `realize` the `GCIMSDataset` object so it executes all its pend
 We can see how the "read_sample" pending operation becomes part of the dataset history:
 
 ```{r}
-realize(dataset)
-dataset
+dataset$realize()
 ```
 Explore one sample:
 
 ```{r}
-ket1 <- getSample(dataset, sample = "Ketones1")
+ket1 <- dataset$getSample(sample = "Ketones1")
 plot(ket1, rt_range = c(0, 1000), dt_range = c(7.5, 17))
 ```
 
@@ -156,15 +155,15 @@ plotRIC(dataset)
 # Filter the retention and drift time of your samples
 
 ```{r}
-filterRt(dataset, rt = c(0, 1300)) # in s
-filterDt(dataset, dt = c(1, 17)) # in ms
+filterRt(dataset, rt = c(0, 1100)) # in s
+filterDt(dataset, dt = c(5, 16)) # in ms
 dataset
 ```
 
 
 
 ```{r}
-ket1afterfilter <- getSample(dataset, sample = "Ketones1")
+ket1afterfilter <- dataset$getSample(sample = "Ketones1")
 ket1afterfilter
 ```
 
@@ -249,7 +248,7 @@ Or to the whole dataset (the default order is 2 for both axes):
 
 ```{r}
 dataset <- smooth(dataset, rt_length_s = 3, dt_length_ms = 0.14)
-realize(dataset)
+dataset$realize()
 ```
 
 # Decimation
@@ -282,7 +281,7 @@ Once you are satisfied with de decimation factor (if you want to apply it) just
 use it on the whole dataset:
 
 ```{r}
-dataset <- decimate(dataset, rt_factor = 1, dt_factor = 2)
+decimate(dataset, rt_factor = 1, dt_factor = 2)
 ```
 
 One alternative is to start with a higher decimation factor (lets say
@@ -332,7 +331,7 @@ align(dataset)
 ```
 
 ```{r}
-realize(dataset)
+dataset$realize()
 ```
 
 ```{r}
@@ -361,8 +360,7 @@ from 0.5 to 4 to explore. If it's higher less peaks will be found. If it is too 
 peaks may appear broken into two regions or false detections may occur.
 
 ```{r peak-detection-starts-here}
-# Remove this extra register()
-ket1 <- getSample(dataset, "Ketones1")
+ket1 <- dataset$getSample("Ketones1")
 ch1 <- getChromatogram(ket1, dt_range = 10.75)
 ```
 
@@ -427,13 +425,13 @@ peak_list <- peaks(dataset)
 You can get any other sample if you like, plot it and plot its peaks on top:
 
 ```{r}
-ket2 <- getSample(dataset, "Ketones2")
+ket2 <- dataset$getSample("Ketones2")
 ```
 
 ```{r}
 plot(ket2) +
   overlay_peaklist(peaks(ket2)) +
-  lims(x= c(7.5,15), y = c(0, 500))
+  lims(x = c(7.5,15), y = c(0, 500))
 ```
 
 Or plot all the peaks from all the dataset together, overlayed on a single sample:
@@ -493,7 +491,7 @@ plt + lims(x = c(6, 15), y = c(0, 400))
 # Baseline correction
 
 ```{r baseline-section-starts-here}
-ket1 <- getSample(dataset, "Ketones1")
+ket1 <- dataset$getSample("Ketones1")
 ```
 
 
@@ -580,7 +578,7 @@ dataset <- estimateBaseline(
   dt_region_multiplier = 12,
   rt_length_s = 200
 )
-realize(dataset)
+dataset$realize()
 ```
 
 

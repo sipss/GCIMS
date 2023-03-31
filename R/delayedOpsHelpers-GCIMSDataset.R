@@ -1,8 +1,10 @@
 hasDelayedOps <- function(object) {
-  length(object@envir$delayed_ops) > 0
+  cli_warn(c("Deprecated. Use {.code object$hasDelayedOps()} instead."))
+  object$hasDelayedOps()
 }
 
 appendDelayedOp <- function(object, op) {
-  object@envir$delayed_ops <- c(object@envir$delayed_ops, list(op))
+  cli_warn(c("Deprecated. Use {.code object$appendDelayedOp(op)} instead."))
+  object$appendDelayedOp(op)
   object
 }

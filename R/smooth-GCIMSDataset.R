@@ -17,7 +17,7 @@ setMethod(
       fun = smooth,
       params = list(dt_length_ms = dt_length_ms, rt_length_s = rt_length_s, dt_order = dt_order, rt_order = rt_order)
     )
-    x <- appendDelayedOp(x, delayed_op)
+    x$appendDelayedOp(delayed_op)
     # We recompute these, but  maybe we could just reset them to zero...
     x <- extract_RIC_and_TIS(x)
     invisible(x)

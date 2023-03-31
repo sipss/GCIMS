@@ -5,5 +5,8 @@
 #' @importFrom cli cli_warn
 #' @importFrom cli cli_inform
 #' @import methods
+#' @importFrom digest digest
+#' @importFrom R6 R6Class
+#' @importClassesFrom S4Vectors DataFrame
 #' @keywords internal
 "_PACKAGE"

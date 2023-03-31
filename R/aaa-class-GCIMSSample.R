@@ -153,6 +153,7 @@ GCIMSSample <- function(
 
 #' @name GCIMSSample-methods
 #' @title Methods for the GCIMSSample class
+#' @param object A [GCIMSSample] object
 NULL
 
 
@@ -292,11 +293,13 @@ subset.GCIMSSample <- function(
 }
 
 
-#' @describeIn GCIMSSample-methods Get the extracted ion chromatogram
+#' Get the extracted ion chromatogram
+#' @param object A [GCIMSSample] object
 #' @inheritParams dt_rt_range_normalization
 #' @param aggregate Function that takes the subsetted intensity matrix according to the region of interest
 #'  and aggregates the drift times, returning a vector representing the chromatogram intensity. `colSums` by default.
 #' @export
+#' @return A [GCIMSChromatogram] object
 #' @examples
 #' x <- GCIMSSample(
 #'   drift_time = 1:2,
@@ -306,37 +309,36 @@ subset.GCIMSSample <- function(
 #' getChromatogram(x)
 #' # Take the maximum intensity in the region for each retention time:
 #' sp1 <- getChromatogram(x, aggregate = function(x) apply(x, 2, max))
-setMethod(
-  "getChromatogram", "GCIMSSample",
-  function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = colSums) {
-    dt <- dtime(object)
-    rt <- rtime(object)
-    idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
-    int_mat_region <- intensity(object, idx)
-    intens <- aggregate(int_mat_region)
-    if (length(intens) != ncol(int_mat_region)) {
-      cli_abort("The aggregation outcome should be a vector of length {ncol(int_mat_region)} but {length(intens)} was returned.")
-    }
-    basel <- baseline(object, idx, .error_if_missing = FALSE)
-    if (!is.null(basel)) {
-      basel <- aggregate(basel)
-    }
-    GCIMSChromatogram(
-      retention_time = rt[idx[["rt_logical"]]],
-      intensity = intens,
-      drift_time_idx = unique(c(idx[["dt_idx_min"]], idx[["dt_idx_max"]])),
-      drift_time_ms = unique(c(idx[["dt_ms_min"]], idx[["dt_ms_max"]])),
-      description = object@description,
-      baseline = basel
-    )
+getChromatogram <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = colSums) {
+  dt <- dtime(object)
+  rt <- rtime(object)
+  idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
+  int_mat_region <- intensity(object, idx)
+  intens <- aggregate(int_mat_region)
+  if (length(intens) != ncol(int_mat_region)) {
+    cli_abort("The aggregation outcome should be a vector of length {ncol(int_mat_region)} but {length(intens)} was returned.")
   }
-)
+  basel <- baseline(object, idx, .error_if_missing = FALSE)
+  if (!is.null(basel)) {
+    basel <- aggregate(basel)
+  }
+  GCIMSChromatogram(
+    retention_time = rt[idx[["rt_logical"]]],
+    intensity = intens,
+    drift_time_idx = unique(c(idx[["dt_idx_min"]], idx[["dt_idx_max"]])),
+    drift_time_ms = unique(c(idx[["dt_ms_min"]], idx[["dt_ms_max"]])),
+    description = object@description,
+    baseline = basel
+  )
+}
 
-#' @describeIn GCIMSSample-methods Get IMS spectrum
+#' Get IMS spectrum from a sample
+#'
 #' @inheritParams dt_rt_range_normalization
-#' @param object A GCIMSSample object
+#' @param object A [GCIMSSample] object
 #' @param aggregate Function that takes the subsetted intensity matrix according to the region of interest
 #'  and aggregates the retention times, returning a vector representing the spectrum intensity. `rowSums` by default.
+#' @return A [GCIMSSpectrum] object
 #' @export
 #' @examples
 #' x <- GCIMSSample(
@@ -348,29 +350,26 @@ setMethod(
 #'
 #' # Take the maximum intensity in the region for each drift time:
 #' sp1 <- getSpectrum(x, aggregate = function(x) apply(x, 1, max))
-setMethod(
-  "getSpectrum", "GCIMSSample",
-  function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = rowSums) {
-    dt <- dtime(object)
-    rt <- rtime(object)
-    idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
-    int_mat_region <- intensity(object, idx)
-    intens <- aggregate(int_mat_region)
-    if (length(intens) != nrow(int_mat_region)) {
-      cli_abort("The aggregation outcome should be a vector of length {nrow(int_mat_region)} but {length(intens)} was returned.")
-    }
-    basel <- baseline(object, idx, .error_if_missing = FALSE)
-    if (!is.null(basel)) {
-      basel <- aggregate(basel)
-    }
-    GCIMSSpectrum(
-      drift_time = dt[idx[["dt_logical"]]],
-      intensity = intens,
-      retention_time_idx = unique(c(idx[["rt_idx_min"]], idx[["rt_idx_max"]])),
-      retention_time_s = unique(c(idx[["rt_s_min"]], idx[["rt_s_max"]])),
-      description = object@description,
-      baseline = basel
-    )
+getSpectrum <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = rowSums) {
+  dt <- dtime(object)
+  rt <- rtime(object)
+  idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
+  int_mat_region <- intensity(object, idx)
+  intens <- aggregate(int_mat_region)
+  if (length(intens) != nrow(int_mat_region)) {
+    cli_abort("The aggregation outcome should be a vector of length {nrow(int_mat_region)} but {length(intens)} was returned.")
   }
-)
+  basel <- baseline(object, idx, .error_if_missing = FALSE)
+  if (!is.null(basel)) {
+    basel <- aggregate(basel)
+  }
+  GCIMSSpectrum(
+    drift_time = dt[idx[["dt_logical"]]],
+    intensity = intens,
+    retention_time_idx = unique(c(idx[["rt_idx_min"]], idx[["rt_idx_max"]])),
+    retention_time_s = unique(c(idx[["rt_s_min"]], idx[["rt_s_max"]])),
+    description = object@description,
+    baseline = basel
+  )
+}
 

@@ -19,7 +19,7 @@ setMethod(
       fun_extract = peaks,
       fun_aggregate = .findPeaks_fun_aggregate
     )
-    object <- appendDelayedOp(object, delayed_op)
+    object$appendDelayedOp(delayed_op)
     invisible(object)
   }
 )

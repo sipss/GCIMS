@@ -94,7 +94,7 @@ imputePeakTable <- function(peak_table, dataset, cluster_stats) {
   num_samples <- nrow(peak_table)
   for (i in seq_len(num_samples)) {
     sample_name <- rownames(peak_table)[i]
-    sample <- getSample(dataset, sample = sample_name)
+    sample <- dataset$getSample(sample = sample_name)
     intmat <- intensity(sample)
     dt <- dtime(sample)
     rt <- rtime(sample)

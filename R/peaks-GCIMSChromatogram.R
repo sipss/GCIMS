@@ -1,7 +1,7 @@
 
 #' @describeIn GCIMSChromatogram-class Get the peak list
 #' @importMethodsFrom ProtGenerics peaks
-#' @family GCIMSChromatogram
+#' @return A data frame with the peaks in the chromatogram
 #' @export
 setMethod(
   "peaks",
@@ -16,8 +16,8 @@ setMethod(
 
 #' @describeIn GCIMSChromatogram-class Set the peak list
 #' @param value A data frame with the peak list
+#' @return The GCIMSChromatogram object
 #' @importMethodsFrom ProtGenerics "peaks<-"
-#' @family GCIMSChromatogram
 #' @export
 setMethod(
   "peaks<-",

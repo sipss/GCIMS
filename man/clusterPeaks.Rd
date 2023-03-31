@@ -38,8 +38,7 @@ For \code{method = "kmedoids"}, you must provide \code{Nclusters}, with either t
 to use in the kmedoids algorithm (\link[cluster:pam]{cluster::pam}) or the string \code{"max_peaks_sample"} to use the maximum number of
 detected peaks per sample.
 
-For \code{method = "hclust"}, you can provide \code{hclust_method}, with the \code{method} passed to \code{\link[mdendro:linkage]{mdendro::linkage()}}.
-For \code{method = "hclust_old"}, you can provide \code{hclust_method}, with the \code{method} passed to \code{\link[stats:hclust]{stats::hclust()}}.}
+For \code{method = "hclust"}, you can provide \code{hclust_method}, with the \code{method} passed to \code{\link[mdendro:linkage]{mdendro::linkage()}}.}
 
 \item{verbose}{logical, to control printing in the function}
 }
