@@ -237,7 +237,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     delayed_dataset = NULL,
     updateSampleDescriptions = function(new_names) {
       op = GCIMSDelayedOp(
-        name = "updateDescription",
+        name = "setSampleNamesAsDescription",
         fun = function(sample, sample_name) {
           description(sample) <- sample_name
           sample
