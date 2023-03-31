@@ -108,7 +108,9 @@ are loaded and saved on a new folder.</p>
 <span>  <span class="va">samples</span>,</span>
 <span>  <span class="va">scratch_dir</span>,</span>
 <span>  keep_intermediate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  dataset <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  dataset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  dataset_class <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sample_class <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -129,7 +131,17 @@ If they are filenames, the filenames are relative to <code>base_dir</code>.</p><
 
 
 <dt><code>dataset</code></dt>
-<dd><p>The dataset that stores aggregated results from the processing</p></dd>
+<dd><p>The dataset R6 object where aggregated results from queued operations are stored</p></dd>
+
+
+<dt><code>dataset_class</code></dt>
+<dd><p>The class of the given dataset, used just to validate the contract between
+the delayed actions and the dataset. If <code>NULL</code> action return values are not checked</p></dd>
+
+
+<dt><code>sample_class</code></dt>
+<dd><p>The class of the samples in the dataset, used just to validate the contract between
+the delayed actions and the samples. If <code>NULL</code> action return values are not checked</p></dd>
 
 
 </dl><p></p></div>
