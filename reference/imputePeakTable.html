@@ -155,18 +155,18 @@
 <span class="r-in"><span><span class="va">s1_intensity</span><span class="op">[</span><span class="va">dt</span> <span class="op">&gt;</span> <span class="fl">8.25</span> <span class="op">&amp;</span> <span class="va">dt</span> <span class="op">&lt;</span> <span class="fl">8.75</span>, <span class="va">rt</span> <span class="op">&gt;</span> <span class="fl">122</span> <span class="op">&amp;</span> <span class="va">rt</span> <span class="op">&lt;</span> <span class="fl">126</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Create GCIMSSample objects</span></span></span>
-<span class="r-in"><span><span class="va">s1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">s1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_time <span class="op">=</span> <span class="va">dt</span>,</span></span>
 <span class="r-in"><span>  retention_time <span class="op">=</span> <span class="va">rt</span>,</span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">s1_intensity</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">s2</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">s2</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_time <span class="op">=</span> <span class="va">dt</span>,</span></span>
 <span class="r-in"><span>  retention_time <span class="op">=</span> <span class="va">rt</span>,</span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">s2_intensity</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">## And a dataset with the samples:</span></span></span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSDataset-class.html">GCIMSDataset_fromList</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Sample1 <span class="op">=</span> <span class="va">s1</span>, Sample2 <span class="op">=</span> <span class="va">s2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSDataset_fromList.html">GCIMSDataset_fromList</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Sample1 <span class="op">=</span> <span class="va">s1</span>, Sample2 <span class="op">=</span> <span class="va">s2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Now we can impute the table</span></span></span>
 <span class="r-in"><span><span class="va">peak_table_imp</span> <span class="op">&lt;-</span> <span class="fu">imputePeakTable</span><span class="op">(</span></span></span>

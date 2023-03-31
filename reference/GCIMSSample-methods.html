@@ -73,26 +73,6 @@ dim(x)
 subset(x, dt_idx = NULL, rt_idx = NULL, dt_range = NULL, rt_range = NULL, ...)
 
 # S4 method for GCIMSSample
-getChromatogram(
-  object,
-  dt_range = NULL,
-  rt_range = NULL,
-  dt_idx = NULL,
-  rt_idx = NULL,
-  aggregate = colSums
-)
-
-# S4 method for GCIMSSample
-getSpectrum(
-  object,
-  dt_range = NULL,
-  rt_range = NULL,
-  dt_idx = NULL,
-  rt_idx = NULL,
-  aggregate = rowSums
-)
-
-# S4 method for GCIMSSample
 description(object)
 
 # S4 method for GCIMSSample,ANY
@@ -140,12 +120,7 @@ peaks(object) &lt;- value</code></pre></div>
 
 
 <dt>object</dt>
-<dd><p>A GCIMSSample object</p></dd>
-
-
-<dt>aggregate</dt>
-<dd><p>Function that takes the subsetted intensity matrix according to the region of interest
-and aggregates the retention times, returning a vector representing the spectrum intensity. <code>rowSums</code> by default.</p></dd>
+<dd><p>A <a href="GCIMSSample.html">GCIMSSample</a> object</p></dd>
 
 
 <dt>value</dt>
@@ -171,8 +146,6 @@ and aggregates the retention times, returning a vector representing the spectrum
 <ul><li><p><code>[</code>: Simple subsetter for <a href="GCIMSSample-class.html">GCIMSSample</a> objects</p></li>
 <li><p><code>dim(GCIMSSample)</code>: Dimension of the data matrix</p></li>
 <li><p><code>subset(GCIMSSample)</code>: Subset a <a href="GCIMSSample-class.html">GCIMSSample</a> object</p></li>
-<li><p><code>getChromatogram(GCIMSSample)</code>: Get the extracted ion chromatogram</p></li>
-<li><p><code>getSpectrum(GCIMSSample)</code>: Get IMS spectrum</p></li>
 <li><p><code>description(GCIMSSample)</code>: Get the description</p></li>
 <li><p><code>description(object = GCIMSSample) &lt;- value</code>: Set the description</p></li>
 <li><p><code>peaks(GCIMSSample)</code>: Get the peak list</p></li>
@@ -187,72 +160,9 @@ and aggregates the retention times, returning a vector representing the spectrum
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># `[' examples</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span>drift_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, retention_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span>drift_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, retention_time<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2 3</span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  drift_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span></span>
-<span class="r-in"><span>  retention_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="GCIMS-generics.html">getChromatogram</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "GCIMSChromatogram"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "retention_time":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "intensity":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1  2  3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3  7 11 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "baseline":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "drift_time_idx":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "drift_time_ms":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "description":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "peaks":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "peaks_debug_info":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="co"># Take the maximum intensity in the region for each retention time:</span></span></span>
-<span class="r-in"><span><span class="va">sp1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMS-generics.html">getChromatogram</a></span><span class="op">(</span><span class="va">x</span>, aggregate <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  drift_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span></span>
-<span class="r-in"><span>  retention_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="GCIMS-generics.html">getSpectrum</a></span><span class="op">(</span><span class="va">x</span>, rt_idx <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "GCIMSSpectrum"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "drift_time":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "intensity":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 4 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "baseline":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "retention_time_idx":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "retention_time_s":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Slot "description":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Take the maximum intensity in the region for each drift time:</span></span></span>
-<span class="r-in"><span><span class="va">sp1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMS-generics.html">getSpectrum</a></span><span class="op">(</span><span class="va">x</span>, aggregate <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">1</span>, <span class="va">max</span><span class="op">)</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

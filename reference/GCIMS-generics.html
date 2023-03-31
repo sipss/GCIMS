@@ -67,12 +67,6 @@ to an existing generics-only package if you need so.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dtime</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getChromatogram</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">getSpectrum</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">getSample</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">getTIS</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getRIC</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -127,15 +121,6 @@ to an existing generics-only package if you need so.</p>
 <p>A numeric vector with the drift time</p>
 
 
-<p>A chromatogram</p>
-
-
-<p>An ion mobility spectrum</p>
-
-
-<p>A sample object</p>
-
-
 <p>The Total Ion Spectrum as a numeric vector or a matrix
 (depending if the object is one sample or several)</p>
 
@@ -177,9 +162,6 @@ matrix (depending if the object is one sample or several)</p>
     <h2>Functions</h2>
     
 <ul><li><p><code>dtime()</code>: Get drift time vector</p></li>
-<li><p><code>getChromatogram()</code>: Get chromatogram</p></li>
-<li><p><code>getSpectrum()</code>: Get spectrums</p></li>
-<li><p><code>getSample()</code>: Get a Sample</p></li>
 <li><p><code>getTIS()</code>: Get the Total Ion Spectrum</p></li>
 <li><p><code>getRIC()</code>: Get the Reverse Ion Chromatogram</p></li>
 <li><p><code>plotTIS()</code>: Plot total ion spectrum</p></li>
@@ -196,7 +178,7 @@ matrix (depending if the object is one sample or several)</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample-class.html">GCIMSSample</a></span><span class="op">(</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  drift_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span></span>
 <span class="r-in"><span>  retention_time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>

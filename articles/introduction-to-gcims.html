@@ -88,7 +88,7 @@
                         <h4 data-toc-skip class="author">GCIMS
 authors</h4>
             
-            <h4 data-toc-skip class="date">2023-03-22</h4>
+            <h4 data-toc-skip class="date">2023-03-31</h4>
       
       
       <div class="hidden name"><code>introduction-to-gcims.Rmd</code></div>
@@ -170,21 +170,22 @@ samples, please follow the example from
 <h2 id="create-a-gcimsdataset-object">Create a GCIMSDataset object<a class="anchor" aria-label="anchor" href="#create-a-gcimsdataset-object"></a>
 </h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMSDataset-class.html">GCIMSDataset</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GCIMSDataset.html">GCIMSDataset</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">annotations</span>,</span>
 <span>  base_dir <span class="op">=</span> <span class="va">samples_directory</span>,</span>
 <span>  on_ram <span class="op">=</span> <span class="cn">TRUE</span> <span class="co"># You probably should set this to FALSE if you have more </span></span>
 <span>                <span class="co"># than a handful of samples. See ?GCIMSDataset.</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
 <span><span class="co">#&gt;   - read_sample:</span></span>
 <span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
-<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
+<span><span class="co">#&gt;       parser: default</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span></code></pre></div>
 <p>Most operations on the <code>dataset</code> are not executed until
 you need to get the actual samples or data. This is done to perform them
 in batch, more efficiently, if possible. However, you can manually
@@ -192,25 +193,10 @@ in batch, more efficiently, if possible. However, you can manually
 all its pending operations. We can see how the “read_sample” pending
 operation becomes part of the dataset history:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/realize.html">realize</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `as_list()` is deprecated as of rlang 0.4.0</span></span>
-<span><span class="co">#&gt; Please use `vctrs::vec_cast()` instead.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="co">#&gt; Warning: `switch_type()` is soft-deprecated as of rlang 0.4.0.</span></span>
-<span><span class="co">#&gt; Please use `switch(typeof())` or `switch(my_typeof())` instead.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
-<span><span class="co">#&gt; - No phenotypes</span></span>
-<span><span class="co">#&gt; - History:</span></span>
-<span><span class="co">#&gt;   - read_sample:</span></span>
-<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
-<span><span class="co">#&gt;       parser: default</span></span>
-<span><span class="co">#&gt; - No pending operations</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Explore one sample:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ket1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, sample <span class="op">=</span> <span class="st">"Ketones1"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ket1</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span>sample <span class="op">=</span> <span class="st">"Ketones1"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ket1</span>, rt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1000</span><span class="op">)</span>, dt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7.5</span>, <span class="fl">17</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -245,31 +231,32 @@ operation becomes part of the dataset history:</p>
 <h2 id="filter-the-retention-and-drift-time-of-your-samples">Filter the retention and drift time of your samples<a class="anchor" aria-label="anchor" href="#filter-the-retention-and-drift-time-of-your-samples"></a>
 </h2>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">filterRt</span><span class="op">(</span><span class="va">dataset</span>, rt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1300</span><span class="op">)</span><span class="op">)</span> <span class="co"># in s</span></span>
-<span><span class="fu"><a href="../reference/GCIMS-generics.html">filterDt</a></span><span class="op">(</span><span class="va">dataset</span>, dt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">17</span><span class="op">)</span><span class="op">)</span> <span class="co"># in ms</span></span>
+<code class="sourceCode R"><span><span class="fu">filterRt</span><span class="op">(</span><span class="va">dataset</span>, rt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1100</span><span class="op">)</span><span class="op">)</span> <span class="co"># in s</span></span>
+<span><span class="fu"><a href="../reference/GCIMS-generics.html">filterDt</a></span><span class="op">(</span><span class="va">dataset</span>, dt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">16</span><span class="op">)</span><span class="op">)</span> <span class="co"># in ms</span></span>
 <span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - History:</span></span>
 <span><span class="co">#&gt;   - read_sample:</span></span>
 <span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
 <span><span class="co">#&gt;       parser: default</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
 <span><span class="co">#&gt;   - filterRt:</span></span>
 <span><span class="co">#&gt;       rt_range:</span></span>
 <span><span class="co">#&gt;       - 0.0</span></span>
-<span><span class="co">#&gt;       - 1300.0</span></span>
+<span><span class="co">#&gt;       - 1100.0</span></span>
 <span><span class="co">#&gt;   - filterDt:</span></span>
 <span><span class="co">#&gt;       dt_range:</span></span>
-<span><span class="co">#&gt;       - 1.0</span></span>
-<span><span class="co">#&gt;       - 17.0</span></span></code></pre></div>
+<span><span class="co">#&gt;       - 5.0</span></span>
+<span><span class="co">#&gt;       - 16.0</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ket1afterfilter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, sample <span class="op">=</span> <span class="st">"Ketones1"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ket1afterfilter</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span>sample <span class="op">=</span> <span class="st">"Ketones1"</span><span class="op">)</span></span>
 <span><span class="va">ket1afterfilter</span></span>
 <span><span class="co">#&gt; A GCIMS Sample</span></span>
-<span><span class="co">#&gt;  with drift time from 1 to 17 ms (step: 0.00667 ms, points: 2401)</span></span>
-<span><span class="co">#&gt;  with retention time from 0 to 1299.87 s (step: 0.39 s, points: 3334)</span></span></code></pre></div>
+<span><span class="co">#&gt;  with drift time from 5 to 16 ms (step: 0.00667 ms, points: 1651)</span></span>
+<span><span class="co">#&gt;  with retention time from 0 to 1099.8 s (step: 0.39 s, points: 2821)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="smoothing">Smoothing<a class="anchor" aria-label="anchor" href="#smoothing"></a>
@@ -285,7 +272,7 @@ single chromatogram to see how noise is removed and how peaks are not
 distorted. Tweak the filter lengths and, once you are happy, apply the
 smoothing filter to all the dataset.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">one_ims_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1afterfilter</span>, rt_range <span class="op">=</span> <span class="fl">97.11</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">one_ims_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSpectrum.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1afterfilter</span>, rt_range <span class="op">=</span> <span class="fl">97.11</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">one_ims_smoothed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/smooth.html" class="external-link">smooth</a></span><span class="op">(</span><span class="va">one_ims_spec</span>, dt_length_ms <span class="op">=</span> <span class="fl">0.14</span>, dt_order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">to_plot</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
@@ -305,7 +292,7 @@ smoothing filter to all the dataset.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Drift time (ms)"</span>, y <span class="op">=</span> <span class="st">"Intensity (a.u.)"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-15-2.png" width="700"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">one_chrom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getChromatogram</a></span><span class="op">(</span><span class="va">ket1afterfilter</span>, dt_range <span class="op">=</span> <span class="fl">10.4</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">one_chrom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getChromatogram.html">getChromatogram</a></span><span class="op">(</span><span class="va">ket1afterfilter</span>, dt_range <span class="op">=</span> <span class="fl">10.4</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">one_chrom_smoothed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/smooth.html" class="external-link">smooth</a></span><span class="op">(</span><span class="va">one_chrom</span>, rt_length_s <span class="op">=</span> <span class="fl">3</span>, rt_order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">to_plot</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
@@ -342,7 +329,7 @@ smoothing filter to all the dataset.</p>
 <p>Or to the whole dataset (the default order is 2 for both axes):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/smooth.html" class="external-link">smooth</a></span><span class="op">(</span><span class="va">dataset</span>, rt_length_s <span class="op">=</span> <span class="fl">3</span>, dt_length_ms <span class="op">=</span> <span class="fl">0.14</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/realize.html">realize</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">dataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="decimation">Decimation<a class="anchor" aria-label="anchor" href="#decimation"></a>
@@ -353,8 +340,8 @@ is to decimate the matrix, by taking 1 every Nd points in drift time and
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ket1_decimated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">decimate</a></span><span class="op">(</span><span class="va">ket1_smoothed</span>, rt_factor <span class="op">=</span> <span class="fl">1</span>, dt_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ket1_spec_smoothed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1_smoothed</span>, rt_range <span class="op">=</span> <span class="fl">300</span>, dt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">13</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">ket1_spec_decimated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1_decimated</span>, rt_range <span class="op">=</span> <span class="fl">300</span>, dt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">13</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ket1_spec_smoothed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSpectrum.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1_smoothed</span>, rt_range <span class="op">=</span> <span class="fl">300</span>, dt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">13</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ket1_spec_decimated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSpectrum.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1_decimated</span>, rt_range <span class="op">=</span> <span class="fl">300</span>, dt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">13</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ket1_spec_smoothed</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Before decimation"</span><span class="op">)</span>,</span>
@@ -365,7 +352,7 @@ is to decimate the matrix, by taking 1 every Nd points in drift time and
 <p>Once you are satisfied with de decimation factor (if you want to
 apply it) just use it on the whole dataset:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">decimate</a></span><span class="op">(</span><span class="va">dataset</span>, rt_factor <span class="op">=</span> <span class="fl">1</span>, dt_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/GCIMS-generics.html">decimate</a></span><span class="op">(</span><span class="va">dataset</span>, rt_factor <span class="op">=</span> <span class="fl">1</span>, dt_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p>One alternative is to start with a higher decimation factor (lets say
 2 in retention time and 4 in drift time) and, after running the pipeline
 successfully, repeat it without decimation.</p>
@@ -402,7 +389,7 @@ using the Reverse Ion Chromatogram of the samples to be aligned.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/GCIMS-generics.html">align</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/realize.html">realize</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/GCIMS-generics.html">plotTIS</a></span><span class="op">(</span><span class="va">dataset</span>, dt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">17</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-28-1.png" width="700"></p>
@@ -422,9 +409,8 @@ parameter there. Change values from 0.5 to 4 to explore. If it’s higher
 less peaks will be found. If it is too low peaks may appear broken into
 two regions or false detections may occur.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Remove this extra register()</span></span>
-<span><span class="va">ket1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="st">"Ketones1"</span><span class="op">)</span></span>
-<span><span class="va">ch1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getChromatogram</a></span><span class="op">(</span><span class="va">ket1</span>, dt_range <span class="op">=</span> <span class="fl">10.75</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ket1</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="st">"Ketones1"</span><span class="op">)</span></span>
+<span><span class="va">ch1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getChromatogram.html">getChromatogram</a></span><span class="op">(</span><span class="va">ket1</span>, dt_range <span class="op">=</span> <span class="fl">10.75</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># I don't like the _xunits in the argument names, I'll find an alternative soon</span></span>
 <span><span class="va">ch1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findPeaks.html">findPeaks</a></span><span class="op">(</span></span>
@@ -484,12 +470,6 @@ two regions or false detections may occur.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Retention time scales: 1, 26, 39, 59, 64</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Drift time scales: 1, 11, 17, 25, 30</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> RIP was detected</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> At drift time: [7.507 - 7.907] ms</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 50.31 s)</span></span>
-<span><span class="co">#&gt; Using the following scales</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Retention time scales: 1, 26, 39, 59, 64</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Drift time scales: 1, 11, 17, 25, 30</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> RIP was detected</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> At drift time: [7.547 - 7.907] ms</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 56.55 s)</span></span>
 <span><span class="co">#&gt; Using the following scales</span></span>
@@ -497,21 +477,27 @@ two regions or false detections may occur.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Drift time scales: 1, 11, 17, 25, 30</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> RIP was detected</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> At drift time: [7.507 - 7.907] ms</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 51.48 s)</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 51.48 s)</span></span>
+<span><span class="co">#&gt; Using the following scales</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Retention time scales: 1, 26, 39, 59, 64</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Drift time scales: 1, 11, 17, 25, 30</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> RIP was detected</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> At drift time: [7.507 - 7.907] ms</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Maximum RIP intensity at: (dt: 7.787 ms, rt: 50.31 s)</span></span></code></pre></div>
 <p>You can get any other sample if you like, plot it and plot its peaks
 on top:</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ket2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="st">"Ketones2"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ket2</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="st">"Ketones2"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ket2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/overlay_peaklist.html">overlay_peaklist</a></span><span class="op">(</span><span class="fu">peaks</span><span class="op">(</span><span class="va">ket2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">lims</a></span><span class="op">(</span>x<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7.5</span>,<span class="fl">15</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">lims</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7.5</span>,<span class="fl">15</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for <span style="color: #00BB00;">x</span> is already present.</span></span>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">x</span>, which will replace the existing scale.</span></span>
 <span><span class="co">#&gt; Scale for <span style="color: #00BB00;">y</span> is already present.</span></span>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">y</span>, which will replace the existing scale.</span></span>
-<span><span class="co">#&gt; Warning: Removed 15 rows containing missing values (`geom_rect()`).</span></span>
-<span><span class="co">#&gt; Warning: Removed 15 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: Removed 14 rows containing missing values (`geom_rect()`).</span></span>
+<span><span class="co">#&gt; Warning: Removed 14 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-36-1.png" width="700"></p>
 <p>Or plot all the peaks from all the dataset together, overlayed on a
 single sample:</p>
@@ -550,8 +536,8 @@ sample:</p>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">x</span>, which will replace the existing scale.</span></span>
 <span><span class="co">#&gt; Scale for <span style="color: #00BB00;">y</span> is already present.</span></span>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">y</span>, which will replace the existing scale.</span></span>
-<span><span class="co">#&gt; Warning: Removed 39 rows containing missing values (`geom_rect()`).</span></span>
-<span><span class="co">#&gt; Warning: Removed 39 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: Removed 36 rows containing missing values (`geom_rect()`).</span></span>
+<span><span class="co">#&gt; Warning: Removed 36 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-39-2.png" width="960"></p>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ket2</span><span class="op">)</span> <span class="op">+</span></span>
@@ -564,8 +550,8 @@ sample:</p>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">x</span>, which will replace the existing scale.</span></span>
 <span><span class="co">#&gt; Scale for <span style="color: #00BB00;">y</span> is already present.</span></span>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">y</span>, which will replace the existing scale.</span></span>
-<span><span class="co">#&gt; Warning: Removed 26 rows containing missing values (`geom_rect()`).</span></span>
-<span><span class="co">#&gt; Warning: Removed 26 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: Removed 25 rows containing missing values (`geom_rect()`).</span></span>
+<span><span class="co">#&gt; Warning: Removed 25 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-40-2.png" width="700"></p>
 <p>The resulting cluster sizes (median position of individual clusters)
 is not a good reference for integration. We are working on this.</p>
@@ -586,9 +572,9 @@ is not a good reference for integration. We are working on this.</p>
 <h2 id="baseline-correction">Baseline correction<a class="anchor" aria-label="anchor" href="#baseline-correction"></a>
 </h2>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ket1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="st">"Ketones1"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ket1</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="st">"Ketones1"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">one_ims_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1</span>, rt_range <span class="op">=</span> <span class="fl">97.11</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">one_ims_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSpectrum.html">getSpectrum</a></span><span class="op">(</span><span class="va">ket1</span>, rt_range <span class="op">=</span> <span class="fl">97.11</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">one_ims_spec</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-43-1.png" width="700"></p>
@@ -612,7 +598,7 @@ is not a good reference for integration. We are working on this.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Drift time (ms)"</span>, y <span class="op">=</span> <span class="st">"Intensity (a.u.)"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-44-2.png" width="700"></p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">one_chrom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getChromatogram</a></span><span class="op">(</span><span class="va">ket1</span>, dt_range <span class="op">=</span> <span class="fl">10.4</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">one_chrom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getChromatogram.html">getChromatogram</a></span><span class="op">(</span><span class="va">ket1</span>, dt_range <span class="op">=</span> <span class="fl">10.4</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">one_chrom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">estimateBaseline</a></span><span class="op">(</span><span class="va">one_chrom</span>, rt_length_s <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="va">to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -655,7 +641,7 @@ is not a good reference for integration. We are working on this.</p>
 <span>  dt_region_multiplier <span class="op">=</span> <span class="fl">12</span>,</span>
 <span>  rt_length_s <span class="op">=</span> <span class="fl">200</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/realize.html">realize</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">dataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Some clusters:</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ket2</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -674,8 +660,8 @@ is not a good reference for integration. We are working on this.</p>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">x</span>, which will replace the existing scale.</span></span>
 <span><span class="co">#&gt; Scale for <span style="color: #00BB00;">y</span> is already present.</span></span>
 <span><span class="co">#&gt; Adding another scale for <span style="color: #00BB00;">y</span>, which will replace the existing scale.</span></span>
-<span><span class="co">#&gt; Warning: Removed 34 rows containing missing values (`geom_rect()`).</span></span>
-<span><span class="co">#&gt; Warning: Removed 47 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: Removed 33 rows containing missing values (`geom_rect()`).</span></span>
+<span><span class="co">#&gt; Warning: Removed 44 rows containing missing values (`geom_point()`).</span></span></code></pre></div>
 <p><img src="introduction-to-gcims_files/figure-html/unnamed-chunk-52-1.png" width="960"></p>
 </div>
 <div class="section level2">
@@ -697,22 +683,22 @@ is not a good reference for integration. We are working on this.</p>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">peak_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peakTable.html">peakTable</a></span><span class="op">(</span><span class="va">peak_list</span>, aggregate_conflicting_peaks <span class="op">=</span> <span class="va">max</span><span class="op">)</span></span>
 <span><span class="va">peak_table</span><span class="op">$</span><span class="va">peak_table_matrix</span></span>
-<span><span class="co">#&gt;          Cluster08 NA Cluster14 Cluster10 Cluster06 Cluster03 Cluster17</span></span>
-<span><span class="co">#&gt; Ketones1  286.1551 NA  89.94959  79.89563  50.03299  535.8669  101.4803</span></span>
-<span><span class="co">#&gt; Ketones2  317.4772 NA 121.71349  91.67827  57.87489  500.3966  177.5513</span></span>
-<span><span class="co">#&gt; Ketones3  345.9414 NA 107.86073  90.36581  50.78306  551.7133        NA</span></span>
-<span><span class="co">#&gt;          Cluster11 Cluster09 Cluster12 Cluster04 Cluster21 Cluster15 Cluster24</span></span>
-<span><span class="co">#&gt; Ketones1  80.29613  1399.228  43.86774  28.82509  2281.579  627.5607  245.6123</span></span>
-<span><span class="co">#&gt; Ketones2 112.30167  1164.095  51.60048  31.27176  2018.413  983.4542  294.6938</span></span>
-<span><span class="co">#&gt; Ketones3  88.13129  1446.306  59.13701  38.09293  2435.891  841.2746  258.3220</span></span>
-<span><span class="co">#&gt;          Cluster07 Cluster23 Cluster13 Cluster22 Cluster05 Cluster20 Cluster02</span></span>
-<span><span class="co">#&gt; Ketones1  485.1055  1335.125  1400.486  1387.270  4424.315  8794.791  87.56821</span></span>
-<span><span class="co">#&gt; Ketones2  428.6557  1095.035  2317.797  1534.135  4842.550  9263.876  71.72692</span></span>
-<span><span class="co">#&gt; Ketones3  418.2265  1461.980  2237.396  1977.921  4786.573  9342.802        NA</span></span>
-<span><span class="co">#&gt;          Cluster19 Cluster18 Cluster16 Cluster01</span></span>
-<span><span class="co">#&gt; Ketones1  432.0507  12837.13        NA        NA</span></span>
-<span><span class="co">#&gt; Ketones2  590.4338  13707.02  30.26957  47.80361</span></span>
-<span><span class="co">#&gt; Ketones3  353.5802  13684.53  35.84527  47.91265</span></span></code></pre></div>
+<span><span class="co">#&gt;          Cluster09 Cluster14 Cluster10 Cluster07 Cluster04 Cluster17 Cluster11</span></span>
+<span><span class="co">#&gt; Ketones1  308.5404  89.94959  79.89563  50.03299  535.8669  101.4803  80.29613</span></span>
+<span><span class="co">#&gt; Ketones2  337.9153 121.71298  91.67820  57.87484  500.3931  177.5498 112.30192</span></span>
+<span><span class="co">#&gt; Ketones3  377.1991 107.86237  90.33344  50.63308  551.8077        NA  88.14129</span></span>
+<span><span class="co">#&gt;          Cluster08 Cluster12 Cluster01 NA Cluster21 Cluster15 Cluster24</span></span>
+<span><span class="co">#&gt; Ketones1  1399.228  43.86775  28.81288 NA  2281.579  627.5608  245.6123</span></span>
+<span><span class="co">#&gt; Ketones2  1164.089  51.60041        NA NA  2018.411  983.4325  294.6961</span></span>
+<span><span class="co">#&gt; Ketones3  1446.370  59.15079  33.34546 NA  2435.619  842.0441  258.1695</span></span>
+<span><span class="co">#&gt;          Cluster06 Cluster23 Cluster13 Cluster22 Cluster05 Cluster19 Cluster03</span></span>
+<span><span class="co">#&gt; Ketones1  485.1056  1302.798  1400.486  1387.269  4424.315  8794.791  87.56821</span></span>
+<span><span class="co">#&gt; Ketones2  428.6619  1095.041  2317.801  1534.162  4842.538  9263.859  71.73014</span></span>
+<span><span class="co">#&gt; Ketones3  417.2064  1425.194  2237.937  1974.040  4786.865  9342.789        NA</span></span>
+<span><span class="co">#&gt;          Cluster20 Cluster18 Cluster16 Cluster02</span></span>
+<span><span class="co">#&gt; Ketones1  432.0506  12837.13        NA        NA</span></span>
+<span><span class="co">#&gt; Ketones2  590.4367  13707.06  30.26957  52.55911</span></span>
+<span><span class="co">#&gt; Ketones3  354.1339  13680.47  35.84479  52.68392</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="imputation">Imputation<a class="anchor" aria-label="anchor" href="#imputation"></a>
@@ -720,27 +706,27 @@ is not a good reference for integration. We are working on this.</p>
 <div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">peak_table_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/imputePeakTable.html">imputePeakTable</a></span><span class="op">(</span><span class="va">peak_table</span><span class="op">$</span><span class="va">peak_table_matrix</span>, <span class="va">dataset</span>, <span class="va">peak_clustering</span><span class="op">$</span><span class="va">cluster_stats</span><span class="op">)</span></span>
 <span><span class="va">peak_table_imputed</span></span>
-<span><span class="co">#&gt;          Cluster08 NA Cluster14 Cluster10 Cluster06 Cluster03 Cluster17</span></span>
-<span><span class="co">#&gt; Ketones1  286.1551  0  89.94959  79.89563  50.03299  535.8669  101.4803</span></span>
-<span><span class="co">#&gt; Ketones2  317.4772  0 121.71349  91.67827  57.87489  500.3966  177.5513</span></span>
-<span><span class="co">#&gt; Ketones3  345.9414  0 107.86073  90.36581  50.78306  551.7133  113.2813</span></span>
-<span><span class="co">#&gt;          Cluster11 Cluster09 Cluster12 Cluster04 Cluster21 Cluster15 Cluster24</span></span>
-<span><span class="co">#&gt; Ketones1  80.29613  1399.228  43.86774  28.82509  2281.579  627.5607  245.6123</span></span>
-<span><span class="co">#&gt; Ketones2 112.30167  1164.095  51.60048  31.27176  2018.413  983.4542  294.6938</span></span>
-<span><span class="co">#&gt; Ketones3  88.13129  1446.306  59.13701  38.09293  2435.891  841.2746  258.3220</span></span>
-<span><span class="co">#&gt;          Cluster07 Cluster23 Cluster13 Cluster22 Cluster05 Cluster20 Cluster02</span></span>
-<span><span class="co">#&gt; Ketones1  485.1055  1335.125  1400.486  1387.270  4424.315  8794.791  87.56821</span></span>
-<span><span class="co">#&gt; Ketones2  428.6557  1095.035  2317.797  1534.135  4842.550  9263.876  71.72692</span></span>
-<span><span class="co">#&gt; Ketones3  418.2265  1461.980  2237.396  1977.921  4786.573  9342.802  65.21405</span></span>
-<span><span class="co">#&gt;          Cluster19 Cluster18 Cluster16 Cluster01</span></span>
-<span><span class="co">#&gt; Ketones1  432.0507  12837.13  30.13690  39.37941</span></span>
-<span><span class="co">#&gt; Ketones2  590.4338  13707.02  30.26957  47.80361</span></span>
-<span><span class="co">#&gt; Ketones3  353.5802  13684.53  35.84527  47.91265</span></span></code></pre></div>
+<span><span class="co">#&gt;          Cluster09 Cluster14 Cluster10 Cluster07 Cluster04 Cluster17 Cluster11</span></span>
+<span><span class="co">#&gt; Ketones1  308.5404  89.94959  79.89563  50.03299  535.8669  101.4803  80.29613</span></span>
+<span><span class="co">#&gt; Ketones2  337.9153 121.71298  91.67820  57.87484  500.3931  177.5498 112.30192</span></span>
+<span><span class="co">#&gt; Ketones3  377.1991 107.86237  90.33344  50.63308  551.8077  112.8684  88.14129</span></span>
+<span><span class="co">#&gt;          Cluster08 Cluster12 Cluster01 NA Cluster21 Cluster15 Cluster24</span></span>
+<span><span class="co">#&gt; Ketones1  1399.228  43.86775  28.81288  0  2281.579  627.5608  245.6123</span></span>
+<span><span class="co">#&gt; Ketones2  1164.089  51.60041  31.67328  0  2018.411  983.4325  294.6961</span></span>
+<span><span class="co">#&gt; Ketones3  1446.370  59.15079  33.34546  0  2435.619  842.0441  258.1695</span></span>
+<span><span class="co">#&gt;          Cluster06 Cluster23 Cluster13 Cluster22 Cluster05 Cluster19 Cluster03</span></span>
+<span><span class="co">#&gt; Ketones1  485.1056  1302.798  1400.486  1387.269  4424.315  8794.791  87.56821</span></span>
+<span><span class="co">#&gt; Ketones2  428.6619  1095.041  2317.801  1534.162  4842.538  9263.859  71.73014</span></span>
+<span><span class="co">#&gt; Ketones3  417.2064  1425.194  2237.937  1974.040  4786.865  9342.789  65.19333</span></span>
+<span><span class="co">#&gt;          Cluster20 Cluster18 Cluster16 Cluster02</span></span>
+<span><span class="co">#&gt; Ketones1  432.0506  12837.13  30.13690  39.37941</span></span>
+<span><span class="co">#&gt; Ketones2  590.4367  13707.06  30.26957  52.55911</span></span>
+<span><span class="co">#&gt; Ketones3  354.1339  13680.47  35.84479  52.68392</span></span></code></pre></div>
 <div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Implemented until here</span></span>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"The vignette ran in  "</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; The vignette ran in  6.842688 mins</span></span></code></pre></div>
+<span><span class="co">#&gt; The vignette ran in  2.914741 mins</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session Info:<a class="anchor" aria-label="anchor" href="#session-info"></a>
@@ -776,22 +762,22 @@ is not a good reference for integration. We are working on this.</p>
 <span><span class="co">#&gt;  [7] utf8_1.2.3             plyr_1.8.8             R6_2.5.1              </span></span>
 <span><span class="co">#&gt; [10] signal_0.7-7           stats4_4.2.2           sgolay_1.0.2          </span></span>
 <span><span class="co">#&gt; [13] evaluate_0.20          httr_1.4.5             highr_0.10            </span></span>
-<span><span class="co">#&gt; [16] pillar_1.8.1           rlang_1.1.0            curl_5.0.0            </span></span>
-<span><span class="co">#&gt; [19] jquerylib_0.1.4        S4Vectors_0.36.2       rmarkdown_2.20        </span></span>
+<span><span class="co">#&gt; [16] pillar_1.9.0           rlang_1.1.0            curl_5.0.0            </span></span>
+<span><span class="co">#&gt; [19] jquerylib_0.1.4        S4Vectors_0.36.2       rmarkdown_2.21        </span></span>
 <span><span class="co">#&gt; [22] pkgdown_2.0.7          textshaping_0.3.6      desc_1.4.2            </span></span>
 <span><span class="co">#&gt; [25] labeling_0.4.2         stringr_1.5.0          ProtGenerics_1.30.0   </span></span>
-<span><span class="co">#&gt; [28] munsell_0.5.0          compiler_4.2.2         xfun_0.37             </span></span>
+<span><span class="co">#&gt; [28] munsell_0.5.0          compiler_4.2.2         xfun_0.38             </span></span>
 <span><span class="co">#&gt; [31] pkgconfig_2.0.3        systemfonts_1.0.4      BiocGenerics_0.44.0   </span></span>
-<span><span class="co">#&gt; [34] htmltools_0.5.4        tidyselect_1.2.0       tibble_3.2.1          </span></span>
+<span><span class="co">#&gt; [34] htmltools_0.5.5        tidyselect_1.2.0       tibble_3.2.1          </span></span>
 <span><span class="co">#&gt; [37] bookdown_0.33          codetools_0.2-19       fansi_1.0.4           </span></span>
-<span><span class="co">#&gt; [40] viridisLite_0.4.1      dplyr_1.1.0            withr_2.5.0           </span></span>
+<span><span class="co">#&gt; [40] viridisLite_0.4.1      dplyr_1.1.1            withr_2.5.0           </span></span>
 <span><span class="co">#&gt; [43] MASS_7.3-58.3          MassSpecWavelet_1.65.0 grid_4.2.2            </span></span>
-<span><span class="co">#&gt; [46] jsonlite_1.8.4         gtable_0.3.2           lifecycle_1.0.3       </span></span>
-<span><span class="co">#&gt; [49] magrittr_2.0.3         scales_1.2.1           cli_3.6.0             </span></span>
+<span><span class="co">#&gt; [46] jsonlite_1.8.4         gtable_0.3.3           lifecycle_1.0.3       </span></span>
+<span><span class="co">#&gt; [49] magrittr_2.0.3         scales_1.2.1           cli_3.6.1             </span></span>
 <span><span class="co">#&gt; [52] stringi_1.7.12         cachem_1.0.7           reshape2_1.4.4        </span></span>
 <span><span class="co">#&gt; [55] farver_2.1.1           ptw_1.9-16             fs_1.6.1              </span></span>
 <span><span class="co">#&gt; [58] bslib_0.4.2            ragg_1.2.5             generics_0.1.3        </span></span>
-<span><span class="co">#&gt; [61] vctrs_0.6.0            cowplot_1.1.1          tools_4.2.2           </span></span>
+<span><span class="co">#&gt; [61] vctrs_0.6.1            cowplot_1.1.1          tools_4.2.2           </span></span>
 <span><span class="co">#&gt; [64] Biobase_2.58.0         glue_1.6.2             purrr_1.0.1           </span></span>
 <span><span class="co">#&gt; [67] parallel_4.2.2         fastmap_1.1.1          yaml_2.3.7            </span></span>
 <span><span class="co">#&gt; [70] colorspace_2.1-0       BiocManager_1.30.20    mdendro_2.1.0         </span></span>

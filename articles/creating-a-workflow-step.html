@@ -99,14 +99,6 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">GCIMS</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="warning">WARNING<a class="anchor" aria-label="anchor" href="#warning"></a>
-</h2>
-<p>This vignette still uses some internals of the GCIMS package. We will
-be exporting helper functions and changing the design of the objects to
-make it more robust, so if you plan to create custom methods outside the
-GCIMS package, please stay in touch and coordinate with us.</p>
-</div>
-<div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>In this vignette we show how samples can be modified in a batch,
@@ -145,10 +137,12 @@ argument and returns that sample modified:</p>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"Internal error, this will never happen"</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span>  </span>
-<span>  <span class="co"># In the future we will provide accessors instead of using @ slots directly.</span></span>
-<span>  <span class="va">x</span><span class="op">@</span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">@</span><span class="va">data</span><span class="op">[</span><span class="va">dt_from</span><span class="op">:</span><span class="va">dt_to</span>,<span class="op">]</span></span>
-<span>  <span class="va">x</span><span class="op">@</span><span class="va">drift_time</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">@</span><span class="va">drift_time</span><span class="op">[</span><span class="va">dt_from</span><span class="op">:</span><span class="va">dt_to</span><span class="op">]</span></span>
-<span>  </span>
+<span>  <span class="co"># You can use internal slots, or accessor functions. Accessors are more reliable</span></span>
+<span>  <span class="co"># because the class internal representation may change in the future</span></span>
+<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMSSample-methods.html">subset</a></span><span class="op">(</span><span class="va">x</span>, dt_idx <span class="op">=</span> <span class="va">dt_from</span><span class="op">:</span><span class="va">dt_to</span><span class="op">)</span></span>
+<span>  <span class="co">#x@data &lt;- x@data[dt_from:dt_to,]</span></span>
+<span>  <span class="co">#x@drift_time &lt;- x@drift_time[dt_from:dt_to]</span></span>
+<span></span>
 <span>  <span class="co"># Check that we return a valid sample:</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu">validObject</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"The sample is not valid."</span><span class="op">)</span></span>
@@ -159,12 +153,12 @@ argument and returns that sample modified:</p>
 returns the dataset. You can use this template for now:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cutDrift_Dataset</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dt_from</span>, <span class="va">dt_to</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp-class.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
+<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
 <span>      name <span class="op">=</span> <span class="st">"cutDrift"</span>, <span class="co"># Give a human-readable name</span></span>
 <span>      fun <span class="op">=</span> <span class="va">cutDrift_Sample</span>, <span class="co"># The function that is applied to the sample</span></span>
 <span>      params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dt_from <span class="op">=</span> <span class="va">dt_from</span>, dt_to <span class="op">=</span> <span class="va">dt_to</span><span class="op">)</span> <span class="co"># The arguments that function needs</span></span>
 <span>    <span class="op">)</span></span>
-<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu">appendDelayedOp</span><span class="op">(</span><span class="va">x</span>, <span class="va">delayed_op</span><span class="op">)</span></span>
+<span>    <span class="va">x</span><span class="op">$</span><span class="fu">appendDelayedOp</span><span class="op">(</span><span class="va">delayed_op</span><span class="op">)</span></span>
 <span>    <span class="co"># Return the dataset, invisibly:</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -174,31 +168,26 @@ returns the dataset. You can use this template for now:</p>
 <p>Load the dataset:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">annotations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">samples_directory</span>, <span class="st">"annotations.csv"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMSDataset-class.html">GCIMSDataset</a></span><span class="op">(</span></span>
+<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GCIMSDataset.html">GCIMSDataset</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">annotations</span>,</span>
 <span>  base_dir <span class="op">=</span> <span class="va">samples_directory</span>,</span>
 <span>  on_ram <span class="op">=</span> <span class="cn">TRUE</span> <span class="co"># You probably should set this to FALSE if you have more </span></span>
 <span>                <span class="co"># than a handful of samples. See ?GCIMSDataset.</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
 <span><span class="co">#&gt;   - read_sample:</span></span>
 <span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
-<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
+<span><span class="co">#&gt;       parser: default</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span></code></pre></div>
 <p>Get the first sample of the dataset, and see the drift time vector at
 indices 500 and 1200:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample_before</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `as_list()` is deprecated as of rlang 0.4.0</span></span>
-<span><span class="co">#&gt; Please use `vctrs::vec_cast()` instead.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="co">#&gt; Warning: `switch_type()` is soft-deprecated as of rlang 0.4.0.</span></span>
-<span><span class="co">#&gt; Please use `switch(typeof())` or `switch(my_typeof())` instead.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
+<code class="sourceCode R"><span><span class="va">sample_before</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">dtime_before</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">dtime</a></span><span class="op">(</span><span class="va">sample_before</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dtime_before</span><span class="op">[</span><span class="fl">1000</span><span class="op">]</span></span>
@@ -209,23 +198,24 @@ indices 500 and 1200:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
 <span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - History:</span></span>
 <span><span class="co">#&gt;   - read_sample:</span></span>
 <span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
 <span><span class="co">#&gt;       parser: default</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
 <span><span class="co">#&gt;   - cutDrift:</span></span>
 <span><span class="co">#&gt;       dt_from: 1000.0</span></span>
 <span><span class="co">#&gt;       dt_to: 1500.0</span></span></code></pre></div>
 <p>The dataset has now a pending operation, we can execute it:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/realize.html">realize</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>And get the sample, modified:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample_after</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">sample_after</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">dtime_after</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">dtime</a></span><span class="op">(</span><span class="va">sample_after</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dtime_after</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
@@ -284,12 +274,12 @@ results.</p>
 <p>We use the same function for the dataset:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cutDrift2_Dataset</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dt_from</span>, <span class="va">dt_to</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp-class.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
+<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
 <span>      name <span class="op">=</span> <span class="st">"cutDrift2"</span>, <span class="co"># Give a human-readable name</span></span>
 <span>      fun <span class="op">=</span> <span class="va">cutDrift2_Sample</span>, <span class="co"># The function that is applied to the sample</span></span>
 <span>      params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dt_from <span class="op">=</span> <span class="va">dt_from</span>, dt_to <span class="op">=</span> <span class="va">dt_to</span><span class="op">)</span> <span class="co"># The arguments that function needs</span></span>
 <span>    <span class="op">)</span></span>
-<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu">appendDelayedOp</span><span class="op">(</span><span class="va">x</span>, <span class="va">delayed_op</span><span class="op">)</span></span>
+<span>    <span class="va">x</span><span class="op">$</span><span class="fu">appendDelayedOp</span><span class="op">(</span><span class="va">delayed_op</span><span class="op">)</span></span>
 <span>    <span class="co"># Return the dataset, invisibly:</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -297,41 +287,43 @@ results.</p>
 <h3 id="example-1">Example<a class="anchor" aria-label="anchor" href="#example-1"></a>
 </h3>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMSDataset-class.html">GCIMSDataset</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GCIMSDataset.html">GCIMSDataset</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">annotations</span>,</span>
 <span>  base_dir <span class="op">=</span> <span class="va">samples_directory</span>,</span>
 <span>  on_ram <span class="op">=</span> <span class="cn">TRUE</span> <span class="co"># You probably should set this to FALSE if you have more </span></span>
 <span>                <span class="co"># than a handful of samples. See ?GCIMSDataset.</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample:</span></span>
-<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
-<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift2_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
-<span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
-<span><span class="co">#&gt; - No phenotypes</span></span>
-<span><span class="co">#&gt; - No previous history</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
 <span><span class="co">#&gt;   - read_sample:</span></span>
 <span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
 <span><span class="co">#&gt;       parser: default</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift2_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
+<span><span class="va">dataset</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
+<span><span class="co">#&gt; - No phenotypes</span></span>
+<span><span class="co">#&gt; - No previous history</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span>
 <span><span class="co">#&gt;   - cutDrift2:</span></span>
 <span><span class="co">#&gt;       dt_from: 1000.0</span></span>
 <span><span class="co">#&gt;       dt_to: 1500.0</span></span></code></pre></div>
 <p>The dataset has now a pending operation, we can execute it:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/realize.html">realize</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>And get the sample, modified:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample_after</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMS-generics.html">getSample</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sample_after</span> <span class="op">&lt;-</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>We have those parameters saved:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_after</span><span class="op">@</span><span class="va">proc_params</span><span class="op">$</span><span class="va">cutDrift</span></span>
@@ -346,7 +338,7 @@ results.</p>
 <h2 id="extracting-and-aggregating-information-from-samples-into-the-dataset">Extracting and aggregating information from samples into the
 dataset<a class="anchor" aria-label="anchor" href="#extracting-and-aggregating-information-from-samples-into-the-dataset"></a>
 </h2>
-<p>In the previous example, we have to manually <code><a href="../reference/GCIMS-generics.html">getSample()</a></code>
+<p>In the previous example, we have to manually <code><a href="../reference/getSample.html">getSample()</a></code>
 on each sample to get those additional results. This is going to be very
 slow.</p>
 <p>What we would like to have is a data frame with three columns: the
@@ -399,7 +391,7 @@ applying it to one sample, if it has been processed:</p>
 <div class="section level3">
 <h3 id="aggregation">Aggregation<a class="anchor" aria-label="anchor" href="#aggregation"></a>
 </h3>
-<p>The <code><a href="../reference/realize.html">realize()</a></code> function will extract the information from
+<p>The <code><a href="../reference/realize.html">realize()</a></code> method will extract the information from
 all your samples and save all the extracted information on a list, as
 long as the number of samples in your dataset.</p>
 <p>Then, it will call the aggregation function, using the
@@ -435,21 +427,21 @@ the dataset object.</p>
 <span>  <span class="op">}</span></span>
 <span>  </span>
 <span>  <span class="co"># Save our dataframe in the dataset object:</span></span>
-<span>  <span class="va">x</span><span class="op">@</span><span class="va">envir</span><span class="op">$</span><span class="va">cutDrift</span> <span class="op">&lt;-</span> <span class="va">df</span></span>
+<span>  <span class="va">x</span><span class="op">$</span><span class="va">userData</span><span class="op">$</span><span class="va">cutDrift</span> <span class="op">&lt;-</span> <span class="va">df</span></span>
 <span>  <span class="co"># We always return the whole dataset</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We now pass those extraction and aggregation functions as well:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cutDrift3_Dataset</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dt_from</span>, <span class="va">dt_to</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp-class.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
+<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
 <span>      name <span class="op">=</span> <span class="st">"cutDrift3"</span>, <span class="co"># Give a human-readable name</span></span>
 <span>      fun <span class="op">=</span> <span class="va">cutDrift2_Sample</span>, <span class="co"># The function that is applied to the sample</span></span>
 <span>      params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dt_from <span class="op">=</span> <span class="va">dt_from</span>, dt_to <span class="op">=</span> <span class="va">dt_to</span><span class="op">)</span>, <span class="co"># The arguments that function needs</span></span>
 <span>      fun_extract <span class="op">=</span> <span class="va">cutDrift_ExtractSample</span>,</span>
 <span>      fun_aggregate <span class="op">=</span> <span class="va">cutDrift_Aggregate</span></span>
 <span>    <span class="op">)</span></span>
-<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu">appendDelayedOp</span><span class="op">(</span><span class="va">x</span>, <span class="va">delayed_op</span><span class="op">)</span></span>
+<span>    <span class="va">x</span><span class="op">$</span><span class="fu">appendDelayedOp</span><span class="op">(</span><span class="va">delayed_op</span><span class="op">)</span></span>
 <span>    <span class="co"># Return the dataset, invisibly:</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -458,41 +450,43 @@ the dataset object.</p>
 <h3 id="example-2">Example<a class="anchor" aria-label="anchor" href="#example-2"></a>
 </h3>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GCIMSDataset-class.html">GCIMSDataset</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GCIMSDataset.html">GCIMSDataset</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">annotations</span>,</span>
 <span>  base_dir <span class="op">=</span> <span class="va">samples_directory</span>,</span>
 <span>  on_ram <span class="op">=</span> <span class="cn">TRUE</span> <span class="co"># You probably should set this to FALSE if you have more </span></span>
 <span>                <span class="co"># than a handful of samples. See ?GCIMSDataset.</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
 <span><span class="co">#&gt; - No phenotypes</span></span>
 <span><span class="co">#&gt; - No previous history</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
-<span><span class="co">#&gt;   - read_sample:</span></span>
-<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
-<span><span class="co">#&gt;       parser: default</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift3_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
-<span><span class="va">dataset</span></span>
-<span><span class="co">#&gt; A GCIMSDataset object:</span></span>
-<span><span class="co">#&gt; - With 3 samples on RAM</span></span>
-<span><span class="co">#&gt; - No phenotypes</span></span>
-<span><span class="co">#&gt; - No previous history</span></span>
-<span><span class="co">#&gt; - Pending operations:</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
 <span><span class="co">#&gt;   - read_sample:</span></span>
 <span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
 <span><span class="co">#&gt;       parser: default</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift3_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
+<span><span class="va">dataset</span></span>
+<span><span class="co">#&gt; A GCIMSDataset:</span></span>
+<span><span class="co">#&gt; - With 3 samples on RAM.</span></span>
+<span><span class="co">#&gt; - No phenotypes</span></span>
+<span><span class="co">#&gt; - No previous history</span></span>
+<span><span class="co">#&gt; - Queued operations:</span></span>
+<span><span class="co">#&gt;   - read_sample:</span></span>
+<span><span class="co">#&gt;       base_dir: /__w/GCIMS/GCIMS/vignettes/threeketones</span></span>
+<span><span class="co">#&gt;       parser: default</span></span>
+<span><span class="co">#&gt;   - updateDescription</span></span>
 <span><span class="co">#&gt;   - cutDrift3:</span></span>
 <span><span class="co">#&gt;       dt_from: 1000.0</span></span>
 <span><span class="co">#&gt;       dt_to: 1500.0</span></span></code></pre></div>
 <p>The dataset has now a pending operation, we can execute it:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/realize.html">realize</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>And then get our data frame:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span><span class="op">@</span><span class="va">envir</span><span class="op">$</span><span class="va">cutDrift</span></span>
+<code class="sourceCode R"><span><span class="va">dataset</span><span class="op">$</span><span class="va">userData</span><span class="op">$</span><span class="va">cutDrift</span></span>
 <span><span class="co">#&gt;   SampleName orig_dt_length new_dt_length</span></span>
 <span><span class="co">#&gt; 1   Ketones1           4500           501</span></span>
 <span><span class="co">#&gt; 2   Ketones2           4500           501</span></span>
@@ -528,15 +522,15 @@ the dataset object.</p>
 <span><span class="co">#&gt; [1] GCIMS_0.1.0      cowplot_1.1.1    ggplot2_3.4.1    BiocStyle_2.26.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] tidyselect_1.2.0    xfun_0.37           bslib_0.4.2        </span></span>
-<span><span class="co">#&gt;  [4] purrr_1.0.1         colorspace_2.1-0    vctrs_0.6.0        </span></span>
-<span><span class="co">#&gt;  [7] generics_0.1.3      viridisLite_0.4.1   htmltools_0.5.4    </span></span>
+<span><span class="co">#&gt;  [1] tidyselect_1.2.0    xfun_0.38           bslib_0.4.2        </span></span>
+<span><span class="co">#&gt;  [4] purrr_1.0.1         colorspace_2.1-0    vctrs_0.6.1        </span></span>
+<span><span class="co">#&gt;  [7] generics_0.1.3      viridisLite_0.4.1   htmltools_0.5.5    </span></span>
 <span><span class="co">#&gt; [10] stats4_4.2.2        yaml_2.3.7          utf8_1.2.3         </span></span>
 <span><span class="co">#&gt; [13] rlang_1.1.0         pkgdown_2.0.7       jquerylib_0.1.4    </span></span>
-<span><span class="co">#&gt; [16] pillar_1.8.1        glue_1.6.2          withr_2.5.0        </span></span>
+<span><span class="co">#&gt; [16] pillar_1.9.0        glue_1.6.2          withr_2.5.0        </span></span>
 <span><span class="co">#&gt; [19] BiocParallel_1.32.6 BiocGenerics_0.44.0 lifecycle_1.0.3    </span></span>
 <span><span class="co">#&gt; [22] stringr_1.5.0       ProtGenerics_1.30.0 munsell_0.5.0      </span></span>
-<span><span class="co">#&gt; [25] gtable_0.3.2        ragg_1.2.5          codetools_0.2-19   </span></span>
+<span><span class="co">#&gt; [25] gtable_0.3.3        ragg_1.2.5          codetools_0.2-19   </span></span>
 <span><span class="co">#&gt; [28] memoise_2.0.1       evaluate_0.20       labeling_0.4.2     </span></span>
 <span><span class="co">#&gt; [31] Biobase_2.58.0      knitr_1.42          fastmap_1.1.1      </span></span>
 <span><span class="co">#&gt; [34] parallel_4.2.2      curl_5.0.0          fansi_1.0.4        </span></span>
@@ -545,10 +539,10 @@ the dataset object.</p>
 <span><span class="co">#&gt; [43] S4Vectors_0.36.2    jsonlite_1.8.4      farver_2.1.1       </span></span>
 <span><span class="co">#&gt; [46] systemfonts_1.0.4   fs_1.6.1            textshaping_0.3.6  </span></span>
 <span><span class="co">#&gt; [49] digest_0.6.31       stringi_1.7.12      bookdown_0.33      </span></span>
-<span><span class="co">#&gt; [52] dplyr_1.1.0         grid_4.2.2          rprojroot_2.0.3    </span></span>
-<span><span class="co">#&gt; [55] cli_3.6.0           tools_4.2.2         magrittr_2.0.3     </span></span>
+<span><span class="co">#&gt; [52] dplyr_1.1.1         grid_4.2.2          rprojroot_2.0.3    </span></span>
+<span><span class="co">#&gt; [55] cli_3.6.1           tools_4.2.2         magrittr_2.0.3     </span></span>
 <span><span class="co">#&gt; [58] sass_0.4.5          tibble_3.2.1        pkgconfig_2.0.3    </span></span>
-<span><span class="co">#&gt; [61] MASS_7.3-58.3       rmarkdown_2.20      httr_1.4.5         </span></span>
+<span><span class="co">#&gt; [61] MASS_7.3-58.3       rmarkdown_2.21      httr_1.4.5         </span></span>
 <span><span class="co">#&gt; [64] R6_2.5.1            signal_0.7-7        compiler_4.2.2</span></span></code></pre></div>
 </div>
   </div>

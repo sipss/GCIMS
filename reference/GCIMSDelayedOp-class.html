@@ -72,27 +72,7 @@ sequentially to each sample, reducing the amount of reads and writes to
 the data files, and increasing the performance.</p>
     </div>
 
-    <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GCIMSDelayedOp</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
-    </div>
 
-    <div id="arguments">
-    <h2>Arguments</h2>
-    <dl><dt>...</dt>
-<dd><p>See the slots section in this page</p></dd>
-
-</dl></div>
-    <div id="value">
-    <h2>Value</h2>
-    
-
-<p>A GCIMSDelayedOp object</p>
-    </div>
-    <div id="functions">
-    <h2>Functions</h2>
-    
-<ul><li><p><code>GCIMSDelayedOp()</code>: class</p></li>
-</ul></div>
     <div id="slots">
     <h2>Slots</h2>
     
@@ -102,19 +82,25 @@ the data files, and increasing the performance.</p>
 
 
 <dt><code>fun</code></dt>
-<dd><p>A function that takes a <a href="GCIMSSample-class.html">GCIMSSample</a> and returns a <a href="GCIMSSample-class.html">GCIMSSample</a> (modified)</p></dd>
+<dd><p>A function that takes a <a href="GCIMSSample.html">GCIMSSample</a> and returns a <a href="GCIMSSample.html">GCIMSSample</a> (modified)</p></dd>
 
 
 <dt><code>params</code></dt>
 <dd><p>A named list with additional arguments to be passed to function</p></dd>
 
 
+<dt><code>params_iter</code></dt>
+<dd><p>A named list with additinoal arguments to be passed to
+function. Compared to <code>params</code>, each argument must be a named list of length the number of samples, so
+each sample will receive its corresponding parameter according to its name</p></dd>
+
+
 <dt><code>fun_extract</code></dt>
-<dd><p>A function that takes a modified <a href="GCIMSSample-class.html">GCIMSSample</a> and returns an extracted object.</p></dd>
+<dd><p>A function that takes a modified <a href="GCIMSSample.html">GCIMSSample</a> and returns an extracted object.</p></dd>
 
 
 <dt><code>fun_aggregate</code></dt>
-<dd><p>A function that takes a <a href="GCIMSDataset-class.html">GCIMSDataset</a> and a list of extracted objects and returns a modified <a href="GCIMSDataset-class.html">GCIMSDataset</a>.</p></dd>
+<dd><p>A function that takes a <a href="GCIMSDataset.html">GCIMSDataset</a> and a list of extracted objects and returns a modified <a href="GCIMSDataset.html">GCIMSDataset</a>.</p></dd>
 
 
 </dl></div>

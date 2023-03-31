@@ -70,7 +70,7 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
-<dd><p>A <a href="GCIMSDataset-class.html">GCIMSDataset</a> object</p></dd>
+<dd><p>A <a href="GCIMSDataset.html">GCIMSDataset</a> object</p></dd>
 
 
 <dt>dt_range</dt>
@@ -88,7 +88,7 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">base_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"sample_formats"</span>, package <span class="op">=</span> <span class="st">"GCIMS"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>SampleID <span class="op">=</span> <span class="st">"Sample1"</span>, FileName <span class="op">=</span> <span class="st">"small.mea.gz"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="GCIMSDataset-class.html">GCIMSDataset</a></span><span class="op">(</span><span class="va">annot</span>, <span class="va">base_dir</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va"><a href="GCIMSDataset.html">GCIMSDataset</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">annot</span>, <span class="va">base_dir</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="GCIMS-generics.html">filterDt</a></span><span class="op">(</span><span class="va">dataset</span>, dt_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
