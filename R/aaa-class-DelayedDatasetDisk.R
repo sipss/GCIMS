@@ -22,10 +22,14 @@ DelayedDatasetDisk <- R6::R6Class(
     #'  If they are filenames, the filenames are relative to `base_dir`.
     #' @param scratch_dir The directory where samples being processed will be saved
     #' @param keep_intermediate A logical value, whether intermediate realization steps should be saved.
-    #' @param dataset The dataset that stores aggregated results from the processing
+    #' @param dataset The dataset R6 object where aggregated results from queued operations are stored
+    #' @param dataset_class The class of the given dataset, used just to validate the contract between
+    #' the delayed actions and the dataset. If `NULL` action return values are not checked
+    #' @param sample_class The class of the samples in the dataset, used just to validate the contract between
+    #' the delayed actions and the samples. If `NULL` action return values are not checked
     #' @return The DelayedDatasetDisk object
-    initialize = function(samples, scratch_dir, keep_intermediate = FALSE, dataset = NULL) {
-      super$initialize(dataset = dataset)
+    initialize = function(samples, scratch_dir, keep_intermediate = FALSE, dataset = NULL, dataset_class = NULL, sample_class = NULL) {
+      super$initialize(dataset = dataset, dataset_class = dataset_class, sample_class = sample_class)
       private$scratch_dir <- scratch_dir
       private$keep_intermediate <- keep_intermediate
       if (is.character(samples)) {
@@ -184,7 +188,8 @@ DelayedDatasetDisk <- R6::R6Class(
         next_filename = next_filenames,
         MoreArgs = list(
           delayed_ops = delayed_ops,
-          is_first_step = is.null(current_dir)
+          is_first_step = is.null(current_dir),
+          sample_class = private$sample_class
         ),
         SIMPLIFY = FALSE
       )
@@ -241,7 +246,7 @@ sample_rds_basenames <- function(sample_names, prefix_dir = NULL) {
   }
 }
 
-realize_one_sample_disk <- function(sample_name, current_filename, next_filename, delayed_ops, is_first_step) {
+realize_one_sample_disk <- function(sample_name, current_filename, next_filename, delayed_ops, is_first_step, sample_class) {
   if (is_first_step) {
     # we are going to read_sample, we are starting
     sample_obj <- current_filename
@@ -258,7 +263,7 @@ realize_one_sample_disk <- function(sample_name, current_filename, next_filename
     }
     sample_obj <- readRDS(current_filename)
   }
-  res <- realize_one_sample_ram(sample_obj, sample_name, delayed_ops)
+  res <- realize_one_sample_ram(sample_obj, sample_name, delayed_ops, sample_class = sample_class)
 
   # saveRDS, or just copy
   if (res$needs_re_saving || is.null(current_filename)) {

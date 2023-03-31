@@ -41,11 +41,15 @@ DelayedDatasetBase <- R6::R6Class(
     #' @description
     #' Create a new object, initialize the slots
     #' @param dataset The dataset R6 object where aggregated results from queued operations are stored
-    initialize = function(dataset) {
-      # FIXME: Provide arguments so consumers of this class can hint how this class should validate
-      # the results of delayed actions.
+    #' @param dataset_class The class of the given dataset, used just to validate the contract between
+    #' the delayed actions and the dataset. If `NULL` action return values are not checked
+    #' @param sample_class The class of the samples in the dataset, used just to validate the contract between
+    #' the delayed actions and the samples. If `NULL` action return values are not checked
+    initialize = function(dataset, dataset_class = NULL, sample_class = NULL) {
       private$can_realize <- TRUE
       private$dataset <- dataset
+      private$dataset_class <- dataset_class
+      private$sample_class <- sample_class
     },
     #' @description
     #' The list of queued operations are usually processed sequentially over each sample when
@@ -154,6 +158,10 @@ DelayedDatasetBase <- R6::R6Class(
     registered_optimizations = list(),
     # @field dataset The dataset where realize() will aggregate the results of the delayed_ops
     dataset = NULL,
+    # @field dataset_class A string with the class `dataset` should inherit from. To validate the results of the delayed_ops
+    dataset_class = NULL,
+    # @field sample_class A string with the class of the sample objects, for validation of the functions that modify samples.
+    sample_class = NULL,
     # @description
     # Implement the realize action
     # @param ... ignored
@@ -198,7 +206,15 @@ DelayedDatasetBase <- R6::R6Class(
       }
       f <- delayed_op@fun_aggregate
       d <- f(private$dataset, extracted_result)
-      # FIXME: Validate dataset
+      if (!is.null(private$dataset_class) && !inherits(d, private$dataset_class)) {
+        cli_abort(
+          c(
+            "Error in {delayed_op@name}",
+            "x" = "Aggregate operation should return an object of class {.code {private$dataset_class}}, but an object of {.code {class(d)}} was returned instead",
+            "i" = "Please fix the action or report the issue to {.url https://github.com/sipss/GCIMS/issues}"
+          )
+        )
+      }
       private$dataset <- d
       return()
     }

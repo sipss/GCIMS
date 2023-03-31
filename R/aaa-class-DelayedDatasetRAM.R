@@ -18,8 +18,12 @@ DelayedDatasetRAM <- R6::R6Class(
     #' @description
     #' Create a delayed dataset on RAM
     #' @param samples A named list of samples.
-    #' @param dataset The dataset that stores aggregated results from the processing
-    initialize = function(samples, dataset) {
+    #' @param dataset The dataset R6 object where aggregated results from queued operations are stored
+    #' @param dataset_class The class of the given dataset, used just to validate the contract between
+    #' the delayed actions and the dataset. If `NULL` action return values are not checked
+    #' @param sample_class The class of the samples in the dataset, used just to validate the contract between
+    #' the delayed actions and the samples. If `NULL` action return values are not checked
+    initialize = function(samples, dataset, dataset_class = NULL, sample_class = NULL) {
       sample_names <- names(samples)
       if (length(samples) > 0 && is.null(sample_names)) {
         cli_abort("samples should be a named list")
@@ -28,7 +32,7 @@ DelayedDatasetRAM <- R6::R6Class(
         cli_abort("sample names should be unique and non-empty")
       }
       private$samples <- samples
-      super$initialize(dataset = dataset)
+      super$initialize(dataset = dataset, dataset_class = dataset_class, sample_class = sample_class)
     },
     #' @description
     #' Get a sample from the dataset
@@ -57,7 +61,6 @@ DelayedDatasetRAM <- R6::R6Class(
         cli_abort("sampleNames should be a vector of length {length(private$samples)} and not of length {length(value)}.")
       }
       names(private$samples) <- value
-      # FIXME: Set sample description
       value
     }
   ),
@@ -74,7 +77,8 @@ DelayedDatasetRAM <- R6::R6Class(
         sample_name = names(private$samples),
         sample_obj = private$samples,
         MoreArgs = list(
-          delayed_ops = private$delayed_ops
+          delayed_ops = private$delayed_ops,
+          sample_class = private$sample_class
         ),
         SIMPLIFY = FALSE
       )
@@ -91,14 +95,21 @@ DelayedDatasetRAM <- R6::R6Class(
 )
 
 
-realize_one_sample_ram <- function(sample_obj, sample_name, delayed_ops) {
+realize_one_sample_ram <- function(sample_obj, sample_name, delayed_ops, sample_class) {
   out <- vector("list", length = length(delayed_ops))
   needs_re_saving <- FALSE
   # Execute:
   for (i in seq_along(delayed_ops)) {
     result <- apply_op_to_sample(delayed_ops[[i]], sample_obj, sample_name)
     sample_obj <- result[["sample"]]
-    # FIXME: Validate sample_obj
+    if (!is.null(sample_class) && !inherits(sample_obj, sample_class)) {
+      cli_abort(
+        c("Invalid action {delayed_ops[[i]]@name}",
+          "i" = "The action should have returned a sample of class {sample_name}, but the object was of class {class(sample_obj)}",
+          "i" = "If you did not write the action, please report this to {.url https://github.com/sipss/GCIMS/issues}"
+          )
+      )
+    }
     out[i] <- result["extracted_obj"]
     if (result$needs_resaving) {
       needs_re_saving <- TRUE

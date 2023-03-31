@@ -87,14 +87,21 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
           names(samples) <- pData$SampleID
         }
         if (on_ram) {
-          private$delayed_dataset <- DelayedDatasetRAM$new(samples = samples, dataset = self)
+          private$delayed_dataset <- DelayedDatasetRAM$new(
+            samples = samples,
+            dataset = self,
+            dataset_class = "GCIMSDataset",
+            sample_class = "GCIMSSample"
+          )
         } else {
           scratch_dir <- validate_scratch_dir(scratch_dir, on_ram = FALSE)
           private$delayed_dataset <- DelayedDatasetDisk$new(
             samples = samples,
             scratch_dir = scratch_dir,
             keep_intermediate = keep_intermediate,
-            dataset = self
+            dataset = self,
+            dataset_class = "GCIMSDataset",
+            sample_class = "GCIMSSample"
           )
         }
         if (is.character(samples)) {
