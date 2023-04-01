@@ -143,7 +143,7 @@ Appends a delayed operation to the dataset so it will run afterwards
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{operation}}{A \link{GCIMSDelayedOp} object}
+\item{\code{operation}}{A \linkS4class{DelayedOperation} object}
 }
 \if{html}{\out{</div>}}
 }
