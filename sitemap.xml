@@ -40,6 +40,12 @@
     <loc>https://sipss.github.io/GCIMS/reference/DelayedDatasetRAM.html</loc>
   </url>
   <url>
+    <loc>https://sipss.github.io/GCIMS/reference/DelayedOperation-class.html</loc>
+  </url>
+  <url>
+    <loc>https://sipss.github.io/GCIMS/reference/DelayedOperation.html</loc>
+  </url>
+  <url>
     <loc>https://sipss.github.io/GCIMS/reference/GCIMS-generics.html</loc>
   </url>
   <url>
@@ -59,9 +65,6 @@
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/GCIMSDataset_fromList.html</loc>
-  </url>
-  <url>
-    <loc>https://sipss.github.io/GCIMS/reference/GCIMSDelayedOp-class.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/GCIMSDelayedOp.html</loc>
