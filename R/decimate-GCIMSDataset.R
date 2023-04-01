@@ -16,7 +16,7 @@ setMethod(
     if (rt_factor == 1L && dt_factor == 1L) {
       return(object)
     }
-    delayed_op <- GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "decimate",
       fun = decimate,
       params = list(dt_factor = dt_factor, rt_factor = rt_factor)

@@ -1,26 +1,36 @@
-#' GCIMSDelayedOp class
+#' Delayed Operation class
 #'
 #' @description
-#' GCIMSDelayedOp is an S4 class to store a delayed operation
+#' DelayedOperation is an S4 class to store a delayed operation
 #'
 #' Delayed operations are not applied to the dataset immediately, but rather
-#' when some data from the dataset is required. Delaying the calculation has
-#' the advantage that some operations that are applied to each sample can be applied
-#' sequentially to each sample, reducing the amount of reads and writes to
-#' the data files, and increasing the performance.
+#' when some data from the dataset is required. When working on large datasets,
+#' keeping all samples in RAM may be impossible, and the [DelayedDatasetDisk]
+#' architecture becomes convenient, where samples are stored in a directory, loaded
+#' processed and saved individually.
+#'
+#' Under such arquitecture, it is more efficient to load a sample, run as many operations
+#' as possible on it and save the sample, instead of loading a sample, running one
+#' operation, saving the sample.
+#'
+#' See how to create such delayed operations and more details at
+#' `vignette("creating-a-workflow-step", package = "GCIMS")`.
 #'
 #' @slot name A named for de delayed operation, only used for printing.
-#' @slot fun A function that takes a [GCIMSSample] and returns a [GCIMSSample] (modified)
-#' @slot params A named list with additional arguments to be passed to function
-#' @slot params_iter A named list with additinoal arguments to be passed to
-#' function. Compared to `params`, each argument must be a named list of length the number of samples, so
+#' @slot fun A function that takes a sample object and returns a sample object, usually with some change (filtered,...)
+#' @slot params A named list with additional arguments to be passed to `fun`
+#' @slot params_iter A named list with additional arguments to be passed to
+#' `fun`. Compared to `params`, each argument must be a named list of length the number of samples, so
 #' each sample will receive its corresponding parameter according to its name
-#' @slot fun_extract A function that takes a modified [GCIMSSample] and returns an extracted object.
-#' @slot fun_aggregate A function that takes a [GCIMSDataset] and a list of extracted objects and returns a modified [GCIMSDataset].
+#' @slot fun_extract A function that takes the modified sample object returned
+#'  by `fun` and extracts some component out of it. This component will be stored in the dataset for faster access.
+#' @slot fun_aggregate A function that takes a dataset object and a list of extracted results (the output of all `fun_extract` calls)
+#' and modifies the dataset.
+#'
 #'
 #' @export
 methods::setClass(
-  Class = "GCIMSDelayedOp",
+  Class = "DelayedOperation",
   slots = c(
     name = "character",
     fun = "functionOrNULL",
@@ -31,10 +41,10 @@ methods::setClass(
   )
 )
 
-#' Create a [GCIMSDelayedOp] object
+#' Create a [DelayedOperation] object
 #'
 #'
-#' Delayed operations enable GCIMS to process our samples faster on big datasets.
+#' Delayed operations enables us to process our samples faster on big datasets.
 #' See the details section for details on how they work.
 #'
 #' @details
@@ -42,7 +52,8 @@ methods::setClass(
 #' Let's say we have a pipeline with two actions (e.g. smooth() and detectPeaks()).
 #' and we want to apply it to a dataset with two samples (e.g s1, s2).
 #'
-#' This is a simple pseudocode to execute all actions in all samples:
+#' This is a simple pseudocode to execute all actions in all samples. The code
+#' is written so you can get an idea of how :
 #'
 #' ```
 #' dataset = list(s1, s2)
@@ -85,13 +96,13 @@ methods::setClass(
 #' This requires that when we apply an operation to the dataset, the operation
 #' is delayed, so we can stack many delayed operations and run them all at once.
 #'
-#' The GCIMSDelayedOp class allows us to store all pending actions and run them
+#' The DelayedOperation class allows us to store all pending actions and run them
 #' afterwards when the data is needed.
 #'
 #' Besides, samples can be processed in parallel if enough cores and RAM are
 #' available.
 #'
-#' The GCIMSDelayedOp class also considers that sometimes we want to extract
+#' The DelayedOperation class also considers that sometimes we want to extract
 #' some information from each sample (e.g. the Reverse Ion Chromatogram)
 #' and build some matrix with the Reverse Ion Chromatograms of all samples. It changes
 #' the loops above, so after each action modifies each sample, we can extract something
@@ -103,20 +114,21 @@ methods::setClass(
 #'
 #'
 #' @param name A named for de delayed operation, only used for printing.
-#' @param fun A function that takes a [GCIMSSample] and returns a [GCIMSSample] (modified)
+#' @param fun A function that takes a sample and returns a modified sample
 #' @param params A named list with additional arguments to be passed to function
-#' @param params_iter A named list with additinoal arguments to be passed to
+#' @param params_iter A named list with additional arguments to be passed to
 #' function. Compared to `params`, each argument must be a named list of length the number of samples, so
 #' each sample will receive its corresponding parameter according to its name
-#' @param fun_extract A function that takes a modified [GCIMSSample] and returns an extracted object.
-#' @param fun_aggregate A function that takes a [GCIMSDataset] and a list of extracted objects and returns a modified [GCIMSDataset].
-#' @return A GCIMSDelayedOp object
-GCIMSDelayedOp <- function(name, fun = NULL, params = list(), params_iter = list(), fun_extract = NULL, fun_aggregate = NULL) {
-  methods::new("GCIMSDelayedOp", name = name, fun = fun, params = params, params_iter = params_iter, fun_extract = fun_extract, fun_aggregate = fun_aggregate)
+#' @param fun_extract A function that takes a modified sample and returns an extracted object.
+#' @param fun_aggregate A function that takes a dataset and a list of extracted objects and returns a modified dataset.
+#' @export
+#' @return A [DelayedOperation] object
+DelayedOperation <- function(name, fun = NULL, params = list(), params_iter = list(), fun_extract = NULL, fun_aggregate = NULL) {
+  methods::new("DelayedOperation", name = name, fun = fun, params = params, params_iter = params_iter, fun_extract = fun_extract, fun_aggregate = fun_aggregate)
 }
 
 methods::setMethod(
-  "initialize", "GCIMSDelayedOp",
+  "initialize", "DelayedOperation",
   function(.Object, name, fun = NULL, params = list(), params_iter = list(), fun_extract = NULL, fun_aggregate = NULL) {
     if (!grepl(pattern = "^[a-zA-Z0-9][-a-zA-Z_0-9]*$", x = name)) {
       cli_abort(
@@ -211,7 +223,7 @@ describeAsList <- function(object) {
 }
 
 methods::setMethod(
-  "show", "GCIMSDelayedOp",
+  "show", "DelayedOperation",
   function(object) {
     cat(yaml::as.yaml(describeAsList(object)))
     invisible(NULL)

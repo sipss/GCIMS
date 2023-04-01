@@ -79,8 +79,8 @@ DelayedDatasetBase <- R6::R6Class(
     },
     #' @description
     #' Queues an operation to the dataset so it will run afterwards
-    #' @param operation A [GCIMSDelayedOp] object
-    #' @return The modified GCIMSDataset object
+    #' @param operation A [DelayedOperation] object
+    #' @return The modified dataset object
     appendDelayedOp = function(operation) {
       private$delayed_ops <- c(private$delayed_ops, list(operation))
       self

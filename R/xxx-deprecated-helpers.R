@@ -231,3 +231,20 @@ setMethod(
     object$print()
   }
 )
+
+
+#' Deprecated constructor
+#' @inheritParams DelayedOperation
+#' @keywords internal
+GCIMSDelayedOp <- function(name, fun = NULL, params = list(), params_iter = list(), fun_extract = NULL, fun_aggregate = NULL) {
+  cli_warn("GCIMS:::GCIMSDelayedOp(...) is deprecated. Please use DelayedOperation(...) instead.")
+  DelayedOperation(
+    name = name,
+    fun = fun,
+    params = params,
+    params_iter = params_iter,
+    fun_extract = fun_extract,
+    fun_aggregate = fun_aggregate
+  )
+}
+

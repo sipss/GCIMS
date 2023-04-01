@@ -107,7 +107,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
         if (is.character(samples)) {
           # So this is going to be our first action: read the samples
           self$appendDelayedOp(
-            operation = GCIMSDelayedOp(
+            operation = DelayedOperation(
               name = "read_sample",
               fun = read_sample,
               params = list(
@@ -132,7 +132,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     },
     #' @description
     #' Appends a delayed operation to the dataset so it will run afterwards
-    #' @param operation A [GCIMSDelayedOp] object
+    #' @param operation A [DelayedOperation-class] object
     #' @return The modified GCIMSDataset object
     appendDelayedOp = function(operation) {
       private$delayed_dataset$appendDelayedOp(operation)
@@ -168,7 +168,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     #' @description
     #' Sets an action to extract the reference retention and drift times
     extract_dtime_rtime = function() {
-      delayed_op <- GCIMSDelayedOp(
+      delayed_op <- DelayedOperation(
         name = "extract_dtime_rtime",
         fun_extract = .extract_dtime_rtime_fun_extract,
         fun_aggregate = .extract_dtime_rtime_fun_aggregate
@@ -196,7 +196,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     #' @return The GCIMSDataset
     extract_RIC_and_TIS = function() {
       self$extract_dtime_rtime()
-      delayed_op <- GCIMSDelayedOp(
+      delayed_op <- DelayedOperation(
         name = "extract_RIC_and_TIS",
         fun = NULL,
         fun_extract = .extract_RIC_and_TIS_fun_extract,
@@ -236,7 +236,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     # @field The DelayedDataset object
     delayed_dataset = NULL,
     updateSampleDescriptions = function(new_names) {
-      op = GCIMSDelayedOp(
+      op = DelayedOperation(
         name = "setSampleNamesAsDescription",
         fun = function(sample, sample_name) {
           description(sample) <- sample_name

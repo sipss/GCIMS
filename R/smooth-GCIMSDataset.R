@@ -12,7 +12,7 @@ setMethod(
   "GCIMSDataset",
   function(x, dt_length_ms = 0.14, rt_length_s = 3, dt_order = 2, rt_order = 2) {
 
-    delayed_op <- GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "smooth",
       fun = smooth,
       params = list(dt_length_ms = dt_length_ms, rt_length_s = rt_length_s, dt_order = dt_order, rt_order = rt_order)

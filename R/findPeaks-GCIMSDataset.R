@@ -8,7 +8,7 @@ setMethod(
   "GCIMSDataset",
   function(object, ...) {
     params <- list(...)
-    delayed_op <- GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "findPeaks",
       fun = findPeaks,
       params = params,

@@ -13,7 +13,7 @@ setMethod(
   "GCIMSDataset",
   function(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s) {
 
-    delayed_op <- GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "estimateBaseline",
       fun = estimateBaseline,
       params = list(dt_peak_fwhm_ms = dt_peak_fwhm_ms, dt_region_multiplier = dt_region_multiplier, rt_length_s = rt_length_s)

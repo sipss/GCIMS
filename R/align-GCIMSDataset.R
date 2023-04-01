@@ -22,7 +22,7 @@ setMethod(
       ric_matrix = ric_matrix
     )
 
-    delayed_op <- GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "align",
       fun = align,
       params = align_params,

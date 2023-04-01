@@ -13,7 +13,7 @@ setMethod(
   "filterRt",
   "GCIMSDataset",
   function(object, rt_range) {
-    delayed_op <- GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "filterRt",
       fun = filterRt,
       params = list(rt_range = rt_range)
@@ -41,7 +41,7 @@ setMethod(
   "filterDt",
   "GCIMSDataset",
   function(object, dt_range) {
-    delayed_op <- GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "filterDt",
       fun = filterDt,
       params = list(dt_range = dt_range)

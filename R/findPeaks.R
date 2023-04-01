@@ -1,3 +1,13 @@
+#' Computes the smoothed second derivatives through the Savitzky-golay filter
+#'
+#' @noRd
+#' @param int_mat The intensity matrix, with one ims spectra on each column
+#' @param dt_length_pts Length of the filter when applied column-by-column
+#' @param rt_length_pts Length of the filter when applied row-by-row
+#' @param dt_order Order of the filter, column-by-column
+#' @param rt_order Order of the filter, row-by-row
+#'
+#' @return A list with the derivatives with respect to drift time and retention time
 compute_second_deriv <- function(int_mat, dt_length_pts, rt_length_pts, dt_order = 2, rt_order = 2) {
   filter1 <- signal::sgolay(p = rt_order, n = rt_length_pts, m = 2)
   filter2 <- signal::sgolay(p = dt_order, n = dt_length_pts, m = 2)
@@ -9,6 +19,20 @@ compute_second_deriv <- function(int_mat, dt_length_pts, rt_length_pts, dt_order
   )
 }
 
+#' Interleave peaks with beak boundaries
+#' @noRd
+#'
+#' @param peak_idx The apex positions
+#' @param zero_idx The zeros of the second derivative. Estimations for peak boundaries.
+#' @param signal_idx A single integer, that corresponds to an identifier of the
+#' signal where the peaks were detected
+#'
+#' @return A data frame with four columns:
+#'  - signal_idx: The given signal_idx, repeated as necessary
+#'  - idx_apex: The position of each apex, given at peak_idx
+#'  - idx_min: The first zero_idx before idx_apex (left boundary)
+#'  - idx_max: The first zero_idx after idx_apex (right boundary)
+#'
 interleave_peaks_with_zeros <- function(peak_idx, zero_idx, signal_idx) {
   if (length(peak_idx) == 0 || length(zero_idx) == 0) {
     out <- tibble::tibble(
@@ -281,6 +305,14 @@ rois_to_peaklist <- function(ROIs, drift_time, retention_time, int_mat, ddt, drt
   peak_list
 }
 
+#' Choose the scales and prepare the wavelets given peak widths
+#'
+#' @noRd
+#' @param axis The axis of the signal where peaks are going to be detected.
+#' It is assumed the sampling is constant.
+#' @param peakwidth_min,peakwidth_max Peak width in axis units.
+#'
+#' @return The output of [MassSpecWavelet::prepareWavelets()]
 prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
   step <- axis[2L] - axis[1L]
   peakwidth_min_pts <- units_to_points(peakwidth_min, step)
@@ -288,8 +320,14 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
   if (peakwidth_min_pts < 1) {
     peakwidth_min_pts <- 1
   }
-  # TODO: maybe warn if this happens
   if (peakwidth_max_pts > length(axis)) {
+    cli_warn(
+      c(
+        "The requested peak width is longer than the axis",
+        "i" = "It is not reliable to find peaks wider than the axis.",
+        "i" = "peakwidth_max should not be larger than {step*length(axis)}"
+      )
+    )
     peakwidth_max_pts <- length(axis)
   }
   base <- 1.5
@@ -302,7 +340,6 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
     )
   )
   if (length(scales) > 12) {
-    base <- 1.5
     scales <- unique(
       c(
         1,
