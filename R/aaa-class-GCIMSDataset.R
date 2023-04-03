@@ -588,28 +588,6 @@ read_sample <- function(filename, base_dir, parser = "default") {
   sample
 }
 
-
-#' @name GCIMSDataset-old-constructor
-#' @title GCIMSDataset old constructor
-#'
-#' @param pData A data frame with at least the `SampleID` and `FileName` columns.
-#' @param base_dir A directory containing the file names described in `pData`
-#' @param parser Either a string `"default"` or a function that takes a filename and returns a [GCIMSSample-class] object
-#' @param scratch_dir A directory to save intermediate results.
-#' @param keep_intermediate A logical. Whether to keep or not intermediate files when realizing the GCIMSDataset object
-#' @param on_ram A logical. If `TRUE`, samples are kept on RAM. This is faster
-#' as long as you have enough memory to keep all samples. If this is `TRUE`, then
-#' `scratch_dir` and `keep_intermediate` are ignored.
-#' @return A GCIMSDataset object
-#'
-#' @examples
-#' # Create a new GCIMSDataset with the convenient constructor function:
-#' dummy_obj <-GCIMSDataset$new(
-#'   pData = data.frame(SampleID = character(), filename = character(0)),
-#'   base_dir = tempdir()
-#' )
-NULL
-
 #' GCIMSDataset_fromList
 #'
 #' @param samples A named list of [GCIMSSample] objects. names should match `pData$SampleID`
