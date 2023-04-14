@@ -11,6 +11,63 @@ When the dataset is created, the \code{on_ram} option controls whether the actua
 data is stored not in memory or it is read/saved from/to files as
 needed, so the dataset object scales with large number of samples.
 }
+\section{Constructors:}{
+\itemize{
+\item \href{#method-GCIMSDataset-new}{\code{GCIMSDataset$new()}}
+\item \href{#constructor-GCIMSDataset-new-from-list}{\code{GCIMSDataset$new_from_list()}}: Create a new GCIMSDataset from a list of samples
+\item \href{#constructor-GCIMSDataset-new-from-saved-dir}{\code{GCIMSDataset$new_from_saved_dir()}}: Create a new on disk GCIMSDataset from a directory
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="constructor-GCIMSDataset-new-from-list"></a>}}
+\if{latex}{\out{\hypertarget{constructor-GCIMSDataset-new-from-list}{}}}
+\subsection{Constructor \code{new_from_list()}}{
+
+Create a new GCIMSDataset object from a list of samples. Note that with this
+constructor \code{on_ram} is \code{TRUE} by default
+\subsection{Usage}{
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{GCIMSDataset$new_from_list(
+  samples,
+  pData=NULL,
+  scratch_dir = NULL,
+  keep_intermediate = FALSE,
+  on_ram = TRUE
+)
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+
+See \code{\link[=GCIMSDataset$new]{GCIMSDataset$new()}}
+}
+
+}
+
+\subsection{Constructor \code{new_from_saved_dir()}}{
+
+Creates a new GCIMSDataset object from a directory where a GCIMSDataset with
+\code{on_ram=FALSE} was saved.
+\subsection{Usage}{
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{GCIMSDataset$new_from_saved_dir(
+  input_dir,
+  scratch_dir = dirname(input_dir)
+)
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\itemize{
+\item \code{input_dir}: The path to the directory where the \code{dataset.rds} is saved and all the corresponding \code{sample_*.rds} files are.
+Typically a subdirectory of \code{scratch_dir}.
+\item \code{scratch_dir}: The new scratch directory where further processing samples will be saved. By default it is the parent of \code{input_dir}.
+}
+}
+
+}
+}
+
 \examples{
 
 ## ------------------------------------------------
@@ -62,6 +119,10 @@ dummy_dataset <- GCIMSDataset$new(
 \item \href{#method-GCIMSDataset-extract_dtime_rtime}{\code{GCIMSDataset$extract_dtime_rtime()}}
 \item \href{#method-GCIMSDataset-getRIC}{\code{GCIMSDataset$getRIC()}}
 \item \href{#method-GCIMSDataset-extract_RIC_and_TIS}{\code{GCIMSDataset$extract_RIC_and_TIS()}}
+\item \href{#method-GCIMSDataset-is_on_disk}{\code{GCIMSDataset$is_on_disk()}}
+\item \href{#method-GCIMSDataset-copy}{\code{GCIMSDataset$copy()}}
+\item \href{#method-GCIMSDataset-updateScratchDir}{\code{GCIMSDataset$updateScratchDir()}}
+\item \href{#method-GCIMSDataset-getCurrentDir}{\code{GCIMSDataset$getCurrentDir()}}
 \item \href{#method-GCIMSDataset-clone}{\code{GCIMSDataset$clone()}}
 }
 }
@@ -239,6 +300,75 @@ Extracts the RIC and the TIS
 
 \subsection{Returns}{
 The GCIMSDataset
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-is_on_disk"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-is_on_disk}{}}}
+\subsection{Method \code{is_on_disk()}}{
+Whether the dataset is saved on disk or stored in RAM
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$is_on_disk()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+\code{TRUE} if on disk, \code{FALSE} otherwise
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-copy"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-copy}{}}}
+\subsection{Method \code{copy()}}{
+Creates a copy of the dataset. If the dataset is stored on disk, then
+a new \code{scratch_dir} must be used.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$copy(scratch_dir = NA)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scratch_dir}}{The scratch directory where samples being processed will be stored, if the copy is on disk.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new GCIMSDataset object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-updateScratchDir"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-updateScratchDir}{}}}
+\subsection{Method \code{updateScratchDir()}}{
+For on-disk datasets, copy all samples to a new scratch dir.
+This is useful when creating copies of the dataset, using the \code{dataset$copy()} method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$updateScratchDir(scratch_dir, override_current_dir = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scratch_dir}}{The new \code{scratch_dir}, must be different from the current one}
+
+\item{\code{override_current_dir}}{Typically used only internally, overrides the location of the samples. Useful when we are
+loading a dataset from a directory and the directory was moved since it was saved.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-getCurrentDir"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-getCurrentDir}{}}}
+\subsection{Method \code{getCurrentDir()}}{
+Get the directory where processed samples are being saved, on on-disk datasets.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$getCurrentDir()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Either a path or \code{NULL}. \code{NULL} is returned if samples have not been saved (either
+because have not been loaded or because the dataset is stored on RAM)
 }
 }
 \if{html}{\out{<hr>}}

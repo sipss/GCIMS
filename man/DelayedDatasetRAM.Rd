@@ -49,23 +49,13 @@ This class is not exported, but if you want to use it reach us at
 \subsection{Method \code{new()}}{
 Create a delayed dataset on RAM
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetRAM$new(
-  samples,
-  dataset,
-  dataset_class = NULL,
-  sample_class = NULL
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetRAM$new(samples, sample_class = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{samples}}{A named list of samples.}
-
-\item{\code{dataset}}{The dataset R6 object where aggregated results from queued operations are stored}
-
-\item{\code{dataset_class}}{The class of the given dataset, used just to validate the contract between
-the delayed actions and the dataset. If \code{NULL} action return values are not checked}
 
 \item{\code{sample_class}}{The class of the samples in the dataset, used just to validate the contract between
 the delayed actions and the samples. If \code{NULL} action return values are not checked}

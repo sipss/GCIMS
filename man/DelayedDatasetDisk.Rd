@@ -20,6 +20,8 @@ This class is not exported, but if you want to use it reach us at
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{sampleNames}}{The character vector with unique sample names. Renaming samples renames files on \code{obj$getCurrentDir()} as well}
+
+\item{\code{scratchDir}}{The directory where intermediate and processed files are saved.}
 }
 \if{html}{\out{</div>}}
 }
@@ -29,6 +31,8 @@ This class is not exported, but if you want to use it reach us at
 \item \href{#method-DelayedDatasetDisk-new}{\code{DelayedDatasetDisk$new()}}
 \item \href{#method-DelayedDatasetDisk-getSample}{\code{DelayedDatasetDisk$getSample()}}
 \item \href{#method-DelayedDatasetDisk-getCurrentDir}{\code{DelayedDatasetDisk$getCurrentDir()}}
+\item \href{#method-DelayedDatasetDisk-checkSampleFiles}{\code{DelayedDatasetDisk$checkSampleFiles()}}
+\item \href{#method-DelayedDatasetDisk-updateScratchDir}{\code{DelayedDatasetDisk$updateScratchDir()}}
 \item \href{#method-DelayedDatasetDisk-clone}{\code{DelayedDatasetDisk$clone()}}
 }
 }
@@ -54,8 +58,6 @@ Create a delayed dataset on disk
   samples,
   scratch_dir,
   keep_intermediate = FALSE,
-  dataset = NULL,
-  dataset_class = NULL,
   sample_class = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -70,11 +72,6 @@ If they are filenames, the filenames are relative to \code{base_dir}.}
 \item{\code{scratch_dir}}{The directory where samples being processed will be saved}
 
 \item{\code{keep_intermediate}}{A logical value, whether intermediate realization steps should be saved.}
-
-\item{\code{dataset}}{The dataset R6 object where aggregated results from queued operations are stored}
-
-\item{\code{dataset_class}}{The class of the given dataset, used just to validate the contract between
-the delayed actions and the dataset. If \code{NULL} action return values are not checked}
 
 \item{\code{sample_class}}{The class of the samples in the dataset, used just to validate the contract between
 the delayed actions and the samples. If \code{NULL} action return values are not checked}
@@ -116,6 +113,52 @@ Get the path to the location of the processed samples
 
 \subsection{Returns}{
 The full path to the directory where samples are saved
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DelayedDatasetDisk-checkSampleFiles"></a>}}
+\if{latex}{\out{\hypertarget{method-DelayedDatasetDisk-checkSampleFiles}{}}}
+\subsection{Method \code{checkSampleFiles()}}{
+Get missing sample files
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetDisk$checkSampleFiles(on_error = "nothing")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{on_error}}{Either "abort" or "nothing". Action to take if there are missing files}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A vector with missing files named with sample ids.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DelayedDatasetDisk-updateScratchDir"></a>}}
+\if{latex}{\out{\hypertarget{method-DelayedDatasetDisk-updateScratchDir}{}}}
+\subsection{Method \code{updateScratchDir()}}{
+Copies the samples to a new scratch directory and saves the dataset there as well
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetDisk$updateScratchDir(
+  new_scratch_dir,
+  dataset = NULL,
+  override_current_dir = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_scratch_dir}}{A new scratch directory to store samples}
+
+\item{\code{dataset}}{If an object is given, it is saved under the new_scratch_dir, with the samples.}
+
+\item{\code{override_current_dir}}{If not \code{NULL}, assume samples are in this directory, instead of in \code{self$getCurrentDir()}. Useful
+when loading samples from a saved directory.}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
