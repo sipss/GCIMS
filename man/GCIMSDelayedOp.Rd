@@ -28,6 +28,9 @@ each sample will receive its corresponding parameter according to its name}
 
 \item{fun_aggregate}{A function that takes a dataset and a list of extracted objects and returns a modified dataset.}
 }
+\value{
+A delayed operation object
+}
 \description{
 Deprecated constructor
 }
