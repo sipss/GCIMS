@@ -36,7 +36,7 @@
 #'
 #' ### Arguments
 #'
-#' See [`GCIMSDataset$new()`]
+#' See [`GCIMSDataset$new()`](#method-GCIMSDataset-new)
 #'
 #' ## Constructor `new_from_saved_dir()`
 #'
