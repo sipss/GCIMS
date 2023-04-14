@@ -39,7 +39,7 @@ constructor \code{on_ram} is \code{TRUE} by default
 
 \subsection{Arguments}{
 
-See \code{\link[=GCIMSDataset$new]{GCIMSDataset$new()}}
+See \href{#method-GCIMSDataset-new}{\code{GCIMSDataset$new()}}
 }
 
 }

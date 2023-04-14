@@ -88,13 +88,15 @@ The DelayedDatasetDisk object
 \subsection{Method \code{getSample()}}{
 Get a sample from the dataset
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetDisk$getSample(sample)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetDisk$getSample(sample, dataset)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{sample}}{Either an integer (sample index) or a string (sample name)}
+
+\item{\code{dataset}}{The dataset so we can realize if there are enqueued actions}
 }
 \if{html}{\out{</div>}}
 }

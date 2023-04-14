@@ -147,13 +147,15 @@ Returns \code{TRUE} if the dataset has pending operations, \code{FALSE} otherwis
 \subsection{Method \code{getSample()}}{
 Get a sample from the dataset
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetBase$getSample(sample)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetBase$getSample(sample, dataset)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{sample}}{Either an integer (sample index) or a string (sample name)}
+
+\item{\code{dataset}}{The dataset object so we can realize it if needed}
 }
 \if{html}{\out{</div>}}
 }
