@@ -88,7 +88,7 @@
                         <h4 data-toc-skip class="author">Sergio
 Oller</h4>
             
-            <h4 data-toc-skip class="date">2023-04-01</h4>
+            <h4 data-toc-skip class="date">2023-04-14</h4>
       
       
       <div class="hidden name"><code>importing-custom-data-formats.Rmd</code></div>
@@ -260,14 +260,15 @@ function:</p>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>ds</span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>A GCIMSDataset<span class="sc">:</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> With <span class="dv">2</span> samples on disk.</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> No phenotypes</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> No previous history</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> Queued operations<span class="sc">:</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span> read_sample<span class="sc">:</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>      base_dir<span class="sc">:</span> <span class="er">/</span>__w<span class="sc">/</span>GCIMS<span class="sc">/</span>GCIMS<span class="sc">/</span>vignettes</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      parser<span class="sc">:</span> <span class="er">&lt;</span> <span class="cf">function</span> <span class="sc">&gt;</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span> setSampleNamesAsDescription</span></code></pre></div>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> With <span class="dv">2</span> samples</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> Stored on <span class="fu">disk</span> (not loaded yet)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> No phenotypes</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> No previous history</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> Queued operations<span class="sc">:</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span> read_sample<span class="sc">:</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      base_dir<span class="sc">:</span> <span class="er">/</span>__w<span class="sc">/</span>GCIMS<span class="sc">/</span>GCIMS<span class="sc">/</span>vignettes</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>      parser<span class="sc">:</span> <span class="er">&lt;</span> <span class="cf">function</span> <span class="sc">&gt;</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span> setSampleNamesAsDescription</span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="st">"Sample1"</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -281,7 +282,7 @@ function:</p>
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>R version <span class="dv">4</span>.<span class="fl">2.2</span> (<span class="dv">2022-10-31</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>R version <span class="dv">4</span>.<span class="fl">2.3</span> (<span class="dv">2023-03-15</span>)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>Platform<span class="sc">:</span> x86_64<span class="sc">-</span>pc<span class="sc">-</span>linux<span class="sc">-</span><span class="fu">gnu</span> (<span class="dv">64</span><span class="sc">-</span>bit)</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Running under<span class="sc">:</span> Ubuntu <span class="dv">22</span>.<span class="fl">04.2</span> LTS</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
@@ -307,7 +308,7 @@ function:</p>
 <span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a> [<span class="dv">1</span>] tidyselect_1.<span class="fl">2.0</span>    xfun_0<span class="fl">.38</span>           bslib_0.<span class="fl">4.2</span>        </span>
 <span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a> [<span class="dv">4</span>] purrr_1.<span class="fl">0.1</span>         colorspace_2<span class="fl">.1</span><span class="dv">-0</span>    vctrs_0.<span class="fl">6.1</span>        </span>
 <span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a> [<span class="dv">7</span>] generics_0.<span class="fl">1.3</span>      viridisLite_0.<span class="fl">4.1</span>   htmltools_0.<span class="fl">5.5</span>    </span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>[<span class="dv">10</span>] stats4_4.<span class="fl">2.2</span>        yaml_2.<span class="fl">3.7</span>          utf8_1.<span class="fl">2.3</span>         </span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>[<span class="dv">10</span>] stats4_4.<span class="fl">2.3</span>        yaml_2.<span class="fl">3.7</span>          utf8_1.<span class="fl">2.3</span>         </span>
 <span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>[<span class="dv">13</span>] rlang_1.<span class="fl">1.0</span>         pkgdown_2.<span class="fl">0.7</span>       jquerylib_0.<span class="fl">1.4</span>    </span>
 <span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>[<span class="dv">16</span>] pillar_1.<span class="fl">9.0</span>        withr_2.<span class="fl">5.0</span>         glue_1.<span class="fl">6.2</span>         </span>
 <span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>[<span class="dv">19</span>] BiocParallel_1.<span class="fl">32.6</span> BiocGenerics_0.<span class="fl">44.0</span> lifecycle_1.<span class="fl">0.3</span>    </span>
@@ -315,17 +316,17 @@ function:</p>
 <span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>[<span class="dv">25</span>] gtable_0.<span class="fl">3.3</span>        ragg_1.<span class="fl">2.5</span>          codetools_0<span class="fl">.2</span><span class="dv">-19</span>   </span>
 <span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>[<span class="dv">28</span>] memoise_2.<span class="fl">0.1</span>       evaluate_0<span class="fl">.20</span>       labeling_0.<span class="fl">4.2</span>     </span>
 <span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>[<span class="dv">31</span>] Biobase_2.<span class="fl">58.0</span>      knitr_1<span class="fl">.42</span>          fastmap_1.<span class="fl">1.1</span>      </span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>[<span class="dv">34</span>] parallel_4.<span class="fl">2.2</span>      fansi_1.<span class="fl">0.4</span>         highr_0<span class="fl">.10</span>         </span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>[<span class="dv">34</span>] parallel_4.<span class="fl">2.3</span>      fansi_1.<span class="fl">0.4</span>         highr_0<span class="fl">.10</span>         </span>
 <span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>[<span class="dv">37</span>] scales_1.<span class="fl">2.1</span>        BiocManager_1.<span class="fl">30.20</span> cachem_1.<span class="fl">0.7</span>       </span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>[<span class="dv">40</span>] sgolay_1.<span class="fl">0.2</span>        S4Vectors_0.<span class="fl">36.2</span>    desc_1.<span class="fl">4.2</span>         </span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>[<span class="dv">40</span>] sgolay_1.<span class="fl">0.3</span>        S4Vectors_0.<span class="fl">36.2</span>    desc_1.<span class="fl">4.2</span>         </span>
 <span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>[<span class="dv">43</span>] jsonlite_1.<span class="fl">8.4</span>      farver_2.<span class="fl">1.1</span>        systemfonts_1.<span class="fl">0.4</span>  </span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>[<span class="dv">46</span>] fs_1.<span class="fl">6.1</span>            textshaping_0.<span class="fl">3.6</span>   ggplot2_3.<span class="fl">4.1</span>      </span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>[<span class="dv">46</span>] fs_1.<span class="fl">6.1</span>            textshaping_0.<span class="fl">3.6</span>   ggplot2_3.<span class="fl">4.2</span>      </span>
 <span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>[<span class="dv">49</span>] digest_0.<span class="fl">6.31</span>       stringi_1.<span class="fl">7.12</span>      bookdown_0<span class="fl">.33</span>      </span>
-<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>[<span class="dv">52</span>] dplyr_1.<span class="fl">1.1</span>         rprojroot_2.<span class="fl">0.3</span>     grid_4.<span class="fl">2.2</span>         </span>
-<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>[<span class="dv">55</span>] cli_3.<span class="fl">6.1</span>           tools_4.<span class="fl">2.2</span>         magrittr_2.<span class="fl">0.3</span>     </span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>[<span class="dv">52</span>] dplyr_1.<span class="fl">1.1</span>         rprojroot_2.<span class="fl">0.3</span>     grid_4.<span class="fl">2.3</span>         </span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>[<span class="dv">55</span>] cli_3.<span class="fl">6.1</span>           tools_4.<span class="fl">2.3</span>         magrittr_2.<span class="fl">0.3</span>     </span>
 <span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>[<span class="dv">58</span>] sass_0.<span class="fl">4.5</span>          tibble_3.<span class="fl">2.1</span>        pkgconfig_2.<span class="fl">0.3</span>    </span>
 <span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>[<span class="dv">61</span>] MASS_7<span class="fl">.3-58.3</span>       rmarkdown_2<span class="fl">.21</span>      R6_2.<span class="fl">5.1</span>           </span>
-<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>[<span class="dv">64</span>] signal_0<span class="fl">.7</span><span class="dv">-7</span>        compiler_4.<span class="fl">2.2</span>     </span></code></pre></div>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>[<span class="dv">64</span>] signal_0<span class="fl">.7</span><span class="dv">-7</span>        compiler_4.<span class="fl">2.3</span>     </span></code></pre></div>
 </div>
   </div>
 

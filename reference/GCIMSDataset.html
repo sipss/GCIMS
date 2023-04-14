@@ -69,6 +69,67 @@ needed, so the dataset object scales with large number of samples.</p>
     </div>
 
 
+    <div id="constructors-">
+    <h2>Constructors:</h2>
+    
+<ul><li><p><a href="#method-GCIMSDataset-new"><code>GCIMSDataset$new()</code></a></p></li>
+<li><p><a href="#constructor-GCIMSDataset-new-from-list"><code>GCIMSDataset$new_from_list()</code></a>: Create a new GCIMSDataset from a list of samples</p></li>
+<li><p><a href="#constructor-GCIMSDataset-new-from-saved-dir"><code>GCIMSDataset$new_from_saved_dir()</code></a>: Create a new on disk GCIMSDataset from a directory</p></li>
+</ul><p></p><hr><a id="constructor-GCIMSDataset-new-from-list"></a><div class="section">
+<h3 id="constructor-new-from-list-">Constructor <code>new_from_list()</code><a class="anchor" aria-label="anchor" href="#constructor-new-from-list-"></a></h3>
+
+
+<p>Create a new GCIMSDataset object from a list of samples. Note that with this
+constructor <code>on_ram</code> is <code>TRUE</code> by default</p><div class="section">
+<h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GCIMSDataset<span class="sc">$</span><span class="fu">new_from_list</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  samples,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">pData=</span><span class="cn">NULL</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scratch_dir =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">keep_intermediate =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">on_ram =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+
+
+<p>See <a href="#method-GCIMSDataset-new"><code>GCIMSDataset$new()</code></a></p>
+</div>
+
+
+</div>
+
+<div class="section">
+<h3 id="constructor-new-from-saved-dir-">Constructor <code>new_from_saved_dir()</code><a class="anchor" aria-label="anchor" href="#constructor-new-from-saved-dir-"></a></h3>
+
+
+<p>Creates a new GCIMSDataset object from a directory where a GCIMSDataset with
+<code>on_ram=FALSE</code> was saved.</p><div class="section">
+<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GCIMSDataset<span class="sc">$</span><span class="fu">new_from_saved_dir</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  input_dir,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">scratch_dir =</span> <span class="fu">dirname</span>(input_dir)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+
+<ul><li><p><code>input_dir</code>: The path to the directory where the <code>dataset.rds</code> is saved and all the corresponding <code>sample_*.rds</code> files are.
+Typically a subdirectory of <code>scratch_dir</code>.</p></li>
+<li><p><code>scratch_dir</code>: The new scratch directory where further processing samples will be saved. By default it is the parent of <code>input_dir</code>.</p></li>
+</ul></div>
+
+
+</div>
+
+    </div>
     <div id="public-fields">
     <h2>Public fields</h2>
     <p></p><div class="r6-fields"><dl><dt><code>pData</code></dt>
@@ -128,11 +189,15 @@ needed, so the dataset object scales with large number of samples.</p>
 <li><p><a href="#method-GCIMSDataset-extract_dtime_rtime"><code>GCIMSDataset$extract_dtime_rtime()</code></a></p></li>
 <li><p><a href="#method-GCIMSDataset-getRIC"><code>GCIMSDataset$getRIC()</code></a></p></li>
 <li><p><a href="#method-GCIMSDataset-extract_RIC_and_TIS"><code>GCIMSDataset$extract_RIC_and_TIS()</code></a></p></li>
+<li><p><a href="#method-GCIMSDataset-is_on_disk"><code>GCIMSDataset$is_on_disk()</code></a></p></li>
+<li><p><a href="#method-GCIMSDataset-copy"><code>GCIMSDataset$copy()</code></a></p></li>
+<li><p><a href="#method-GCIMSDataset-updateScratchDir"><code>GCIMSDataset$updateScratchDir()</code></a></p></li>
+<li><p><a href="#method-GCIMSDataset-getCurrentDir"><code>GCIMSDataset$getCurrentDir()</code></a></p></li>
 <li><p><a href="#method-GCIMSDataset-clone"><code>GCIMSDataset$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-GCIMSDataset-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a new GCIMSDataset object</p><div class="section">
-<h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/GCIMSDataset.html">GCIMSDataset</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  pData <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -146,7 +211,7 @@ needed, so the dataset object scales with large number of samples.</p>
 </div>
 
 <div class="section">
-<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>pData</code></dt>
 <dd><p>A data frame holding phenotype data for the samples (or <code>NULL</code>). The data frame
 should at least have a <code>SampleID</code> column, and a <code>filename</code> column if samples are stored in files.</p></dd>
@@ -198,7 +263,7 @@ small datasets.</p></dd>
 </div><p></p><hr><a id="method-GCIMSDataset-print"></a><div class="section">
 <h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
 <p>prints the dataset to the screen</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -206,12 +271,12 @@ small datasets.</p></dd>
 </div><p></p><hr><a id="method-GCIMSDataset-appendDelayedOp"></a><div class="section">
 <h3 id="method-appenddelayedop-">Method <code>appendDelayedOp()</code><a class="anchor" aria-label="anchor" href="#method-appenddelayedop-"></a></h3>
 <p>Appends a delayed operation to the dataset so it will run afterwards</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">appendDelayedOp</span><span class="op">(</span><span class="va">operation</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>operation</code></dt>
 <dd><p>A <a href="DelayedOperation-class.html">DelayedOperation</a> object</p></dd>
 
@@ -226,7 +291,7 @@ small datasets.</p></dd>
 </div><p></p><hr><a id="method-GCIMSDataset-hasDelayedOps"></a><div class="section">
 <h3 id="method-hasdelayedops-">Method <code>hasDelayedOps()</code><a class="anchor" aria-label="anchor" href="#method-hasdelayedops-"></a></h3>
 <p>Find out if the dataset has pending operations</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">hasDelayedOps</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -238,12 +303,12 @@ small datasets.</p></dd>
 </div><p></p><hr><a id="method-GCIMSDataset-realize"></a><div class="section">
 <h3 id="method-realize-">Method <code><a href="realize.html">realize()</a></code><a class="anchor" aria-label="anchor" href="#method-realize-"></a></h3>
 <p>Execute all pending operations on the dataset</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">realize</span><span class="op">(</span>keep_intermediate <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>keep_intermediate</code></dt>
 <dd><p>logical or <code>NA</code>. Only when the analysis is on disk, keep intermediate result files.
 If <code>NA</code>, the <code>keep_intermediate</code> option given at the dataset initialization takes precedence.</p></dd>
@@ -259,12 +324,12 @@ If <code>NA</code>, the <code>keep_intermediate</code> option given at the datas
 </div><p></p><hr><a id="method-GCIMSDataset-getSample"></a><div class="section">
 <h3 id="method-getsample-">Method <code><a href="getSample.html">getSample()</a></code><a class="anchor" aria-label="anchor" href="#method-getsample-"></a></h3>
 <p>Get a sample from a GCIMSDataset</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="va">sample</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>sample</code></dt>
 <dd><p>Either an integer (sample index) or a string (sample name)</p></dd>
 
@@ -279,7 +344,7 @@ If <code>NA</code>, the <code>keep_intermediate</code> option given at the datas
 </div><p></p><hr><a id="method-GCIMSDataset-extract_dtime_rtime"></a><div class="section">
 <h3 id="method-extract-dtime-rtime-">Method <code>extract_dtime_rtime()</code><a class="anchor" aria-label="anchor" href="#method-extract-dtime-rtime-"></a></h3>
 <p>Sets an action to extract the reference retention and drift times</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">extract_dtime_rtime</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -287,7 +352,7 @@ If <code>NA</code>, the <code>keep_intermediate</code> option given at the datas
 </div><p></p><hr><a id="method-GCIMSDataset-getRIC"></a><div class="section">
 <h3 id="method-getric-">Method <code><a href="GCIMS-generics.html">getRIC()</a></code><a class="anchor" aria-label="anchor" href="#method-getric-"></a></h3>
 <p>Get the Reverse Ion Chromatogram</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">getRIC</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -299,7 +364,7 @@ If <code>NA</code>, the <code>keep_intermediate</code> option given at the datas
 </div><p></p><hr><a id="method-GCIMSDataset-extract_RIC_and_TIS"></a><div class="section">
 <h3 id="method-extract-ric-and-tis-">Method <code>extract_RIC_and_TIS()</code><a class="anchor" aria-label="anchor" href="#method-extract-ric-and-tis-"></a></h3>
 <p>Extracts the RIC and the TIS</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">extract_RIC_and_TIS</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -308,15 +373,83 @@ If <code>NA</code>, the <code>keep_intermediate</code> option given at the datas
 <p>The GCIMSDataset</p>
 </div>
 
+</div><p></p><hr><a id="method-GCIMSDataset-is_on_disk"></a><div class="section">
+<h3 id="method-is-on-disk-">Method <code>is_on_disk()</code><a class="anchor" aria-label="anchor" href="#method-is-on-disk-"></a></h3>
+<p>Whether the dataset is saved on disk or stored in RAM</p><div class="section">
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">is_on_disk</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<p><code>TRUE</code> if on disk, <code>FALSE</code> otherwise</p>
+</div>
+
+</div><p></p><hr><a id="method-GCIMSDataset-copy"></a><div class="section">
+<h3 id="method-copy-">Method <code>copy()</code><a class="anchor" aria-label="anchor" href="#method-copy-"></a></h3>
+<p>Creates a copy of the dataset. If the dataset is stored on disk, then
+a new <code>scratch_dir</code> must be used.</p><div class="section">
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">copy</span><span class="op">(</span>scratch_dir <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>scratch_dir</code></dt>
+<dd><p>The scratch directory where samples being processed will be stored, if the copy is on disk.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
+<p>A new GCIMSDataset object</p>
+</div>
+
+</div><p></p><hr><a id="method-GCIMSDataset-updateScratchDir"></a><div class="section">
+<h3 id="method-updatescratchdir-">Method <code>updateScratchDir()</code><a class="anchor" aria-label="anchor" href="#method-updatescratchdir-"></a></h3>
+<p>For on-disk datasets, copy all samples to a new scratch dir.
+This is useful when creating copies of the dataset, using the <code>dataset$copy()</code> method.</p><div class="section">
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">updateScratchDir</span><span class="op">(</span><span class="va">scratch_dir</span>, override_current_dir <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>scratch_dir</code></dt>
+<dd><p>The new <code>scratch_dir</code>, must be different from the current one</p></dd>
+
+
+<dt><code>override_current_dir</code></dt>
+<dd><p>Typically used only internally, overrides the location of the samples. Useful when we are
+loading a dataset from a directory and the directory was moved since it was saved.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-GCIMSDataset-getCurrentDir"></a><div class="section">
+<h3 id="method-getcurrentdir-">Method <code>getCurrentDir()</code><a class="anchor" aria-label="anchor" href="#method-getcurrentdir-"></a></h3>
+<p>Get the directory where processed samples are being saved, on on-disk datasets.</p><div class="section">
+<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">getCurrentDir</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<p>Either a path or <code>NULL</code>. <code>NULL</code> is returned if samples have not been saved (either
+because have not been loaded or because the dataset is stored on RAM)</p>
+</div>
+
 </div><p></p><hr><a id="method-GCIMSDataset-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GCIMSDataset</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

@@ -82,6 +82,10 @@ are loaded and saved on a new folder.</p>
 <dd><p>The character vector with unique sample names. Renaming samples renames files on <code>obj$getCurrentDir()</code> as well</p></dd>
 
 
+<dt><code>scratchDir</code></dt>
+<dd><p>The directory where intermediate and processed files are saved.</p></dd>
+
+
 </dl><p></p></div>
     </div>
     <div id="methods">
@@ -93,6 +97,8 @@ are loaded and saved on a new folder.</p>
 <ul><li><p><a href="#method-DelayedDatasetDisk-new"><code>DelayedDatasetDisk$new()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetDisk-getSample"><code>DelayedDatasetDisk$getSample()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetDisk-getCurrentDir"><code>DelayedDatasetDisk$getCurrentDir()</code></a></p></li>
+<li><p><a href="#method-DelayedDatasetDisk-checkSampleFiles"><code>DelayedDatasetDisk$checkSampleFiles()</code></a></p></li>
+<li><p><a href="#method-DelayedDatasetDisk-updateScratchDir"><code>DelayedDatasetDisk$updateScratchDir()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetDisk-clone"><code>DelayedDatasetDisk$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="appendDelayedOp"><a href="DelayedDatasetBase.html#method-appendDelayedOp"><code>GCIMS::DelayedDatasetBase$appendDelayedOp()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="hasDelayedOps"><a href="DelayedDatasetBase.html#method-hasDelayedOps"><code>GCIMS::DelayedDatasetBase$hasDelayedOps()</code></a></span></li>
@@ -108,8 +114,6 @@ are loaded and saved on a new folder.</p>
 <span>  <span class="va">samples</span>,</span>
 <span>  <span class="va">scratch_dir</span>,</span>
 <span>  keep_intermediate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  dataset <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  dataset_class <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_class <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -130,15 +134,6 @@ If they are filenames, the filenames are relative to <code>base_dir</code>.</p><
 <dd><p>A logical value, whether intermediate realization steps should be saved.</p></dd>
 
 
-<dt><code>dataset</code></dt>
-<dd><p>The dataset R6 object where aggregated results from queued operations are stored</p></dd>
-
-
-<dt><code>dataset_class</code></dt>
-<dd><p>The class of the given dataset, used just to validate the contract between
-the delayed actions and the dataset. If <code>NULL</code> action return values are not checked</p></dd>
-
-
 <dt><code>sample_class</code></dt>
 <dd><p>The class of the samples in the dataset, used just to validate the contract between
 the delayed actions and the samples. If <code>NULL</code> action return values are not checked</p></dd>
@@ -155,13 +150,17 @@ the delayed actions and the samples. If <code>NULL</code> action return values a
 <h3 id="method-getsample-">Method <code><a href="getSample.html">getSample()</a></code><a class="anchor" aria-label="anchor" href="#method-getsample-"></a></h3>
 <p>Get a sample from the dataset</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="va">sample</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="va">sample</span>, <span class="va">dataset</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>sample</code></dt>
 <dd><p>Either an integer (sample index) or a string (sample name)</p></dd>
+
+
+<dt><code>dataset</code></dt>
+<dd><p>The dataset so we can realize if there are enqueued actions</p></dd>
 
 
 </dl><p></p></div>
@@ -183,15 +182,64 @@ the delayed actions and the samples. If <code>NULL</code> action return values a
 <p>The full path to the directory where samples are saved</p>
 </div>
 
-</div><p></p><hr><a id="method-DelayedDatasetDisk-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-DelayedDatasetDisk-checkSampleFiles"></a><div class="section">
+<h3 id="method-checksamplefiles-">Method <code>checkSampleFiles()</code><a class="anchor" aria-label="anchor" href="#method-checksamplefiles-"></a></h3>
+<p>Get missing sample files</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">checkSampleFiles</span><span class="op">(</span>on_error <span class="op">=</span> <span class="st">"nothing"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>on_error</code></dt>
+<dd><p>Either "abort" or "nothing". Action to take if there are missing files</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<p>A vector with missing files named with sample ids.</p>
+</div>
+
+</div><p></p><hr><a id="method-DelayedDatasetDisk-updateScratchDir"></a><div class="section">
+<h3 id="method-updatescratchdir-">Method <code>updateScratchDir()</code><a class="anchor" aria-label="anchor" href="#method-updatescratchdir-"></a></h3>
+<p>Copies the samples to a new scratch directory and saves the dataset there as well</p><div class="section">
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">updateScratchDir</span><span class="op">(</span></span>
+<span>  <span class="va">new_scratch_dir</span>,</span>
+<span>  dataset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  override_current_dir <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>new_scratch_dir</code></dt>
+<dd><p>A new scratch directory to store samples</p></dd>
+
+
+<dt><code>dataset</code></dt>
+<dd><p>If an object is given, it is saved under the new_scratch_dir, with the samples.</p></dd>
+
+
+<dt><code>override_current_dir</code></dt>
+<dd><p>If not <code>NULL</code>, assume samples are in this directory, instead of in <code>self$getCurrentDir()</code>. Useful
+when loading samples from a saved directory.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-DelayedDatasetDisk-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
