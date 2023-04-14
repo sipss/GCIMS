@@ -18,12 +18,9 @@ DelayedDatasetRAM <- R6::R6Class(
     #' @description
     #' Create a delayed dataset on RAM
     #' @param samples A named list of samples.
-    #' @param dataset The dataset R6 object where aggregated results from queued operations are stored
-    #' @param dataset_class The class of the given dataset, used just to validate the contract between
-    #' the delayed actions and the dataset. If `NULL` action return values are not checked
     #' @param sample_class The class of the samples in the dataset, used just to validate the contract between
     #' the delayed actions and the samples. If `NULL` action return values are not checked
-    initialize = function(samples, dataset, dataset_class = NULL, sample_class = NULL) {
+    initialize = function(samples, sample_class = NULL) {
       sample_names <- names(samples)
       if (length(samples) > 0 && is.null(sample_names)) {
         cli_abort("samples should be a named list")
@@ -32,15 +29,16 @@ DelayedDatasetRAM <- R6::R6Class(
         cli_abort("sample names should be unique and non-empty")
       }
       private$samples <- samples
-      super$initialize(dataset = dataset, dataset_class = dataset_class, sample_class = sample_class)
+      super$initialize(sample_class = sample_class)
     },
     #' @description
     #' Get a sample from the dataset
     #'
     #' @param sample Either an integer (sample index) or a string (sample name)
+    #' @param dataset The dataset so we can realize if there are enqueued actions
     #' @return The sample object
-    getSample = function(sample) {
-      self$realize()
+    getSample = function(sample, dataset) {
+      self$realize(dataset = dataset)
       sample_id_num <- sample_name_or_number_to_both(sample, names(private$samples))
       out <- private$samples[[sample_id_num$idx]]
       out <- updateObject(out)
@@ -70,7 +68,8 @@ DelayedDatasetRAM <- R6::R6Class(
     # @description
     # Implement the realize action
     # @param ... ignored
-    realize_impl = function(...) {
+    # @param dataset A dataset object to be modified in place by the delayed operations
+    realize_impl = function(..., dataset) {
       sample_names <- names(private$samples)
       results <- mymapply(
         FUN = realize_one_sample_ram,
@@ -87,7 +86,7 @@ DelayedDatasetRAM <- R6::R6Class(
 
       extracted_results <- purrr::map(results, "extracted_objects")
 
-      private$aggregate_all_results(extracted_results)
+      private$aggregate_all_results(extracted_results, dataset = dataset)
       private$move_delayed_to_history()
       return()
     }

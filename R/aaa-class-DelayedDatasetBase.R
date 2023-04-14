@@ -17,7 +17,7 @@ DelayedDatasetBase <- R6::R6Class(
     #' Execute all the queued operations
     #' @param dataset The dataset where extracted results will be aggregated on
     #' @param ... Arguments used by children classes, passed on to realize_impl(...)
-    realize = function(...) {
+    realize = function(..., dataset) {
       if (!self$hasDelayedOps()) {
         return()
       }
@@ -36,19 +36,14 @@ DelayedDatasetBase <- R6::R6Class(
       private$can_realize <- FALSE
       on.exit({private$can_realize <- TRUE})
       private$optimize_delayed_operations()
-      private$realize_impl(...)
+      private$realize_impl(..., dataset = dataset)
     },
     #' @description
     #' Create a new object, initialize the slots
-    #' @param dataset The dataset R6 object where aggregated results from queued operations are stored
-    #' @param dataset_class The class of the given dataset, used just to validate the contract between
-    #' the delayed actions and the dataset. If `NULL` action return values are not checked
     #' @param sample_class The class of the samples in the dataset, used just to validate the contract between
     #' the delayed actions and the samples. If `NULL` action return values are not checked
-    initialize = function(dataset, dataset_class = NULL, sample_class = NULL) {
+    initialize = function(sample_class = NULL) {
       private$can_realize <- TRUE
-      private$dataset <- dataset
-      private$dataset_class <- dataset_class
       private$sample_class <- sample_class
     },
     #' @description
@@ -95,8 +90,9 @@ DelayedDatasetBase <- R6::R6Class(
     #' Get a sample from the dataset
     #'
     #' @param sample Either an integer (sample index) or a string (sample name)
+    #' @param dataset The dataset object so we can realize it if needed
     #' @return The sample object
-    getSample = function(sample) {
+    getSample = function(sample, dataset) {
       cli_abort(
         message = c(
           "Not implemented error",
@@ -156,20 +152,16 @@ DelayedDatasetBase <- R6::R6Class(
     can_realize = FALSE,
     # @field registered_optimizations List of functions that take a list of delayed_ops and return it after optimizing it
     registered_optimizations = list(),
-    # @field dataset The dataset where realize() will aggregate the results of the delayed_ops
-    dataset = NULL,
-    # @field dataset_class A string with the class `dataset` should inherit from. To validate the results of the delayed_ops
-    dataset_class = NULL,
     # @field sample_class A string with the class of the sample objects, for validation of the functions that modify samples.
     sample_class = NULL,
     # @description
     # Implement the realize action
     # @param ... ignored
-    realize_impl = function(...) {
+    realize_impl = function(..., dataset) {
       cli_abort(
         message = c(
           "Not implemented error",
-          "{.code realize_impl(...)} is a virtual function and should be implemented in classes inheriting from us"
+          "{.code realize_impl(..., dataset)} is a virtual function and should be implemented in classes inheriting from us"
         )
       )
     },
@@ -190,32 +182,22 @@ DelayedDatasetBase <- R6::R6Class(
       private$delayed_ops <- list()
       invisible(NULL)
     },
-    aggregate_all_results = function(extracted_results) {
+    aggregate_all_results = function(extracted_results, dataset) {
       for (i in seq_along(private$delayed_ops)) {
         delayed_op <- private$delayed_ops[[i]]
         # Extract i-th result for all samples:
         extracted_result <- purrr::map(extracted_results, i)
         # Let the delayed operation aggregate the extracted results and save them in dataset
-        private$aggregate_result(delayed_op, extracted_result)
+        private$aggregate_result(delayed_op, extracted_result, dataset)
       }
       return()
     },
-    aggregate_result = function(delayed_op, extracted_result) {
+    aggregate_result = function(delayed_op, extracted_result, dataset) {
       if (is.null(delayed_op@fun_aggregate)) {
         return()
       }
       f <- delayed_op@fun_aggregate
-      d <- f(private$dataset, extracted_result)
-      if (!is.null(private$dataset_class) && !inherits(d, private$dataset_class)) {
-        cli_abort(
-          c(
-            "Error in {delayed_op@name}",
-            "x" = "Aggregate operation should return an object of class {.code {private$dataset_class}}, but an object of {.code {class(d)}} was returned instead",
-            "i" = "Please fix the action or report the issue to {.url https://github.com/sipss/GCIMS/issues}"
-          )
-        )
-      }
-      private$dataset <- d
+      f(dataset, extracted_result)
       return()
     }
   )

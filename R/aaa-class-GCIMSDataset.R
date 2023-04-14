@@ -7,6 +7,57 @@
 #' data is stored not in memory or it is read/saved from/to files as
 #' needed, so the dataset object scales with large number of samples.
 #'
+#' # Constructors:
+#'
+#' - [`GCIMSDataset$new()`](#method-GCIMSDataset-new)
+#' - [`GCIMSDataset$new_from_list()`](#constructor-GCIMSDataset-new-from-list): Create a new GCIMSDataset from a list of samples
+#' - [`GCIMSDataset$new_from_saved_dir()`](#constructor-GCIMSDataset-new-from-saved-dir): Create a new on disk GCIMSDataset from a directory
+#'
+#'
+#' \if{html}{\out{<hr>}}
+#' \if{html}{\out{<a id="constructor-GCIMSDataset-new-from-list"></a>}}
+#' \if{latex}{\out{\hypertarget{constructor-GCIMSDataset-new-from-list}{}}}
+#' ## Constructor `new_from_list()`
+#'
+#' Create a new GCIMSDataset object from a list of samples. Note that with this
+#' constructor `on_ram` is `TRUE` by default
+#'
+#' ### Usage
+#'
+#' ```
+#' GCIMSDataset$new_from_list(
+#'   samples,
+#'   pData=NULL,
+#'   scratch_dir = NULL,
+#'   keep_intermediate = FALSE,
+#'   on_ram = TRUE
+#' )
+#' ```
+#'
+#' ### Arguments
+#'
+#' See [`GCIMSDataset$new()`]
+#'
+#' ## Constructor `new_from_saved_dir()`
+#'
+#' Creates a new GCIMSDataset object from a directory where a GCIMSDataset with
+#' `on_ram=FALSE` was saved.
+#'
+#' ### Usage
+#'
+#' ```
+#' GCIMSDataset$new_from_saved_dir(
+#'   input_dir,
+#'   scratch_dir = dirname(input_dir)
+#' )
+#' ```
+#'
+#' ### Arguments
+#'
+#' - `input_dir`: The path to the directory where the `dataset.rds` is saved and all the corresponding `sample_*.rds` files are.
+#'    Typically a subdirectory of `scratch_dir`.
+#' - `scratch_dir`: The new scratch directory where further processing samples will be saved. By default it is the parent of `input_dir`.
+#'
 #' @export GCIMSDataset
 #' @exportClass GCIMSDataset
 GCIMSDataset <- R6::R6Class("GCIMSDataset",
@@ -89,18 +140,14 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
         if (on_ram) {
           private$delayed_dataset <- DelayedDatasetRAM$new(
             samples = samples,
-            dataset = self,
-            dataset_class = "GCIMSDataset",
             sample_class = "GCIMSSample"
           )
         } else {
-          scratch_dir <- validate_scratch_dir(scratch_dir, on_ram = FALSE)
+          scratch_dir <- validate_scratch_dir(scratch_dir)
           private$delayed_dataset <- DelayedDatasetDisk$new(
             samples = samples,
             scratch_dir = scratch_dir,
             keep_intermediate = keep_intermediate,
-            dataset = self,
-            dataset_class = "GCIMSDataset",
             sample_class = "GCIMSSample"
           )
         }
@@ -150,11 +197,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     #' If `NA`, the `keep_intermediate` option given at the dataset initialization takes precedence.
     #' @return The dataset object, invisibly
     realize = function(keep_intermediate = NA) {
-      private$delayed_dataset$realize(keep_intermediate = keep_intermediate)
-      if (inherits(private$delayed_dataset, "DelayedDatasetDisk")) {
-        current_dir <- private$delayed_dataset$getCurrentDir()
-        saveRDS(self, file.path(current_dir, "GCIMSDataset.rds"))
-      }
+      private$delayed_dataset$realize(keep_intermediate = keep_intermediate, dataset = self)
       invisible(self)
     },
     #' @description
@@ -163,7 +206,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     #' @param sample Either an integer (sample index) or a string (sample name)
     #' @return The GCIMSSample object
     getSample = function(sample) {
-      private$delayed_dataset$getSample(sample)
+      private$delayed_dataset$getSample(sample, dataset = self)
     },
     #' @description
     #' Sets an action to extract the reference retention and drift times
@@ -204,6 +247,91 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       )
       self$appendDelayedOp(delayed_op)
       invisible(self)
+    },
+    #' @description
+    #' Whether the dataset is saved on disk or stored in RAM
+    #' @return `TRUE` if on disk, `FALSE` otherwise
+    is_on_disk = function() {
+      inherits(private$delayed_dataset, "DelayedDatasetDisk")
+    },
+    #' @description
+    #' Creates a copy of the dataset. If the dataset is stored on disk, then
+    #' a new `scratch_dir` must be used.
+    #' @param scratch_dir The scratch directory where samples being processed will be stored, if the copy is on disk.
+    #' @return A new GCIMSDataset object
+    copy = function(scratch_dir = NA) {
+      # https://github.com/r-lib/R6/issues/110
+      # I would like to rename this copy() method to clone(), but clone() is reserved and can't be customized.
+      # No one should use clone() with a GCIMSDataset object, unless they are aware of what they are doing.
+      # A shallow clone is useless in our case (we should enforce deep=TRUE) because we need to copy the DelayedDataset
+      # Unfortunately the on-disk dataset can't be just cloned, because the scratch_dir must be changed.
+
+      # On RAM datasets must only enforce deep=TRUE when cloning.
+      # Besides that limitation, the clone method is fine.
+      if (!self$is_on_disk()) {
+        return(self$clone(deep = TRUE))
+      }
+
+      scratch_dir <- validate_scratch_dir(scratch_dir)
+      # On disk datasets must use deep=TRUE AND update the scratch directory:
+      # The scratch directory must be different:
+      if (private$delayed_dataset$scratchDir == scratch_dir) {
+        cli_abort(
+          c(
+            "Could not create a copy of the dataset",
+            "x" = "The given scratch_dir {.path scratch_dir} is equal to current one and should have been different",
+            "i" = "Please provide a new with {.code obj$copy(scratch_dir = )}"
+          )
+        )
+      }
+
+      new_dataset <- self$clone(deep = TRUE)
+      # Copy files to the new scratch dir and save the GCIMSDataset object
+      # This accesses private slots from our R6 class. We dare to do this because this
+      # would be a custom clone method, if R6 supported them.
+      new_dataset$updateScratchDir(scratch_dir)
+      new_dataset
+    },
+    #' @description
+    #' For on-disk datasets, copy all samples to a new scratch dir.
+    #' This is useful when creating copies of the dataset, using the `dataset$copy()` method.
+    #' @param scratch_dir The new `scratch_dir`, must be different from the current one
+    #' @param override_current_dir Typically used only internally, overrides the location of the samples. Useful when we are
+    #' loading a dataset from a directory and the directory was moved since it was saved.
+    updateScratchDir = function(scratch_dir, override_current_dir = NULL) {
+      if (!self$is_on_disk()) {
+        cli_warn("obj$updateScratchDir() on a on-RAM dataset has no effect")
+        return(invisible(NULL))
+      }
+      scratch_dir <- validate_scratch_dir(scratch_dir)
+      # On disk datasets must use deep=TRUE AND update the scratch directory:
+      # The scratch directory must be different so further analysis steps do not get mixed up,
+      # unless we are loading a dataset saved on disk instead of copying a dataset
+      if (is.null(override_current_dir) && private$delayed_dataset$scratchDir == scratch_dir) {
+        cli_abort(
+          c(
+            "Could not create a copy of the dataset",
+            "x" = "The given scratch_dir {.path scratch_dir} is equal to current one and should have been different",
+            "i" = "Please provide a new with {.code obj$updateScratchDir(scratch_dir = )}"
+          )
+        )
+      }
+      private$delayed_dataset$updateScratchDir(
+        new_scratch_dir = scratch_dir,
+        dataset = self,
+        override_current_dir = override_current_dir
+      )
+      invisible(NULL)
+    },
+    #' @description Get the directory where processed samples are being saved, on on-disk datasets.
+    #' @return Either a path or `NULL`. `NULL` is returned if samples have not been saved (either
+    #' because have not been loaded or because the dataset is stored on RAM)
+    getCurrentDir = function() {
+      if (!self$is_on_disk()) {
+        cli_warn("{.code GCIMSDataset$getCurrentDir()} only makes sense for on-disk datasets")
+        return(NULL)
+      }
+      private$delayed_dataset$getCurrentDir()
     }
   ),
   active = list(
@@ -250,16 +378,22 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     },
     describe_as_list = function() {
       out <- list()
-      on_ram <- ifelse(
-        inherits(private$delayed_dataset, "DelayedDatasetRAM"),
-        "on RAM",
-        "on disk"
-      )
+      if (self$is_on_disk()) {
+        disk_path <- self$getCurrentDir()
+        if (is.null(disk_path)) {
+          stored_info <- glue::glue("Stored on disk (not loaded yet)")
+        } else {
+          stored_info <- glue::glue("Stored on disk (at {disk_path})")
+        }
+      } else {
+        stored_info <- "Stored on RAM"
+      }
       root_txt <- "A GCIMSDataset"
-      sample_info <- glue::glue("With {length(self$sampleNames)} samples {on_ram}.")
+      sample_info <- glue::glue("With {length(self$sampleNames)} samples")
       pheno_info <- phenos_to_string(self$pData)
       out[[root_txt]] <- list(
         sample_info,
+        stored_info,
         pheno_info,
         private$delayed_dataset$history_as_list(),
         private$delayed_dataset$pending_as_list()
@@ -466,7 +600,7 @@ validate_base_dir <- function(base_dir) {
   normalizePath(base_dir, mustWork = TRUE)
 }
 
-validate_scratch_dir <- function(scratch_dir, on_ram = FALSE) {
+validate_scratch_dir <- function(scratch_dir) {
   errors <- character(0L)
   if (is.null(scratch_dir) || is.na(scratch_dir)) {
     inform_temp_dir <- !is.null(scratch_dir)
@@ -621,3 +755,36 @@ GCIMSDataset_fromList <- function(samples, pData=NULL,
   )
 }
 
+# FIXME: Fix consistency in method capitalization?
+
+GCIMSDataset$new_from_list <- function(samples, pData=NULL,
+                                       scratch_dir = NULL,
+                                       keep_intermediate = FALSE, on_ram = TRUE) {
+  GCIMSDataset$new(
+    pData = pData,
+    samples = samples,
+    scratch_dir = scratch_dir,
+    keep_intermediate = keep_intermediate,
+    on_ram = on_ram
+  )
+}
+
+GCIMSDataset$new_from_saved_dir <- function(input_dir, scratch_dir = dirname(input_dir)) {
+  rds_file <- file.path(input_dir, "dataset.rds")
+  if (!file.exists(rds_file)) {
+    cli_abort(c(
+      "Can't load GCIMSDataset",
+      "x" = "File {.path rds_file} does not exist"
+    ))
+  }
+  dataset <- readRDS(rds_file)
+  if (!dataset$is_on_disk()) {
+    return(dataset)
+  }
+  scratch_dir <- validate_scratch_dir(scratch_dir)
+  dataset$updateScratchDir(
+    scratch_dir,
+    override_current_dir = input_dir
+  )
+  dataset
+}

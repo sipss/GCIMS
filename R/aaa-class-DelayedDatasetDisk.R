@@ -22,14 +22,11 @@ DelayedDatasetDisk <- R6::R6Class(
     #'  If they are filenames, the filenames are relative to `base_dir`.
     #' @param scratch_dir The directory where samples being processed will be saved
     #' @param keep_intermediate A logical value, whether intermediate realization steps should be saved.
-    #' @param dataset The dataset R6 object where aggregated results from queued operations are stored
-    #' @param dataset_class The class of the given dataset, used just to validate the contract between
-    #' the delayed actions and the dataset. If `NULL` action return values are not checked
     #' @param sample_class The class of the samples in the dataset, used just to validate the contract between
     #' the delayed actions and the samples. If `NULL` action return values are not checked
     #' @return The DelayedDatasetDisk object
-    initialize = function(samples, scratch_dir, keep_intermediate = FALSE, dataset = NULL, dataset_class = NULL, sample_class = NULL) {
-      super$initialize(dataset = dataset, dataset_class = dataset_class, sample_class = sample_class)
+    initialize = function(samples, scratch_dir, keep_intermediate = FALSE, sample_class = NULL) {
+      super$initialize(sample_class = sample_class)
       private$scratch_dir <- scratch_dir
       private$keep_intermediate <- keep_intermediate
       if (is.character(samples)) {
@@ -58,9 +55,10 @@ DelayedDatasetDisk <- R6::R6Class(
     #' Get a sample from the dataset
     #'
     #' @param sample Either an integer (sample index) or a string (sample name)
+    #' @param dataset The dataset so we can realize if there are enqueued actions
     #' @return The sample object
-    getSample = function(sample) {
-      self$realize()
+    getSample = function(sample, dataset) {
+      self$realize(dataset = dataset)
       sample_id_num <- sample_name_or_number_to_both(sample, names(private$samples))
 
       filename <- paste0("sample_", sample_id_num$name, ".rds")
@@ -80,6 +78,90 @@ DelayedDatasetDisk <- R6::R6Class(
     #' @return The full path to the directory where samples are saved
     getCurrentDir = function() {
       private$currentHashedDir()
+    },
+    #' @description
+    #' Get missing sample files
+    #' @param on_error Either "abort" or "nothing". Action to take if there are missing files
+    #' @return A vector with missing files named with sample ids.
+    checkSampleFiles = function(on_error = "nothing") {
+      missing_files <- character(0L)
+      dir <- self$getCurrentDir()
+      if (is.null(dir)) {
+        return(missing_files)
+      }
+      sample_names <- self$sampleNames
+      for (i in seq_along(sample_names)) {
+        sample_filename <- sample_rds_basenames(sample_names[i])
+        full_path <- file.path(dir, sample_filename)
+        if (!file.exists(full_path)) {
+          missing_files <- c(missing_files, stats::setNames(full_path, sample_names[i]))
+        }
+      }
+      if (on_error == "abort" && length(missing_files) > 0) {
+        cli_abort(
+          c(
+            "Sample files are missing",
+            "i" = "The following files are missing: {missing_files}" # FIXME: fix formatting of error msg
+          )
+        )
+      }
+      missing_files
+    },
+    #' @description
+    #' Copies the samples to a new scratch directory and saves the dataset there as well
+    #' @param new_scratch_dir A new scratch directory to store samples
+    #' @param dataset If an object is given, it is saved under the new_scratch_dir, with the samples.
+    #' @param override_current_dir If not `NULL`, assume samples are in this directory, instead of in `self$getCurrentDir()`. Useful
+    #' when loading samples from a saved directory.
+    updateScratchDir = function(new_scratch_dir, dataset = NULL, override_current_dir = NULL) {
+      if (!is.null(override_current_dir)) {
+        old_scratch_dir <- dirname(override_current_dir)
+        real_old_scratch_dir <- private$scratch_dir
+        old_current_dir <- basename(override_current_dir)
+      } else {
+        old_scratch_dir <- private$scratch_dir
+        real_old_scratch_dir <- private$scratch_dir
+        old_current_dir <- private$currentHashedDir()
+      }
+      if (old_scratch_dir == new_scratch_dir) {
+        return()
+      }
+      if (is.null(old_current_dir) || !dir.exists(old_current_dir)) {
+        # Nothing in the directory, so we can just change the scratch and return
+        private$scratch_dir <- new_scratch_dir
+        return()
+      }
+      # There is something saved, we must move/copy sample files
+      # Check all files exist to catch some errors early:
+      self$checkSampleFiles(on_error = "abort")
+      # This is where we will move/copy them:
+      private$scratch_dir <- new_scratch_dir
+      new_current_dir <- private$currentHashedDir()
+      # So create the directory:
+      dir.create(new_current_dir, showWarnings = FALSE, recursive = TRUE)
+      # And move/copy all files
+      sample_names <- self$sampleNames
+      for (i in seq_along(sample_names)) {
+        sample_filename <- sample_rds_basenames(sample_names[i])
+        # If this happens we are already in trouble:
+        old_path <- file.path(old_current_dir, sample_filename)
+        new_path <- file.path(new_current_dir, sample_filename)
+        success <- file.copy(
+          from = old_path,
+          to = new_path
+        )
+        if (!success) {
+          private$scratch_dir <- real_old_scratch_dir
+          cli_abort(
+            c(
+              "File copy failed",
+              "x" = "Could not copy {.path old_path} into {.path new_path}"
+            )
+          )
+        }
+      }
+      saveRDS(dataset, file.path(new_current_dir, "dataset.rds"))
+      invisible(NULL)
     }
   ),
   active = list(
@@ -96,6 +178,13 @@ DelayedDatasetDisk <- R6::R6Class(
       }
       private$rename_samples_and_files(value)
       value
+    },
+    #' @field scratchDir The directory where intermediate and processed files are saved.
+    scratchDir = function(value) {
+      # Getter
+      if (missing(value)) return(private$scratch_dir)
+      # Setter
+      cli_abort("To set the {.code obj$scratchDir} please use {.code obj$updateScratchDir()} and check the arguments.")
     }
   ),
   private = list(
@@ -104,7 +193,7 @@ DelayedDatasetDisk <- R6::R6Class(
     # @field scratch_dir The full directory where the samples get processed
     scratch_dir = "",
     # @field hasheddir The base of the folder name for the current location of the samples
-    hasheddir = "",
+    hasheddir = NA_character_,
     # @field keep_intermediate logical. Whether to keep intermediate results
     keep_intermediate = FALSE,
     # @description
@@ -112,7 +201,7 @@ DelayedDatasetDisk <- R6::R6Class(
     # @return A path to the directory where processed samples are kept, or `NULL`
     currentHashedDir = function() {
       hasheddir <- private$hasheddir
-      if (hasheddir == "") {
+      if (is.na(hasheddir)) {
         return(NULL)
       }
       file.path(
@@ -130,7 +219,7 @@ DelayedDatasetDisk <- R6::R6Class(
 
       # A hash chain:
       current_hash <- private$hasheddir
-      if (current_hash == "") {
+      if (is.na(current_hash)) {
         # The first hash comes from the sample filenames and sample ids
         current_hash <- digest::digest(private$samples)
       }
@@ -145,7 +234,8 @@ DelayedDatasetDisk <- R6::R6Class(
     # @description
     # Implement the realize action
     # @param ... ignored
-    realize_impl = function(keep_intermediate = NA, ...) {
+    # @param dataset A dataset to be modified in-place by the delayed operation functions
+    realize_impl = function(keep_intermediate = NA, ..., dataset) {
       delayed_ops <- private$delayed_ops
       current_dir <- private$currentHashedDir()
       if (is.null(current_dir)) {
@@ -194,7 +284,7 @@ DelayedDatasetDisk <- R6::R6Class(
         SIMPLIFY = FALSE
       )
 
-      private$aggregate_all_results(extracted_results)
+      private$aggregate_all_results(extracted_results, dataset = dataset)
       # Make delayed_ops history and remove them from pending
       private$move_delayed_to_history()
 
@@ -205,6 +295,8 @@ DelayedDatasetDisk <- R6::R6Class(
       if (!keep_intermediate && !is.null(current_dir) && current_dir != next_dir) {
         unlink(current_dir, recursive = TRUE)
       }
+      private$can_realize <- TRUE
+      saveRDS(dataset, file.path(next_dir, "dataset.rds"))
       return()
     },
     rename_samples_and_files = function(new_names) {
