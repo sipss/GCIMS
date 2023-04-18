@@ -61,9 +61,10 @@ DelayedDatasetDisk <- R6::R6Class(
       self$realize(dataset = dataset)
       sample_id_num <- sample_name_or_number_to_both(sample, names(private$samples))
 
-      filename <- paste0("sample_", sample_id_num$name, ".rds")
-      current_intermediate_dir <- private$currentHashedDir()
-      sample_file <- file.path(current_intermediate_dir, filename)
+      sample_file <- sample_rds_basenames(
+        sample_names = sample_id_num$name,
+        prefix_dir = private$currentHashedDir()
+      )
       if (!file.exists(sample_file)) {
         cli_abort("File not found: {.path sample_file} should exist")
       }
