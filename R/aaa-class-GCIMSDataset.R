@@ -260,8 +260,9 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     #' @param scratch_dir The scratch directory where samples being processed will be stored, if the copy is on disk.
     #' @return A new GCIMSDataset object
     copy = function(scratch_dir = NA) {
-      # https://github.com/r-lib/R6/issues/110
-      # I would like to rename this copy() method to clone(), but clone() is reserved and can't be customized.
+      # I should just override clone(), but that's not possible. See:
+      # https://github.com/r-lib/R6/pull/273
+      # Meanwhile I'll work with this copy() method.
       # No one should use clone() with a GCIMSDataset object, unless they are aware of what they are doing.
       # A shallow clone is useless in our case (we should enforce deep=TRUE) because we need to copy the DelayedDataset
       # Unfortunately the on-disk dataset can't be just cloned, because the scratch_dir must be changed.
