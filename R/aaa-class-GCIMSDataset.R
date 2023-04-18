@@ -287,9 +287,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       }
 
       new_dataset <- self$clone(deep = TRUE)
-      # Copy files to the new scratch dir and save the GCIMSDataset object
-      # This accesses private slots from our R6 class. We dare to do this because this
-      # would be a custom clone method, if R6 supported them.
+      # This could be a private method?
       new_dataset$updateScratchDir(scratch_dir)
       new_dataset
     },
