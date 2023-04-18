@@ -163,6 +163,37 @@ DelayedDatasetDisk <- R6::R6Class(
       }
       saveRDS(dataset, file.path(new_current_dir, "dataset.rds"))
       invisible(NULL)
+    },
+    #' @description
+    #' Subsets some samples
+    #' @param sample A numeric vector with indices, a character vector with names or a logical vector
+    #' @return the delayed dataset modified in-place
+    subset = function(sample) {
+      if (self$hasDelayedOps()) {
+        cli_abort("Can't subset a delayed dataset with pending operations")
+      }
+      sample_info <- sample_name_or_number_to_both(sample, self$sampleNames)
+      # Remove files:
+      sampleids_to_remove <- self$sampleNames[!sample_info$logical]
+      sample_files_to_remove <- sample_rds_basenames(
+        sample_names = sampleids_to_remove,
+        prefix_dir = private$currentHashedDir()
+      )
+      for (filename in sample_files_to_remove) {
+        failure <- unlink(filename, expand = FALSE)
+        if (failure) {
+          cli_warn(
+            c(
+              "Could not delete {.path filename}.",
+              "i" = "Consider deleting it manually"
+            )
+          )
+        }
+      }
+      # Samples to keep:
+      private$samples <- private$samples[sample_info$logical]
+      # Return self:
+      self
     }
   ),
   active = list(
