@@ -33,3 +33,10 @@ test_that("Get a sample", {
   expect_equal(s1, s1b)
 })
 
+
+test_that("subset works", {
+  a <- create_dummy_dataset()
+  b <- a$d1$subset(samples = "s2", inplace = FALSE)
+  expect_equal(a$d1$sampleNames, c("s1", "s2"))
+  expect_equal(b$sampleNames, "s2")
+})
