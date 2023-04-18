@@ -221,9 +221,9 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       self$RIC <- NULL
       self$dt_ref <- NULL
       self$rt_ref <- NULL
-      private$delayed_dataset$subset()
+      private$delayed_dataset$subset(samples)
       self
-    }
+    },
     #'
     #' @description
     #' Appends a delayed operation to the dataset so it will run afterwards
