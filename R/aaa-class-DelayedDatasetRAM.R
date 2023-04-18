@@ -44,6 +44,18 @@ DelayedDatasetRAM <- R6::R6Class(
       out <- updateObject(out)
       validObject(out)
       out
+    },
+    #' @description
+    #' Subsets some samples
+    #' @param sample A numeric vector with indices, a character vector with names or a logical vector
+    #' @return the delayed dataset modified in-place
+    subset = function(sample) {
+      if (self$hasDelayedOps()) {
+        cli_abort("Can't subset a delayed dataset with pending operations")
+      }
+      sample_info <- sample_name_or_number_to_both(sample, self$sampleNames)
+      private$samples <- private$samples[sample_info$name]
+      self
     }
   ),
   active = list(
