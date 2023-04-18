@@ -63,6 +63,8 @@
 GCIMSDataset <- R6::R6Class("GCIMSDataset",
   public = list(
     # Fields
+    # IMPORTANT: If you add a field, make sure to update the subset method to ensure consistency
+
     #' @field pData A data frame with at least the SampleID and filename columns.
     pData = NULL,
     #' @field align To store alignment results
@@ -177,6 +179,52 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       outstring <- yaml::as.yaml(private$describe_as_list())
       cat(outstring)
     },
+    #' @description
+    #' Create a new dataset containing a subset of the samples
+    #' @param samples A numeric vector (sample indices), a character vector (sample names)
+    #' or a logical vector of the length equal to the number of samples in the
+    #' dataset (`TRUE` elements will be subset)
+    #' @param inplace if `TRUE` subset happens in-place, otherwise subset will return a copy.
+    #' @param new_scratch_dir A new scratch directory, only used if `inplace=FALSE` and the dataset is on-disk.
+    #' @return A GCIMSDataset (new or the current one depending on `inplace`), with the requested sample subset
+    subset = function(samples, inplace = FALSE, new_scratch_dir = NA) {
+      self$realize()
+
+      if (inplace) {
+        new <- self
+      } else {
+        # FIXME: Efficiency. Copying all samples and then removing some is not smart
+        new <- self$copy(scratch_dir = new_scratch_dir)
+      }
+      new$.impl__subset__(samples)
+      new
+    },
+    #' @description
+    #' Do not call this method. It does an inplace subset. Use
+    #' `obj$subset(samples, inplace = TRUE)` instead
+    #' @param samples A numeric vector (sample indices), a character vector (sample names)
+    #' or a logical vector of the length equal to the number of samples in the
+    #' dataset (`TRUE` elements will be subset)
+    #' @return The given GCIMSDataset object, with a subset of the samples
+    .impl__subset__ = function(samples) {
+      # FIXME: .impl__subset__ could become a private method if R6 allowed for a bit of more magic...
+      sample_info <- sample_name_or_number_to_both(samples, self$sampleNames)
+      if (!is.null(self$pData)) {
+        self$pData <- self$pData[sample_info$logical, , drop = FALSE]
+      }
+      self$align <- NULL
+      if (!is.null(self$peaks)) {
+        self$peaks <- self$peaks[self$peaks$SampleID %in% sample_info$name, , drop = FALSE]
+      }
+
+      self$TIS <- NULL
+      self$RIC <- NULL
+      self$dt_ref <- NULL
+      self$rt_ref <- NULL
+      private$delayed_dataset$subset()
+      self
+    }
+    #'
     #' @description
     #' Appends a delayed operation to the dataset so it will run afterwards
     #' @param operation A [DelayedOperation-class] object
@@ -361,6 +409,8 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
   ),
   private = list(
     # @field The DelayedDataset object
+    # IMPORTANT: If you add a field here, make sure the subset method
+    # accounts for it
     delayed_dataset = NULL,
     updateSampleDescriptions = function(new_names) {
       op = DelayedOperation(
