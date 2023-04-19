@@ -99,6 +99,7 @@ are loaded and saved on a new folder.</p>
 <li><p><a href="#method-DelayedDatasetDisk-getCurrentDir"><code>DelayedDatasetDisk$getCurrentDir()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetDisk-checkSampleFiles"><code>DelayedDatasetDisk$checkSampleFiles()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetDisk-updateScratchDir"><code>DelayedDatasetDisk$updateScratchDir()</code></a></p></li>
+<li><p><a href="#method-DelayedDatasetDisk-subset"><code>DelayedDatasetDisk$subset()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetDisk-clone"><code>DelayedDatasetDisk$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="appendDelayedOp"><a href="DelayedDatasetBase.html#method-appendDelayedOp"><code>GCIMS::DelayedDatasetBase$appendDelayedOp()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="hasDelayedOps"><a href="DelayedDatasetBase.html#method-hasDelayedOps"><code>GCIMS::DelayedDatasetBase$hasDelayedOps()</code></a></span></li>
@@ -231,15 +232,35 @@ when loading samples from a saved directory.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-DelayedDatasetDisk-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-DelayedDatasetDisk-subset"></a><div class="section">
+<h3 id="method-subset-">Method <code><a href="GCIMSSample-methods.html">subset()</a></code><a class="anchor" aria-label="anchor" href="#method-subset-"></a></h3>
+<p>Subsets some samples</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">subset</span><span class="op">(</span><span class="va">sample</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>sample</code></dt>
+<dd><p>A numeric vector with indices, a character vector with names or a logical vector</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<p>the delayed dataset modified in-place</p>
+</div>
+
+</div><p></p><hr><a id="method-DelayedDatasetDisk-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetDisk</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
