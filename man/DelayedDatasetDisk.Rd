@@ -33,6 +33,7 @@ This class is not exported, but if you want to use it reach us at
 \item \href{#method-DelayedDatasetDisk-getCurrentDir}{\code{DelayedDatasetDisk$getCurrentDir()}}
 \item \href{#method-DelayedDatasetDisk-checkSampleFiles}{\code{DelayedDatasetDisk$checkSampleFiles()}}
 \item \href{#method-DelayedDatasetDisk-updateScratchDir}{\code{DelayedDatasetDisk$updateScratchDir()}}
+\item \href{#method-DelayedDatasetDisk-subset}{\code{DelayedDatasetDisk$subset()}}
 \item \href{#method-DelayedDatasetDisk-clone}{\code{DelayedDatasetDisk$clone()}}
 }
 }
@@ -161,6 +162,26 @@ Copies the samples to a new scratch directory and saves the dataset there as wel
 when loading samples from a saved directory.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DelayedDatasetDisk-subset"></a>}}
+\if{latex}{\out{\hypertarget{method-DelayedDatasetDisk-subset}{}}}
+\subsection{Method \code{subset()}}{
+Subsets some samples
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetDisk$subset(sample)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{sample}}{A numeric vector with indices, a character vector with names or a logical vector}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+the delayed dataset modified in-place
 }
 }
 \if{html}{\out{<hr>}}

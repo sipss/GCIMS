@@ -112,6 +112,8 @@ dummy_dataset <- GCIMSDataset$new(
 \itemize{
 \item \href{#method-GCIMSDataset-new}{\code{GCIMSDataset$new()}}
 \item \href{#method-GCIMSDataset-print}{\code{GCIMSDataset$print()}}
+\item \href{#method-GCIMSDataset-subset}{\code{GCIMSDataset$subset()}}
+\item \href{#method-GCIMSDataset-.impl__subset__}{\code{GCIMSDataset$.impl__subset__()}}
 \item \href{#method-GCIMSDataset-appendDelayedOp}{\code{GCIMSDataset$appendDelayedOp()}}
 \item \href{#method-GCIMSDataset-hasDelayedOps}{\code{GCIMSDataset$hasDelayedOps()}}
 \item \href{#method-GCIMSDataset-realize}{\code{GCIMSDataset$realize()}}
@@ -191,6 +193,55 @@ prints the dataset to the screen
 \if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$print()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-subset"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-subset}{}}}
+\subsection{Method \code{subset()}}{
+Create a new dataset containing a subset of the samples
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$subset(samples, inplace = FALSE, new_scratch_dir = NA)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{samples}}{A numeric vector (sample indices), a character vector (sample names)
+or a logical vector of the length equal to the number of samples in the
+dataset (\code{TRUE} elements will be subset)}
+
+\item{\code{inplace}}{if \code{TRUE} subset happens in-place, otherwise subset will return a copy.}
+
+\item{\code{new_scratch_dir}}{A new scratch directory, only used if \code{inplace=FALSE} and the dataset is on-disk.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A GCIMSDataset (new or the current one depending on \code{inplace}), with the requested sample subset
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-.impl__subset__"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-.impl__subset__}{}}}
+\subsection{Method \code{.impl__subset__()}}{
+Do not call this method. It does an inplace subset. Use
+\code{obj$subset(samples, inplace = TRUE)} instead
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$.impl__subset__(samples)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{samples}}{A numeric vector (sample indices), a character vector (sample names)
+or a logical vector of the length equal to the number of samples in the
+dataset (\code{TRUE} elements will be subset)}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The given GCIMSDataset object, with a subset of the samples
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GCIMSDataset-appendDelayedOp"></a>}}

@@ -28,6 +28,7 @@ This class is not exported, but if you want to use it reach us at
 \itemize{
 \item \href{#method-DelayedDatasetRAM-new}{\code{DelayedDatasetRAM$new()}}
 \item \href{#method-DelayedDatasetRAM-getSample}{\code{DelayedDatasetRAM$getSample()}}
+\item \href{#method-DelayedDatasetRAM-subset}{\code{DelayedDatasetRAM$subset()}}
 \item \href{#method-DelayedDatasetRAM-clone}{\code{DelayedDatasetRAM$clone()}}
 }
 }
@@ -83,6 +84,26 @@ Get a sample from the dataset
 }
 \subsection{Returns}{
 The sample object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DelayedDatasetRAM-subset"></a>}}
+\if{latex}{\out{\hypertarget{method-DelayedDatasetRAM-subset}{}}}
+\subsection{Method \code{subset()}}{
+Subsets some samples
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetRAM$subset(sample)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{sample}}{A numeric vector with indices, a character vector with names or a logical vector}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+the delayed dataset modified in-place
 }
 }
 \if{html}{\out{<hr>}}
