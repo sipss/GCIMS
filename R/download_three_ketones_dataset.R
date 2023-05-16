@@ -16,23 +16,20 @@
 #'
 #' @export
 download_three_ketones_dataset <- function(outdir = "2021-mixture-six-ketones-demo") {
-  require_pkgs(c("httr", "curl"))
-  # FIXME: Demo dataset should be elsewhere
-  req <- httr::GET("https://api.github.com/repos/sipss/datasets-gcims-demo/contents/2021-mixture-six-ketones-demo")
-  httr::stop_for_status(req)
-  req_content <- httr::content(req)
-
-  urls <- purrr::map_chr(req_content, "download_url")
-  names(urls) <- purrr::map_chr(req_content, "name")
-
+  GCIMS:::require_pkgs("curl")
   dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
-
-  purrr::iwalk(urls, function(url, name) {
-    outfile <- file.path(outdir, name)
-    if (!file.exists(outfile)) {
-      curl::curl_download(url, outfile)
-    }
-  })
-  names(urls)
+  mea_files <- c("220221_123143.mea", "220223_164103.mea", "220502_233713.mea")
+  full_files <- file.path(outdir, mea_files)
+  if (all(file.exists(full_files))) {
+    return(full_files)
+  }
+  url <- "https://zenodo.org/record/7941230/files/UrinesDemo.zip?download=1"
+  tmp_zipfile <- tempfile(fileext=".zip")
+  curl::curl_download(url, tmp_zipfile)
+  utils::unzip(
+      tmp_zipfile,
+      junkpaths = TRUE, exdir = outdir
+  )
+  full_files
 }
 
