@@ -823,7 +823,7 @@ GCIMSDataset$new_from_saved_dir <- function(input_dir, scratch_dir = dirname(inp
   if (!file.exists(rds_file)) {
     cli_abort(c(
       "Can't load GCIMSDataset",
-      "x" = "File {.path rds_file} does not exist"
+      "x" = "File {.path {rds_file}} does not exist"
     ))
   }
   dataset <- readRDS(rds_file)
