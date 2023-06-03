@@ -3,7 +3,7 @@ Type: Package
 Title: Pre-processing for GC-IMS data
 Version: 0.1.0
 Encoding: UTF-8
-Date: 2023-02-21
+Date: 2023-06-03
 Authors@R: c(
   person(
     given = "Celia",
@@ -92,7 +92,7 @@ Suggests:
     httr,
     knitr,
     labeling,
-    plotly (>= 4.10.1.9000),
+    plotly (>= 4.10.2),
     rmarkdown,
     scales,
     testthat (>= 3.0.0),
@@ -103,4 +103,4 @@ RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-Remotes: plotly/plotly.R
+
