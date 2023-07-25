@@ -6,6 +6,13 @@ Encoding: UTF-8
 Date: 2023-06-03
 Authors@R: c(
   person(
+    given = "Sergio",
+    family = "Oller Moreno",
+    email = "soller@ibecbarcelona.eu",
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-8994-1549")
+  ),
+  person(
     given = "Celia",
     family = "Mallafré Muro",
     email = "cmallafre@ibecbarcelona.eu",
@@ -20,11 +27,11 @@ Authors@R: c(
     comment = c(ORCID = "0000-0001-9790-6287")
   ),
   person(
-    given = "Sergio",
-    family = "Oller Moreno",
-    email = "soller@ibecbarcelona.eu",
-    role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-8994-1549")
+    given = "Eduardo",
+    family = "Caballero Saldivar",
+    email = "ecaballero@ibecbarcelona.eu",
+    role = c("aut"),
+    comment = c(ORCID = "0000-0002-9698-0749")
   ),
   person(
     given = "Arnau",
@@ -32,6 +39,13 @@ Authors@R: c(
     email = "blancoarnau@gmail.com",
     role = "aut",
     comment = c(ORCID = "0000-0002-5287-7491")
+  ),  
+  person(
+    given = "Antonio",
+    family = "Pardo Matínez",
+    email = "a.pardo@ub.edu",
+    role = c("aut"),
+    comment = c(ORCID = "0000-0003-4369-544X")
   ),
   person(
     given = "Santiago",

@@ -84,7 +84,8 @@ and the second column `Filename`. We will use those annotations in plots.
 
 
 ```{r message=FALSE}
-annotations <- read.csv(file.path(samples_directory, "annotations.csv"))
+annotations <- create_annotations_table(samples_directory)
+annotations$SampleID<-c("Ketones1","Ketones2","Ketones3")
 annotations
 ```
 
@@ -513,6 +514,9 @@ ggplot(to_plot) +
   geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
   geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
   labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+```
+
+```{r }
 ggplot(to_plot) +
   geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
   geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
@@ -623,16 +627,17 @@ peak_list <- peaks(dataset)
 
 ```{r}
 peak_table <- peakTable(peak_list, aggregate_conflicting_peaks = max)
-peak_table$peak_table_matrix
+peak_table$peak_table_matrix[,22:27]
 ```
+We showed the last 6 clusters where we have "NA" Values
 
 # Imputation
-
-
 ```{r}
 peak_table_imputed <- imputePeakTable(peak_table$peak_table_matrix, dataset, peak_clustering$cluster_stats)
-peak_table_imputed
+peak_table_imputed[,22:27]
 ```
+As we can see the "NA" values were imputed
+
 
 ```{r}
 # Implemented until here

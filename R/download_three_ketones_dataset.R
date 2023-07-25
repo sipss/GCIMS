@@ -18,12 +18,12 @@
 download_three_ketones_dataset <- function(outdir = "2021-mixture-six-ketones-demo") {
   GCIMS:::require_pkgs("curl")
   dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
-  mea_files <- c("220221_123143.mea", "220223_164103.mea", "220502_233713.mea")
+  mea_files <- c("220221_102919.mea", "220228_114404.mea", "220505_110658.mea")
   full_files <- file.path(outdir, mea_files)
   if (all(file.exists(full_files))) {
     return(full_files)
   }
-  url <- "https://zenodo.org/record/7941230/files/UrinesDemo.zip?download=1"
+  url <- "https://zenodo.org/record/7941230/files/AnalyticalStandardsDemo.zip?download=1"
   tmp_zipfile <- tempfile(fileext=".zip")
   curl::curl_download(url, tmp_zipfile)
   utils::unzip(
