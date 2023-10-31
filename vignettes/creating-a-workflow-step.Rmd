@@ -100,7 +100,7 @@ cutDrift_Dataset <- function(x, dt_from, dt_to) {
 Load the dataset:
 
 ```{r}
-annotations <- read.csv(file.path(samples_directory, "annotations.csv"))
+annotations<-create_annotations_table(file.path(getwd(),samples_directory))
 dataset <- GCIMSDataset$new(
   annotations,
   base_dir = samples_directory,

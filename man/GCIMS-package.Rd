@@ -17,7 +17,9 @@ Authors:
 \itemize{
   \item Celia Mallafré Muro \email{cmallafre@ibecbarcelona.eu} (\href{https://orcid.org/0000-0001-8247-1719}{ORCID})
   \item Luis Fernandez \email{lfernandez@ibecbarcelona.eu} (\href{https://orcid.org/0000-0001-9790-6287}{ORCID})
+  \item Eduardo Caballero Saldivar \email{ecaballero@ibecbarcelona.eu} (\href{https://orcid.org/0000-0002-9698-0749}{ORCID})
   \item Arnau Blanco Borrego \email{blancoarnau@gmail.com} (\href{https://orcid.org/0000-0002-5287-7491}{ORCID})
+  \item Antonio Pardo Matínez \email{a.pardo@ub.edu} (\href{https://orcid.org/0000-0003-4369-544X}{ORCID})
   \item Santiago Marco Colás \email{smarco@ibecbarcelona.eu} (\href{https://orcid.org/0000-0003-2663-2965}{ORCID})
 }
 
