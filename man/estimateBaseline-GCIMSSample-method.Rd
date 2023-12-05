@@ -6,7 +6,13 @@
 \alias{baseline<-,GCIMSSample-method}
 \title{Estimate the baseline of a GCIMS Sample using a connect local minima algorithm}
 \usage{
-\S4method{estimateBaseline}{GCIMSSample}(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s)
+\S4method{estimateBaseline}{GCIMSSample}(
+  object,
+  dt_peak_fwhm_ms,
+  dt_region_multiplier,
+  rt_length_s,
+  remove = TRUE
+)
 
 \S4method{baseline}{GCIMSSample}(
   object,
@@ -29,6 +35,8 @@ determine the length of the regions where local minima are searched.}
 
 \item{rt_length_s}{The length of the baseline region. It should be
 comparable or longer than the peak width}
+
+\item{remove}{A boolean, if TRUE it removes the baseline from the intensity}
 
 \item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 

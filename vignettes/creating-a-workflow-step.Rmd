@@ -83,7 +83,7 @@ You can use this template for now:
 
 ```{r}
 cutDrift_Dataset <- function(x, dt_from, dt_to) {
-    delayed_op <- GCIMS:::GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "cutDrift", # Give a human-readable name
       fun = cutDrift_Sample, # The function that is applied to the sample
       params = list(dt_from = dt_from, dt_to = dt_to) # The arguments that function needs
@@ -205,7 +205,7 @@ We use the same function for the dataset:
 
 ```{r}
 cutDrift2_Dataset <- function(x, dt_from, dt_to) {
-    delayed_op <- GCIMS:::GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "cutDrift2", # Give a human-readable name
       fun = cutDrift2_Sample, # The function that is applied to the sample
       params = list(dt_from = dt_from, dt_to = dt_to) # The arguments that function needs
@@ -351,7 +351,7 @@ We now pass those extraction and aggregation functions as well:
 
 ```{r}
 cutDrift3_Dataset <- function(x, dt_from, dt_to) {
-    delayed_op <- GCIMS:::GCIMSDelayedOp(
+    delayed_op <- DelayedOperation(
       name = "cutDrift3", # Give a human-readable name
       fun = cutDrift2_Sample, # The function that is applied to the sample
       params = list(dt_from = dt_from, dt_to = dt_to), # The arguments that function needs

@@ -46,7 +46,7 @@ show_progress_bar <- interactive() && is.null(getOption("knitr.in.progress"))
 # disable parallellization: (Useful for better error reporting)
 #register(SerialParam(progressbar = show_progress_bar), default = TRUE)
 # enable parallellization with 3 workers (you can use more if you have them):
-register(SnowParam(workers = 3, progressbar = show_progress_bar, exportglobals = FALSE), default = TRUE)
+register(SnowParam(workers = 2, progressbar = show_progress_bar, exportglobals = FALSE), default = TRUE)
 ```
 
 
@@ -546,27 +546,26 @@ ggplot(to_plot) +
 You can also apply it to a single sample:
 
 ```{r}
-ket1 <- estimateBaseline(
+ket1_no_basline <- estimateBaseline(
   ket1,
   dt_peak_fwhm_ms = 0.2, 
   dt_region_multiplier = 12,
-  rt_length_s = 200
+  rt_length_s = 200,
+  remove = TRUE
 )
-```
-
-
-```{r}
-plot(ket1)
-```
-
-```{r}
-plot(ket1, remove_baseline = TRUE)
+ket1_basline <- estimateBaseline(
+  ket1,
+  dt_peak_fwhm_ms = 0.2, 
+  dt_region_multiplier = 12,
+  rt_length_s = 200,
+  remove = FALSE
+)
 ```
 
 ```{r}
 cowplot::plot_grid(
-  plot(ket1, rt_range = c(0, 500), dt_range = c(6, 16)),
-  plot(ket1, rt_range = c(0, 500), dt_range = c(6, 16), remove_baseline = TRUE),
+  plot(ket1_no_basline, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(x = ket1_basline, rt_range = c(0, 500), dt_range = c(6, 16)),
   ncol = 2
 )
 ```

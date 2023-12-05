@@ -6,6 +6,7 @@
 #' @param dt_peak_fwhm_ms Full Width at Half Maximum in milliseconds. Used to
 #' determine the length of the regions where local minima are searched.
 #' @param dt_region_multiplier A multiplier to calculate the region
+#' @param remove A boolean, if TRUE it removes the baseline from the intensity
 #' @return The modified [GCIMSDataset]
 #' @export
 setMethod(

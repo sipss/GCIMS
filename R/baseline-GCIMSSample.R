@@ -11,11 +11,12 @@
 #' @param dt_peak_fwhm_ms Full Width at Half Maximum in milliseconds. Used to
 #' determine the length of the regions where local minima are searched.
 #' @param dt_region_multiplier A multiplier to calculate the region
+#' @param remove A boolean, if TRUE it removes the baseline from the intensity
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "estimateBaseline", "GCIMSSample",
-  function(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s, remove) {
+  function(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s, remove = TRUE) {
     rt <- rtime(object)
     dt <- dtime(object)
     int <- intensity(object)
