@@ -11,12 +11,12 @@
 setMethod(
   "estimateBaseline",
   "GCIMSDataset",
-  function(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s) {
+  function(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s, remove =TRUE) {
 
     delayed_op <- DelayedOperation(
       name = "estimateBaseline",
       fun = estimateBaseline,
-      params = list(dt_peak_fwhm_ms = dt_peak_fwhm_ms, dt_region_multiplier = dt_region_multiplier, rt_length_s = rt_length_s)
+      params = list(dt_peak_fwhm_ms = dt_peak_fwhm_ms, dt_region_multiplier = dt_region_multiplier, rt_length_s = rt_length_s, remove = remove)
     )
     object$appendDelayedOp(delayed_op)
     # We recompute these, but  maybe we could just reset them to zero...

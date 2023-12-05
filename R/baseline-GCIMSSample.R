@@ -15,7 +15,7 @@
 #' @export
 methods::setMethod(
   "estimateBaseline", "GCIMSSample",
-  function(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s) {
+  function(object, dt_peak_fwhm_ms, dt_region_multiplier, rt_length_s, remove) {
     rt <- rtime(object)
     dt <- dtime(object)
     int <- intensity(object)
@@ -28,6 +28,9 @@ methods::setMethod(
     rt_basel <- estimate_baseline_tr(int - dt_basel, region_size = rt_region_size_pts)
     full_basel <- rt_basel + dt_basel
     baseline(object) <- full_basel
+    if (remove){
+      object@data <- int - full_basel
+    }
     object
   }
 )
