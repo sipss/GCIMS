@@ -104,8 +104,8 @@ methods::setMethod(
   signature = c(x = "GCIMSSample", y = "ANY"),
   function(x, y, ric_ref, ric_ref_rt) {
     optimize_polynomial_order <- function(ric_sample, ric_ref) {
-      correction_type_options <- seq.int(0, 5)
-      poly_orders <- seq.int(1, 5)
+      correction_type_options <- seq.int(0, 10)
+      poly_orders <- seq.int(1, 10)
       xi <- seq_len(length(ric_sample))
       corr <- numeric(length(poly_orders) + 1L)
       corr[1] <- stats::cor(ric_ref, ric_sample, use = "complete.obs")
@@ -118,26 +118,28 @@ methods::setMethod(
           use = "complete.obs"
         )
       }
-      # Initialize index:
-      idx_max <- idx_sel <- idx_zero <- idx_sign <- length(poly_orders) + 1L
-      # Check when correlation decreases for the first time or does not change when increasing degree of the polynomial.
-      diff_corr_i <- diff(corr)
-      if (all(sign(diff_corr_i) == 1)) {
-        # Correlation is always increasing (don't do anything)
-      } else if (any(diff_corr_i == 0)) {
-        # Correlation is equal for at least for  different degrees of the polynomial.
-        idx_zero <- which(diff_corr_i == 0)[1]
-      } else if (any(sign(diff_corr_i) == -1)) {
-        # Correlation decreases at least for two consecutive degrees of the polynomial.
-        idx_sign <- which(sign(diff_corr_i) == -1)[1]
-      }
-      # Combine indexes and look for the minimum
-      idx_combine <- c(idx_sign, idx_zero)
-      if (any(idx_combine < idx_max)) {
-        # Select the minimum index in which the correlation is still increasing
-        idx_sel <- min(idx_combine)
-      }
-      correction_type_options[idx_sel]
+
+      ### RIGHT NOW IF THIS IS UNCOMMENTED 1ST ORDER POLINOMIAL IS GOING TO BE SELECTED
+      # # Initialize index:
+      # idx_max <- idx_sel <- idx_zero <- idx_sign <- length(poly_orders) + 1L
+      # # Check when correlation decreases for the first time or does not change when increasing degree of the polynomial.
+      # diff_corr_i <- diff(corr)
+      # if (all(sign(diff_corr_i) == 1)) {
+      #   # Correlation is always increasing (don't do anything)
+      # } else if (any(diff_corr_i == 0)) {
+      #   # Correlation is equal for at least for  different degrees of the polynomial.
+      #   idx_zero <- which(diff_corr_i == 0)[1]
+      # } else if (any(sign(diff_corr_i) == -1)) {
+      #   # Correlation decreases at least for two consecutive degrees of the polynomial.
+      #   idx_sign <- which(sign(diff_corr_i) == -1)[1]
+      # }
+      # # Combine indexes and look for the minimum
+      # idx_combine <- c(idx_sign, idx_zero)
+      # if (any(idx_combine < idx_max)) {
+      #   # Select the minimum index in which the correlation is still increasing
+      #   idx_sel <- min(idx_combine)
+      # }
+      correction_type_options[which.max(corr)]
     }
 
     if (missing(ric_ref) && !missing(y)) {
