@@ -104,8 +104,8 @@ methods::setMethod(
   signature = c(x = "GCIMSSample", y = "ANY"),
   function(x, y, ric_ref, ric_ref_rt) {
     optimize_polynomial_order <- function(ric_sample, ric_ref) {
-      correction_type_options <- seq.int(0, 10)
-      poly_orders <- seq.int(1, 10)
+      correction_type_options <- seq.int(0, 5)
+      poly_orders <- seq.int(1, 5)
       xi <- seq_len(length(ric_sample))
       corr <- numeric(length(poly_orders) + 1L)
       corr[1] <- stats::cor(ric_ref, ric_sample, use = "complete.obs")
@@ -119,7 +119,7 @@ methods::setMethod(
         )
       }
 
-      ### RIGHT NOW IF THIS IS UNCOMMENTED 1ST ORDER POLINOMIAL IS GOING TO BE SELECTED
+      ### RIGHT NOW IF THIS IS UNCOMMENTED 1ST ORDER POLYNOMIAL IS GOING TO BE SELECTED
       # # Initialize index:
       # idx_max <- idx_sel <- idx_zero <- idx_sign <- length(poly_orders) + 1L
       # # Check when correlation decreases for the first time or does not change when increasing degree of the polynomial.
