@@ -9,7 +9,12 @@ setMethod(
     if (is.null(object@peaks)) {
       stop("Please run findPeaks() on the sample first")
     }
-    tibble::as_tibble(cbind(SampleID = object@description, object@peaks))
+    if(nrow(object@peaks)==0){
+      p <- NULL
+    }else{
+      p <- tibble::as_tibble(cbind(SampleID = object@description, object@peaks))
+    }
+    return(p)
   }
 )
 
