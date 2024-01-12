@@ -10,6 +10,7 @@
 \alias{filterDt}
 \alias{decimate}
 \alias{align}
+\alias{align_ip}
 \alias{alignDt}
 \alias{estimateBaseline}
 \alias{baseline}
@@ -32,6 +33,8 @@ filterDt(object, ...)
 decimate(object, ...)
 
 align(object, ...)
+
+align_ip(object, ...)
 
 alignDt(x, y, ...)
 
@@ -75,6 +78,8 @@ The object, modified
 
 The object, modified
 
+The object, modified
+
 The object, with a baseline estimated
 
 The baseline of the object
@@ -104,6 +109,8 @@ to an existing generics-only package if you need so.
 \item \code{decimate()}: Decimate an object
 
 \item \code{align()}: Align an object
+
+\item \code{align_ip()}: Align to injection point an object
 
 \item \code{alignDt()}: Align an object in drift time
 

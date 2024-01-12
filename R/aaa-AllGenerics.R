@@ -106,6 +106,13 @@ setGeneric("decimate", function(object, ...) standardGeneric("decimate"))
 #' @export
 setGeneric("align", function(object, ...) standardGeneric("align"))
 
+#' @describeIn GCIMS-generics Align to injection point an object
+#'
+#' @param object An object to align
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @return The object, modified
+#' @export
+setGeneric("align_ip", function(object, ...) standardGeneric("align_ip"))
 
 #' @describeIn GCIMS-generics Align an object in drift time
 #'
