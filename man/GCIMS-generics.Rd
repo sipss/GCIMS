@@ -11,6 +11,7 @@
 \alias{decimate}
 \alias{align}
 \alias{align_ip}
+\alias{align_pow}
 \alias{alignDt}
 \alias{estimateBaseline}
 \alias{baseline}
@@ -35,6 +36,8 @@ decimate(object, ...)
 align(object, ...)
 
 align_ip(object, ...)
+
+align_pow(object, ...)
 
 alignDt(x, y, ...)
 
@@ -80,6 +83,8 @@ The object, modified
 
 The object, modified
 
+The object, modified
+
 The object, with a baseline estimated
 
 The baseline of the object
@@ -110,7 +115,9 @@ to an existing generics-only package if you need so.
 
 \item \code{align()}: Align an object
 
-\item \code{align_ip()}: Align to injection point an object
+\item \code{align_ip()}: Align to injection point in retention time
+
+\item \code{align_pow()}: Align in retention time with POW algorithm
 
 \item \code{alignDt()}: Align an object in drift time
 

@@ -626,14 +626,14 @@ peak_list <- peaks(dataset)
 
 ```{r}
 peak_table <- peakTable(peak_list, aggregate_conflicting_peaks = max)
-peak_table$peak_table_matrix[,22:27]
+tail(peak_table$peak_table_matrix)
 ```
 We showed the last 6 clusters where we have "NA" Values
 
 # Imputation
 ```{r}
 peak_table_imputed <- imputePeakTable(peak_table$peak_table_matrix, dataset, peak_clustering$cluster_stats)
-peak_table_imputed[,22:27]
+tail(peak_table_imputed)
 ```
 As we can see the "NA" values were imputed
 

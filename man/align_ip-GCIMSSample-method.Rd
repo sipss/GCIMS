@@ -7,14 +7,14 @@
 \S4method{align_ip}{GCIMSSample}(object, min_start, rt_ref)
 }
 \arguments{
-\item{object}{A \link{GCIMSDataset} object, modified in-place}
+\item{object}{A \link{GCIMSSample} object, modified in-place}
 
 \item{min_start}{The points that will be used before the injection point}
 
 \item{rt_ref}{Retention time vector to be used}
 }
 \value{
-The modified \link{GCIMSDataset}
+The modified \link{GCIMSSample}
 }
 \description{
 Aligns a sample to the reference injection point

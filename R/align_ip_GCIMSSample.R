@@ -2,10 +2,10 @@
 #'
 #' Aligns a sample to the reference injection point
 #'
-#' @param object A [GCIMSDataset] object, modified in-place
+#' @param object A [GCIMSSample] object, modified in-place
 #' @param min_start The points that will be used before the injection point
 #' @param rt_ref Retention time vector to be used
-#' @return The modified [GCIMSDataset]
+#' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "align_ip",
