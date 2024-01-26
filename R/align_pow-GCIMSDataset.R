@@ -17,7 +17,7 @@ methods::setMethod(
            p = 10,
            max_it = 1000){
     rics <- object$getRIC()
-    idx_y <- Align::select_reference(rics)
+    idx_y <- pow::select_reference(rics)
     X <- as.matrix(rics[-idx_y,])
     y <- as.matrix(rics[idx_y,])
     n_samples <- nrow(X)
@@ -26,11 +26,11 @@ methods::setMethod(
     iv <- seq(2, m - 1, by = p)
     v[iv] <- 0
     W <- Matrix::Diagonal(x = v)
-    val<-Align::compute_val_error(X,y,W,iv,lambdas)
-    opar <- Align::optimize_params(n_samples, lambdas, val$ti_ix, val$e_ix)
+    val<-pow::compute_val_error(X,y,W,iv,lambdas)
+    opar <- pow::optimize_params(n_samples, lambdas, val$ti_ix, val$e_ix)
     best_lambdas2 <- opar$best_params
 
-    w<-mapply(Align::pow,x=as.list(data.frame(t(X))), lambda2=as.list(best_lambdas2),MoreArgs = list(y=y,max_it = max_it))
+    w<-mapply(pow::pow,x=as.list(data.frame(t(X))), lambda2=as.list(best_lambdas2),MoreArgs = list(y=y,max_it = max_it))
     w<-as.list((as.data.frame(w)))
     w<-append(w,list(1:m),idx_y-1)
     names(w)<-object$sampleNames

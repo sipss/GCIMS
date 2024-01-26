@@ -12,7 +12,7 @@ methods::setMethod(
   "GCIMSSample",
   function(object,w){
     int <- GCIMS::intensity(object)
-    inter <- t(apply(int, 1, Align::interpolation, w = w, return = FALSE))
+    inter <- t(apply(int, 1, pow::interpolation, w = w, return = FALSE))
     sel <- !is.na(inter[1,])
     object@retention_time <- object@retention_time[sel]
     object@data <- inter[,sel]
