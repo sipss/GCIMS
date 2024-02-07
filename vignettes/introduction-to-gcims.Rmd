@@ -192,14 +192,9 @@ to_plot <- dplyr::bind_rows(
   Smoothed = as.data.frame(one_ims_smoothed),
   .id = "Status"
 )
-ggplot(to_plot) +
+plotly::ggplotly(ggplot(to_plot) +
   geom_line(aes(x = drift_time_ms, y = intensity, colour = Status)) +
-  coord_cartesian(xlim = c(7, 10)) +
-  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
-ggplot(to_plot) +
-  geom_line(aes(x = drift_time_ms, y = intensity, colour = Status)) +
-  coord_cartesian(xlim = c(7, 10), ylim = c(0, 300)) +
-  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)"))
 ```
 
 ```{r}
@@ -213,13 +208,9 @@ to_plot <- dplyr::bind_rows(
   Smoothed = as.data.frame(one_chrom_smoothed),
   .id = "Status"
 )
-ggplot(to_plot) +
+plotly::ggplotly(ggplot(to_plot) +
   geom_line(aes(x = retention_time_s, y = intensity, colour = Status)) +
-  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
-ggplot(to_plot) +
-  geom_line(aes(x = retention_time_s, y = intensity, colour = Status)) +
-  coord_cartesian(xlim = c(200, 250)) +
-  labs(x = "Retention time (s)", y = "Intensity (a.u.)")
+  labs(x = "Retention time (s)", y = "Intensity (a.u.)"))
 ```
 
 You can also apply it to a single sample:
@@ -392,15 +383,15 @@ ket1 <- findPeaks(
   rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
   dt_extension_factor = 0,
   rt_extension_factor = 0,
-  exclude_rip = FALSE,
+  exclude_rip = TRUE,
   iou_overlap_threshold = 0.2
 )
 ```
 
 ```{r}
 peak_list_ket1 <- peaks(ket1)
-plot(ket1) +
-  overlay_peaklist(peak_list_ket1, color_by = "PeakID")
+plotly::ggplotly(plot(ket1) +
+  overlay_peaklist(peak_list_ket1, color_by = "PeakID"))
 ```
 
 Then do it on the whole dataset:
@@ -429,9 +420,8 @@ ket2 <- dataset$getSample("Ketones2")
 ```
 
 ```{r}
-plot(ket2) +
-  overlay_peaklist(peaks(ket2)) +
-  lims(x = c(7.5,15), y = c(0, 500))
+plotly::ggplotly(plot(ket2) +
+  overlay_peaklist(peaks(ket2)) )
 ```
 
 Or plot all the peaks from all the dataset together, overlayed on a single sample:
@@ -439,10 +429,7 @@ Or plot all the peaks from all the dataset together, overlayed on a single sampl
 ```{r}
 plt <- plot(ket2) +
   overlay_peaklist(peaks(dataset), color_by = "SampleID")
-# We could explore the plot interactively: 
-# plot_interactive(plt)
-# Or use a static version to save memory and render it faster:
-plt
+plotly::ggplotly(plt)
 ```
 
 # Clustering
@@ -464,18 +451,16 @@ peak_list_clustered <- peak_clustering$peak_list_clustered
 ```
 
 
-```{r fig.height=10, fig.width=10}
+```{r }
 plt <- plot(ket2) +
   overlay_peaklist(peak_list_clustered, color_by = "SampleID")
-print(plt)
-print(plt + lims(x = c(6, 15), y = c(0, 400)))
+plotly::ggplotly(plt)
 ```
 
 ```{r}
 plt <- plot(ket2) +
   overlay_peaklist(dplyr::filter(peak_list_clustered, !is.na(cluster)), color_by = "cluster")
-print(plt)
-print(plt + lims(x = c(6, 15), y = c(0, 400)))
+plotly::ggplotly(plt)
 ```
 
 The resulting cluster sizes (median position of individual clusters) is not a good reference
@@ -484,8 +469,7 @@ for integration. We are working on this.
 ```{r}
 plt <- plot(ket2) +
   overlay_peaklist(peak_clustering$cluster_stats, color_by = "cluster")
-#plot_interactive(plt)
-plt + lims(x = c(6, 15), y = c(0, 400))
+plotly::ggplotly(plt)
 ```
 
 # Baseline correction
@@ -510,20 +494,11 @@ to_plot <- data.frame(
   Intensity = intensity(one_ims_spec),
   Baseline = baseline(one_ims_spec)
 )
-ggplot(to_plot) +
+plotly::ggplotly(ggplot(to_plot) +
   geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
   geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
-  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)"))
 ```
-
-```{r }
-ggplot(to_plot) +
-  geom_line(aes(x = drift_time_ms, y = Intensity), color = "red") +
-  geom_line(aes(x = drift_time_ms, y = Baseline), color = "blue") +
-  coord_cartesian(xlim = c(7, 10), ylim = c(0, 500)) +
-  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")
-```
-
 
 ```{r}
 one_chrom <- getChromatogram(ket1, dt_range = 10.4)
@@ -564,7 +539,7 @@ ket1_basline <- estimateBaseline(
 
 ```{r}
 cowplot::plot_grid(
-  plot(ket1_no_basline, rt_range = c(0, 500), dt_range = c(6, 16)),
+  plot(x = ket1_no_basline, rt_range = c(0, 500), dt_range = c(6, 16)),
   plot(x = ket1_basline, rt_range = c(0, 500), dt_range = c(6, 16)),
   ncol = 2
 )
@@ -586,7 +561,7 @@ dataset$realize()
 
 Some clusters:
 
-```{r fig.height=10, fig.width=10}
+```{r}
 plot(ket2) + 
   overlay_peaklist(
     peak_clustering$peak_list_clustered,
@@ -626,14 +601,16 @@ peak_list <- peaks(dataset)
 
 ```{r}
 peak_table <- peakTable(peak_list, aggregate_conflicting_peaks = max)
-tail(peak_table$peak_table_matrix)
+t(tail(t(peak_table$peak_table_matrix)))
 ```
 We showed the last 6 clusters where we have "NA" Values
 
 # Imputation
 ```{r}
-peak_table_imputed <- imputePeakTable(peak_table$peak_table_matrix, dataset, peak_clustering$cluster_stats)
-tail(peak_table_imputed)
+peak_table_imputed <- imputePeakTable(peak_table$peak_table_matrix,
+                                      dataset, 
+                                      peak_clustering$cluster_stats)
+t(tail(t(peak_table_imputed)))
 ```
 As we can see the "NA" values were imputed
 

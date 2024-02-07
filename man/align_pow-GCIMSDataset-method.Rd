@@ -21,3 +21,7 @@ The modified \link{GCIMSDataset}
 \description{
 Uses the POW algorithm to generate waprs and align the samples
 }
+\details{
+To use this function you need to install the "pow" package hosted on github, to do this run he next line:
+remotes::install_github("sipss/pow")
+}

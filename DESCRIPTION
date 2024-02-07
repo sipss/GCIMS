@@ -107,6 +107,7 @@ Suggests:
     knitr,
     labeling,
     plotly (>= 4.10.2),
+    pow,
     rmarkdown,
     scales,
     testthat (>= 3.0.0),
@@ -117,4 +118,3 @@ RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-

@@ -1,7 +1,5 @@
 *.html
 *.R
-Rplots.pdf
 *.log
-GCIMSDataset_demo1_
 sample1.csv
 sample2.csv
