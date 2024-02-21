@@ -242,3 +242,19 @@ setGeneric("baseline<-", function(object, value) standardGeneric("baseline<-"))
 #'
 #' @export
 setGeneric("integratePeaks", function(object, ...) standardGeneric("integratePeaks"))
+
+#' @describeIn GCIMS-generics get inverse reduced mobility
+#' @param object An object to get its inverse reduced mobility
+#' @param ... Additional arguments for downstream methods
+#' @return The object with reduced inverse mobility
+#'
+#' @export
+setGeneric("get_inv_k0", function(object, ...) standardGeneric("get_inv_k0"))
+
+#' @describeIn GCIMS-generics get retention index
+#' @param object An object to get its retention index
+#' @param ... Additional arguments for downstream methods
+#' @return The object with retention index
+#'
+#' @export
+setGeneric("get_ri", function(object, ...) standardGeneric("get_ri"))

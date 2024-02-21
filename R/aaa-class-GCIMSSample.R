@@ -14,6 +14,8 @@
 #' @slot retention_time numeric. (required)
 #' @slot data matrix A matrix with drift time in the rows and retention time
 #'  in columns. (required)
+#' @slot inverse_reduced_mobility 1/K0 (calculated from drift_time)
+#' @slot retention_index numeric. (calculated from retention_time and references)
 #' @slot gc_column character. (optional) The type of chromatographic column used
 #' @slot drift_tube_length numeric (optional) The length of the drift tube, in mm
 #' @slot drift_gas character. (optional) The drift gas used (e.g "nitrogen")
@@ -52,6 +54,8 @@ methods::setClass(
     drift_time = "numeric",
     retention_time = "numeric",
     data = "matrix", # [dt, rt]
+    inverse_reduced_mobility = "numeric",
+    retention_index = "numeric",
     gc_column = "character",
     drift_gas = "character",
     drift_tube_length = "numeric",
