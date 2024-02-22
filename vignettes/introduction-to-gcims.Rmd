@@ -42,11 +42,11 @@ preprocess them, align them one to each other and build a peak table with the re
 Enable parallellization of the workflow, here we use three cores:
 
 ```{r}
-show_progress_bar <- interactive() && is.null(getOption("knitr.in.progress"))
 # disable parallellization: (Useful for better error reporting)
-#register(SerialParam(progressbar = show_progress_bar), default = TRUE)
+#register(SerialParam(progressbar = show_progress_bar()), default = TRUE)
+
 # enable parallellization with 3 workers (you can use more if you have them):
-register(SnowParam(workers = 2, progressbar = show_progress_bar, exportglobals = FALSE), default = TRUE)
+register(SnowParam(workers = 2, progressbar = show_progress_bar(), exportglobals = FALSE), default = TRUE)
 ```
 
 

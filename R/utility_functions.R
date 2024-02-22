@@ -26,6 +26,10 @@ units_to_points <- function(length_phys, step_phys, must_odd = FALSE) {
 }
 
 
+#' Show progress bar
+#'
+#' @return logic to show the progress bar
+#' @export
 show_progress_bar <- function() {
   interactive() && is.null(getOption("knitr.in.progress"))
 }
