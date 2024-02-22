@@ -9,7 +9,7 @@
 setMethod(
   "align",
   "GCIMSDataset",
-  function(object) {
+  function(object, method = "pow", shift_ip = TRUE) {
     tis_matrix <- getTIS(object)
     ric_matrix <- getRIC(object)
     dt <- dtime(object)
@@ -19,7 +19,9 @@ setMethod(
       dt = dt,
       rt = rt,
       tis_matrix = tis_matrix,
-      ric_matrix = ric_matrix
+      ric_matrix = ric_matrix,
+      method = method,
+      shift_ip = shift_ip
     )
 
     delayed_op <- DelayedOperation(
@@ -70,30 +72,14 @@ setMethod(
   ds
 }
 
-#' Find the  best retention time reference chromatogram.
-#' @noRd
-#'
-#' @description This function provides the index corresponding to the reference Reactant Ion Chromatogram (RIC) to correct
-#' misalignments in retention time.
-#' @param rics A matrix. Each row correspond to a different RIC. There are as many RICs as samples.
-#' @return  An Integer number that indicates the reference sample.
-#' @examples
-#' rics <- rbind(
-#'   dnorm(1:100, mean=50, sd =1),
-#'   dnorm(1:100, mean=51, sd =1),
-#'   dnorm(1:100, mean=52, sd =1)
-#' )
-#' find_reference_ric(rics) == 2L
-find_reference_ric <- function(rics){
-  ref_ric_sample_idx <- ptw::bestref(rics)$best.ref
-  return(ref_ric_sample_idx)
-}
 
-
-
-alignParams <- function(dt, rt, tis_matrix, ric_matrix) {
+alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, shift_ip) {
   # Optimize ret time alignment parameters:
-  ref_ric_sample_idx <- find_reference_ric(ric_matrix)
+  if (method == "ptw"){
+    ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
+  } else {
+    ref_ric_sample_idx <- pow::select_reference(ric_matrix)
+  }
   # Select reference RIC
   ric_ref <- as.numeric(ric_matrix[ref_ric_sample_idx, ])
 
@@ -102,7 +88,18 @@ alignParams <- function(dt, rt, tis_matrix, ric_matrix) {
   rip_ref_idx <- round(stats::median(rip_position, na.rm = TRUE))
   rip_ref_ms <- dt[rip_ref_idx]
 
-  list(rip_ref_ms = rip_ref_ms, ric_ref = ric_ref, ric_ref_rt = rt)
+  # align ip params
+
+  mins <- apply(ric_matrix, 1,which.min)
+  rt_ref <- rt[1 : (length(rt) - (max(mins) - min(mins)))]
+  min_start <- min(mins) - 1
+
+  list(rip_ref_ms = rip_ref_ms,
+       ric_ref = ric_ref,
+       ric_ref_rt = rt,
+       min_start = min_start,
+       rt_ref = rt_ref,
+       shift_ip = shift_ip)
 }
 
 #' Plots to interpret alignment results

@@ -7,7 +7,7 @@
 #' @export
 methods::setMethod(
   "align", "GCIMSSample",
-  function(object, rip_ref_ms, ric_ref, ric_ref_rt){
+  function(object, rip_ref_ms, ric_ref, ric_ref_rt, min_start, rt_ref, shift_ip){
     if (all(is.na(object@data))) {
       cli_abort("All the data matrix of {description(object)} are missing values. Align is impossible")
     }
@@ -15,7 +15,18 @@ methods::setMethod(
     if (all(is.na(object@data))) {
       cli_abort("After aligning drift times, all the data matrix of {description(object)} are missing values. This should not happen")
     }
-    object <- alignRt(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
+    if (shift_ip){
+      ric <- getRIC(object)
+      injection_point <- which.min(ric)
+      object@retention_time <- rt_ref
+      object@data <- object@data[, (injection_point - min_start):((injection_point - min_start)+length(rt_ref)-1)]
+    }
+    if (method == "ptw") {
+      object <- alignRt_ptw(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
+    } else {
+      ####object <- alignRt_pow
+    }
+
     if (all(is.na(object@data))) {
       cli_abort("After aligning drift and retention times, all the data matrix of {description(object)} are missing values. This should not happen")
     }
@@ -100,7 +111,7 @@ methods::setMethod(
 #' @importMethodsFrom ProtGenerics alignRt
 #' @export
 methods::setMethod(
-  "alignRt",
+  "alignRt_ptw",
   signature = c(x = "GCIMSSample", y = "ANY"),
   function(x, y, ric_ref, ric_ref_rt) {
     optimize_polynomial_order <- function(ric_sample, ric_ref) {
