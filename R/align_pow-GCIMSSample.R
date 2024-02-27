@@ -7,21 +7,21 @@
 #' @return The modified [GCIMSSample]
 #' @export
 
-methods::setMethod(
-  "align_pow",
-  "GCIMSSample",
-  function(object, rip_ref_ms, w){
-    object <- alignDt(object, rip_ref_ms = rip_ref_ms)
-    dt_range <- c(
-      object@proc_params$align$dt_min_ms,
-      object@proc_params$align$dt_max_ms
-    )
-    object <- subset(object, dt_range = dt_range)
-    int <- GCIMS::intensity(object)
-    inter <- t(apply(int, 1, pow::interpolation, w = w, return = FALSE))
-    sel <- !is.na(inter[1,])
-    object@retention_time <- object@retention_time[sel]
-    object@data <- inter[,sel]
-    return(object)
-  }
-)
+# methods::setMethod(
+#   "align_pow",
+#   "GCIMSSample",
+#   function(object, rip_ref_ms, w){
+#     object <- alignDt(object, rip_ref_ms = rip_ref_ms)
+#     dt_range <- c(
+#       object@proc_params$align$dt_min_ms,
+#       object@proc_params$align$dt_max_ms
+#     )
+#     object <- subset(object, dt_range = dt_range)
+#     int <- GCIMS::intensity(object)
+#     inter <- t(apply(int, 1, pow::interpolation, w = w, return = FALSE))
+#     sel <- !is.na(inter[1,])
+#     object@retention_time <- object@retention_time[sel]
+#     object@data <- inter[,sel]
+#     return(object)
+#   }
+# )

@@ -4,7 +4,7 @@
 \alias{align,GCIMSDataset-method}
 \title{Align a GCIMS dataset}
 \usage{
-\S4method{align}{GCIMSDataset}(object)
+\S4method{align}{GCIMSDataset}(object, method = "ptw", align_ip = TRUE)
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object, modified in-place}

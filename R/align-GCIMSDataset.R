@@ -9,7 +9,7 @@
 setMethod(
   "align",
   "GCIMSDataset",
-  function(object, method = "pow", shift_ip = TRUE) {
+  function(object, method = "ptw", align_ip = TRUE) {
     tis_matrix <- getTIS(object)
     ric_matrix <- getRIC(object)
     dt <- dtime(object)
@@ -21,7 +21,7 @@ setMethod(
       tis_matrix = tis_matrix,
       ric_matrix = ric_matrix,
       method = method,
-      shift_ip = shift_ip
+      align_ip = align_ip
     )
 
     delayed_op <- DelayedOperation(
@@ -73,7 +73,7 @@ setMethod(
 }
 
 
-alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, shift_ip) {
+alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, align_ip) {
   # Optimize ret time alignment parameters:
   if (method == "ptw"){
     ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
@@ -88,18 +88,18 @@ alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, shift_ip) {
   rip_ref_idx <- round(stats::median(rip_position, na.rm = TRUE))
   rip_ref_ms <- dt[rip_ref_idx]
 
-  # align ip params
+  # IP alignment parameters
 
-  mins <- apply(ric_matrix, 1,which.min)
-  rt_ref <- rt[1 : (length(rt) - (max(mins) - min(mins)))]
-  min_start <- min(mins) - 1
+  ip_position <- apply(ric_matrix, 1L ,which.min)
+  ip_ref_idx <- round(stats::median(ip_position, na.rm = TRUE))
+  ip_ref_s <- rt[ip_ref_idx]
 
   list(rip_ref_ms = rip_ref_ms,
        ric_ref = ric_ref,
        ric_ref_rt = rt,
-       min_start = min_start,
-       rt_ref = rt_ref,
-       shift_ip = shift_ip)
+       ip_ref_s = ip_ref_s,
+       method = method,
+       align_ip = align_ip)
 }
 
 #' Plots to interpret alignment results

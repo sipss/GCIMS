@@ -4,7 +4,7 @@
 \alias{align,GCIMSSample-method}
 \title{Align a GCIMSSample object, in drift and retention time}
 \usage{
-\S4method{align}{GCIMSSample}(object, rip_ref_ms, ric_ref, ric_ref_rt)
+\S4method{align}{GCIMSSample}(object, rip_ref_ms, ric_ref, ric_ref_rt, ip_ref_s, method, align_ip)
 }
 \arguments{
 \item{object}{A \link{GCIMSSample} object}

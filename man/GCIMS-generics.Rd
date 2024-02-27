@@ -10,9 +10,10 @@
 \alias{filterDt}
 \alias{decimate}
 \alias{align}
-\alias{align_ip}
-\alias{align_pow}
 \alias{alignDt}
+\alias{alignRt_ptw}
+\alias{alignRt_pow}
+\alias{alignRt_ip}
 \alias{estimateBaseline}
 \alias{baseline}
 \alias{baseline<-}
@@ -35,11 +36,13 @@ decimate(object, ...)
 
 align(object, ...)
 
-align_ip(object, ...)
+alignDt(x, ...)
 
-align_pow(object, ...)
+alignRt_ptw(x, ...)
 
-alignDt(x, y, ...)
+alignRt_pow(x, ...)
+
+alignRt_ip(x, ...)
 
 estimateBaseline(object, ...)
 
@@ -56,9 +59,9 @@ integratePeaks(object, ...)
 
 \item{x}{An object to align}
 
-\item{y}{Another object to use as reference}
-
 \item{value}{baseline to set}
+
+\item{y}{Another object to use as reference}
 }
 \value{
 A numeric vector with the drift time
@@ -72,6 +75,8 @@ matrix (depending if the object is one sample or several)
 A plot
 
 A plot
+
+The object, modified
 
 The object, modified
 
@@ -115,11 +120,13 @@ to an existing generics-only package if you need so.
 
 \item \code{align()}: Align an object
 
-\item \code{align_ip()}: Align to injection point in retention time
-
-\item \code{align_pow()}: Align in retention time with POW algorithm
-
 \item \code{alignDt()}: Align an object in drift time
+
+\item \code{alignRt_ptw()}: Align an object in retention time
+
+\item \code{alignRt_pow()}: Align an object in retention time
+
+\item \code{alignRt_ip()}: Align an object in retention time
 
 \item \code{estimateBaseline()}: Estimate the baseline in an object
 
