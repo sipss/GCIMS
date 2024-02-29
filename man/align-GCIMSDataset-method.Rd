@@ -4,10 +4,16 @@
 \alias{align,GCIMSDataset-method}
 \title{Align a GCIMS dataset}
 \usage{
-\S4method{align}{GCIMSDataset}(object, method = "ptw", align_ip = TRUE)
+\S4method{align}{GCIMSDataset}(object, method = "pow", align_ip = TRUE, ...)
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object, modified in-place}
+
+\item{method}{Method for alignment, should be "ptw" or "pow"}
+
+\item{align_ip}{if TRUE a multiplicative correction will be done in retention time before applying the other algorithm}
+
+\item{...}{additional parameters for POW alignment}
 }
 \value{
 The modified \link{GCIMSDataset}

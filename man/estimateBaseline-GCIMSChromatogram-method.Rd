@@ -43,8 +43,8 @@ The length of the regions are given in seconds in the \code{region_s} parameter.
 }}
 \seealso{
 Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram-class}},
 \code{\link{GCIMSChromatogram}},
+\code{\link{GCIMSChromatogram-class}},
 \code{\link{dtime,GCIMSChromatogram-method}},
 \code{\link{findPeaks,GCIMSChromatogram-method}},
 \code{\link{intensity,GCIMSChromatogram-method}},

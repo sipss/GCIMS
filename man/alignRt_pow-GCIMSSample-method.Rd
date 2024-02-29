@@ -4,7 +4,14 @@
 \alias{alignRt_pow,GCIMSSample-method}
 \title{Align a GCIMSSample in retention time with parametric optimized warping}
 \usage{
-\S4method{alignRt_pow}{GCIMSSample}(x, ric_ref, ric_ref_rt)
+\S4method{alignRt_pow}{GCIMSSample}(
+  x,
+  ric_ref,
+  ric_ref_rt,
+  lambdas = pracma::logspace(-2, 4, 31),
+  p = 10,
+  max_it = 1000
+)
 }
 \arguments{
 \item{x}{A \link{GCIMSSample} object}

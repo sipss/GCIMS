@@ -60,8 +60,6 @@ integratePeaks(object, ...)
 \item{x}{An object to align}
 
 \item{value}{baseline to set}
-
-\item{y}{Another object to use as reference}
 }
 \value{
 A numeric vector with the drift time

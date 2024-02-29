@@ -4,12 +4,15 @@
 #' Parametric Time Warping correction in retention time
 #'
 #' @param object A [GCIMSDataset] object, modified in-place
+#' @param method Method for alignment, should be "ptw" or "pow"
+#' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
+#' @param ... additional parameters for POW alignment
 #' @return The modified [GCIMSDataset]
 #' @export
 setMethod(
   "align",
   "GCIMSDataset",
-  function(object, method = "ptw", align_ip = TRUE) {
+  function(object, method = "pow", align_ip = TRUE, ...) {
     tis_matrix <- getTIS(object)
     ric_matrix <- getRIC(object)
     dt <- dtime(object)
@@ -21,8 +24,8 @@ setMethod(
       tis_matrix = tis_matrix,
       ric_matrix = ric_matrix,
       method = method,
-      align_ip = align_ip
-    )
+      align_ip = align_ip,
+      ...)
 
     delayed_op <- DelayedOperation(
       name = "align",
@@ -73,7 +76,7 @@ setMethod(
 }
 
 
-alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, align_ip) {
+alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, align_ip, ...) {
   # Optimize ret time alignment parameters:
   if (method == "ptw"){
     ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
@@ -99,7 +102,8 @@ alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, align_ip) {
        ric_ref_rt = rt,
        ip_ref_s = ip_ref_s,
        method = method,
-       align_ip = align_ip)
+       align_ip = align_ip,
+       ...)
 }
 
 #' Plots to interpret alignment results

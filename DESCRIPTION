@@ -106,7 +106,9 @@ Suggests:
     httr,
     knitr,
     labeling,
+    magick,
     plotly (>= 4.10.2),
+    png,
     pow,
     rmarkdown,
     scales,
@@ -114,7 +116,7 @@ Suggests:
     viridisLite
 biocViews: Software, Preprocessing, Visualization, Classification,
  Cheminformatics, Metabolomics, DataImport
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)

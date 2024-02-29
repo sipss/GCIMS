@@ -192,9 +192,9 @@ to_plot <- dplyr::bind_rows(
   Smoothed = as.data.frame(one_ims_smoothed),
   .id = "Status"
 )
-plot_interactive((ggplot(to_plot) +
+plot_interactive(ggplot(to_plot) +
   geom_line(aes(x = drift_time_ms, y = intensity, colour = Status)) +
-  labs(x = "Drift time (ms)", y = "Intensity (a.u.)")))
+  labs(x = "Drift time (ms)", y = "Intensity (a.u.)"))
 ```
 
 ```{r}

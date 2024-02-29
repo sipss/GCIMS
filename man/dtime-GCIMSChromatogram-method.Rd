@@ -17,8 +17,8 @@ Get the drift time of the chromatogram
 }
 \seealso{
 Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram-class}},
 \code{\link{GCIMSChromatogram}},
+\code{\link{GCIMSChromatogram-class}},
 \code{\link{estimateBaseline,GCIMSChromatogram-method}},
 \code{\link{findPeaks,GCIMSChromatogram-method}},
 \code{\link{intensity,GCIMSChromatogram-method}},

@@ -107,7 +107,6 @@ setGeneric("align", function(object, ...) standardGeneric("align"))
 #' @describeIn GCIMS-generics Align an object in drift time
 #'
 #' @param x An object to align
-#' @param y Another object to use as reference
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @return The object, modified
 #' @export
