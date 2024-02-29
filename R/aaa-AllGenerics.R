@@ -88,7 +88,6 @@ setGeneric("plotRIC", function(object, ...) standardGeneric("plotRIC"))
 #' @export
 setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))
 
-
 #' @describeIn GCIMS-generics Decimate an object
 #'
 #' @param object An object to decimate
@@ -96,7 +95,6 @@ setGeneric("filterDt", function(object, ...) standardGeneric("filterDt"))
 #' @return The object, modified
 #' @export
 setGeneric("decimate", function(object, ...) standardGeneric("decimate"))
-
 
 #' @describeIn GCIMS-generics Align an object
 #'
@@ -106,30 +104,41 @@ setGeneric("decimate", function(object, ...) standardGeneric("decimate"))
 #' @export
 setGeneric("align", function(object, ...) standardGeneric("align"))
 
-#' @describeIn GCIMS-generics Align to injection point in retention time
-#'
-#' @param object An object to align
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @return The object, modified
-#' @export
-setGeneric("align_ip", function(object, ...) standardGeneric("align_ip"))
-
-#' @describeIn GCIMS-generics Align in retention time with POW algorithm
-#'
-#' @param object An object to align
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @return The object, modified
-#' @export
-setGeneric("align_pow", function(object, ...) standardGeneric("align_pow"))
-
 #' @describeIn GCIMS-generics Align an object in drift time
 #'
 #' @param x An object to align
-#' @param y Another object to use as reference
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @return The object, modified
 #' @export
-setGeneric("alignDt", function(x, y, ...) standardGeneric("alignDt"))
+setGeneric("alignDt", function(x, ...) standardGeneric("alignDt"))
+
+#' @describeIn GCIMS-generics Align an object in retention time
+#'
+#' @param x An object to align
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @return The object, modified
+#' @export
+setGeneric("alignRt_ptw", function(x, ...) standardGeneric("alignRt_ptw"))
+
+#' @describeIn GCIMS-generics Align an object in retention time
+#'
+#' @param x An object to align
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @return The object, modified
+#' @export
+setGeneric("alignRt_pow", function(x, ...) standardGeneric("alignRt_pow"))
+
+#' @describeIn GCIMS-generics Align an object in retention time
+#'
+#' @param x An object to align
+#' @param ... Further arguments, possibly used by downstream methods.
+#' @return The object, modified
+#' @export
+setGeneric("alignRt_ip", function(x, ...) standardGeneric("alignRt_ip"))
+
+# #' @importMethodsFrom ProtGenerics alignRt
+# #' @export
+# setGeneric("alignRt", getGeneric("alignRt", package = "ProtGenerics"))
 
 #' @importMethodsFrom Biobase pData
 #' @export
@@ -152,11 +161,6 @@ setGeneric("sampleNames<-", getGeneric("sampleNames<-", package = "Biobase"))
 #' @importMethodsFrom BiocGenerics updateObject
 #' @export
 setGeneric("updateObject", getGeneric("updateObject", package = "BiocGenerics"))
-
-
-#' @importMethodsFrom ProtGenerics alignRt
-#' @export
-setGeneric("alignRt", getGeneric("alignRt", package = "ProtGenerics"))
 
 #' @importMethodsFrom ProtGenerics filterRt
 #' @export

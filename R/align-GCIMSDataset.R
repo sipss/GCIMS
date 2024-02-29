@@ -4,12 +4,15 @@
 #' Parametric Time Warping correction in retention time
 #'
 #' @param object A [GCIMSDataset] object, modified in-place
+#' @param method Method for alignment, should be "ptw" or "pow"
+#' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
+#' @param ... additional parameters for POW alignment
 #' @return The modified [GCIMSDataset]
 #' @export
 setMethod(
   "align",
   "GCIMSDataset",
-  function(object) {
+  function(object, method = "pow", align_ip = TRUE, ...) {
     tis_matrix <- getTIS(object)
     ric_matrix <- getRIC(object)
     dt <- dtime(object)
@@ -19,8 +22,10 @@ setMethod(
       dt = dt,
       rt = rt,
       tis_matrix = tis_matrix,
-      ric_matrix = ric_matrix
-    )
+      ric_matrix = ric_matrix,
+      method = method,
+      align_ip = align_ip,
+      ...)
 
     delayed_op <- DelayedOperation(
       name = "align",
@@ -70,30 +75,14 @@ setMethod(
   ds
 }
 
-#' Find the  best retention time reference chromatogram.
-#' @noRd
-#'
-#' @description This function provides the index corresponding to the reference Reactant Ion Chromatogram (RIC) to correct
-#' misalignments in retention time.
-#' @param rics A matrix. Each row correspond to a different RIC. There are as many RICs as samples.
-#' @return  An Integer number that indicates the reference sample.
-#' @examples
-#' rics <- rbind(
-#'   dnorm(1:100, mean=50, sd =1),
-#'   dnorm(1:100, mean=51, sd =1),
-#'   dnorm(1:100, mean=52, sd =1)
-#' )
-#' find_reference_ric(rics) == 2L
-find_reference_ric <- function(rics){
-  ref_ric_sample_idx <- ptw::bestref(rics)$best.ref
-  return(ref_ric_sample_idx)
-}
 
-
-
-alignParams <- function(dt, rt, tis_matrix, ric_matrix) {
+alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, align_ip, ...) {
   # Optimize ret time alignment parameters:
-  ref_ric_sample_idx <- find_reference_ric(ric_matrix)
+  if (method == "ptw"){
+    ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
+  } else {
+    ref_ric_sample_idx <- pow::select_reference(ric_matrix)
+  }
   # Select reference RIC
   ric_ref <- as.numeric(ric_matrix[ref_ric_sample_idx, ])
 
@@ -102,7 +91,19 @@ alignParams <- function(dt, rt, tis_matrix, ric_matrix) {
   rip_ref_idx <- round(stats::median(rip_position, na.rm = TRUE))
   rip_ref_ms <- dt[rip_ref_idx]
 
-  list(rip_ref_ms = rip_ref_ms, ric_ref = ric_ref, ric_ref_rt = rt)
+  # IP alignment parameters
+
+  ip_position <- apply(ric_matrix, 1L ,which.min)
+  ip_ref_idx <- round(stats::median(ip_position, na.rm = TRUE))
+  ip_ref_s <- rt[ip_ref_idx]
+
+  list(rip_ref_ms = rip_ref_ms,
+       ric_ref = ric_ref,
+       ric_ref_rt = rt,
+       ip_ref_s = ip_ref_s,
+       method = method,
+       align_ip = align_ip,
+       ...)
 }
 
 #' Plots to interpret alignment results

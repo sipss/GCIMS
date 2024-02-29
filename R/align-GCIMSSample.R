@@ -3,19 +3,37 @@
 #' @param rip_ref_ms The reference position of the Reactant Ion Peak in the dataset (in ms)
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
+#' @param ip_ref_s Injection point reference for retention time
+#' @param method Method for alignment, should be "ptw" or "pow"
+#' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "align", "GCIMSSample",
-  function(object, rip_ref_ms, ric_ref, ric_ref_rt){
+  function(object, rip_ref_ms, ric_ref, ric_ref_rt, ip_ref_s, method, align_ip, ...){
     if (all(is.na(object@data))) {
       cli_abort("All the data matrix of {description(object)} are missing values. Align is impossible")
     }
+
+    # Align in drift time
     object <- alignDt(object, rip_ref_ms = rip_ref_ms)
     if (all(is.na(object@data))) {
       cli_abort("After aligning drift times, all the data matrix of {description(object)} are missing values. This should not happen")
     }
-    object <- alignRt(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
+
+    # Align in retention time
+    if (align_ip){
+      object <- alignRt_ip(object, ip_ref_s = ip_ref_s)
+    }
+    if (method == "ptw") {
+      object <- alignRt_ptw(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
+    } else {
+      if(method != "pow"){
+        cli_warn("{method} is not a valid method, using POW instead")
+      }
+      object <- alignRt_pow(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt, ...)
+    }
+
     if (all(is.na(object@data))) {
       cli_abort("After aligning drift and retention times, all the data matrix of {description(object)} are missing values. This should not happen")
     }
@@ -37,23 +55,17 @@ methods::setMethod(
 
 #' Align a GCIMSSample in drift time with a multiplicative correction
 #' @param x A [GCIMSSample] object
-#' @param y Not used
 #' @param rip_ref_ms The position of the RIP in ms
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "alignDt", "GCIMSSample",
-  function(x, y, rip_ref_ms) {
-    if (missing(rip_ref_ms) && !missing(y)) {
-      cli_warn("Please provide rip_ref_ms as a named argument")
-      rip_ref_ms <- y
-    }
+  function(x, rip_ref_ms) {
     tis <- getTIS(x)
     dt <- dtime(x)
     rip_pos_ms <- dt[which.max(tis)]
     Kcorr <- rip_ref_ms/rip_pos_ms
 
-    dt <- dtime(x)
     int_mat <- intensity(x)
     dt_corr <- Kcorr * dt
     for (j in seq_len(ncol(int_mat))) {
@@ -91,18 +103,76 @@ methods::setMethod(
   })
 
 
-#' Align a GCIMSSample in retention time using parametric time warping
+#' Align a GCIMSSample in retention time with a multiplicative correction
 #' @param x A [GCIMSSample] object
-#' @param y Not used
+#' @param ip_ref_s The position of the injection point in s
+#' @return The modified [GCIMSSample]
+#' @export
+methods::setMethod(
+  "alignRt_ip","GCIMSSample",
+  function(x, ip_ref_s) {
+    ric <- getRIC(x)
+    rt <- rtime(x)
+    ip_pos_s <- rt[which.min(ric)]
+    Kcorr <- ip_ref_s/ip_pos_s
+
+    int_mat <- intensity(x)
+    rt_corr <- Kcorr * rt
+    for (j in seq_len(nrow(int_mat))) {
+      int_mat[j,] <- signal::interp1(rt_corr, int_mat[j, ], rt, extrap = TRUE)
+    }
+    intensity(x) <- int_mat
+    x
+  })
+
+#' Align a GCIMSSample in retention time with parametric optimized warping
+#' @param x A [GCIMSSample] object
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
 #' @return The modified [GCIMSSample]
-#' @importMethodsFrom ProtGenerics alignRt
 #' @export
 methods::setMethod(
-  "alignRt",
-  signature = c(x = "GCIMSSample", y = "ANY"),
-  function(x, y, ric_ref, ric_ref_rt) {
+  "alignRt_pow", "GCIMSSample",
+  function(x,
+           ric_ref,
+           ric_ref_rt,
+           lambdas = pracma::logspace(-2, 4, 31),
+           p = 10,
+           max_it = 1000) {
+    ric <- getRIC(x)
+    v <- rep(1, length(ric_ref))
+    iv <- seq(2, length(ric_ref) - 1, by = p)
+    v[iv] <- 0L
+    W <- Matrix::Diagonal(x = v)
+    result_val <- pow:::val(ric, ric_ref, W, iv, lambdas, fom ="rms")
+    e_ix <- result_val$e
+    ti_ix <- result_val$ti
+    e_ix[ti_ix == 1] <- NA
+    lambdas[ti_ix == 1] <- NA
+    best_lambda <- lambdas[which.min(e_ix)]
+    w <- pow::pow(ric, best_lambda, ric_ref, max_it = max_it)
+
+    int <- intensity(x)
+    inter <- t(apply(int, 1, pow::interpolation, w = w, return = FALSE))
+    sel <- !is.na(inter[1,])
+    x@retention_time <- ric_ref_rt[sel]
+    x@data <- inter[,sel]
+
+
+    x@proc_params$align$rt_poly_coefs <- c(0, 1)
+
+    return(x)
+  })
+
+#' Align a GCIMSSample in retention time using parametric time warping
+#' @param x A [GCIMSSample] object
+#' @param ric_ref The reference Reverse Ion Chromatogram
+#' @param ric_ref_rt The retention times corresponding to `ric_ref`
+#' @return The modified [GCIMSSample]
+#' @export
+methods::setMethod(
+  "alignRt_ptw", "GCIMSSample",
+  function(x, ric_ref, ric_ref_rt) {
     optimize_polynomial_order <- function(ric_sample, ric_ref) {
       correction_type_options <- seq.int(0, 5)
       poly_orders <- seq.int(1, 5)
@@ -142,10 +212,10 @@ methods::setMethod(
       correction_type_options[which.max(corr)]
     }
 
-    if (missing(ric_ref) && !missing(y)) {
-      cli_warn("Please provide ric_ref as a named argument")
-      ric_ref <- y
-    }
+    # if (missing(ric_ref) && !missing(y)) {
+    #   cli_warn("Please provide ric_ref as a named argument")
+    #   ric_ref <- y
+    # }
 
     ric <- getRIC(x)
     rt <- rtime(x)

@@ -29,8 +29,8 @@ Peak detection for a GCIMSChromatogram
 }
 \seealso{
 Other GCIMSChromatogram: 
-\code{\link{GCIMSChromatogram-class}},
 \code{\link{GCIMSChromatogram}},
+\code{\link{GCIMSChromatogram-class}},
 \code{\link{dtime,GCIMSChromatogram-method}},
 \code{\link{estimateBaseline,GCIMSChromatogram-method}},
 \code{\link{intensity,GCIMSChromatogram-method}},
