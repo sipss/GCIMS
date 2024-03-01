@@ -175,6 +175,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
         private$delayed_dataset$registerOptimization(optimize_RIC_TIS)
         # Extract RIC and TIS when we first realize:
         self$extract_dtime_rtime()
+        self$extract_inv_k0()
         self$extract_RIC_and_TIS()
         self
       },
@@ -267,6 +268,17 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
         name = "extract_dtime_rtime",
         fun_extract = .extract_dtime_rtime_fun_extract,
         fun_aggregate = .extract_dtime_rtime_fun_aggregate
+      )
+      self$appendDelayedOp(delayed_op)
+      self
+    },
+    #' @description
+    #' Sets an action to extract the reference inverse reduced mobility
+    extract_inv_k0 = function() {
+      delayed_op <- DelayedOperation(
+        name = "extract_inv_k0",
+        fun_extract = .extract_inv_k0,
+        fun_aggregate = .extract_inv_k0_fun_aggregate
       )
       self$appendDelayedOp(delayed_op)
       self

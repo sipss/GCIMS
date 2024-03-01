@@ -55,7 +55,7 @@ methods::setClass(
     retention_time = "numeric",
     data = "matrix", # [dt, rt]
     inverse_reduced_mobility = "numeric",
-    retention_index = "numeric",
+    retention_index = "numericOrNULL",
     gc_column = "character",
     drift_gas = "character",
     drift_tube_length = "numeric",
