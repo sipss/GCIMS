@@ -79,6 +79,10 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     dt_ref = NULL, # numeric or NULL
     #' @field rt_ref A numeric retention time of reference
     rt_ref = NULL, # numeric or NULL
+    #' @field inv_k0_ref A numeric inverse reduced mobility reference
+    inv_k0_ref = NULL,
+    #' @field ri_ref A numeric retention index reference
+    ri_ref = NULL,
     #' @field userData A list to store arbitrary data in the dataset
     userData = list(), # list
     # Methods:

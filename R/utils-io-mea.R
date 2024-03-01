@@ -184,8 +184,10 @@ read_mea <- function(filename) {
   drift_tube_length <- numeric(0)
   if (!is.null(params[["nom Drift Tube Length"]])) {
     drift_tube_length <- params[["nom Drift Tube Length"]][["value"]]
+    drift_tube_length_cm <- drift_tube_length / 10
     if (params[["nom Drift Tube Length"]][["unit"]] == "\u00b5m") {
       drift_tube_length <- drift_tube_length / 1000
+      drift_tube_length_cm <- drift_tube_length / 10
     } else if (params[["nom Drift Tube Length"]][["unit"]] == "mm") {
       # do nothing
     } else {
@@ -202,9 +204,19 @@ read_mea <- function(filename) {
     description <- tools::file_path_sans_ext(basename(filename), compression = TRUE)
   }
 
+  #Calculate inv_k0 drift tube, pressure, voltage, drift_time, temp
+  ims_temp_k <- params$`Temp 1 setpoint`$value + 273.15
+  pressure_ims <- mean(as.numeric(strsplit(strsplit(params$`Pressure Ambient`$value, "\"")[[1]][2]," ")[[1]]))
+
+  k0 <- (0.0027315 * (drift_tube_length_cm ^ 2) * pressure_ims) /
+    (params$`nom Drift Potential Difference`$value * (drift_time / 1000) * ims_temp_k)
+  inv_k0 <- 1 / k0
+
   GCIMSSample(
     drift_time = drift_time,
     retention_time = ret_time,
+    inverse_reduced_mobility = inv_k0,
+    retention_index = NULL,
     data = data,
     gc_column = gc_column,
     drift_tube_length = drift_tube_length,
