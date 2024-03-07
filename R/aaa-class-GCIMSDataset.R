@@ -176,6 +176,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
         # Extract RIC and TIS when we first realize:
         self$extract_dtime_rtime()
         self$extract_RIC_and_TIS()
+        self$extract_inv_k0()
         self
       },
     #' @description prints the dataset to the screen
@@ -299,6 +300,18 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       )
       self$appendDelayedOp(delayed_op)
       invisible(self)
+    },
+    #' @description
+    #' Sets an action to extract the reference inverse reduced mobility
+    #' @return GCIMSDataset with inverse reduced mobility calculated
+    extract_inv_k0 = function() {
+      delayed_op <- DelayedOperation(
+        name = "extract_inv_k0",
+        fun_extract = .extract_inv_k0,
+        fun_aggregate = .extract_inv_k0_fun_aggregate
+      )
+      self$appendDelayedOp(delayed_op)
+      self
     },
     #' @description
     #' Whether the dataset is saved on disk or stored in RAM

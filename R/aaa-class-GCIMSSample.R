@@ -53,8 +53,8 @@ methods::setClass(
   slots = c(
     drift_time = "numeric",
     retention_time = "numeric",
-    inverse_reduced_mobility = "numericOrNull",
-    retention_index = "numericOrNull",
+    inverse_reduced_mobility = "numericOrNULL",
+    retention_index = "numericOrNULL",
     data = "matrix", # [dt, rt]
     gc_column = "character",
     drift_gas = "character",
