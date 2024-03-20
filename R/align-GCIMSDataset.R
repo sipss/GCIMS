@@ -4,7 +4,9 @@
 #' Parametric Time Warping correction in retention time
 #'
 #' @param object A [GCIMSDataset] object, modified in-place
-#' @param method Method for alignment, should be "ptw" or "pow"
+#' @param method_rt Method for alignment, should be "ptw" or "pow"
+#' if pow is selected the package "pow must be installed, to do so visit:
+#' https://github.com/sipss/pow
 #' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
 #' @param ... additional parameters for POW alignment
 #' @return The modified [GCIMSDataset]
@@ -12,7 +14,7 @@
 setMethod(
   "align",
   "GCIMSDataset",
-  function(object, method = "pow", align_ip = TRUE, ...) {
+  function(object, method_rt = "ptw", align_dt = TRUE, align_ip = TRUE, ...) {
     tis_matrix <- getTIS(object)
     ric_matrix <- getRIC(object)
     dt <- dtime(object)
@@ -23,7 +25,8 @@ setMethod(
       rt = rt,
       tis_matrix = tis_matrix,
       ric_matrix = ric_matrix,
-      method = method,
+      method_rt = method_rt,
+      align_dt = align_dt,
       align_ip = align_ip,
       ...)
 
@@ -76,9 +79,9 @@ setMethod(
 }
 
 
-alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, align_ip, ...) {
+alignParams <- function(dt, rt, tis_matrix, ric_matrix, method_rt, align_dt, align_ip, ...) {
   # Optimize ret time alignment parameters:
-  if (method == "ptw"){
+  if (method_rt == "ptw"){
     ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
   } else {
     ref_ric_sample_idx <- pow::select_reference(ric_matrix)
@@ -101,7 +104,8 @@ alignParams <- function(dt, rt, tis_matrix, ric_matrix, method, align_ip, ...) {
        ric_ref = ric_ref,
        ric_ref_rt = rt,
        ip_ref_s = ip_ref_s,
-       method = method,
+       method_rt = method_rt,
+       align_dt = align_dt,
        align_ip = align_ip,
        ...)
 }

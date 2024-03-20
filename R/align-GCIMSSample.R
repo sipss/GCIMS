@@ -4,19 +4,24 @@
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
 #' @param ip_ref_s Injection point reference for retention time
-#' @param method Method for alignment, should be "ptw" or "pow"
+#' @param method_rt Method for alignment, should be "ptw" or "pow"
 #' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "align", "GCIMSSample",
-  function(object, rip_ref_ms, ric_ref, ric_ref_rt, ip_ref_s, method, align_ip, ...){
+  function(object, rip_ref_ms, ric_ref, ric_ref_rt, ip_ref_s, method_rt, align_dt, align_ip, ...){
     if (all(is.na(object@data))) {
       cli_abort("All the data matrix of {description(object)} are missing values. Align is impossible")
     }
 
     # Align in drift time
-    object <- alignDt(object, rip_ref_ms = rip_ref_ms)
+    if (align_dt){
+      object <- alignDt(object, rip_ref_ms = rip_ref_ms)
+    } else{
+      object@proc_params$align$dt_kcorr <- 1
+    }
+
     if (all(is.na(object@data))) {
       cli_abort("After aligning drift times, all the data matrix of {description(object)} are missing values. This should not happen")
     }
@@ -25,14 +30,19 @@ methods::setMethod(
     if (align_ip){
       object <- alignRt_ip(object, ip_ref_s = ip_ref_s)
     }
-    if (method == "ptw") {
+    if (method_rt == "ptw") {
       object <- alignRt_ptw(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
-    } else {
-      if(method != "pow"){
-        cli_warn("{method} is not a valid method, using POW instead")
-      }
+    } else if(method_rt == "pow"){
       object <- alignRt_pow(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt, ...)
+    } else {
+      if (!"align" %in% names(object@proc_params)) {
+        object@proc_params$align <- list()
+      }
+      object@proc_params$align$rt_min_s <- ric_ref_rt[1]
+      object@proc_params$align$rt_max_s <- ric_ref_rt[length(ric_ref_rt)]
+      object@proc_params$align$rt_poly_coefs <- c(0, 1)
     }
+
 
     if (all(is.na(object@data))) {
       cli_abort("After aligning drift and retention times, all the data matrix of {description(object)} are missing values. This should not happen")
@@ -138,19 +148,20 @@ methods::setMethod(
            ric_ref_rt,
            lambdas = pracma::logspace(-2, 4, 31),
            p = 10,
-           max_it = 1000) {
+           max_it = 5000,
+           lambda1 = 10^6) {
     ric <- getRIC(x)
     v <- rep(1, length(ric_ref))
     iv <- seq(2, length(ric_ref) - 1, by = p)
     v[iv] <- 0L
     W <- Matrix::Diagonal(x = v)
-    result_val <- pow:::val(ric, ric_ref, W, iv, lambdas, fom ="rms")
+    result_val <- pow:::val(ric, ric_ref, W, iv, lambdas, fom ="rms", lambda1 = lambda1)
     e_ix <- result_val$e
     ti_ix <- result_val$ti
     e_ix[ti_ix == 1] <- NA
     lambdas[ti_ix == 1] <- NA
     best_lambda <- lambdas[which.min(e_ix)]
-    w <- pow::pow(ric, best_lambda, ric_ref, max_it = max_it)
+    w <- pow::pow(ric, best_lambda, ric_ref, max_it = max_it, lambda1= lambda1)
 
     int <- intensity(x)
     inter <- t(apply(int, 1, pow::interpolation, w = w, return = FALSE))
@@ -159,6 +170,12 @@ methods::setMethod(
     x@data <- inter[,sel]
 
 
+    if (!"align" %in% names(x@proc_params)) {
+      x@proc_params$align <- list()
+    }
+    x@proc_params$align$warp <- w
+    #x@proc_params$align$rt_min_s <- x@retention_time[1]
+    #x@proc_params$align$rt_max_s <- x@retention_time[length(x@retention_time)]
     x@proc_params$align$rt_poly_coefs <- c(0, 1)
 
     return(x)
