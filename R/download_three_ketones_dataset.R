@@ -16,7 +16,7 @@
 #'
 #' @export
 download_three_ketones_dataset <- function(outdir = "2021-mixture-six-ketones-demo") {
-  GCIMS:::require_pkgs("curl")
+  require_pkgs("curl")
   dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
   mea_files <- c("220221_102919.mea", "220228_114404.mea", "220505_110658.mea")
   full_files <- file.path(outdir, mea_files)
