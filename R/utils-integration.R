@@ -6,9 +6,11 @@ find_regions_rip_saturated <- function(aux, rip_saturation_threshold, verbose = 
   rt_rip_saturated_indices <- which(rip_chrom <= rip_saturation_threshold * max(rip_chrom))
   if (length(rt_rip_saturated_indices) == 0L) {
     rt_saturated_regions <- matrix(nrow = 0L, ncol = 2L)
+    num_regions <- 0L
   } else {
     saturation_list <- split(rt_rip_saturated_indices, cumsum(c(1, diff(rt_rip_saturated_indices)) != 1))
-    rt_saturated_regions <- matrix(0, nrow = length(saturation_list), ncol = 2)
+    num_regions <- length(saturation_list)
+    rt_saturated_regions <- matrix(0, nrow = num_regions, ncol = 2)
     for (k in seq_along(saturation_list)) {
       rt_saturated_regions[k, 1L] <- min(saturation_list[[k]])
       rt_saturated_regions[k, 2L] <- max(saturation_list[[k]])
@@ -16,7 +18,7 @@ find_regions_rip_saturated <- function(aux, rip_saturation_threshold, verbose = 
   }
   colnames(rt_saturated_regions) <- c("begin", "end")
   if (!is.null(retention_time)) {
-    rt_saturated_regions_s <- matrix(0.0, nrow = length(saturation_list), ncol = 2L)
+    rt_saturated_regions_s <- matrix(0.0, nrow = num_regions, ncol = 2L)
     rt_saturated_regions_s[,1L] <- retention_time[rt_saturated_regions[,1L]]
     rt_saturated_regions_s[,2L] <- retention_time[rt_saturated_regions[,2L]]
     return(rt_saturated_regions_s)
