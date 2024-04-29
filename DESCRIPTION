@@ -1,9 +1,9 @@
 Package: GCIMS
 Type: Package
 Title: Pre-processing for GC-IMS data
-Version: 0.1.0
+Version: 0.1.1
 Encoding: UTF-8
-Date: 2023-06-03
+Date: 2024-04-29
 Authors@R: c(
   person(
     given = "Sergio",
