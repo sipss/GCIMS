@@ -4,7 +4,17 @@
 \alias{align,GCIMSSample-method}
 \title{Align a GCIMSSample object, in drift and retention time}
 \usage{
-\S4method{align}{GCIMSSample}(object, rip_ref_ms, ric_ref, ric_ref_rt, ip_ref_s, method, align_ip, ...)
+\S4method{align}{GCIMSSample}(
+  object,
+  rip_ref_ms,
+  ric_ref,
+  ric_ref_rt,
+  ip_ref_s,
+  method_rt,
+  align_dt,
+  align_ip,
+  ...
+)
 }
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
@@ -17,7 +27,7 @@
 
 \item{ip_ref_s}{Injection point reference for retention time}
 
-\item{method}{Method for alignment, should be "ptw" or "pow"}
+\item{method_rt}{Method for alignment, should be "ptw" or "pow"}
 
 \item{align_ip}{if TRUE a multiplicative correction will be done in retention time before applying the other algorithm}
 }

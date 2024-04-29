@@ -10,7 +10,8 @@
   ric_ref_rt,
   lambdas = pracma::logspace(-2, 4, 31),
   p = 10,
-  max_it = 1000
+  max_it = 5000,
+  lambda1 = 10^6
 )
 }
 \arguments{
