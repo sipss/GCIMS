@@ -141,6 +141,10 @@ methods::setMethod(
 #' @param x A [GCIMSSample] object
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
+#' @param lambdas a vector with the penalties to test the POW
+#' @param p By default `10`, meaning to use one every `10` points to validate.
+#' @param max_it Maximum number of iterations
+#' @param lambda1 Regularization parameter for second derivative of warp
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
