@@ -5,6 +5,7 @@
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
 #' @param ip_ref_s Injection point reference for retention time
 #' @param method_rt Method for alignment, should be "ptw" or "pow"
+#' @param align_dt if `TRUE`, align the drift time axis using a multiplicative correction
 #' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
 #' @param ... Additional arguments passed on to the alignment method.
 #' @return The modified [GCIMSSample]

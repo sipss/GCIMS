@@ -13,6 +13,8 @@
 if pow is selected the package "pow must be installed, to do so visit:
 https://github.com/sipss/pow}
 
+\item{align_dt}{if \code{TRUE} the drift time axis will be aligned using a multiplicative correction}
+
 \item{align_ip}{if TRUE a multiplicative correction will be done in retention time before applying the other algorithm}
 
 \item{...}{additional parameters for POW alignment}
