@@ -30,6 +30,8 @@
 \item{method_rt}{Method for alignment, should be "ptw" or "pow"}
 
 \item{align_ip}{if TRUE a multiplicative correction will be done in retention time before applying the other algorithm}
+
+\item{...}{Additional arguments passed on to the alignment method.}
 }
 \value{
 The modified \link{GCIMSSample}

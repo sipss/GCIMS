@@ -6,6 +6,7 @@
 #' @param ip_ref_s Injection point reference for retention time
 #' @param method_rt Method for alignment, should be "ptw" or "pow"
 #' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
+#' @param ... Additional arguments passed on to the alignment method.
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
