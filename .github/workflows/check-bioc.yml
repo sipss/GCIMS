@@ -292,7 +292,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Test coverage
-        if: github.ref == 'refs/heads/master' && env.run_covr == 'true' && runner.os == 'Linux' && env.CONF_NAME == 'ubuntu-latest'
+        if: github.ref == 'refs/heads/master' && env.run_covr == 'true' && runner.os == 'Linux' && env.CONF_NAME == 'ubuntu'
         run: |
           covr::codecov()
         shell: Rscript {0}
@@ -302,7 +302,7 @@ jobs:
         run: R CMD INSTALL .
 
       - name: Build and deploy pkgdown site
-        if: github.ref == 'refs/heads/master' && env.run_pkgdown == 'true' && runner.os == 'Linux' && github.repository == env.pkgdown_repo  && env.CONF_NAME == 'ubuntu-latest'
+        if: github.ref == 'refs/heads/master' && env.run_pkgdown == 'true' && runner.os == 'Linux' && github.repository == env.pkgdown_repo  && env.CONF_NAME == 'ubuntu'
         run: |
           git config --global --add safe.directory /__w/GCIMS/GCIMS
           git config --local user.name "$GITHUB_ACTOR"
