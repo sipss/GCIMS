@@ -10,7 +10,8 @@
   ric_ref_rt,
   lambdas = pracma::logspace(-2, 4, 31),
   p = 10,
-  max_it = 1000
+  max_it = 5000,
+  lambda1 = 10^6
 )
 }
 \arguments{
@@ -19,6 +20,14 @@
 \item{ric_ref}{The reference Reverse Ion Chromatogram}
 
 \item{ric_ref_rt}{The retention times corresponding to \code{ric_ref}}
+
+\item{lambdas}{a vector with the penalties to test the POW}
+
+\item{p}{By default \code{10}, meaning to use one every \code{10} points to validate.}
+
+\item{max_it}{Maximum number of iterations}
+
+\item{lambda1}{Regularization parameter for second derivative of warp}
 }
 \value{
 The modified \link{GCIMSSample}

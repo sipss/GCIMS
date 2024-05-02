@@ -2,11 +2,11 @@
 #'
 #' The alignment uses a multiplicative correction in drift time and a
 #' Parametric Time Warping correction in retention time
-#'
 #' @param object A [GCIMSDataset] object, modified in-place
 #' @param method_rt Method for alignment, should be "ptw" or "pow"
 #' if pow is selected the package "pow must be installed, to do so visit:
 #' https://github.com/sipss/pow
+#' @param align_dt if `TRUE` the drift time axis will be aligned using a multiplicative correction
 #' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
 #' @param ... additional parameters for POW alignment
 #' @return The modified [GCIMSDataset]

@@ -10,3 +10,6 @@ inst/doc
 /vignettes/threeketones/
 /vignettes/intermediate_files/
 Rplots.pdf
+GCIMS.Rcheck/
+GCIMS*.tar.gz
+GCIMS*.tgz

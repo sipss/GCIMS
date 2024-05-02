@@ -12,3 +12,6 @@
 ^vignettes/GCIMSDataset_demo1_$
 ^vignettes/.*\.csv$
 ^vignettes/.*\.log$
+^GCIMS\.Rcheck$
+^GCIMS.*\.tar\.gz$
+^GCIMS.*\.tgz$
