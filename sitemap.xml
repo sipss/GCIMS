@@ -97,7 +97,13 @@
     <loc>https://sipss.github.io/GCIMS/reference/alignPlots.html</loc>
   </url>
   <url>
-    <loc>https://sipss.github.io/GCIMS/reference/alignRt-GCIMSSample-method.html</loc>
+    <loc>https://sipss.github.io/GCIMS/reference/alignRt_ip-GCIMSSample-method.html</loc>
+  </url>
+  <url>
+    <loc>https://sipss.github.io/GCIMS/reference/alignRt_pow-GCIMSSample-method.html</loc>
+  </url>
+  <url>
+    <loc>https://sipss.github.io/GCIMS/reference/alignRt_ptw-GCIMSSample-method.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/as.data.frame.GCIMSSample.html</loc>
@@ -161,6 +167,9 @@
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/findPeaks-GCIMSSample-method.html</loc>
+  </url>
+  <url>
+    <loc>https://sipss.github.io/GCIMS/reference/findPeaks-GCIMSSpectrum-method.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/findPeaks.html</loc>
@@ -251,6 +260,9 @@
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/sampleNames-GCIMSDataset-method.html</loc>
+  </url>
+  <url>
+    <loc>https://sipss.github.io/GCIMS/reference/show_progress_bar.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/smooth-GCIMSChromatogram-method.html</loc>

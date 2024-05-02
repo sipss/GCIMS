@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">GCIMS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
       </span>
     </div>
 
@@ -153,7 +153,7 @@ argument and returns that sample modified:</p>
 returns the dataset. You can use this template for now:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cutDrift_Dataset</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dt_from</span>, <span class="va">dt_to</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
+<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DelayedOperation.html">DelayedOperation</a></span><span class="op">(</span></span>
 <span>      name <span class="op">=</span> <span class="st">"cutDrift"</span>, <span class="co"># Give a human-readable name</span></span>
 <span>      fun <span class="op">=</span> <span class="va">cutDrift_Sample</span>, <span class="co"># The function that is applied to the sample</span></span>
 <span>      params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dt_from <span class="op">=</span> <span class="va">dt_from</span>, dt_to <span class="op">=</span> <span class="va">dt_to</span><span class="op">)</span> <span class="co"># The arguments that function needs</span></span>
@@ -167,7 +167,16 @@ returns the dataset. You can use this template for now:</p>
 </h3>
 <p>Load the dataset:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">annotations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">samples_directory</span>, <span class="st">"annotations.csv"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">annotations</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/create_annotations_table.html">create_annotations_table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,<span class="va">samples_directory</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; An annotation table was created</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The table now includes 3 samples</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Feel free to edit the table to include additional annotations as extra</span></span>
+<span><span class="co">#&gt;   columns (for groups, phenotypes...), please avoid renaming the SampleID and</span></span>
+<span><span class="co">#&gt;   FileName columns</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> You may freely add/remove rows to include/exclude additional samples</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> For editing, you can do it from R or you can check the examples at</span></span>
+<span><span class="co">#&gt;   `help("create_annotations_table")` tolearn how to save the table to an Excel</span></span>
+<span><span class="co">#&gt;   file at your convenience</span></span>
 <span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GCIMSDataset.html">GCIMSDataset</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">annotations</span>,</span>
 <span>  base_dir <span class="op">=</span> <span class="va">samples_directory</span>,</span>
@@ -198,8 +207,6 @@ indices 500 and 1200:</p>
 <p>Cut the sample:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
-<span><span class="co">#&gt; Warning: GCIMS:::GCIMSDelayedOp(...) is deprecated. Please use DelayedOperation(...)</span></span>
-<span><span class="co">#&gt; instead.</span></span>
 <span><span class="va">dataset</span></span>
 <span><span class="co">#&gt; A GCIMSDataset:</span></span>
 <span><span class="co">#&gt; - With 3 samples</span></span>
@@ -278,7 +285,7 @@ results.</p>
 <p>We use the same function for the dataset:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cutDrift2_Dataset</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dt_from</span>, <span class="va">dt_to</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
+<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DelayedOperation.html">DelayedOperation</a></span><span class="op">(</span></span>
 <span>      name <span class="op">=</span> <span class="st">"cutDrift2"</span>, <span class="co"># Give a human-readable name</span></span>
 <span>      fun <span class="op">=</span> <span class="va">cutDrift2_Sample</span>, <span class="co"># The function that is applied to the sample</span></span>
 <span>      params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dt_from <span class="op">=</span> <span class="va">dt_from</span>, dt_to <span class="op">=</span> <span class="va">dt_to</span><span class="op">)</span> <span class="co"># The arguments that function needs</span></span>
@@ -310,8 +317,6 @@ results.</p>
 <span><span class="co">#&gt;   - setSampleNamesAsDescription</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift2_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
-<span><span class="co">#&gt; Warning: GCIMS:::GCIMSDelayedOp(...) is deprecated. Please use DelayedOperation(...)</span></span>
-<span><span class="co">#&gt; instead.</span></span>
 <span><span class="va">dataset</span></span>
 <span><span class="co">#&gt; A GCIMSDataset:</span></span>
 <span><span class="co">#&gt; - With 3 samples</span></span>
@@ -442,7 +447,7 @@ the dataset object.</p>
 <p>We now pass those extraction and aggregation functions as well:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cutDrift3_Dataset</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dt_from</span>, <span class="va">dt_to</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu">GCIMS</span><span class="fu">:::</span><span class="fu"><a href="../reference/GCIMSDelayedOp.html">GCIMSDelayedOp</a></span><span class="op">(</span></span>
+<span>    <span class="va">delayed_op</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DelayedOperation.html">DelayedOperation</a></span><span class="op">(</span></span>
 <span>      name <span class="op">=</span> <span class="st">"cutDrift3"</span>, <span class="co"># Give a human-readable name</span></span>
 <span>      fun <span class="op">=</span> <span class="va">cutDrift2_Sample</span>, <span class="co"># The function that is applied to the sample</span></span>
 <span>      params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dt_from <span class="op">=</span> <span class="va">dt_from</span>, dt_to <span class="op">=</span> <span class="va">dt_to</span><span class="op">)</span>, <span class="co"># The arguments that function needs</span></span>
@@ -477,8 +482,6 @@ the dataset object.</p>
 <span><span class="co">#&gt;   - setSampleNamesAsDescription</span></span></code></pre></div>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">cutDrift3_Dataset</span><span class="op">(</span><span class="va">dataset</span>, dt_from <span class="op">=</span> <span class="fl">1000</span>, dt_to <span class="op">=</span> <span class="fl">1500</span><span class="op">)</span> <span class="co"># indices</span></span>
-<span><span class="co">#&gt; Warning: GCIMS:::GCIMSDelayedOp(...) is deprecated. Please use DelayedOperation(...)</span></span>
-<span><span class="co">#&gt; instead.</span></span>
 <span><span class="va">dataset</span></span>
 <span><span class="co">#&gt; A GCIMSDataset:</span></span>
 <span><span class="co">#&gt; - With 3 samples</span></span>
@@ -499,10 +502,10 @@ the dataset object.</p>
 <p>And then get our data frame:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span><span class="op">$</span><span class="va">userData</span><span class="op">$</span><span class="va">cutDrift</span></span>
-<span><span class="co">#&gt;   SampleName orig_dt_length new_dt_length</span></span>
-<span><span class="co">#&gt; 1   Ketones1           4500           501</span></span>
-<span><span class="co">#&gt; 2   Ketones2           4500           501</span></span>
-<span><span class="co">#&gt; 3   Ketones3           4500           501</span></span></code></pre></div>
+<span><span class="co">#&gt;      SampleName orig_dt_length new_dt_length</span></span>
+<span><span class="co">#&gt; 1 220221_102919           4500           501</span></span>
+<span><span class="co">#&gt; 2 220228_114404           4500           501</span></span>
+<span><span class="co">#&gt; 3 220505_110658           4500           501</span></span></code></pre></div>
 <p>Done!</p>
 </div>
 </div>
@@ -511,13 +514,13 @@ the dataset object.</p>
 </h2>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.2.3 (2023-03-15)</span></span>
+<span><span class="co">#&gt; R version 4.3.3 (2024-02-29)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
-<span><span class="co">#&gt; Running under: Ubuntu 22.04.2 LTS</span></span>
+<span><span class="co">#&gt; Running under: Ubuntu 22.04.4 LTS</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
-<span><span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3</span></span>
-<span><span class="co">#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so</span></span>
+<span><span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
+<span><span class="co">#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; locale:</span></span>
 <span><span class="co">#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span></span>
@@ -527,35 +530,37 @@ the dataset object.</p>
 <span><span class="co">#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span></span>
 <span><span class="co">#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; time zone: UTC</span></span>
+<span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attached base packages:</span></span>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] GCIMS_0.1.0      cowplot_1.1.1    ggplot2_3.4.2    BiocStyle_2.26.0</span></span>
+<span><span class="co">#&gt; [1] GCIMS_0.1.1      cowplot_1.1.3    ggplot2_3.5.1    BiocStyle_2.30.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] tidyselect_1.2.0    xfun_0.38           bslib_0.4.2        </span></span>
-<span><span class="co">#&gt;  [4] purrr_1.0.1         colorspace_2.1-0    vctrs_0.6.1        </span></span>
-<span><span class="co">#&gt;  [7] generics_0.1.3      viridisLite_0.4.1   htmltools_0.5.5    </span></span>
-<span><span class="co">#&gt; [10] stats4_4.2.3        yaml_2.3.7          utf8_1.2.3         </span></span>
-<span><span class="co">#&gt; [13] rlang_1.1.0         pkgdown_2.0.7       jquerylib_0.1.4    </span></span>
-<span><span class="co">#&gt; [16] pillar_1.9.0        glue_1.6.2          withr_2.5.0        </span></span>
-<span><span class="co">#&gt; [19] BiocParallel_1.32.6 BiocGenerics_0.44.0 lifecycle_1.0.3    </span></span>
-<span><span class="co">#&gt; [22] stringr_1.5.0       ProtGenerics_1.30.0 munsell_0.5.0      </span></span>
-<span><span class="co">#&gt; [25] gtable_0.3.3        ragg_1.2.5          codetools_0.2-19   </span></span>
-<span><span class="co">#&gt; [28] memoise_2.0.1       evaluate_0.20       labeling_0.4.2     </span></span>
-<span><span class="co">#&gt; [31] Biobase_2.58.0      knitr_1.42          fastmap_1.1.1      </span></span>
-<span><span class="co">#&gt; [34] parallel_4.2.3      curl_5.0.0          fansi_1.0.4        </span></span>
-<span><span class="co">#&gt; [37] highr_0.10          scales_1.2.1        BiocManager_1.30.20</span></span>
-<span><span class="co">#&gt; [40] cachem_1.0.7        sgolay_1.0.3        desc_1.4.2         </span></span>
-<span><span class="co">#&gt; [43] S4Vectors_0.36.2    jsonlite_1.8.4      farver_2.1.1       </span></span>
-<span><span class="co">#&gt; [46] systemfonts_1.0.4   fs_1.6.1            textshaping_0.3.6  </span></span>
-<span><span class="co">#&gt; [49] digest_0.6.31       stringi_1.7.12      bookdown_0.33      </span></span>
-<span><span class="co">#&gt; [52] dplyr_1.1.1         grid_4.2.3          rprojroot_2.0.3    </span></span>
-<span><span class="co">#&gt; [55] cli_3.6.1           tools_4.2.3         magrittr_2.0.3     </span></span>
-<span><span class="co">#&gt; [58] sass_0.4.5          tibble_3.2.1        pkgconfig_2.0.3    </span></span>
-<span><span class="co">#&gt; [61] MASS_7.3-58.3       rmarkdown_2.21      httr_1.4.5         </span></span>
-<span><span class="co">#&gt; [64] R6_2.5.1            signal_0.7-7        compiler_4.2.3</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] sass_0.4.9          utf8_1.2.4          generics_0.1.3     </span></span>
+<span><span class="co">#&gt;  [4] digest_0.6.35       magrittr_2.0.3      evaluate_0.23      </span></span>
+<span><span class="co">#&gt;  [7] grid_4.3.3          bookdown_0.39       fastmap_1.1.1      </span></span>
+<span><span class="co">#&gt; [10] jsonlite_1.8.8      ProtGenerics_1.34.0 BiocManager_1.30.22</span></span>
+<span><span class="co">#&gt; [13] purrr_1.0.2         fansi_1.0.6         viridisLite_0.4.2  </span></span>
+<span><span class="co">#&gt; [16] scales_1.3.0        codetools_0.2-20    textshaping_0.3.7  </span></span>
+<span><span class="co">#&gt; [19] jquerylib_0.1.4     cli_3.6.2           rlang_1.1.3        </span></span>
+<span><span class="co">#&gt; [22] Biobase_2.62.0      munsell_0.5.1       withr_3.0.0        </span></span>
+<span><span class="co">#&gt; [25] cachem_1.0.8        yaml_2.3.8          parallel_4.3.3     </span></span>
+<span><span class="co">#&gt; [28] tools_4.3.3         BiocParallel_1.36.0 memoise_2.0.1      </span></span>
+<span><span class="co">#&gt; [31] dplyr_1.1.4         colorspace_2.1-0    sgolay_1.0.3       </span></span>
+<span><span class="co">#&gt; [34] BiocGenerics_0.48.1 curl_5.2.1          vctrs_0.6.5        </span></span>
+<span><span class="co">#&gt; [37] R6_2.5.1            stats4_4.3.3        lifecycle_1.0.4    </span></span>
+<span><span class="co">#&gt; [40] S4Vectors_0.40.2    fs_1.6.4            htmlwidgets_1.6.4  </span></span>
+<span><span class="co">#&gt; [43] MASS_7.3-60.0.1     ragg_1.3.0          pkgconfig_2.0.3    </span></span>
+<span><span class="co">#&gt; [46] desc_1.4.3          pkgdown_2.0.9       pillar_1.9.0       </span></span>
+<span><span class="co">#&gt; [49] bslib_0.7.0         gtable_0.3.5        glue_1.7.0         </span></span>
+<span><span class="co">#&gt; [52] systemfonts_1.0.6   highr_0.10          xfun_0.43          </span></span>
+<span><span class="co">#&gt; [55] tibble_3.2.1        tidyselect_1.2.1    knitr_1.46         </span></span>
+<span><span class="co">#&gt; [58] farver_2.1.1        htmltools_0.5.8.1   labeling_0.4.3     </span></span>
+<span><span class="co">#&gt; [61] rmarkdown_2.26      signal_1.8-0        compiler_4.3.3</span></span></code></pre></div>
 </div>
   </div>
 
@@ -571,12 +576,12 @@ the dataset object.</p>
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Celia Mallafré Muro, Luis Fernandez, Sergio Oller Moreno, Arnau Blanco Borrego, Santiago Marco Colás.</p>
+<p>Developed by Sergio Oller Moreno, Celia Mallafré Muro, Luis Fernandez, Eduardo Caballero Saldivar, Arnau Blanco Borrego, Antonio Pardo Matínez, Santiago Marco Colás.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>
