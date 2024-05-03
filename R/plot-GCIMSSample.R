@@ -74,7 +74,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
   }
   intmat_trans <- trans$transform(intmat)
   colormap <- farver::encode_native(
-    viridisLite::viridis(256L, direction = -1, option = "A")
+    viridisLite::viridis(256L, direction = -1, option = "G")
   )
   nr <- mat_to_nativeRaster(intmat_trans, colormap)
 
@@ -101,7 +101,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
     ) +
     ggplot2::scale_fill_viridis_c( # This has to match with the COLORMAP above
       direction = -1,
-      option = "A",
+      option = "G",
       limits = minmax,
       na.value = "#00000000",
       trans = trans
@@ -267,7 +267,7 @@ overlay_peaklist <- function(
   }
 
   if (is.null(color_by)) {
-    color_by <- "green"
+    color_by <- "orange"
     how_many_colors <- 1L
   } else if (purrr::is_scalar_character(color_by)) {
     if (color_by %in% colnames(fulldata)) {
