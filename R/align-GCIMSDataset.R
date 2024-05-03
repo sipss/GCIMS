@@ -8,13 +8,15 @@
 #' https://github.com/sipss/pow
 #' @param align_dt if `TRUE` the drift time axis will be aligned using a multiplicative correction
 #' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
+#' @param reference_sample_idx One number, the index of the sample to use as reference for the alignment in retention time, if NULL the reference will be calculated automatically depending on the method
+#' @param ploynomial_order_ptw One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.
 #' @param ... additional parameters for POW alignment
 #' @return The modified [GCIMSDataset]
 #' @export
 setMethod(
   "align",
   "GCIMSDataset",
-  function(object, method_rt = "ptw", align_dt = TRUE, align_ip = TRUE, ...) {
+  function(object, method_rt = "ptw", align_dt = TRUE, align_ip = TRUE, reference_sample_idx = NULL, ploynomial_order_ptw = 5, ...) {
     tis_matrix <- getTIS(object)
     ric_matrix <- getRIC(object)
     dt <- dtime(object)
@@ -28,6 +30,8 @@ setMethod(
       method_rt = method_rt,
       align_dt = align_dt,
       align_ip = align_ip,
+      ref_ric_sample_idx = reference_sample_idx,
+      ploynomial_order_ptw = ploynomial_order_ptw,
       ...)
 
     delayed_op <- DelayedOperation(
@@ -79,12 +83,14 @@ setMethod(
 }
 
 
-alignParams <- function(dt, rt, tis_matrix, ric_matrix, method_rt, align_dt, align_ip, ...) {
+alignParams <- function(dt, rt, tis_matrix, ric_matrix, method_rt, align_dt, align_ip, ref_ric_sample_idx, ploynomial_order_ptw, ...) {
   # Optimize ret time alignment parameters:
-  if (method_rt == "ptw"){
-    ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
-  } else {
-    ref_ric_sample_idx <- pow::select_reference(ric_matrix)
+  if (is.null(ref_ric_sample_idx)){
+    if (method_rt == "pow"){
+      ref_ric_sample_idx <- pow::select_reference(ric_matrix)
+    } else {
+      ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
+    }
   }
   # Select reference RIC
   ric_ref <- as.numeric(ric_matrix[ref_ric_sample_idx, ])
@@ -96,17 +102,19 @@ alignParams <- function(dt, rt, tis_matrix, ric_matrix, method_rt, align_dt, ali
 
   # IP alignment parameters
 
-  ip_position <- apply(ric_matrix, 1L ,which.min)
-  ip_ref_idx <- round(stats::median(ip_position, na.rm = TRUE))
-  ip_ref_s <- rt[ip_ref_idx]
+  mins <- apply(ric_matrix, 1L ,which.min)
+  rt_ref <- rt[1 : (length(rt) - (max(mins) - min(mins)))]
+  min_start <- min(mins) - 1
 
   list(rip_ref_ms = rip_ref_ms,
        ric_ref = ric_ref,
        ric_ref_rt = rt,
-       ip_ref_s = ip_ref_s,
+       min_start = min_start,
+       rt_ref = rt_ref,
        method_rt = method_rt,
        align_dt = align_dt,
        align_ip = align_ip,
+       ploynomial_order_ptw = ploynomial_order_ptw,
        ...)
 }
 
@@ -177,10 +185,8 @@ alignPlots <- function(object) {
       x = names(object$align$dt_kcorr),
       y = object$align$dt_kcorr
     )
-  ) + ggplot2::geom_col(ggplot2::aes(x = .data$x, y = .data$y)) +
-    ggplot2::labs(x = "SampleID", y = "Multiplicative factor (drift time correction, unitless)") +
-    ggplot2::coord_flip()
-
+  ) + ggplot2::geom_point(ggplot2::aes(x = .data$x, y = .data$y)) +
+    ggplot2::labs(x = "SampleID", y = "Multiplicative factor (drift time correction, unitless)")
 
   list(
     rt_diff_plot = rt_diff_plot,

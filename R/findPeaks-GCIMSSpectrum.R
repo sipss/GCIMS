@@ -1,17 +1,17 @@
-#' Peak detection for a GCIMSChromatogram
-#' @param object A [GCIMSChromatogram] object
+#' Peak detection for a GCIMSSpectrum
+#' @param object A [GCIMSSpectrum] object
 #' @inheritDotParams findPeaksImpl1D -x -y
-#' @return The modified [GCIMSChromatogram], with a peak list
-#' @family GCIMSChromatogram
+#' @return The modified [GCIMSSpectrum], with a peak list
+#' @family GCIMSSpectrum
 #' @export
 setMethod(
   "findPeaks",
-  "GCIMSChromatogram",
+  "GCIMSSpectrum",
   function(object, ...) {
-    rt <- rtime(object)
+    dt <- dtime(object)
     intens <- intensity(object)
     peak_list_and_debug_info <- findPeaksImpl1D(
-      x = rt,
+      x = dt,
       y = intens,
       ...
     )

@@ -9,10 +9,12 @@
   rip_ref_ms,
   ric_ref,
   ric_ref_rt,
-  ip_ref_s,
+  min_start,
+  rt_ref,
   method_rt,
   align_dt,
   align_ip,
+  ploynomial_order_ptw,
   ...
 )
 }
@@ -25,13 +27,17 @@
 
 \item{ric_ref_rt}{The retention times corresponding to \code{ric_ref}}
 
-\item{ip_ref_s}{Injection point reference for retention time}
+\item{min_start}{minimun injection point, to calculate where to begin the spectrums and cut as few points as posible, to be used in injection point alignment}
+
+\item{rt_ref}{retention time reference for alignment to injection point}
 
 \item{method_rt}{Method for alignment, should be "ptw" or "pow"}
 
 \item{align_dt}{if \code{TRUE}, align the drift time axis using a multiplicative correction}
 
 \item{align_ip}{if TRUE a multiplicative correction will be done in retention time before applying the other algorithm}
+
+\item{ploynomial_order_ptw}{One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.}
 
 \item{...}{Additional arguments passed on to the alignment method.}
 }

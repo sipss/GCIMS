@@ -3,22 +3,24 @@
 #' @param rip_ref_ms The reference position of the Reactant Ion Peak in the dataset (in ms)
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
-#' @param ip_ref_s Injection point reference for retention time
+#' @param min_start minimun injection point, to calculate where to begin the spectrums and cut as few points as posible, to be used in injection point alignment
+#' @param rt_ref retention time reference for alignment to injection point
 #' @param method_rt Method for alignment, should be "ptw" or "pow"
 #' @param align_dt if `TRUE`, align the drift time axis using a multiplicative correction
 #' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
+#' @param ploynomial_order_ptw One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.
 #' @param ... Additional arguments passed on to the alignment method.
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "align", "GCIMSSample",
-  function(object, rip_ref_ms, ric_ref, ric_ref_rt, ip_ref_s, method_rt, align_dt, align_ip, ...){
+  function(object, rip_ref_ms, ric_ref, ric_ref_rt, min_start, rt_ref, method_rt, align_dt, align_ip, ploynomial_order_ptw, ...){
     if (all(is.na(object@data))) {
       cli_abort("All the data matrix of {description(object)} are missing values. Align is impossible")
     }
 
     # Align in drift time
-    if (align_dt){
+    if (align_dt) {
       object <- alignDt(object, rip_ref_ms = rip_ref_ms)
     } else{
       object@proc_params$align$dt_kcorr <- 1
@@ -30,10 +32,10 @@ methods::setMethod(
 
     # Align in retention time
     if (align_ip){
-      object <- alignRt_ip(object, ip_ref_s = ip_ref_s)
+      object <- alignRt_ip(object, min_start = min_start, rt_ref = rt_ref)
     }
     if (method_rt == "ptw") {
-      object <- alignRt_ptw(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt)
+      object <- alignRt_ptw(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt, ploynomial_order_ptw)
     } else if(method_rt == "pow"){
       object <- alignRt_pow(object, ric_ref = ric_ref, ric_ref_rt = ric_ref_rt, ...)
     } else {
@@ -117,23 +119,17 @@ methods::setMethod(
 
 #' Align a GCIMSSample in retention time with a multiplicative correction
 #' @param x A [GCIMSSample] object
-#' @param ip_ref_s The position of the injection point in s
+#' @param min_start minimun injection point, to calculate where to begin the spectrums and cut as few points as posible
+#' @param rt_ref retention time reference
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "alignRt_ip","GCIMSSample",
-  function(x, ip_ref_s) {
+  function(x, min_start, rt_ref) {
     ric <- getRIC(x)
-    rt <- rtime(x)
-    ip_pos_s <- rt[which.min(ric)]
-    Kcorr <- ip_ref_s/ip_pos_s
-
-    int_mat <- intensity(x)
-    rt_corr <- Kcorr * rt
-    for (j in seq_len(nrow(int_mat))) {
-      int_mat[j,] <- signal::interp1(rt_corr, int_mat[j, ], rt, extrap = TRUE)
-    }
-    intensity(x) <- int_mat
+    injection_point <- which.min(ric)
+    x@retention_time <- rt_ref
+    x@data <- x@data[, (injection_point - min_start):((injection_point - min_start)+length(rt_ref)-1)]
     x
   })
 
@@ -191,14 +187,15 @@ methods::setMethod(
 #' @param x A [GCIMSSample] object
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
+#' @param ploynomial_order_ptw maximum order of the polynomial to be used
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "alignRt_ptw", "GCIMSSample",
-  function(x, ric_ref, ric_ref_rt) {
+  function(x, ric_ref, ric_ref_rt, ploynomial_order_ptw) {
     optimize_polynomial_order <- function(ric_sample, ric_ref) {
-      correction_type_options <- seq.int(0, 5)
-      poly_orders <- seq.int(1, 5)
+      correction_type_options <- seq.int(0, ploynomial_order_ptw)
+      poly_orders <- seq.int(1, ploynomial_order_ptw)
       xi <- seq_len(length(ric_sample))
       corr <- numeric(length(poly_orders) + 1L)
       corr[1] <- stats::cor(ric_ref, ric_sample, use = "complete.obs")

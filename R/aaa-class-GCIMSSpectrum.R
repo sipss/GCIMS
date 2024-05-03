@@ -11,6 +11,8 @@
 #' @slot retention_time_idx The index or indices used to get the intensity
 #' @slot retention_time_s The retention times corresponding to the retention time indices.
 #' @slot description A string with a description (used as plot title, useful e.g. to know the sample it came from)
+#' @slot peaks  A data frame with peaks, use [findPeaks()] to fill it, or [peaks()] to set/get it
+#' @slot peaks_debug_info A list with arbitrary debug information from [findPeaks()]
 #'
 #' @export
 methods::setClass(
@@ -21,7 +23,9 @@ methods::setClass(
     baseline = "numericOrNULL",
     retention_time_idx = "numeric",
     retention_time_s = "numeric",
-    description = "character"
+    description = "character",
+    peaks = "DataFrameOrNULL",
+    peaks_debug_info = "listOrNULL"
   )
 )
 
