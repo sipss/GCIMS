@@ -82,6 +82,12 @@ or the aggregation of several spectra.</p>
 <span><span class="co"># S4 method for GCIMSSpectrum</span></span>
 <span><span class="fu">intensity</span><span class="op">(</span><span class="va">object</span>, dt_range <span class="op">=</span> <span class="cn">NULL</span>, dt_idx <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># S4 method for GCIMSSpectrum</span></span>
+<span><span class="fu">peaks</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for GCIMSSpectrum</span></span>
+<span><span class="fu">peaks</span><span class="op">(</span><span class="va">object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
 <span><span class="co"># S4 method for GCIMSSpectrum,ANY</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -97,7 +103,7 @@ or the aggregation of several spectra.</p>
 
 
 <dt>value</dt>
-<dd><p>A string with the description</p></dd>
+<dd><p>A data frame with the peak list</p></dd>
 
 
 <dt>dt_range</dt>
@@ -121,6 +127,12 @@ or the aggregation of several spectra.</p>
     
 
 <p>A GCIMSSpectrum object</p>
+
+
+<p>A data frame with the peaks in the spectrum</p>
+
+
+<p>The GCIMSSpectrum object</p>
     </div>
     <div id="functions">
     <h2>Functions</h2>
@@ -131,6 +143,8 @@ or the aggregation of several spectra.</p>
 <li><p><code>dtime(GCIMSSpectrum)</code>: Get the drift time vector</p></li>
 <li><p><code>rtime(GCIMSSpectrum)</code>: Get the retention time where this spectrum was extracted</p></li>
 <li><p><code>intensity(GCIMSSpectrum)</code>: Get the intensity matrix</p></li>
+<li><p><code>peaks(GCIMSSpectrum)</code>: Get the peak list</p></li>
+<li><p><code>peaks(GCIMSSpectrum) &lt;- value</code>: Set the peak list</p></li>
 <li><p><code>plot(x = GCIMSSpectrum, y = ANY)</code>: plot method</p></li>
 </ul></div>
     <div id="slots">
@@ -160,6 +174,14 @@ or <code>NULL</code> if not set. Use <code><a href="GCIMS-generics.html">estimat
 
 <dt><code>description</code></dt>
 <dd><p>A string with a description (used as plot title, useful e.g. to know the sample it came from)</p></dd>
+
+
+<dt><code>peaks</code></dt>
+<dd><p>A data frame with peaks, use <code><a href="findPeaks.html">findPeaks()</a></code> to fill it, or <code>peaks()</code> to set/get it</p></dd>
+
+
+<dt><code>peaks_debug_info</code></dt>
+<dd><p>A list with arbitrary debug information from <code><a href="findPeaks.html">findPeaks()</a></code></p></dd>
 
 
 </dl></div>

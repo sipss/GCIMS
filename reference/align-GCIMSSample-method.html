@@ -69,10 +69,12 @@
 <span>  <span class="va">rip_ref_ms</span>,</span>
 <span>  <span class="va">ric_ref</span>,</span>
 <span>  <span class="va">ric_ref_rt</span>,</span>
-<span>  <span class="va">ip_ref_s</span>,</span>
+<span>  <span class="va">min_start</span>,</span>
+<span>  <span class="va">rt_ref</span>,</span>
 <span>  <span class="va">method_rt</span>,</span>
 <span>  <span class="va">align_dt</span>,</span>
 <span>  <span class="va">align_ip</span>,</span>
+<span>  <span class="va">ploynomial_order_ptw</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -95,8 +97,12 @@
 <dd><p>The retention times corresponding to <code>ric_ref</code></p></dd>
 
 
-<dt>ip_ref_s</dt>
-<dd><p>Injection point reference for retention time</p></dd>
+<dt>min_start</dt>
+<dd><p>minimun injection point, to calculate where to begin the spectrums and cut as few points as posible, to be used in injection point alignment</p></dd>
+
+
+<dt>rt_ref</dt>
+<dd><p>retention time reference for alignment to injection point</p></dd>
 
 
 <dt>method_rt</dt>
@@ -109,6 +115,10 @@
 
 <dt>align_ip</dt>
 <dd><p>if TRUE a multiplicative correction will be done in retention time before applying the other algorithm</p></dd>
+
+
+<dt>ploynomial_order_ptw</dt>
+<dd><p>One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.</p></dd>
 
 
 <dt>...</dt>

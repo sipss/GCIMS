@@ -64,7 +64,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for GCIMSSample</span></span>
-<span><span class="fu"><a href="GCIMS-generics.html">alignRt_ip</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">ip_ref_s</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="GCIMS-generics.html">alignRt_ip</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">min_start</span>, <span class="va">rt_ref</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -73,8 +73,12 @@
 <dd><p>A <a href="GCIMSSample.html">GCIMSSample</a> object</p></dd>
 
 
-<dt>ip_ref_s</dt>
-<dd><p>The position of the injection point in s</p></dd>
+<dt>min_start</dt>
+<dd><p>minimun injection point, to calculate where to begin the spectrums and cut as few points as posible</p></dd>
+
+
+<dt>rt_ref</dt>
+<dd><p>retention time reference</p></dd>
 
 </dl></div>
     <div id="value">

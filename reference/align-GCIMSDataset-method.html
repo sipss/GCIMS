@@ -66,7 +66,15 @@ Parametric Time Warping correction in retention time</p>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for GCIMSDataset</span></span>
-<span><span class="fu"><a href="GCIMS-generics.html">align</a></span><span class="op">(</span><span class="va">object</span>, method_rt <span class="op">=</span> <span class="st">"ptw"</span>, align_dt <span class="op">=</span> <span class="cn">TRUE</span>, align_ip <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="GCIMS-generics.html">align</a></span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  method_rt <span class="op">=</span> <span class="st">"ptw"</span>,</span>
+<span>  align_dt <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  align_ip <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  reference_sample_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ploynomial_order_ptw <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -87,6 +95,14 @@ https://github.com/sipss/pow</p></dd>
 
 <dt>align_ip</dt>
 <dd><p>if TRUE a multiplicative correction will be done in retention time before applying the other algorithm</p></dd>
+
+
+<dt>reference_sample_idx</dt>
+<dd><p>One number, the index of the sample to use as reference for the alignment in retention time, if NULL the reference will be calculated automatically depending on the method</p></dd>
+
+
+<dt>ploynomial_order_ptw</dt>
+<dd><p>One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.</p></dd>
 
 
 <dt>...</dt>
