@@ -469,7 +469,7 @@ for integration. We are working on this.
 ```{r}
 plt <- plot(ket2) +
   overlay_peaklist(peak_clustering$cluster_stats, color_by = "cluster")
-plt
+plot_interactive(plt)
 ```
 
 # Baseline correction

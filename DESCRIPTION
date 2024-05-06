@@ -107,7 +107,7 @@ Suggests:
     knitr,
     labeling,
     magick,
-    plotly (>= 4.10.2),
+    plotly,
     png,
     pow,
     rmarkdown,
