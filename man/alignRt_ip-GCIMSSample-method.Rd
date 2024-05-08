@@ -4,10 +4,10 @@
 \alias{alignRt_ip,GCIMSSample-method}
 \title{Align a GCIMSSample in retention time with a multiplicative correction}
 \usage{
-\S4method{alignRt_ip}{GCIMSSample}(x, min_start, rt_ref)
+\S4method{alignRt_ip}{GCIMSSample}(object, min_start, rt_ref)
 }
 \arguments{
-\item{x}{A \link{GCIMSSample} object}
+\item{object}{A \link{GCIMSSample} object}
 
 \item{min_start}{minimun injection point, to calculate where to begin the spectrums and cut as few points as posible}
 

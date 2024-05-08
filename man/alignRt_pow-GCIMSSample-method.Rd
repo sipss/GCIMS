@@ -5,7 +5,7 @@
 \title{Align a GCIMSSample in retention time with parametric optimized warping}
 \usage{
 \S4method{alignRt_pow}{GCIMSSample}(
-  x,
+  object,
   ric_ref,
   ric_ref_rt,
   lambdas = pracma::logspace(-2, 4, 31),
@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{x}{A \link{GCIMSSample} object}
+\item{object}{A \link{GCIMSSample} object}
 
 \item{ric_ref}{The reference Reverse Ion Chromatogram}
 

@@ -68,24 +68,24 @@ methods::setMethod(
   })
 
 #' Align a GCIMSSample in drift time with a multiplicative correction
-#' @param x A [GCIMSSample] object
+#' @param object A [GCIMSSample] object
 #' @param rip_ref_ms The position of the RIP in ms
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "alignDt", "GCIMSSample",
-  function(x, rip_ref_ms) {
-    tis <- getTIS(x)
-    dt <- dtime(x)
+  function(object, rip_ref_ms) {
+    tis <- getTIS(object)
+    dt <- dtime(object)
     rip_pos_ms <- dt[which.max(tis)]
     Kcorr <- rip_ref_ms/rip_pos_ms
 
-    int_mat <- intensity(x)
+    int_mat <- intensity(object)
     dt_corr <- Kcorr * dt
     for (j in seq_len(ncol(int_mat))) {
       int_mat[, j] <- signal::interp1(dt_corr, int_mat[, j], dt, extrap = TRUE)
     }
-    intensity(x) <- int_mat
+    intensity(object) <- int_mat
 
     # Save kcorr and non-extrapolated dt range:
     dt_beg <- dt[1]
@@ -106,35 +106,35 @@ methods::setMethod(
     }
 
 
-    if (!"align" %in% names(x@proc_params)) {
-      x@proc_params$align <- list()
+    if (!"align" %in% names(object@proc_params)) {
+      object@proc_params$align <- list()
     }
-    x@proc_params$align$dt_kcorr <- Kcorr
-    x@proc_params$align$dt_min_ms <- dt_min_ms
-    x@proc_params$align$dt_max_ms <- dt_max_ms
+    object@proc_params$align$dt_kcorr <- Kcorr
+    object@proc_params$align$dt_min_ms <- dt_min_ms
+    object@proc_params$align$dt_max_ms <- dt_max_ms
     # Return the sample
-    x
+    object
   })
 
 
 #' Align a GCIMSSample in retention time with a multiplicative correction
-#' @param x A [GCIMSSample] object
+#' @param object A [GCIMSSample] object
 #' @param min_start minimun injection point, to calculate where to begin the spectrums and cut as few points as posible
 #' @param rt_ref retention time reference
 #' @return The modified [GCIMSSample]
 #' @export
 methods::setMethod(
   "alignRt_ip","GCIMSSample",
-  function(x, min_start, rt_ref) {
-    ric <- getRIC(x)
+  function(object, min_start, rt_ref) {
+    ric <- getRIC(object)
     injection_point <- which.min(ric)
-    x@retention_time <- rt_ref
-    x@data <- x@data[, (injection_point - min_start):((injection_point - min_start)+length(rt_ref)-1)]
-    x
+    object@retention_time <- rt_ref
+    object@data <- object@data[, (injection_point - min_start):((injection_point - min_start)+length(rt_ref)-1)]
+    object
   })
 
 #' Align a GCIMSSample in retention time with parametric optimized warping
-#' @param x A [GCIMSSample] object
+#' @param object A [GCIMSSample] object
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
 #' @param lambdas a vector with the penalties to test the POW
@@ -145,14 +145,14 @@ methods::setMethod(
 #' @export
 methods::setMethod(
   "alignRt_pow", "GCIMSSample",
-  function(x,
+  function(object,
            ric_ref,
            ric_ref_rt,
            lambdas = pracma::logspace(-2, 4, 31),
            p = 10,
            max_it = 5000,
            lambda1 = 10^6) {
-    ric <- getRIC(x)
+    ric <- getRIC(object)
     v <- rep(1, length(ric_ref))
     iv <- seq(2, length(ric_ref) - 1, by = p)
     v[iv] <- 0L
@@ -165,26 +165,26 @@ methods::setMethod(
     best_lambda <- lambdas[which.min(e_ix)]
     w <- pow::pow(ric, best_lambda, ric_ref, max_it = max_it, lambda1= lambda1)
 
-    int <- intensity(x)
+    int <- intensity(object)
     inter <- t(apply(int, 1, pow::interpolation, w = w, return = FALSE))
     sel <- !is.na(inter[1,])
-    x@retention_time <- ric_ref_rt[sel]
-    x@data <- inter[,sel]
+    object@retention_time <- ric_ref_rt[sel]
+    object@data <- inter[,sel]
 
 
-    if (!"align" %in% names(x@proc_params)) {
-      x@proc_params$align <- list()
+    if (!"align" %in% names(object@proc_params)) {
+      object@proc_params$align <- list()
     }
-    x@proc_params$align$warp <- w
-    #x@proc_params$align$rt_min_s <- x@retention_time[1]
-    #x@proc_params$align$rt_max_s <- x@retention_time[length(x@retention_time)]
-    x@proc_params$align$rt_poly_coefs <- c(0, 1)
+    object@proc_params$align$warp <- w
+    #object@proc_params$align$rt_min_s <- object@retention_time[1]
+    #object@proc_params$align$rt_max_s <- object@retention_time[length(object@retention_time)]
+    object@proc_params$align$rt_poly_coefs <- c(0, 1)
 
-    return(x)
+    return(object)
   })
 
 #' Align a GCIMSSample in retention time using parametric time warping
-#' @param x A [GCIMSSample] object
+#' @param object A [GCIMSSample] object
 #' @param ric_ref The reference Reverse Ion Chromatogram
 #' @param ric_ref_rt The retention times corresponding to `ric_ref`
 #' @param ploynomial_order_ptw maximum order of the polynomial to be used
@@ -192,7 +192,7 @@ methods::setMethod(
 #' @export
 methods::setMethod(
   "alignRt_ptw", "GCIMSSample",
-  function(x, ric_ref, ric_ref_rt, ploynomial_order_ptw) {
+  function(object, ric_ref, ric_ref_rt, ploynomial_order_ptw) {
     optimize_polynomial_order <- function(ric_sample, ric_ref) {
       correction_type_options <- seq.int(0, ploynomial_order_ptw)
       poly_orders <- seq.int(1, ploynomial_order_ptw)
@@ -237,8 +237,8 @@ methods::setMethod(
     #   ric_ref <- y
     # }
 
-    ric <- getRIC(x)
-    rt <- rtime(x)
+    ric <- getRIC(object)
+    rt <- rtime(object)
 
     if (identical(rt, ric_ref_rt)) {
       ric_ref_interp <- ric_ref
@@ -248,17 +248,17 @@ methods::setMethod(
 
     poly_order <- optimize_polynomial_order(ric, ric_ref_interp)
 
-    if (!"align" %in% names(x@proc_params)) {
-      x@proc_params$align <- list()
+    if (!"align" %in% names(object@proc_params)) {
+      object@proc_params$align <- list()
     }
 
 
     if (poly_order == 0L) {
-      x@proc_params$align$rt_poly_order <- 2
-      x@proc_params$align$rt_poly_coefs <- c(0, 1)
-      x@proc_params$align$rt_min_s <- rt[1]
-      x@proc_params$align$rt_max_s <- rt[length(rt)]
-      return(x)
+      object@proc_params$align$rt_poly_order <- 2
+      object@proc_params$align$rt_poly_coefs <- c(0, 1)
+      object@proc_params$align$rt_min_s <- rt[1]
+      object@proc_params$align$rt_max_s <- rt[length(rt)]
+      return(object)
     }
     # Correct retention time axis using the reference RIC and sample RIC.
     poly <- rep(0, poly_order + 1L)
@@ -266,13 +266,13 @@ methods::setMethod(
     align_result <- ptw::ptw(ref = ric_ref_interp, samp = ric, init.coef = poly)
     rt_corr_idx <- align_result$warp.fun[1,]
     # Interpolate data using the correction
-    int_mat <- intensity(x)
+    int_mat <- intensity(object)
     rt_idx <- seq_len(ncol(int_mat))
     for (i in seq_len(nrow(int_mat))) {
       int_mat[i,] <- signal::interp1(x = rt_corr_idx, y = int_mat[i,], xi = rt_idx, extrap = FALSE)
     }
 
-    intensity(x) <- int_mat
+    intensity(object) <- int_mat
 
     rt_beg <- rt_idx[1]
     rt_end <- rt_idx[length(rt_idx)]
@@ -294,10 +294,10 @@ methods::setMethod(
     }
     rt_max_s <- rt[rt_max_idx]
 
-    x@proc_params$align$rt_poly_order <- poly_order
-    x@proc_params$align$rt_poly_coefs <- as.numeric(align_result$warp.coef[1L,])
-    x@proc_params$align$rt_min_s <- rt_min_s
-    x@proc_params$align$rt_max_s <- rt_max_s
+    object@proc_params$align$rt_poly_order <- poly_order
+    object@proc_params$align$rt_poly_coefs <- as.numeric(align_result$warp.coef[1L,])
+    object@proc_params$align$rt_min_s <- rt_min_s
+    object@proc_params$align$rt_max_s <- rt_max_s
 
-    x
+    object
   })

@@ -4,10 +4,10 @@
 \alias{alignDt,GCIMSSample-method}
 \title{Align a GCIMSSample in drift time with a multiplicative correction}
 \usage{
-\S4method{alignDt}{GCIMSSample}(x, rip_ref_ms)
+\S4method{alignDt}{GCIMSSample}(object, rip_ref_ms)
 }
 \arguments{
-\item{x}{A \link{GCIMSSample} object}
+\item{object}{A \link{GCIMSSample} object}
 
 \item{rip_ref_ms}{The position of the RIP in ms}
 }

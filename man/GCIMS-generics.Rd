@@ -36,13 +36,13 @@ decimate(object, ...)
 
 align(object, ...)
 
-alignDt(x, ...)
+alignDt(object, ...)
 
-alignRt_ptw(x, ...)
+alignRt_ptw(object, ...)
 
-alignRt_pow(x, ...)
+alignRt_pow(object, ...)
 
-alignRt_ip(x, ...)
+alignRt_ip(object, ...)
 
 estimateBaseline(object, ...)
 
@@ -56,8 +56,6 @@ integratePeaks(object, ...)
 \item{object}{An object to get the baseline}
 
 \item{...}{Additional arguments for downstream methods}
-
-\item{x}{An object to align}
 
 \item{value}{baseline to set}
 }

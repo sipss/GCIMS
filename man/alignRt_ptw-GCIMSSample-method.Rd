@@ -4,10 +4,10 @@
 \alias{alignRt_ptw,GCIMSSample-method}
 \title{Align a GCIMSSample in retention time using parametric time warping}
 \usage{
-\S4method{alignRt_ptw}{GCIMSSample}(x, ric_ref, ric_ref_rt, ploynomial_order_ptw)
+\S4method{alignRt_ptw}{GCIMSSample}(object, ric_ref, ric_ref_rt, ploynomial_order_ptw)
 }
 \arguments{
-\item{x}{A \link{GCIMSSample} object}
+\item{object}{A \link{GCIMSSample} object}
 
 \item{ric_ref}{The reference Reverse Ion Chromatogram}
 
