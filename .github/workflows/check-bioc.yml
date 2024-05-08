@@ -57,8 +57,8 @@ jobs:
               os: ubuntu-22.04,
               conf_name: 'ubuntu',
               r: '4.3',
-              bioc: '3.18',
-              cont: "bioconductor/bioconductor_docker:RELEASE_3_18",
+              bioc: '3.19',
+              cont: "bioconductor/bioconductor_docker:RELEASE_3_19",
               rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"
             }
           #- { os: macOS-latest, r: '4.2', bioc: '3.16'}
