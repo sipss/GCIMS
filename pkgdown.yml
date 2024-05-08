@@ -1,11 +1,11 @@
-pandoc: 3.1.1
+pandoc: 3.1.13
 pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   creating-a-workflow-step: creating-a-workflow-step.html
   importing-custom-data-formats: importing-custom-data-formats.html
   introduction-to-gcims: introduction-to-gcims.html
-last_built: 2024-05-06T14:04Z
+last_built: 2024-05-08T14:54Z
 urls:
   reference: https://sipss.github.io/GCIMS/reference
   article: https://sipss.github.io/GCIMS/articles
