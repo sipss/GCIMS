@@ -49,6 +49,9 @@ peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
     cli_abort("Please compute a 'Volume' column in peak_list_clustered")
   }
 
+  peak_list_clustered <- peak_list_clustered |>
+    dplyr::filter(!is.na("cluster"))
+
   peak_table_duplicity <- peak_list_clustered |>
     dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) |>
     tidyr::pivot_wider(
