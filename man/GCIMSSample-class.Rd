@@ -20,6 +20,10 @@ second to retention times (columns).
 
 \item{\code{retention_time}}{numeric. (required)}
 
+\item{\code{inverse_reduced_mobility}}{1/K0 (calculated from drift_time)}
+
+\item{\code{retention_index}}{numeric. (calculated from retention_time and references)}
+
 \item{\code{data}}{matrix A matrix with drift time in the rows and retention time
 in columns. (required)}
 

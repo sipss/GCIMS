@@ -96,6 +96,10 @@ dummy_dataset <- GCIMSDataset$new(
 
 \item{\code{rt_ref}}{A numeric retention time of reference}
 
+\item{\code{inv_k0_ref}}{A numeric inverse reduced mobility reference}
+
+\item{\code{ri_ref}}{A numeric retention index reference}
+
 \item{\code{userData}}{A list to store arbitrary data in the dataset}
 }
 \if{html}{\out{</div>}}
@@ -121,6 +125,7 @@ dummy_dataset <- GCIMSDataset$new(
 \item \href{#method-GCIMSDataset-extract_dtime_rtime}{\code{GCIMSDataset$extract_dtime_rtime()}}
 \item \href{#method-GCIMSDataset-getRIC}{\code{GCIMSDataset$getRIC()}}
 \item \href{#method-GCIMSDataset-extract_RIC_and_TIS}{\code{GCIMSDataset$extract_RIC_and_TIS()}}
+\item \href{#method-GCIMSDataset-extract_inv_k0}{\code{GCIMSDataset$extract_inv_k0()}}
 \item \href{#method-GCIMSDataset-is_on_disk}{\code{GCIMSDataset$is_on_disk()}}
 \item \href{#method-GCIMSDataset-copy}{\code{GCIMSDataset$copy()}}
 \item \href{#method-GCIMSDataset-updateScratchDir}{\code{GCIMSDataset$updateScratchDir()}}
@@ -351,6 +356,19 @@ Extracts the RIC and the TIS
 
 \subsection{Returns}{
 The GCIMSDataset
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GCIMSDataset-extract_inv_k0"></a>}}
+\if{latex}{\out{\hypertarget{method-GCIMSDataset-extract_inv_k0}{}}}
+\subsection{Method \code{extract_inv_k0()}}{
+Sets an action to extract the reference inverse reduced mobility
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GCIMSDataset$extract_inv_k0()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+GCIMSDataset with inverse reduced mobility calculated
 }
 }
 \if{html}{\out{<hr>}}

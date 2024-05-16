@@ -79,6 +79,10 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     dt_ref = NULL, # numeric or NULL
     #' @field rt_ref A numeric retention time of reference
     rt_ref = NULL, # numeric or NULL
+    #' @field inv_k0_ref A numeric inverse reduced mobility reference
+    inv_k0_ref = NULL,
+    #' @field ri_ref A numeric retention index reference
+    ri_ref = NULL,
     #' @field userData A list to store arbitrary data in the dataset
     userData = list(), # list
     # Methods:
@@ -295,6 +299,18 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       )
       self$appendDelayedOp(delayed_op)
       invisible(self)
+    },
+    #' @description
+    #' Sets an action to extract the reference inverse reduced mobility
+    #' @return GCIMSDataset with inverse reduced mobility calculated
+    extract_inv_k0 = function() {
+      delayed_op <- DelayedOperation(
+        name = "extract_inv_k0",
+        fun_extract = .extract_inv_k0,
+        fun_aggregate = .extract_inv_k0_fun_aggregate
+      )
+      self$appendDelayedOp(delayed_op)
+      self
     },
     #' @description
     #' Whether the dataset is saved on disk or stored in RAM
