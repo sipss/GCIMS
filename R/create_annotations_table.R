@@ -65,7 +65,7 @@ create_annotations_table <- function(
     include.dirs = FALSE
   )
   annotations <- tibble::tibble(
-    SampleID = tools::file_path_sans_ext(filenames, compression = TRUE),
+    SampleID = sapply(filenames, function(x) sub("\\.mea(\\.gz)?$", "", basename(x))),
     FileName = filenames
   )
   if (verbose) {
