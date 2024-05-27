@@ -5,6 +5,7 @@
 #' or the aggregation of several chromatograms.
 #'
 #' @slot retention_time A numeric vector with retention times
+#' @slot retention_index A numeric vector with retention indexes
 #' @slot intensity A numeric vector with the corresponding intensities
 #' @slot baseline A numeric vector of the same length as `intensity` with the corresponding baseline,
 #' or `NULL` if not set. Use [estimateBaseline()] to estimate it, [baseline()] to directly access it.
@@ -20,6 +21,7 @@ methods::setClass(
   Class = "GCIMSChromatogram",
   slots = c(
     retention_time = "numeric",
+    retention_index = "numericOrNULL",
     intensity = "numeric",
     baseline = "numericOrNULL",
     drift_time_idx = "integer",
@@ -32,12 +34,13 @@ methods::setClass(
 
 methods::setMethod(
   "initialize", "GCIMSChromatogram",
-  function(.Object, retention_time, intensity, drift_time_idx = NA_integer_,
+  function(.Object, retention_time, retention_index = NULL, intensity, drift_time_idx = NA_integer_,
            drift_time_ms = NA_real_, description = "", baseline = NULL,
            peaks = NULL, peaks_debug_info = NULL) {
     stopifnot(length(retention_time) == length(intensity))
     stopifnot(is.null(baseline) || length(retention_time) == length(baseline))
     .Object@retention_time <- retention_time
+    .Object@retention_index <- retention_index
     .Object@drift_time_idx <- as.integer(drift_time_idx)
     .Object@drift_time_ms <- drift_time_ms
     .Object@intensity <- intensity
@@ -52,6 +55,7 @@ methods::setMethod(
 #' Create a [GCIMSChromatogram-class] object
 #'
 #' @param retention_time A numeric vector with retention times
+#' @param retention_index A numeric vector with retention indexes
 #' @param intensity A numeric vector with the corresponding intensities
 #' @param baseline A numeric vector of the same length as `intensity` with the corresponding baseline,
 #' or `NULL` if not set. Use [estimateBaseline()] to estimate it, [baseline()] to directly access it.
@@ -69,10 +73,10 @@ methods::setMethod(
 #' @export
 #' @family GCIMSChromatogram
 GCIMSChromatogram <- function(
-    retention_time, intensity, drift_time_idx = NA_integer_,
+    retention_time, retention_index = NULL, intensity, drift_time_idx = NA_integer_,
     drift_time_ms = NA_real_, description = "",
     baseline = NULL, peaks = NULL, peaks_debug_info = NULL) {
-  methods::new("GCIMSChromatogram", retention_time, intensity, drift_time_idx,
+  methods::new("GCIMSChromatogram", retention_time, retention_index, intensity, drift_time_idx,
                drift_time_ms, description, baseline = NULL, peaks = NULL,
                peaks_debug_info = NULL)
 }

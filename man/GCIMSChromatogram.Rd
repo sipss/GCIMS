@@ -6,6 +6,7 @@
 \usage{
 GCIMSChromatogram(
   retention_time,
+  retention_index = NULL,
   intensity,
   drift_time_idx = NA_integer_,
   drift_time_ms = NA_real_,
@@ -17,6 +18,8 @@ GCIMSChromatogram(
 }
 \arguments{
 \item{retention_time}{A numeric vector with retention times}
+
+\item{retention_index}{A numeric vector with retention indexes}
 
 \item{intensity}{A numeric vector with the corresponding intensities}
 

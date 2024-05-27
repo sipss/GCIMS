@@ -71,7 +71,7 @@ methods::setClass(
   )
 )
 
-.CURRENT_GCIMSSAMPLE_CLASS_VERSION <- numeric_version("0.0.4")
+.CURRENT_GCIMSSAMPLE_CLASS_VERSION <- numeric_version("0.1.1")
 
 methods::setMethod(
   "initialize", "GCIMSSample",
@@ -114,6 +114,17 @@ methods::setMethod(
       }
     }
 
+    #Calculate inv_k0 if possible
+    if (exists("drift_tube_length") & exists("params")){
+      ims_temp_k <- params$`Temp 1 setpoint`$value + 273.15
+      pressure_ims <- mean(as.numeric(strsplit(strsplit(params$`Pressure Ambient`$value, "\"")[[1]][2]," ")[[1]]))
+      drift_tube_length_cm <- drift_tube_length / 10
+      .Object@inverse_reduced_mobility <- get_inv_k0(drift_time,
+                                                     drift_tube_length_cm,
+                                                     pressure_ims,
+                                                     params$`nom Drift Potential Difference`$value,
+                                                     ims_temp_k)
+    }
     .Object@class_version <- .CURRENT_GCIMSSAMPLE_CLASS_VERSION
     .Object@drift_time <- drift_time
     .Object@retention_time <- retention_time

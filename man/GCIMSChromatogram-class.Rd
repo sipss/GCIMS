@@ -82,6 +82,8 @@ or the aggregation of several chromatograms.
 \describe{
 \item{\code{retention_time}}{A numeric vector with retention times}
 
+\item{\code{retention_index}}{A numeric vector with retention indexes}
+
 \item{\code{intensity}}{A numeric vector with the corresponding intensities}
 
 \item{\code{baseline}}{A numeric vector of the same length as \code{intensity} with the corresponding baseline,

@@ -202,21 +202,9 @@ read_mea <- function(filename) {
     description <- tools::file_path_sans_ext(basename(filename), compression = TRUE)
   }
 
-  #Calculate inv_k0
-  ims_temp_k <- params$`Temp 1 setpoint`$value + 273.15
-  pressure_ims <- mean(as.numeric(strsplit(strsplit(params$`Pressure Ambient`$value, "\"")[[1]][2]," ")[[1]]))
-  drift_tube_length_cm <- drift_tube_length / 10
-  inv_k0 <- get_inv_k0(drift_time,
-                       drift_tube_length_cm,
-                       pressure_ims,
-                       params$`nom Drift Potential Difference`$value,
-                       ims_temp_k)
-
   GCIMSSample(
     drift_time = drift_time,
     retention_time = ret_time,
-    inverse_reduced_mobility = inv_k0,
-    retention_index = NULL,
     data = data,
     gc_column = gc_column,
     drift_tube_length = drift_tube_length,
