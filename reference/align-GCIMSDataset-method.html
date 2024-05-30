@@ -72,7 +72,6 @@ Parametric Time Warping correction in retention time</p>
 <span>  align_dt <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  align_ip <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  reference_sample_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ploynomial_order_ptw <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -85,7 +84,7 @@ Parametric Time Warping correction in retention time</p>
 
 <dt>method_rt</dt>
 <dd><p>Method for alignment, should be "ptw" or "pow"
-if pow is selected the package "pow must be installed, to do so visit:
+if pow is selected the package "pow" must be installed, to do so visit:
 https://github.com/sipss/pow</p></dd>
 
 
@@ -94,15 +93,11 @@ https://github.com/sipss/pow</p></dd>
 
 
 <dt>align_ip</dt>
-<dd><p>if TRUE a multiplicative correction will be done in retention time before applying the other algorithm</p></dd>
+<dd><p>if <code>TRUE</code> a multiplicative correction will be done in retention time before applying the other algorithm</p></dd>
 
 
 <dt>reference_sample_idx</dt>
 <dd><p>One number, the index of the sample to use as reference for the alignment in retention time, if NULL the reference will be calculated automatically depending on the method</p></dd>
-
-
-<dt>ploynomial_order_ptw</dt>
-<dd><p>One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.</p></dd>
 
 
 <dt>...</dt>

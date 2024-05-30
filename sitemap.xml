@@ -91,19 +91,19 @@
     <loc>https://sipss.github.io/GCIMS/reference/align-GCIMSSample-method.html</loc>
   </url>
   <url>
-    <loc>https://sipss.github.io/GCIMS/reference/alignDt-GCIMSSample-method.html</loc>
+    <loc>https://sipss.github.io/GCIMS/reference/alignDt.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/alignPlots.html</loc>
   </url>
   <url>
-    <loc>https://sipss.github.io/GCIMS/reference/alignRt_ip-GCIMSSample-method.html</loc>
+    <loc>https://sipss.github.io/GCIMS/reference/alignRt_ip.html</loc>
   </url>
   <url>
-    <loc>https://sipss.github.io/GCIMS/reference/alignRt_pow-GCIMSSample-method.html</loc>
+    <loc>https://sipss.github.io/GCIMS/reference/alignRt_pow.html</loc>
   </url>
   <url>
-    <loc>https://sipss.github.io/GCIMS/reference/alignRt_ptw-GCIMSSample-method.html</loc>
+    <loc>https://sipss.github.io/GCIMS/reference/alignRt_ptw.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/as.data.frame.GCIMSSample.html</loc>
@@ -245,6 +245,9 @@
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/plot_interactive.html</loc>
+  </url>
+  <url>
+    <loc>https://sipss.github.io/GCIMS/reference/prealign-GCIMSSample-method.html</loc>
   </url>
   <url>
     <loc>https://sipss.github.io/GCIMS/reference/read_mea.html</loc>

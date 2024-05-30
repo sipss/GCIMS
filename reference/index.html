@@ -69,7 +69,7 @@
         </td>
         <td><p>Create a DelayedOperation object</p></td>
       </tr><tr><td>
-          <p><code><a href="GCIMS-generics.html">dtime()</a></code> <code><a href="GCIMS-generics.html">getTIS()</a></code> <code><a href="GCIMS-generics.html">getRIC()</a></code> <code><a href="GCIMS-generics.html">plotTIS()</a></code> <code><a href="GCIMS-generics.html">plotRIC()</a></code> <code><a href="GCIMS-generics.html">filterDt()</a></code> <code><a href="GCIMS-generics.html">decimate()</a></code> <code><a href="GCIMS-generics.html">align()</a></code> <code><a href="GCIMS-generics.html">alignDt()</a></code> <code><a href="GCIMS-generics.html">alignRt_ptw()</a></code> <code><a href="GCIMS-generics.html">alignRt_pow()</a></code> <code><a href="GCIMS-generics.html">alignRt_ip()</a></code> <code><a href="GCIMS-generics.html">estimateBaseline()</a></code> <code><a href="GCIMS-generics.html">baseline()</a></code> <code><a href="GCIMS-generics.html">`baseline&lt;-`()</a></code> <code><a href="GCIMS-generics.html">integratePeaks()</a></code> </p>
+          <p><code><a href="GCIMS-generics.html">dtime()</a></code> <code><a href="GCIMS-generics.html">getTIS()</a></code> <code><a href="GCIMS-generics.html">getRIC()</a></code> <code><a href="GCIMS-generics.html">plotTIS()</a></code> <code><a href="GCIMS-generics.html">plotRIC()</a></code> <code><a href="GCIMS-generics.html">filterDt()</a></code> <code><a href="GCIMS-generics.html">decimate()</a></code> <code><a href="GCIMS-generics.html">align()</a></code> <code><a href="GCIMS-generics.html">prealign()</a></code> <code><a href="GCIMS-generics.html">estimateBaseline()</a></code> <code><a href="GCIMS-generics.html">baseline()</a></code> <code><a href="GCIMS-generics.html">`baseline&lt;-`()</a></code> <code><a href="GCIMS-generics.html">integratePeaks()</a></code> </p>
         </td>
         <td><p>GCIMS Generics</p></td>
       </tr><tr><td>
@@ -119,9 +119,9 @@
       </tr><tr><td>
           <p><code><a href="align-GCIMSSample-method.html">align(<i>&lt;GCIMSSample&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Align a GCIMSSample object, in drift and retention time</p></td>
+        <td><p>Align a GCIMSSample object, in retention time</p></td>
       </tr><tr><td>
-          <p><code><a href="alignDt-GCIMSSample-method.html">alignDt(<i>&lt;GCIMSSample&gt;</i>)</a></code> </p>
+          <p><code><a href="alignDt.html">alignDt()</a></code> </p>
         </td>
         <td><p>Align a GCIMSSample in drift time with a multiplicative correction</p></td>
       </tr><tr><td>
@@ -129,15 +129,15 @@
         </td>
         <td><p>Plots to interpret alignment results</p></td>
       </tr><tr><td>
-          <p><code><a href="alignRt_ip-GCIMSSample-method.html">alignRt_ip(<i>&lt;GCIMSSample&gt;</i>)</a></code> </p>
+          <p><code><a href="alignRt_ip.html">alignRt_ip()</a></code> </p>
         </td>
         <td><p>Align a GCIMSSample in retention time with a multiplicative correction</p></td>
       </tr><tr><td>
-          <p><code><a href="alignRt_pow-GCIMSSample-method.html">alignRt_pow(<i>&lt;GCIMSSample&gt;</i>)</a></code> </p>
+          <p><code><a href="alignRt_pow.html">alignRt_pow()</a></code> </p>
         </td>
         <td><p>Align a GCIMSSample in retention time with parametric optimized warping</p></td>
       </tr><tr><td>
-          <p><code><a href="alignRt_ptw-GCIMSSample-method.html">alignRt_ptw(<i>&lt;GCIMSSample&gt;</i>)</a></code> </p>
+          <p><code><a href="alignRt_ptw.html">alignRt_ptw()</a></code> </p>
         </td>
         <td><p>Align a GCIMSSample in retention time using parametric time warping</p></td>
       </tr><tr><td>
@@ -304,6 +304,10 @@
           <p><code><a href="plot_interactive.html">plot_interactive()</a></code> </p>
         </td>
         <td><p>Make a plot interactive</p></td>
+      </tr><tr><td>
+          <p><code><a href="prealign-GCIMSSample-method.html">prealign(<i>&lt;GCIMSSample&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Align a GCIMSSample object, in drift time and to the injection point in retention time</p></td>
       </tr><tr><td>
           <p><code><a href="read_mea.html">read_mea()</a></code> </p>
         </td>
