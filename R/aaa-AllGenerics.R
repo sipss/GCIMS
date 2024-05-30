@@ -110,35 +110,7 @@ setGeneric("align", function(object, ...) standardGeneric("align"))
 #' @param ... Further arguments, possibly used by downstream methods.
 #' @return The object, modified
 #' @export
-setGeneric("alignDt", function(object, ...) standardGeneric("alignDt"))
-
-#' @describeIn GCIMS-generics Align an object in retention time
-#'
-#' @param object An object to align
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @return The object, modified
-#' @export
-setGeneric("alignRt_ptw", function(object, ...) standardGeneric("alignRt_ptw"))
-
-#' @describeIn GCIMS-generics Align an object in retention time
-#'
-#' @param object An object to align
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @return The object, modified
-#' @export
-setGeneric("alignRt_pow", function(object, ...) standardGeneric("alignRt_pow"))
-
-#' @describeIn GCIMS-generics Align an object in retention time
-#'
-#' @param object An object to align
-#' @param ... Further arguments, possibly used by downstream methods.
-#' @return The object, modified
-#' @export
-setGeneric("alignRt_ip", function(object, ...) standardGeneric("alignRt_ip"))
-
-# #' @importMethodsFrom ProtGenerics alignRt
-# #' @export
-# setGeneric("alignRt", getGeneric("alignRt", package = "ProtGenerics"))
+setGeneric("prealign", function(object, ...) standardGeneric("prealign"))
 
 #' @importMethodsFrom Biobase pData
 #' @export

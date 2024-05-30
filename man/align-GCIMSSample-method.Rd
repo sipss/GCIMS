@@ -2,42 +2,18 @@
 % Please edit documentation in R/align-GCIMSSample.R
 \name{align,GCIMSSample-method}
 \alias{align,GCIMSSample-method}
-\title{Align a GCIMSSample object, in drift and retention time}
+\title{Align a GCIMSSample object, in retention time}
 \usage{
-\S4method{align}{GCIMSSample}(
-  object,
-  rip_ref_ms,
-  ric_ref,
-  ric_ref_rt,
-  min_start,
-  rt_ref,
-  method_rt,
-  align_dt,
-  align_ip,
-  ploynomial_order_ptw,
-  ...
-)
+\S4method{align}{GCIMSSample}(object, method_rt, ric_ref, ric_ref_rt, ...)
 }
 \arguments{
 \item{object}{A \link{GCIMSSample} object}
 
-\item{rip_ref_ms}{The reference position of the Reactant Ion Peak in the dataset (in ms)}
+\item{method_rt}{Method for alignment, should be "ptw" or "pow"}
 
 \item{ric_ref}{The reference Reverse Ion Chromatogram}
 
 \item{ric_ref_rt}{The retention times corresponding to \code{ric_ref}}
-
-\item{min_start}{minimun injection point, to calculate where to begin the spectrums and cut as few points as posible, to be used in injection point alignment}
-
-\item{rt_ref}{retention time reference for alignment to injection point}
-
-\item{method_rt}{Method for alignment, should be "ptw" or "pow"}
-
-\item{align_dt}{if \code{TRUE}, align the drift time axis using a multiplicative correction}
-
-\item{align_ip}{if TRUE a multiplicative correction will be done in retention time before applying the other algorithm}
-
-\item{ploynomial_order_ptw}{One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.}
 
 \item{...}{Additional arguments passed on to the alignment method.}
 }
@@ -45,5 +21,5 @@
 The modified \link{GCIMSSample}
 }
 \description{
-Align a GCIMSSample object, in drift and retention time
+Align a GCIMSSample object, in retention time
 }

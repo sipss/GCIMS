@@ -10,7 +10,6 @@
   align_dt = TRUE,
   align_ip = TRUE,
   reference_sample_idx = NULL,
-  ploynomial_order_ptw = 5,
   ...
 )
 }
@@ -18,16 +17,14 @@
 \item{object}{A \link{GCIMSDataset} object, modified in-place}
 
 \item{method_rt}{Method for alignment, should be "ptw" or "pow"
-if pow is selected the package "pow must be installed, to do so visit:
+if pow is selected the package "pow" must be installed, to do so visit:
 https://github.com/sipss/pow}
 
 \item{align_dt}{if \code{TRUE} the drift time axis will be aligned using a multiplicative correction}
 
-\item{align_ip}{if TRUE a multiplicative correction will be done in retention time before applying the other algorithm}
+\item{align_ip}{if \code{TRUE} a multiplicative correction will be done in retention time before applying the other algorithm}
 
 \item{reference_sample_idx}{One number, the index of the sample to use as reference for the alignment in retention time, if NULL the reference will be calculated automatically depending on the method}
-
-\item{ploynomial_order_ptw}{One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.}
 
 \item{...}{additional parameters for POW alignment}
 }

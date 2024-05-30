@@ -10,10 +10,7 @@
 \alias{filterDt}
 \alias{decimate}
 \alias{align}
-\alias{alignDt}
-\alias{alignRt_ptw}
-\alias{alignRt_pow}
-\alias{alignRt_ip}
+\alias{prealign}
 \alias{estimateBaseline}
 \alias{baseline}
 \alias{baseline<-}
@@ -36,13 +33,7 @@ decimate(object, ...)
 
 align(object, ...)
 
-alignDt(object, ...)
-
-alignRt_ptw(object, ...)
-
-alignRt_pow(object, ...)
-
-alignRt_ip(object, ...)
+prealign(object, ...)
 
 estimateBaseline(object, ...)
 
@@ -71,12 +62,6 @@ matrix (depending if the object is one sample or several)
 A plot
 
 A plot
-
-The object, modified
-
-The object, modified
-
-The object, modified
 
 The object, modified
 
@@ -116,13 +101,7 @@ to an existing generics-only package if you need so.
 
 \item \code{align()}: Align an object
 
-\item \code{alignDt()}: Align an object in drift time
-
-\item \code{alignRt_ptw()}: Align an object in retention time
-
-\item \code{alignRt_pow()}: Align an object in retention time
-
-\item \code{alignRt_ip()}: Align an object in retention time
+\item \code{prealign()}: Align an object in drift time
 
 \item \code{estimateBaseline()}: Estimate the baseline in an object
 

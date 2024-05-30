@@ -4,47 +4,83 @@
 #' Parametric Time Warping correction in retention time
 #' @param object A [GCIMSDataset] object, modified in-place
 #' @param method_rt Method for alignment, should be "ptw" or "pow"
-#' if pow is selected the package "pow must be installed, to do so visit:
+#' if pow is selected the package "pow" must be installed, to do so visit:
 #' https://github.com/sipss/pow
 #' @param align_dt if `TRUE` the drift time axis will be aligned using a multiplicative correction
-#' @param align_ip if TRUE a multiplicative correction will be done in retention time before applying the other algorithm
+#' @param align_ip if `TRUE` a multiplicative correction will be done in retention time before applying the other algorithm
 #' @param reference_sample_idx One number, the index of the sample to use as reference for the alignment in retention time, if NULL the reference will be calculated automatically depending on the method
-#' @param ploynomial_order_ptw One number, by default 2, the maximum order of the polynomial for the parametric time warping alignment.
 #' @param ... additional parameters for POW alignment
 #' @return The modified [GCIMSDataset]
 #' @export
 setMethod(
   "align",
   "GCIMSDataset",
-  function(object, method_rt = "ptw", align_dt = TRUE, align_ip = TRUE, reference_sample_idx = NULL, ploynomial_order_ptw = 5, ...) {
-    tis_matrix <- getTIS(object)
-    ric_matrix <- getRIC(object)
-    dt <- dtime(object)
-    rt <- rtime(object)
+  function(object,
+           method_rt = "ptw",
+           align_dt = TRUE,
+           align_ip = TRUE,
+           reference_sample_idx = NULL,
+           ...) {
+    if (align_dt | align_ip){
+      tis_matrix <- getTIS(object)
+      ric_matrix <- getRIC(object)
+      dt <- dtime(object)
+      rt <- rtime(object)
 
-    align_params <- alignParams(
-      dt = dt,
-      rt = rt,
-      tis_matrix = tis_matrix,
-      ric_matrix = ric_matrix,
-      method_rt = method_rt,
-      align_dt = align_dt,
-      align_ip = align_ip,
-      ref_ric_sample_idx = reference_sample_idx,
-      ploynomial_order_ptw = ploynomial_order_ptw,
-      ...)
+      # Optimize drift time alignment parameters:
+      rip_position <- apply(tis_matrix, 1L, which.max)
+      rip_ref_idx <- round(stats::median(rip_position, na.rm = TRUE))
+      rip_ref_ms <- dt[rip_ref_idx]
 
-    delayed_op <- DelayedOperation(
-      name = "align",
-      fun = align,
-      params = align_params,
-      fun_extract = .align_fun_extract,
-      fun_aggregate = .align_fun_aggregate
-    )
-    object$appendDelayedOp(delayed_op)
-    # We recompute these, but  maybe we could just reset them to zero...
-    object$extract_dtime_rtime()
-    object$extract_RIC_and_TIS()
+      # IP alignment parameters
+      mins <- apply(ric_matrix, 1L ,which.min)
+      rt_ref <- rt[1 : (length(rt) - (max(mins) - min(mins)))]
+      min_start <- min(mins) - 1
+
+      delayed_op <- DelayedOperation(
+        name = "prealign",
+        fun = prealign,
+        params = list(align_dt = align_dt,
+                      align_ip = align_ip,
+                      rip_ref_ms = rip_ref_ms,
+                      min_start = min_start,
+                      rt_ref = rt_ref),
+        fun_extract = .align_fun_extract,
+        fun_aggregate = .align_fun_aggregate
+      )
+      object$appendDelayedOp(delayed_op)
+      object$extract_dtime_rtime()
+      object$extract_RIC_and_TIS()
+    }
+
+    if (method_rt == "ptw" | method_rt == "pow"){
+      rt <- rtime(object)
+      ric_matrix <- getRIC(object)
+      # Optimize ret time alignment parameters:
+      if (is.null(reference_sample_idx)){
+        if (method_rt == "pow"){
+          reference_sample_idx <- pow::select_reference(ric_matrix)
+        } else {
+          reference_sample_idx <- ptw::bestref(ric_matrix)$best.ref
+        }
+      }
+      # Select reference RIC
+      ric_ref <- as.numeric(ric_matrix[reference_sample_idx, ])
+
+      delayed_op <- DelayedOperation(
+        name = "align",
+        fun = align,
+        params = list(method_rt = method_rt,
+                      ric_ref = ric_ref,
+                      ric_ref_rt = rt,
+                      ...),
+        fun_extract = .align_fun_extract,
+        fun_aggregate = .align_fun_aggregate
+      )
+      object$appendDelayedOp(delayed_op)
+      object$extract_dtime_rtime()
+      object$extract_RIC_and_TIS()
+    }
     invisible(object)
   }
 )
@@ -52,7 +88,7 @@ setMethod(
 .align_fun_extract <- function(x) {
   list(
     dt_kcorr = x@proc_params$align$dt_kcorr,
-    rt_poly_coefs = x@proc_params$align$rt_poly_coefs
+    w = x@proc_params$align$w
   )
 }
 
@@ -61,61 +97,25 @@ setMethod(
     ds$align <- list()
   }
   ds$align[["dt_kcorr"]] <- purrr::map_dbl(extracted_obj, "dt_kcorr")
-  poly_order <- purrr::map_int(
-    extracted_obj,
-    function(obj) {
-      length(obj$rt_poly_coefs) - 1L
-    }
-  )
-  ds$align[["rt_poly_order"]] <- poly_order
-  poly_coefs <- matrix(0.0, nrow = length(extracted_obj), ncol = max(poly_order) + 1L)
-  poly_coefs[,2] <- 1
-  for (i in  seq_along(extracted_obj)) {
-    coefs <- extracted_obj[[i]]$rt_poly_coefs
-    poly_coefs[i, seq_along(coefs)] <- coefs
-  }
-  dimnames(poly_coefs) <- list(
-    SampleID = sampleNames(ds),
-    PolyOrder = paste0("Order_", seq_len(ncol(poly_coefs)) - 1L)
-  )
-  ds$align[["rt_poly_coefs"]] <- poly_coefs
+  # poly_order <- purrr::map_int(
+  #   extracted_obj,
+  #   function(obj) {
+  #     length(obj$rt_poly_coefs) - 1L
+  #   }
+  # )
+  # ds$align[["rt_poly_order"]] <- poly_order
+  # poly_coefs <- matrix(0.0, nrow = length(extracted_obj), ncol = max(poly_order) + 1L)
+  # poly_coefs[,2] <- 1
+  # for (i in  seq_along(extracted_obj)) {
+  #   coefs <- extracted_obj[[i]]$rt_poly_coefs
+  #   poly_coefs[i, seq_along(coefs)] <- coefs
+  # }
+  # dimnames(poly_coefs) <- list(
+  #   SampleID = sampleNames(ds),
+  #   PolyOrder = paste0("Order_", seq_len(ncol(poly_coefs)) - 1L)
+  # )
+  # ds$align[["rt_poly_coefs"]] <- poly_coefs
   ds
-}
-
-
-alignParams <- function(dt, rt, tis_matrix, ric_matrix, method_rt, align_dt, align_ip, ref_ric_sample_idx, ploynomial_order_ptw, ...) {
-  # Optimize ret time alignment parameters:
-  if (is.null(ref_ric_sample_idx)){
-    if (method_rt == "pow"){
-      ref_ric_sample_idx <- pow::select_reference(ric_matrix)
-    } else {
-      ref_ric_sample_idx <- ptw::bestref(ric_matrix)$best.ref
-    }
-  }
-  # Select reference RIC
-  ric_ref <- as.numeric(ric_matrix[ref_ric_sample_idx, ])
-
-  # Optimize drift time alignment parameters:
-  rip_position <- apply(tis_matrix, 1L, which.max)
-  rip_ref_idx <- round(stats::median(rip_position, na.rm = TRUE))
-  rip_ref_ms <- dt[rip_ref_idx]
-
-  # IP alignment parameters
-
-  mins <- apply(ric_matrix, 1L ,which.min)
-  rt_ref <- rt[1 : (length(rt) - (max(mins) - min(mins)))]
-  min_start <- min(mins) - 1
-
-  list(rip_ref_ms = rip_ref_ms,
-       ric_ref = ric_ref,
-       ric_ref_rt = rt,
-       min_start = min_start,
-       rt_ref = rt_ref,
-       method_rt = method_rt,
-       align_dt = align_dt,
-       align_ip = align_ip,
-       ploynomial_order_ptw = ploynomial_order_ptw,
-       ...)
 }
 
 #' Plots to interpret alignment results
@@ -152,26 +152,26 @@ alignPlots <- function(object) {
     tibble::as_tibble(reshape2::melt(dt_diff, value.name = "correction_ms"))
   }
 
-  get_corrected_rt <- function(rt_before, rt_poly_coefs) {
-    rt_after <- eval_poly(rt_before, rt_poly_coefs)
-    rt_before_mat <- matrix(rt_before, nrow = nrow(rt_poly_coefs), ncol = length(rt_before), byrow = TRUE)
-    rt_diff <- rt_after - rt_before_mat
-    dimnames(rt_diff) <- list(
-      SampleID = rownames(rt_poly_coefs),
-      ret_time_s = rt_before
-    )
-    tibble::as_tibble(reshape2::melt(rt_diff, value.name = "correction_s"))
-  }
+  # get_corrected_rt <- function(rt_before, rt_poly_coefs) {
+  #   rt_after <- eval_poly(rt_before, rt_poly_coefs)
+  #   rt_before_mat <- matrix(rt_before, nrow = nrow(rt_poly_coefs), ncol = length(rt_before), byrow = TRUE)
+  #   rt_diff <- rt_after - rt_before_mat
+  #   dimnames(rt_diff) <- list(
+  #     SampleID = rownames(rt_poly_coefs),
+  #     ret_time_s = rt_before
+  #   )
+  #   tibble::as_tibble(reshape2::melt(rt_diff, value.name = "correction_s"))
+  # }
 
   object$realize()
   rt <- rtime(object)
   dt <- dtime(object)
 
-  rt_diff <- get_corrected_rt(rt, object$align$rt_poly_coefs)
-
-  rt_diff_plot <- ggplot2::ggplot(rt_diff) +
-    ggplot2::geom_line(ggplot2::aes(x = .data$ret_time_s, y = .data$correction_s, group = .data$SampleID, color = .data$SampleID)) +
-    ggplot2::labs(x = "Retention time (s)", y = "Ret. time correction (s)", color = "SampleID")
+  # rt_diff <- get_corrected_rt(rt, object$align$rt_poly_coefs)
+  #
+  # rt_diff_plot <- ggplot2::ggplot(rt_diff) +
+  #   ggplot2::geom_line(ggplot2::aes(x = .data$ret_time_s, y = .data$correction_s, group = .data$SampleID, color = .data$SampleID)) +
+  #   ggplot2::labs(x = "Retention time (s)", y = "Ret. time correction (s)", color = "SampleID")
 
 
   dt_diff <- get_corrected_dt(dt, object$align$dt_kcorr)
@@ -189,7 +189,7 @@ alignPlots <- function(object) {
     ggplot2::labs(x = "SampleID", y = "Multiplicative factor (drift time correction, unitless)")
 
   list(
-    rt_diff_plot = rt_diff_plot,
+    #rt_diff_plot = rt_diff_plot,
     dt_diff_plot = dt_diff_plot,
     dt_kcorr_plot = dt_kcorr_plot
   )
