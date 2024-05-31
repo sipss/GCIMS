@@ -186,7 +186,7 @@ alignRt_pow <- function(object,
   iv <- seq(2, length(ric_ref) - 1, by = p)
   v[iv] <- 0L
   W <- Matrix::Diagonal(x = v)
-  result_val <- pow:::val(ric, ric_ref, W, iv, lambdas, fom ="rms", lambda1 = lambda1)
+  result_val <- pow::val(ric, ric_ref, W, iv, lambdas, fom ="rms", lambda1 = lambda1)
   e_ix <- result_val$e
   ti_ix <- result_val$ti
   e_ix[ti_ix == 1] <- NA
@@ -272,7 +272,7 @@ alignRt_ptw <- function(object, ric_ref, ric_ref_rt, ploynomial_order = 5) {
   }
 
   if (poly_order == 0L) {
-    object@proc_params$align$w <- rep(1,length(rt))
+    object@proc_params$align$w <- seq_along(rt)
     object@proc_params$align$rt_min_s <- rt[1]
     object@proc_params$align$rt_max_s <- rt[length(rt)]
     return(object)

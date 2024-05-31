@@ -97,24 +97,7 @@ setMethod(
     ds$align <- list()
   }
   ds$align[["dt_kcorr"]] <- purrr::map_dbl(extracted_obj, "dt_kcorr")
-  # poly_order <- purrr::map_int(
-  #   extracted_obj,
-  #   function(obj) {
-  #     length(obj$rt_poly_coefs) - 1L
-  #   }
-  # )
-  # ds$align[["rt_poly_order"]] <- poly_order
-  # poly_coefs <- matrix(0.0, nrow = length(extracted_obj), ncol = max(poly_order) + 1L)
-  # poly_coefs[,2] <- 1
-  # for (i in  seq_along(extracted_obj)) {
-  #   coefs <- extracted_obj[[i]]$rt_poly_coefs
-  #   poly_coefs[i, seq_along(coefs)] <- coefs
-  # }
-  # dimnames(poly_coefs) <- list(
-  #   SampleID = sampleNames(ds),
-  #   PolyOrder = paste0("Order_", seq_len(ncol(poly_coefs)) - 1L)
-  # )
-  # ds$align[["rt_poly_coefs"]] <- poly_coefs
+  ds$align[["w"]] <- purrr::map(extracted_obj, "w")
   ds
 }
 
@@ -152,26 +135,22 @@ alignPlots <- function(object) {
     tibble::as_tibble(reshape2::melt(dt_diff, value.name = "correction_ms"))
   }
 
-  # get_corrected_rt <- function(rt_before, rt_poly_coefs) {
-  #   rt_after <- eval_poly(rt_before, rt_poly_coefs)
-  #   rt_before_mat <- matrix(rt_before, nrow = nrow(rt_poly_coefs), ncol = length(rt_before), byrow = TRUE)
-  #   rt_diff <- rt_after - rt_before_mat
-  #   dimnames(rt_diff) <- list(
-  #     SampleID = rownames(rt_poly_coefs),
-  #     ret_time_s = rt_before
-  #   )
-  #   tibble::as_tibble(reshape2::melt(rt_diff, value.name = "correction_s"))
-  # }
+  get_corrected_rt <- function(rt_before, w) {
+    rt_diff <- t(as.data.frame(lapply(w, function(w, rt){(w / seq_along(w)) * rt - rt}, rt_before)))
+    colnames(rt_diff) <- rt
+    rt_diff <- reshape2::melt(rt_diff, value.name = "correction_s")
+    colnames(rt_diff) <- c("SampleID", "ret_time_s", "correction_s")
+    rt_diff
+  }
 
   object$realize()
   rt <- rtime(object)
   dt <- dtime(object)
 
-  # rt_diff <- get_corrected_rt(rt, object$align$rt_poly_coefs)
-  #
-  # rt_diff_plot <- ggplot2::ggplot(rt_diff) +
-  #   ggplot2::geom_line(ggplot2::aes(x = .data$ret_time_s, y = .data$correction_s, group = .data$SampleID, color = .data$SampleID)) +
-  #   ggplot2::labs(x = "Retention time (s)", y = "Ret. time correction (s)", color = "SampleID")
+  rt_diff <- get_corrected_rt(rt, object$align$w)
+  rt_diff_plot <- ggplot2::ggplot(rt_diff) +
+    ggplot2::geom_line(ggplot2::aes(x = .data$ret_time_s, y = .data$correction_s, group = .data$SampleID, color = .data$SampleID)) +
+    ggplot2::labs(x = "Retention time (s)", y = "Ret. time correction (s)", color = "SampleID")
 
 
   dt_diff <- get_corrected_dt(dt, object$align$dt_kcorr)
@@ -189,7 +168,7 @@ alignPlots <- function(object) {
     ggplot2::labs(x = "SampleID", y = "Multiplicative factor (drift time correction, unitless)")
 
   list(
-    #rt_diff_plot = rt_diff_plot,
+    rt_diff_plot = rt_diff_plot,
     dt_diff_plot = dt_diff_plot,
     dt_kcorr_plot = dt_kcorr_plot
   )
