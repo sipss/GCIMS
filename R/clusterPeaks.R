@@ -143,10 +143,19 @@ clusterPeaks <- function(
   }
 
   peak_cluster_stats <- peak_and_cluster_metrics(peaks)
+  peak_list_clustered <- peak_cluster_stats$peaks
+  cluster_stats <- peak_cluster_stats$cluster_stats
+
+  # Change cluster names, ordered by Dt
+  ordered_names_cluster <- order(cluster_stats$dt_apex_ms, cluster_stats$rt_apex_s)
+  cluster_stats$ordered_cluster <- paste0("Cluster", match(1:nrow(cluster_stats), ordered_names_cluster))
+  peak_list_clustered <- merge(peak_list_clustered, cluster_stats[, c("cluster", "ordered_cluster")], by = "cluster")
+  peak_list_clustered$cluster <- peak_list_clustered$ordered_cluster
+  peak_list_clustered$ordered_cluster <- NULL
 
   list(
-    peak_list_clustered = peak_cluster_stats$peaks,
-    cluster_stats = peak_cluster_stats$cluster_stats,
+    peak_list_clustered = peak_list_clustered,
+    cluster_stats = cluster_stats,
     dist = peak2peak_dist,
     extra_clustering_info = extra_clustering_info
   )
