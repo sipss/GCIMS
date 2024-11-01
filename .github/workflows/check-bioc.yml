@@ -59,7 +59,7 @@ jobs:
               r: '4.4',
               bioc: '3.19',
               cont: "bioconductor/bioconductor_docker:RELEASE_3_19",
-              rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"
+              rspm: "https://packagemanager.rstudio.com/cran/__linux__/jammy/latest"
             }
           #- { os: macOS-latest, r: '4.2', bioc: '3.16'}
           #- { os: windows-latest, r: '4.2', bioc: '3.16'}
