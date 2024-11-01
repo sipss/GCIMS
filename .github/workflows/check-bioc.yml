@@ -56,7 +56,7 @@ jobs:
           - {
               os: ubuntu-22.04,
               conf_name: 'ubuntu',
-              r: '4.3',
+              r: '4.4',
               bioc: '3.19',
               cont: "bioconductor/bioconductor_docker:RELEASE_3_19",
               rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"
@@ -318,5 +318,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@master
         with:
-          name: ${{ runner.os }}-biocversion-RELEASE_3_16-r-4.2-results
+          name: ${{ runner.os }}-biocversion-RELEASE_3_19-r-4.4-results
           path: check
