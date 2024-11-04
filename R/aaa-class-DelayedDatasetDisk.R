@@ -303,7 +303,7 @@ DelayedDatasetDisk <- R6::R6Class(
         current_filenames <- sample_rds_basenames(sample_names, current_dir)
       }
       next_filenames <- sample_rds_basenames(sample_names, next_dir)
-      extracted_results <- mymapply(
+      extracted_results <- BiocParallel::bpmapply(
         FUN = realize_one_sample_disk,
         sample_name = sample_names,
         current_filename = current_filenames,

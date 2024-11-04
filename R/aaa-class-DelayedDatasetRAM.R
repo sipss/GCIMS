@@ -83,7 +83,7 @@ DelayedDatasetRAM <- R6::R6Class(
     # @param dataset A dataset object to be modified in place by the delayed operations
     realize_impl = function(..., dataset) {
       sample_names <- names(private$samples)
-      results <- mymapply(
+      results <- BiocParallel::bpmapply(
         FUN = realize_one_sample_ram,
         sample_name = names(private$samples),
         sample_obj = private$samples,
