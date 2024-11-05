@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 
-[![Build Status](https://github.com/sipss/GCIMS/workflows/R-CMD-check-bioc/badge.svg?branch=master)](https://github.com/sipss/GCIMS/actions/)
+[![Build Status](https://github.com/sipss/GCIMS/actions/workflows/check-bioc.yml/badge.svg?branch=master)](https://github.com/sipss/GCIMS/actions/)
 [![Documentation](https://img.shields.io/badge/documentation-pkgdown-informational)](https://sipss.github.io/GCIMS/)
 
 <!-- badges: end -->
