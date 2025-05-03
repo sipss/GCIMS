@@ -305,15 +305,17 @@ rois_to_peaklist <- function(ROIs, drift_time, retention_time, int_mat, ddt, drt
   peak_list
 }
 
-#' Choose the scales and prepare the wavelets given peak widths
+#' Choose the scales given peak widths
 #'
 #' @noRd
 #' @param axis The axis of the signal where peaks are going to be detected.
 #' It is assumed the sampling is constant.
 #' @param peakwidth_min,peakwidth_max Peak width in axis units.
+#' @param base the base to compute the scales
+#' @param max_length the maximum number of scales to compute
 #'
-#' @return The output of [MassSpecWavelet::prepareWavelets()]
-prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
+#' @return A vector with the scales
+prep_scales_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max, base=1.5, max_length=12) {
   step <- axis[2L] - axis[1L]
   peakwidth_min_pts <- units_to_points(peakwidth_min, step)
   peakwidth_max_pts <- units_to_points(peakwidth_max, step)
@@ -330,7 +332,6 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
     )
     peakwidth_max_pts <- length(axis)
   }
-  base <- 1.5
   scales <- unique(
     c(
       1,
@@ -339,19 +340,32 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
       peakwidth_max_pts
     )
   )
-  if (length(scales) > 12) {
+  if (length(scales) > max_length) {
     scales <- unique(
       c(
         1,
         peakwidth_min_pts,
-        base^seq(from = log(peakwidth_min_pts, base), to = log(peakwidth_max_pts, base), length.out = 12),
+        base^seq(from = log(peakwidth_min_pts, base), to = log(peakwidth_max_pts, base), length.out = max_length),
         peakwidth_max_pts
       )
     )
   }
   scales <- unique(round(scales))
+  scales
+}
 
-  MassSpecWavelet::prepareWavelets(
+#' Choose the scales and prepare the wavelets given peak widths
+#'
+#' @noRd
+#' @param axis The axis of the signal where peaks are going to be detected.
+#' It is assumed the sampling is constant.
+#' @param peakwidth_min,peakwidth_max Peak width in axis units.
+#'
+#' @return The output of [MassSpecWavelet::prepareWavelets()]
+prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
+  scales <- prep_scales_from_peakwidths(axis, peakwidth_min, peakwidth_max)
+
+  prepared_wavelets <- MassSpecWavelet::prepareWavelets(
     length(axis),
     scales = scales,
     wavelet = "mexh",
@@ -359,6 +373,7 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
     wavelet_length = 1024L,
     extendLengthScales = TRUE
   )
+  prepared_wavelets
 }
 
 #' Peak and ROI detection
