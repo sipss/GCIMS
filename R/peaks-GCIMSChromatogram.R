@@ -10,7 +10,12 @@ setMethod(
     if (is.null(object@peaks)) {
       stop("Please run findPeaks() on the chromatogram first")
     }
-    tibble::as_tibble(cbind(SampleID = object@description, object@peaks))
+    tibble::as_tibble(
+      cbind(
+        SampleID = rep(object@description, nrow(object@peaks)),
+        object@peaks
+      )
+    )
   }
 )
 
