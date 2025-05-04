@@ -92,12 +92,12 @@ rois_to_peaklist_1D <- function(ROIs, x, y, deriv2) {
 #' 4. We merge similar ROIs using a threshold on the 1D-intersection over union
 #' 5. Get some ROI metrics and return.
 #'
-#' For the MassSpecWavelet-based peak detection, the `scales` are computed based on
-#' the requested peak widths. Besides, the scales, further tuning beyond the
-#' MassSpecWavelet defaults is possible through the `peakDetectionCWTParams` argument.
-#' By default, the only change we introduce is the `exclude0scaleAmpThresh = TRUE`
-#' which is a reasonable peak detection setting not enabled in MassSpecWavelet
-#' for backwards compatibility reasons.
+#' For the MassSpecWavelet-based peak detection, the `scales` and some other parameters
+#' are customized based on the requested peak widths. Still, if you want to further
+#' customize other peak detection sensitivity parameters, you can start calling
+#' [defaultPeakDetectionCWTParams()] and modify its output. Then pass that output
+#' to this function using `peakDetectionCWTParams=`.
+#'
 #'
 #' @keywords internal
 #' @param x The x axis, to determine units
@@ -105,7 +105,7 @@ rois_to_peaklist_1D <- function(ROIs, x, y, deriv2) {
 #' @param verbose If `TRUE` information will be printed on screen
 #' @param length_in_xunits Length of the filter used to compute the second derivative. See details.
 #' @param peakwidth_range_xunits A vector of length 2 with the minimum and maximum peak width. See details.
-#' @param peakDetectionCWTParams Additional parameters to [MassSpecWavelet::peakDetectionCWT()]. See details.
+#' @param peakDetectionCWTParams Parameters to [MassSpecWavelet::peakDetectionCWT()]. See details.
 #' @param extension_factor A number to extend the ROIs beyond their default size
 #' @param iou_overlap_threshold A number, between 0 and 1. Pairs of ROIs with an intersection over union larger than this threshold are merged.
 #' @param debug If TRUE, return as well the debug information
@@ -115,11 +115,32 @@ findPeaksImpl1D <- function(
     verbose = FALSE,
     length_in_xunits = 0.07,
     peakwidth_range_xunits = c(0.15, 0.4),
-    peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+    peakDetectionCWTParams = defaultPeakDetectionCWTParams(x=x, peakwidth_range_xunits = peakwidth_range_xunits),
     extension_factor = 0,
     iou_overlap_threshold = 0.2,
     debug = FALSE
 ) {
+
+  #### Handle older peakDetectionCWTParams. Remove in 2026-01-01.
+  old_peakDetectionCWTParams <- list(exclude0scaleAmpThresh = TRUE)
+  if (identical(peakDetectionCWTParams, old_peakDetectionCWTParams)) {
+    cli::cli_warn(c(
+      "Deprecated peakDetectionCWTParams value",
+      "!" = "Passing the argument {.code peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE)} is deprecated since GCIMS v0.2.1.",
+      "i" = "Please remove the {.arg peakDetectionCWTParams} argument. The new default value is better."
+    ))
+    peakDetectionCWTParams = defaultPeakDetectionCWTParams(
+      x=x,
+      peakwidth_range_xunits = peakwidth_range_xunits
+    )
+  }
+  #### Code handling older peakDetectionCWTParams ends here.
+
+
+  if (!is.null(peakwidth_range_xunits) && !identical(attr(peakDetectionCWTParams, "peakwidth_range_xunits"), peakwidth_range_xunits)) {
+    stop("Please provide a new peakDetectionCWTParams created with the given peakwidth_range_xunits")
+  }
+
   x_step <- x[2L] - x[1L]
   x_length_pts <- units_to_points(length_in_xunits, x_step, must_odd = TRUE)
   spec_length <- length(y)
@@ -129,24 +150,10 @@ findPeaksImpl1D <- function(
   sg_filt <- signal::sgolay(p = 2L, n = x_length_pts, m = 2)
   deriv2 <- sgolayfilt(y, sg_filt)
   # 5. Peaks and Zero-crossings
-  scales <- prep_wav_from_peakwidths(
-    x,
-    peakwidth_min = peakwidth_range_xunits[1L],
-    peakwidth_max = peakwidth_range_xunits[2L]
-  )
-
-  if (verbose) {
-    cli_inform(
-      message = c(
-        "i" = "Using the following scales: {glue::glue_collapse(scales$scales, sep = ', ')}"
-      )
-    )
-  }
 
   peaks_and_zeros_extra <- detect_peaks_and_zeros(
     xmat = matrix(y, ncol = 1),
     rowwise = FALSE,
-    scales = scales,
     peakDetectionCWTParams = peakDetectionCWTParams,
     signals_to_save_extra = if (debug) 1L else NULL,
     xmat_zeros = matrix(deriv2, ncol = 1)

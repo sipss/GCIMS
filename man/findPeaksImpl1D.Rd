@@ -10,7 +10,8 @@ findPeaksImpl1D(
   verbose = FALSE,
   length_in_xunits = 0.07,
   peakwidth_range_xunits = c(0.15, 0.4),
-  peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+  peakDetectionCWTParams = defaultPeakDetectionCWTParams(x = x, peakwidth_range_xunits =
+    peakwidth_range_xunits),
   extension_factor = 0,
   iou_overlap_threshold = 0.2,
   debug = FALSE
@@ -54,10 +55,10 @@ In detail, the approach is as follows:
 }
 
 For the MassSpecWavelet-based peak detection, the \code{scales} are computed based on
-the requested peak widths. Besides, the scales, further tuning beyond the
+the requested peak widths.
+Besides the scales, further tuning beyond the
 MassSpecWavelet defaults is possible through the \code{peakDetectionCWTParams} argument.
-By default, the only change we introduce is the \code{exclude0scaleAmpThresh = TRUE}
-which is a reasonable peak detection setting not enabled in MassSpecWavelet
-for backwards compatibility reasons.
+
+By default, we use our own settings based on \code{\link[=defaultPeakDetectionCWTParams]{defaultPeakDetectionCWTParams()}}.
 }
 \keyword{internal}

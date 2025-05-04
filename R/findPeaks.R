@@ -67,11 +67,10 @@ interleave_peaks_with_zeros <- function(peak_idx, zero_idx, signal_idx) {
   out
 }
 
-detect_peaks_and_zeros_one_signal <- function(x, x_zeros, idx, save_debugging, prep_wav, peakDetectionCWTParams) {
+detect_peaks_and_zeros_one_signal <- function(x, x_zeros, idx, save_debugging, peakDetectionCWTParams) {
   peakdet <- rlang::exec(
     MassSpecWavelet::peakDetectionCWT,
     ms = x,
-    scales = prep_wav,
     !!!peakDetectionCWTParams
   )
   if (is.null(x_zeros)) {
@@ -97,8 +96,11 @@ detect_peaks_and_zeros_one_signal <- function(x, x_zeros, idx, save_debugging, p
   )
 }
 
-detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
-                                   signals_to_save_extra = NULL, xmat_zeros = NULL) {
+detect_peaks_and_zeros <- function(
+    xmat, rowwise,
+    peakDetectionCWTParams,
+    signals_to_save_extra = NULL, xmat_zeros = NULL
+) {
   if (rowwise) {
     direction <- "rowwise"
     signal_length <- ncol(xmat)
@@ -129,7 +131,10 @@ detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams
     }
 
   }
-  prep_wav <- MassSpecWavelet::prepareWavelets(signal_length, scales = scales)
+  peakDetectionCWTParams$scales <- MassSpecWavelet::prepareWavelets(
+    signal_length,
+    scales = peakDetectionCWTParams$scales
+  )
   save_debugging <- rep(FALSE, num_signals)
   if (!is.null(signals_to_save_extra)) {
     save_debugging[signals_to_save_extra] <- TRUE
@@ -145,22 +150,9 @@ detect_peaks_and_zeros <- function(xmat, rowwise, scales, peakDetectionCWTParams
       save_debugging = save_debugging
     ),
     detect_peaks_and_zeros_one_signal,
-    prep_wav = prep_wav,
     peakDetectionCWTParams = peakDetectionCWTParams,
     .progress = ifelse(show_progress_bar(), glue("Detecting peaks and zeros ({direction})"), FALSE)
   )
-  # peaks_and_zeros_and_extra <- mapply(
-  #   FUN = detect_peaks_and_zeros_one_signal,
-  #   x = signals,
-  #   x_zeros = signals_zeros,
-  #   idx = seq_len(num_signals),
-  #   save_debugging = save_debugging,
-  #   MoreArgs = list(
-  #     prep_wav = prep_wav,
-  #     peakDetectionCWTParams = peakDetectionCWTParams
-  #   ),
-  #   SIMPLIFY = FALSE
-  # )
 
   peaks_and_zeros <- purrr::map_dfr(peaks_and_zeros_and_extra, "peaks_and_zeros")
   stopifnot(ncol(peaks_and_zeros) == 4L)
@@ -391,12 +383,10 @@ prep_wav_from_peakwidths <- function(axis, peakwidth_min, peakwidth_max) {
 #' 5. We merge similar ROIs using a threshold on the intersection over union
 #' 6. Get some ROI metrics and return.
 #'
-#' For the MassSpecWavelet-based peak detection, the `scales` are computed based on
-#' the requested peak widths. Besides, the scales, further tuning beyond the
-#' MassSpecWavelet defaults is possible through the `*_peakDetectionCWTParams` argument.
-#' By default, the only change we introduce is the `exclude0scaleAmpThresh = TRUE`
-#' which is a reasonable peak detection setting not enabled in MassSpecWavelet
-#' for backwards compatibility reasons.
+#' For the MassSpecWavelet-based peak detection, custom parameters are calculated
+#' with our [GCIMS::defaultPeakDetectionCWTParams()], feel free to call that
+#' function and customize the `SNR.Th` or any other parameter as shown in the
+#' vignette.
 #'
 #' @keywords internal
 #' @param drift_time The drift time vector
@@ -418,14 +408,49 @@ findPeaksImpl <- function(
     rt_length_s = 8,
     dt_peakwidth_range_ms = c(0.15, 0.4),
     rt_peakwidth_range_s = c(10, 25),
-    dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
-    rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
+    dt_peakDetectionCWTParams = defaultPeakDetectionCWTParams(x = drift_time, peakwidth_range_xunits = dt_peakwidth_range_ms),
+    rt_peakDetectionCWTParams = defaultPeakDetectionCWTParams(x = retention_time, peakwidth_range_xunits = rt_peakwidth_range_s),
     dt_extension_factor = 0,
     rt_extension_factor = 0,
     exclude_rip = FALSE,
     iou_overlap_threshold = 0.2,
     debug_idx = list(dt = NULL, rt = NULL)
 ) {
+
+  #### Handle older dt_peakDetectionCWTParams. Remove in 2026-01-01.
+  old_peakDetectionCWTParams <- list(exclude0scaleAmpThresh = TRUE)
+  if (identical(dt_peakDetectionCWTParams, old_peakDetectionCWTParams)) {
+    cli::cli_warn(c(
+      "Deprecated dt_peakDetectionCWTParams value",
+      "!" = "Passing the argument {.code dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE)} is deprecated since GCIMS v0.2.1.",
+      "i" = "Please remove the {.arg dt_peakDetectionCWTParams} argument. The new default value is better."
+    ))
+    dt_peakDetectionCWTParams = defaultPeakDetectionCWTParams(
+      x=drift_time,
+      peakwidth_range_xunits = dt_peakwidth_range_ms
+    )
+  }
+  if (identical(rt_peakDetectionCWTParams, old_peakDetectionCWTParams)) {
+    cli::cli_warn(c(
+      "Deprecated rt_peakDetectionCWTParams value",
+      "!" = "Passing the argument {.code rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE)} is deprecated since GCIMS v0.2.1.",
+      "i" = "Please remove the {.arg rt_peakDetectionCWTParams} argument. The new default value is better."
+    ))
+    rt_peakDetectionCWTParams = defaultPeakDetectionCWTParams(
+      x=retention_time,
+      peakwidth_range_xunits = rt_peakwidth_range_s
+    )
+  }
+  #### Code handling older dt_peakDetectionCWTParams ends here.
+
+    if (!is.null(dt_peakwidth_range_ms) && !identical(attr(dt_peakDetectionCWTParams, "peakwidth_range_xunits"), dt_peakwidth_range_ms)) {
+      stop("Please provide a new dt_peakDetectionCWTParams created with the given dt_peakwidth_range_ms")
+    }
+
+    if (!is.null(rt_peakwidth_range_s) && !identical(attr(rt_peakDetectionCWTParams, "peakwidth_range_xunits"), rt_peakwidth_range_s)) {
+      stop("Please provide a new rt_peakDetectionCWTParams created with the given rt_peakwidth_range_s")
+    }
+
 
     debug_info <- list()
     if (!is.null(debug_idx$rt) && length(debug_idx$rt) > 0) {
@@ -459,31 +484,9 @@ findPeaksImpl <- function(
     rm(deriv2)
 
     # 5. Peaks and Zero-crossings
-    scales_rt <- prep_wav_from_peakwidths(
-      retention_time,
-      peakwidth_min = rt_peakwidth_range_s[1L],
-      peakwidth_max = rt_peakwidth_range_s[2L]
-    )
-    scales_dt <- prep_wav_from_peakwidths(
-      drift_time,
-      peakwidth_min = dt_peakwidth_range_ms[1L],
-      peakwidth_max = dt_peakwidth_range_ms[2L]
-    )
-
-    if (verbose) {
-      cli_inform(
-        message = c(
-          "Using the following scales",
-          "i" = "Retention time scales: {glue::glue_collapse(scales_rt$scales, sep = ', ')}",
-          "i" = "Drift time scales: {glue::glue_collapse(scales_dt$scales, sep = ', ')}"
-        )
-      )
-    }
-
     peaks_and_zeros_drt_extra <- detect_peaks_and_zeros(
       xmat = int_mat,
       rowwise = TRUE,
-      scales = scales_rt,
       peakDetectionCWTParams = rt_peakDetectionCWTParams,
       signals_to_save_extra = debug_idx$rt,
       xmat_zeros = drt
@@ -497,7 +500,6 @@ findPeaksImpl <- function(
     peaks_and_zeros_ddt_extra <- detect_peaks_and_zeros(
       xmat = int_mat,
       rowwise = FALSE,
-      scales = scales_dt,
       peakDetectionCWTParams = dt_peakDetectionCWTParams,
       signals_to_save_extra = debug_idx$dt,
       xmat_zeros = ddt
@@ -564,6 +566,77 @@ findPeaksImpl <- function(
       peak_list = peak_list,
       debug_info = debug_info
     )
+}
+
+
+#' Get the default peakDetectionCWT parameters for GCIMS peak detection
+#'
+#' @description
+#'
+#' Our selection of defaults for [peakDetectionCWT()] consist of the following:
+#'
+#' \itemize{
+#' \item{`exclude0scaleAmpThresh=TRUE`: Does not include the zeroth scale in the default amplitude threshold.}
+#' \item{`nearbyPeak=TRUE`: This is already a default, but since we customize nearbyWinSize we prefer to be explicit.}
+#' \item{`nearbyWinSize`: This is set to the maximum desired peak width in points (instead of the arbitrary 150 from [MassSpecWavelet::identifyMajorPeaks()])}
+#' \item{`ridgeLength`: We set this to the second calculated scale, that would correspond to a peak with shorter width in our scale preparation.}
+#' \item{`excludeBoundariesSize`: Instead of an arbitrary number, we exclude half of the peak minimum width}
+#' \item{`SNR.Th`: We keep the default (3) but we explicitly specify it because we consider this a sensitive parameter}
+#' \item{`minNoiseLevel`: [MassSpecWavelet::identifyMajorPeaks()] uses a default of 0.001 and we keep that default}
+#' \item{`scales`: We provide here the [MassSpecWavelet::prepareWavelets()]
+#'       output, created with scales representative of the peak widths. You can
+#'       provide just a numeric vector with scales, but if you provide the prepared
+#'       wavelets you get some extra performance.}
+#'
+#' }
+#'
+#' @keywords internal
+#' @param x The x axis, to determine units
+#' @param peakwidth_range_xunits A vector of length 2 with the minimum and maximum peak width.
+#'
+#' @returns
+#' A list with the default parameters we will use with [MassSpecWavelet::peakDetectionCWT()].
+#' @export
+#'
+#' @examples
+#' chromat1 <- GCIMSChromatogram(
+#'   retention_time = seq(from = 0, to = 10, length.out = 200),
+#'   intensity = 1:200
+#' )
+#'
+#' peakDetectionCWTParams <- defaultPeakDetectionCWTParams(
+#'   x = rtime(chromat1),
+#'   peakwidth_range_xunits = c(5, 25)
+#' )
+#' peakDetectionCWTParams$SNR.Th <- 2.0
+#' peakDetectionCWTParams$scales <- MassSpecWavelet::prepareWavelets(
+#'   x = length(rtime(chromat1)),
+#'   scales = c(1, seq(2, 30, 2), seq(32, 64, 4))
+#' )
+#' peakDetectionCWTParams
+defaultPeakDetectionCWTParams <- function(x, peakwidth_range_xunits) {
+  step <- x[2] - x[1]
+  peakwidth_min_pts <- units_to_points(peakwidth_range_xunits[1L], step)
+  peakwidth_max_pts <- units_to_points(peakwidth_range_xunits[2L], step)
+
+  prep_wavelets <- prep_wav_from_peakwidths(
+    x,
+    peakwidth_min = peakwidth_range_xunits[1L],
+    peakwidth_max = peakwidth_range_xunits[2L]
+  )
+
+  peakDetectionCWTParams <- list(
+    exclude0scaleAmpThresh = TRUE,
+    nearbyPeak=TRUE, # This is already the default
+    nearbyWinSize=peakwidth_max_pts,
+    ridgeLength=prep_wavelets$scales[2],
+    excludeBoundariesSize=max(1, floor(peakwidth_min_pts/2)),
+    SNR.Th=3,
+    minNoiseLevel = 0.001,
+    scales = prep_wavelets
+  )
+  attr(peakDetectionCWTParams, "peakwidth_range_xunits") <- peakwidth_range_xunits
+  peakDetectionCWTParams
 }
 
 

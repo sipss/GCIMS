@@ -356,13 +356,11 @@ ch1 <- getChromatogram(ket1, dt_range = 10.75)
 ```
 
 ```{r}
-# I don't like the _xunits in the argument names, I'll find an alternative soon
 ch1 <- findPeaks(
   ch1,
   verbose = FALSE,
   length_in_xunits = 3,
   peakwidth_range_xunits = c(10, 25),
-  peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
   extension_factor = 0,
   iou_overlap_threshold = 0.2,
   debug = FALSE
@@ -370,6 +368,54 @@ ch1 <- findPeaks(
 peak_list_ch1 <- peaks(ch1)
 plot(ch1) + geom_vline(xintercept = peak_list_ch1$apex, color = "red", linetype = "dashed")
 ```
+
+It is possible to customize the `SNR.Th`, the `ridgeLength` and any other sensitive
+peak detection parameters using the [defaultPeakDetectionCWTParams()] function.
+
+To do that, first create the peakDetectionCWTParams object:
+
+```{r}
+peakDetectionCWTParams <- defaultPeakDetectionCWTParams(
+ x = rtime(ch1),
+ peakwidth_range_xunits = c(10, 25)
+)
+peakDetectionCWTParams
+```
+
+All those are parameters we can pass to [MassSpecWavelet::peakDetectionCWT()] and
+subsequently to [MassSpecWavelet::identifyMajorPeaks()]. We can add some other
+parameter to customize the peak detection algorithm:
+
+```{r}
+# Filter peaks lower than 1000 in amplitude:
+peakDetectionCWTParams$peakThr <- 1000
+```
+
+When using a custom `peakDetectionCWTParams` you do not need to provide the
+`peakwidth_range_xunits`, since that is already accounted for in the prepared
+wavelets provided in the scales, make sure to set it to `NULL` to avoid
+further confusion:
+
+```{r}
+ch2 <- findPeaks(
+  ch1,
+  verbose = FALSE,
+  length_in_xunits = 3,
+  peakwidth_range_xunits = NULL,  # provided already in peakDetectionCWTParams
+  peakDetectionCWTParams = peakDetectionCWTParams,
+  extension_factor = 0,
+  iou_overlap_threshold = 0.2,
+  debug = TRUE
+)
+peak_list_ch2 <- peaks(ch2)
+plot(ch2) + 
+  geom_vline(xintercept = peak_list_ch2$apex, color = "red", linetype = "dashed") +
+  labs(caption = "Here we only see one peak, because we have excluded peaks with amplitude < 1000")
+```
+
+
+We can apply `findPeaks` to one whole sample.
+
 
 ```{r}
 ket1 <- findPeaks(
@@ -379,8 +425,6 @@ ket1 <- findPeaks(
   verbose = TRUE,
   dt_peakwidth_range_ms = c(0.15, 0.4),
   rt_peakwidth_range_s = c(10, 25),
-  dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
-  rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
   dt_extension_factor = 0,
   rt_extension_factor = 0,
   exclude_rip = TRUE,
@@ -404,8 +448,6 @@ findPeaks(
   verbose = TRUE,
   dt_peakwidth_range_ms = c(0.15, 0.4),
   rt_peakwidth_range_s = c(10, 25),
-  dt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
-  rt_peakDetectionCWTParams = list(exclude0scaleAmpThresh = TRUE),
   dt_extension_factor = 0,
   rt_extension_factor = 0,
   exclude_rip = TRUE,
@@ -413,6 +455,7 @@ findPeaks(
 )
 peak_list <- peaks(dataset)
 ```
+
 You can get any other sample if you like, plot it and plot its peaks on top:
 
 ```{r}
