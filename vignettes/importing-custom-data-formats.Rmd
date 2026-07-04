@@ -71,10 +71,18 @@ your_csv_file <- (
 1.6,230,300,200, 92, 15
 2.4,120,150,120, 33, 22
 3.2, 70,121, 74, 31, 34
+4.0, 40, 60, 50, 20, 10
 ")
 write(your_csv_file, "sample1.csv")
 write(your_csv_file, "sample2.csv")
 ```
+
+Note this example is deliberately not square: there are 6 retention times
+(one per CSV row) and 5 drift times (one per CSV column, other than the
+first). This makes it easier to catch a mismatch between the two: if you get
+the orientation of the intensity matrix wrong, `GCIMSSample()` will fail
+immediately with a clear dimension-mismatch error instead of silently
+accepting a transposed matrix.
 
 You can read it using `read.csv()` or the `readr::read_csv()` function from the `readr` package.
 
@@ -96,9 +104,12 @@ csv_data
 ```{r}
 retention_time <- csv_data[[1]]
 drift_time <- as.numeric(colnames(csv_data)[-1])
-intensity <- as.matrix(csv_data[,-1])
-rownames(intensity) <- retention_time
-
+# csv_data has one row per retention time and one column per drift time,
+# so as.matrix() gives us a [retention_time x drift_time] matrix. GCIMSSample()
+# expects the opposite orientation ([drift_time x retention_time]), so we
+# transpose it:
+intensity <- t(as.matrix(csv_data[,-1]))
+dimnames(intensity) <- list(drift_time, retention_time)
 ```
 
 The retention time:
@@ -136,11 +147,13 @@ We are now ready to define a `parser` function that returns a GCIMSSample given 
 
 ```{r}
 GCIMSSample_from_csv <- function(filename) {
-  csv_data <- read.csv(your_csv_file, check.names = FALSE)
+  csv_data <- read.csv(filename, check.names = FALSE)
   retention_time <- csv_data[[1]]
   drift_time <- as.numeric(colnames(csv_data)[-1])
-  intensity <- as.matrix(csv_data[,-1])
-  rownames(intensity) <- retention_time
+  # Transpose: csv_data is [retention_time x drift_time], GCIMSSample()
+  # expects [drift_time x retention_time]
+  intensity <- t(as.matrix(csv_data[,-1]))
+  dimnames(intensity) <- list(drift_time, retention_time)
   return(
     GCIMSSample(
       drift_time = drift_time,
