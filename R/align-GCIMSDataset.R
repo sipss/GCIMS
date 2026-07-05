@@ -65,7 +65,7 @@ setMethod(
       # Optimize ret time alignment parameters:
       if (is.null(reference_sample_idx)){
         if (method_rt == "pow"){
-          reference_sample_idx <- pow::select_reference(ric_matrix)
+          reference_sample_idx <- optional_pkg_fn("pow", "select_reference")(ric_matrix)
         } else {
           reference_sample_idx <- ptw::bestref(ric_matrix)$best.ref
         }

@@ -190,16 +190,16 @@ alignRt_pow <- function(object,
   iv <- seq(2, length(ric_ref) - 1, by = p)
   v[iv] <- 0L
   W <- Matrix::Diagonal(x = v)
-  result_val <- pow::val(ric, ric_ref, W, iv, lambdas, fom ="rms", lambda1 = lambda1)
+  result_val <- optional_pkg_fn("pow", "val")(ric, ric_ref, W, iv, lambdas, fom ="rms", lambda1 = lambda1)
   e_ix <- result_val$e
   ti_ix <- result_val$ti
   e_ix[ti_ix == 1] <- NA
   lambdas[ti_ix == 1] <- NA
   best_lambda <- lambdas[which.min(e_ix)]
-  w <- pow::pow(ric, best_lambda, ric_ref, max_it = max_it, lambda1= lambda1)
+  w <- optional_pkg_fn("pow", "pow")(ric, best_lambda, ric_ref, max_it = max_it, lambda1= lambda1)
 
   int <- intensity(object)
-  inter <- t(apply(int, 1, pow::interpolation, w = w, return = FALSE))
+  inter <- t(apply(int, 1, optional_pkg_fn("pow", "interpolation"), w = w, return = FALSE))
   sel <- !is.na(inter[1,])
   object@retention_time <- ric_ref_rt[sel]
   object@data <- inter[,sel]

@@ -1,3 +1,14 @@
+#' Look up a function in an optional, not-yet-installed-by-default package
+#'
+#' Used for packages like pow that cannot be declared in Imports/Suggests
+#' (they are not on CRAN/Bioconductor), to call their exported functions
+#' without an `pkg::fun()` reference that R CMD check would flag as an
+#' undeclared dependency. Callers must guard with [require_pkgs()] first.
+#' @noRd
+optional_pkg_fn <- function(pkg, name) {
+    getExportedValue(pkg, name)
+}
+
 require_pkgs <- function(pkg, msgs = NULL, ...) {
     have_pkgs <- purrr::map_lgl(pkg, function(p) {
         requireNamespace(p, quietly = TRUE)
