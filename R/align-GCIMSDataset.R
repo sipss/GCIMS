@@ -21,6 +21,12 @@ setMethod(
            align_ip = TRUE,
            reference_sample_idx = NULL,
            ...) {
+    if (method_rt == "pow") {
+      require_pkgs(
+        "pow",
+        msgs = c("i" = "{.pkg pow} is not on CRAN/Bioconductor. Install it with {.code remotes::install_github('sipss/pow')} if you have access to that repository.")
+      )
+    }
     if (align_dt | align_ip){
       tis_matrix <- getTIS(object)
       ric_matrix <- getRIC(object)

@@ -181,6 +181,10 @@ alignRt_pow <- function(object,
                         p = 10,
                         max_it = 5000,
                         lambda1 = 10^6) {
+  require_pkgs(
+    "pow",
+    msgs = c("i" = "{.pkg pow} is not on CRAN/Bioconductor. Install it with {.code remotes::install_github('sipss/pow')} if you have access to that repository.")
+  )
   ric <- getRIC(object)
   v <- rep(1, length(ric_ref))
   iv <- seq(2, length(ric_ref) - 1, by = p)
