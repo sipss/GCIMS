@@ -58,6 +58,13 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="development version" id="gcims-development-version">GCIMS (development version)<a class="anchor" aria-label="anchor" href="#gcims-development-version"></a></h2>
+<ul><li>
+<code><a href="../reference/GCIMSSample.html">GCIMSSample()</a></code> now validates the object right after construction, so passing an intensity matrix in the wrong orientation (drift time/retention time swapped) errors immediately with a clear message instead of constructing an invalid object that fails confusingly later on (#28)</li>
+<li>Fix the “Importing custom data formats” vignette, which built the intensity matrix transposed relative to what <code><a href="../reference/GCIMSSample.html">GCIMSSample()</a></code> expects (#28)</li>
+<li>Remove the <code>Remotes: sipss/pow</code> field and drop <code>pow</code> from <code>Suggests</code>, since the <code>pow</code> repository is currently private and can’t be installed by CI or by users from CRAN/Bioconductor. <code>align(method_rt = "pow")</code> now fails with a clear, actionable error (instead of breaking package installation for everyone) when <code>pow</code> isn’t installed. Restore both DESCRIPTION fields if/when <code>pow</code> becomes publicly installable.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.1" id="gcims-011-2024-04-29">GCIMS 0.1.1 (2024-04-29)<a class="anchor" aria-label="anchor" href="#gcims-011-2024-04-29"></a></h2>
 <ul><li>Fix undefined variable on RIP saturation detection (#21)</li>
 </ul></div>
@@ -80,7 +87,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

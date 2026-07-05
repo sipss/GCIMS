@@ -80,7 +80,7 @@
                         <h4 data-toc-skip class="author">Sergio
 Oller</h4>
             
-            <h4 data-toc-skip class="date">2025-05-03</h4>
+            <h4 data-toc-skip class="date">2026-07-05</h4>
       
 
       <div class="hidden name"><code>importing-custom-data-formats.Rmd</code></div>
@@ -121,7 +121,7 @@ function, and we create the dataset.</p>
 <li>A numeric vector with drift times in ms</li>
 <li>A numeric vector with retention times in s</li>
 <li>An intensity matrix, with dimensions
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>e</mi><mi>n</mi><mi>g</mi><mi>t</mi><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>d</mi><mi>r</mi><mi>i</mi><mi>f</mi><mi>t</mi><mi>_</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mi>l</mi><mi>e</mi><mi>n</mi><mi>g</mi><mi>t</mi><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>r</mi><mi>e</mi><mi>t</mi><mi>e</mi><mi>n</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mi>_</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">length(drift\_time) \times length(retention\_time)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>e</mi><mi>n</mi><mi>g</mi><mi>t</mi><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mi>r</mi><mi>i</mi><mi>f</mi><mi>t</mi><mi>_</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mi>l</mi><mi>e</mi><mi>n</mi><mi>g</mi><mi>t</mi><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mi>e</mi><mi>t</mi><mi>e</mi><mi>n</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mi>_</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">length(drift\_time) \times length(retention\_time)</annotation></semantics></math>
 </li>
 </ul>
 <p>If your time vectors have different units, GCIMS will work, although
@@ -139,9 +139,17 @@ intensity values.</p>
 <span><span class="st">1.6,230,300,200, 92, 15</span></span>
 <span><span class="st">2.4,120,150,120, 33, 22</span></span>
 <span><span class="st">3.2, 70,121, 74, 31, 34</span></span>
+<span><span class="st">4.0, 40, 60, 50, 20, 10</span></span>
 <span><span class="st">"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="va">your_csv_file</span>, <span class="st">"sample1.csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="va">your_csv_file</span>, <span class="st">"sample2.csv"</span><span class="op">)</span></span></code></pre></div>
+<p>Note this example is deliberately not square: there are 6 retention
+times (one per CSV row) and 5 drift times (one per CSV column, other
+than the first). This makes it easier to catch a mismatch between the
+two: if you get the orientation of the intensity matrix wrong,
+<code><a href="../reference/GCIMSSample.html">GCIMSSample()</a></code> will fail immediately with a clear
+dimension-mismatch error instead of silently accepting a transposed
+matrix.</p>
 <p>You can read it using <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> or the
 <code>readr::read_csv()</code> function from the <code>readr</code>
 package.</p>
@@ -155,7 +163,8 @@ package.</p>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="dv">2</span> <span class="fl">0.8</span> <span class="dv">123</span> <span class="dv">200</span> <span class="dv">190</span> <span class="dv">295</span>  <span class="dv">17</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="dv">3</span> <span class="fl">1.6</span> <span class="dv">230</span> <span class="dv">300</span> <span class="dv">200</span>  <span class="dv">92</span>  <span class="dv">15</span></span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="dv">4</span> <span class="fl">2.4</span> <span class="dv">120</span> <span class="dv">150</span> <span class="dv">120</span>  <span class="dv">33</span>  <span class="dv">22</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="dv">5</span> <span class="fl">3.2</span>  <span class="dv">70</span> <span class="dv">121</span>  <span class="dv">74</span>  <span class="dv">31</span>  <span class="dv">34</span></span></code></pre></div>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="dv">5</span> <span class="fl">3.2</span>  <span class="dv">70</span> <span class="dv">121</span>  <span class="dv">74</span>  <span class="dv">31</span>  <span class="dv">34</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="dv">6</span> <span class="fl">4.0</span>  <span class="dv">40</span>  <span class="dv">60</span>  <span class="dv">50</span>  <span class="dv">20</span>  <span class="dv">10</span></span></code></pre></div>
 <ul>
 <li>The first column contains the retention time.</li>
 <li>The column names (with the exception of the first column, which is
@@ -165,22 +174,26 @@ empty) contain the drift time</li>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">retention_time</span> <span class="op">&lt;-</span> <span class="va">csv_data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">drift_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">intensity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">intensity</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">retention_time</span></span></code></pre></div>
+<span><span class="co"># csv_data has one row per retention time and one column per drift time,</span></span>
+<span><span class="co"># so as.matrix() gives us a [retention_time x drift_time] matrix. GCIMSSample()</span></span>
+<span><span class="co"># expects the opposite orientation ([drift_time x retention_time]), so we</span></span>
+<span><span class="co"># transpose it:</span></span>
+<span><span class="va">intensity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">intensity</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">drift_time</span>, <span class="va">retention_time</span><span class="op">)</span></span></code></pre></div>
 <p>The retention time:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>retention_time</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>[<span class="dv">1</span>] <span class="fl">0.0</span> <span class="fl">0.8</span> <span class="fl">1.6</span> <span class="fl">2.4</span> <span class="fl">3.2</span></span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>[<span class="dv">1</span>] <span class="fl">0.0</span> <span class="fl">0.8</span> <span class="fl">1.6</span> <span class="fl">2.4</span> <span class="fl">3.2</span> <span class="fl">4.0</span></span></code></pre></div>
 <p>The drift time:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>drift_time</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>[<span class="dv">1</span>] <span class="fl">0.0</span> <span class="fl">0.1</span> <span class="fl">0.2</span> <span class="fl">0.3</span> <span class="fl">0.4</span></span></code></pre></div>
 <p>The intensity matrix:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>intensity</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    <span class="fl">0.0</span> <span class="fl">0.1</span> <span class="fl">0.2</span> <span class="fl">0.3</span> <span class="fl">0.4</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="dv">0</span>     <span class="dv">0</span>  <span class="dv">20</span>  <span class="dv">80</span>  <span class="dv">84</span>  <span class="dv">23</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fl">0.8</span> <span class="dv">123</span> <span class="dv">200</span> <span class="dv">190</span> <span class="dv">295</span>  <span class="dv">17</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fl">1.6</span> <span class="dv">230</span> <span class="dv">300</span> <span class="dv">200</span>  <span class="dv">92</span>  <span class="dv">15</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fl">2.4</span> <span class="dv">120</span> <span class="dv">150</span> <span class="dv">120</span>  <span class="dv">33</span>  <span class="dv">22</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="fl">3.2</span>  <span class="dv">70</span> <span class="dv">121</span>  <span class="dv">74</span>  <span class="dv">31</span>  <span class="dv">34</span></span></code></pre></div>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>     <span class="dv">0</span> <span class="fl">0.8</span> <span class="fl">1.6</span> <span class="fl">2.4</span> <span class="fl">3.2</span>  <span class="dv">4</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="dv">0</span>    <span class="dv">0</span> <span class="dv">123</span> <span class="dv">230</span> <span class="dv">120</span>  <span class="dv">70</span> <span class="dv">40</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fl">0.1</span> <span class="dv">20</span> <span class="dv">200</span> <span class="dv">300</span> <span class="dv">150</span> <span class="dv">121</span> <span class="dv">60</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fl">0.2</span> <span class="dv">80</span> <span class="dv">190</span> <span class="dv">200</span> <span class="dv">120</span>  <span class="dv">74</span> <span class="dv">50</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fl">0.3</span> <span class="dv">84</span> <span class="dv">295</span>  <span class="dv">92</span>  <span class="dv">33</span>  <span class="dv">31</span> <span class="dv">20</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="fl">0.4</span> <span class="dv">23</span>  <span class="dv">17</span>  <span class="dv">15</span>  <span class="dv">22</span>  <span class="dv">34</span> <span class="dv">10</span></span></code></pre></div>
 <p>With these three elements, we can create a GCIMSSample:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>s1 <span class="ot">&lt;-</span> <span class="fu">GCIMSSample</span>(</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">drift_time =</span> drift_time, </span>
@@ -190,16 +203,18 @@ empty) contain the drift time</li>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>s1</span>
 <span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>A GCIMS Sample</span>
 <span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a> with drift time from <span class="dv">0</span> to <span class="fl">0.4</span> <span class="fu">ms</span> (step<span class="sc">:</span> <span class="fl">0.1</span> ms, points<span class="sc">:</span> <span class="dv">5</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a> with retention time from <span class="dv">0</span> to <span class="fl">3.2</span> <span class="fu">s</span> (step<span class="sc">:</span> <span class="fl">0.8</span> s, points<span class="sc">:</span> <span class="dv">5</span>)</span></code></pre></div>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a> with retention time from <span class="dv">0</span> to <span class="dv">4</span> <span class="fu">s</span> (step<span class="sc">:</span> <span class="fl">0.8</span> s, points<span class="sc">:</span> <span class="dv">6</span>)</span></code></pre></div>
 <p>We are now ready to define a <code>parser</code> function that
 returns a GCIMSSample given a filename:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">GCIMSSample_from_csv</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">filename</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">csv_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">your_csv_file</span>, check.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="va">csv_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">filename</span>, check.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span>  <span class="va">retention_time</span> <span class="op">&lt;-</span> <span class="va">csv_data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span>  <span class="va">drift_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span>  <span class="va">intensity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">intensity</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">retention_time</span></span>
+<span>  <span class="co"># Transpose: csv_data is [retention_time x drift_time], GCIMSSample()</span></span>
+<span>  <span class="co"># expects [drift_time x retention_time]</span></span>
+<span>  <span class="va">intensity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">intensity</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">drift_time</span>, <span class="va">retention_time</span><span class="op">)</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="../reference/GCIMSSample.html">GCIMSSample</a></span><span class="op">(</span></span>
 <span>      drift_time <span class="op">=</span> <span class="va">drift_time</span>,</span>
@@ -213,20 +228,20 @@ returns a GCIMSSample given a filename:</p>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>s1</span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>A GCIMS Sample</span>
 <span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a> with drift time from <span class="dv">0</span> to <span class="fl">0.4</span> <span class="fu">ms</span> (step<span class="sc">:</span> <span class="fl">0.1</span> ms, points<span class="sc">:</span> <span class="dv">5</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a> with retention time from <span class="dv">0</span> to <span class="fl">3.2</span> <span class="fu">s</span> (step<span class="sc">:</span> <span class="fl">0.8</span> s, points<span class="sc">:</span> <span class="dv">5</span>)</span></code></pre></div>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a> with retention time from <span class="dv">0</span> to <span class="dv">4</span> <span class="fu">s</span> (step<span class="sc">:</span> <span class="fl">0.8</span> s, points<span class="sc">:</span> <span class="dv">6</span>)</span></code></pre></div>
 <p>You can check the intensity matrix and you can plot the sample to
 check that it behaves as expected:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">intensity</span>(s1)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>     rt_s</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>dt_ms   <span class="dv">0</span> <span class="fl">0.8</span> <span class="fl">1.6</span> <span class="fl">2.4</span> <span class="fl">3.2</span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="dv">0</span>     <span class="dv">0</span>  <span class="dv">20</span>  <span class="dv">80</span>  <span class="dv">84</span>  <span class="dv">23</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fl">0.1</span> <span class="dv">123</span> <span class="dv">200</span> <span class="dv">190</span> <span class="dv">295</span>  <span class="dv">17</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fl">0.2</span> <span class="dv">230</span> <span class="dv">300</span> <span class="dv">200</span>  <span class="dv">92</span>  <span class="dv">15</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="fl">0.3</span> <span class="dv">120</span> <span class="dv">150</span> <span class="dv">120</span>  <span class="dv">33</span>  <span class="dv">22</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="fl">0.4</span>  <span class="dv">70</span> <span class="dv">121</span>  <span class="dv">74</span>  <span class="dv">31</span>  <span class="dv">34</span></span></code></pre></div>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>dt_ms  <span class="dv">0</span> <span class="fl">0.8</span> <span class="fl">1.6</span> <span class="fl">2.4</span> <span class="fl">3.2</span>  <span class="dv">4</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="dv">0</span>    <span class="dv">0</span> <span class="dv">123</span> <span class="dv">230</span> <span class="dv">120</span>  <span class="dv">70</span> <span class="dv">40</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fl">0.1</span> <span class="dv">20</span> <span class="dv">200</span> <span class="dv">300</span> <span class="dv">150</span> <span class="dv">121</span> <span class="dv">60</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fl">0.2</span> <span class="dv">80</span> <span class="dv">190</span> <span class="dv">200</span> <span class="dv">120</span>  <span class="dv">74</span> <span class="dv">50</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="fl">0.3</span> <span class="dv">84</span> <span class="dv">295</span>  <span class="dv">92</span>  <span class="dv">33</span>  <span class="dv">31</span> <span class="dv">20</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="fl">0.4</span> <span class="dv">23</span>  <span class="dv">17</span>  <span class="dv">15</span>  <span class="dv">22</span>  <span class="dv">34</span> <span class="dv">10</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="importing-custom-data-formats_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+<p><img src="importing-custom-data-formats_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="create-the-gcimsdataset">Create the GCIMSDataset<a class="anchor" aria-label="anchor" href="#create-the-gcimsdataset"></a>
@@ -267,20 +282,20 @@ function:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="st">"Sample2"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="importing-custom-data-formats_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p><img src="importing-custom-data-formats_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="700"></p>
 <p>You now have a dataset ready to be used.</p>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>R version <span class="dv">4</span>.<span class="fl">4.1</span> (<span class="dv">2024-06-14</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>R version <span class="dv">4</span>.<span class="fl">6.0</span> (<span class="dv">2026-04-24</span>)</span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>Platform<span class="sc">:</span> x86_64<span class="sc">-</span>pc<span class="sc">-</span>linux<span class="sc">-</span>gnu</span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>Running under<span class="sc">:</span> Ubuntu <span class="dv">22</span>.<span class="fl">04.4</span> LTS</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>Running under<span class="sc">:</span> Ubuntu <span class="dv">24</span>.<span class="fl">04.4</span> LTS</span>
 <span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a></span>
 <span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>Matrix products<span class="sc">:</span> default</span>
 <span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>BLAS<span class="sc">:</span>   <span class="er">/</span>usr<span class="sc">/</span>lib<span class="sc">/</span>x86_64<span class="sc">-</span>linux<span class="sc">-</span>gnu<span class="sc">/</span>openblas<span class="sc">-</span>pthread<span class="sc">/</span>libblas.so<span class="fl">.3</span> </span>
-<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>LAPACK<span class="sc">:</span> <span class="er">/</span>usr<span class="sc">/</span>lib<span class="sc">/</span>x86_64<span class="sc">-</span>linux<span class="sc">-</span>gnu<span class="sc">/</span>openblas<span class="sc">-</span>pthread<span class="sc">/</span>libopenblasp<span class="sc">-</span>r0.<span class="dv">3</span>.<span class="fl">20.</span>so;  LAPACK version <span class="dv">3</span>.<span class="fl">10.0</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>LAPACK<span class="sc">:</span> <span class="er">/</span>usr<span class="sc">/</span>lib<span class="sc">/</span>x86_64<span class="sc">-</span>linux<span class="sc">-</span>gnu<span class="sc">/</span>openblas<span class="sc">-</span>pthread<span class="sc">/</span>libopenblasp<span class="sc">-</span>r0.<span class="dv">3</span>.<span class="fl">26.</span>so;  LAPACK version <span class="dv">3</span>.<span class="fl">12.0</span></span>
 <span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a></span>
 <span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>locale<span class="sc">:</span></span>
 <span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a> [<span class="dv">1</span>] LC_CTYPE<span class="ot">=</span>en_US.UTF<span class="dv">-8</span>       LC_NUMERIC<span class="ot">=</span>C              </span>
@@ -297,29 +312,29 @@ function:</p>
 <span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a>[<span class="dv">1</span>] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a></span>
 <span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a>other attached packages<span class="sc">:</span></span>
-<span id="cb17-25"><a href="#cb17-25" tabindex="-1"></a>[<span class="dv">1</span>] cowplot_1.<span class="fl">1.3</span>    GCIMS_0.<span class="fl">1.1</span>      BiocStyle_2.<span class="fl">32.1</span></span>
+<span id="cb17-25"><a href="#cb17-25" tabindex="-1"></a>[<span class="dv">1</span>] cowplot_1.<span class="fl">2.0</span>    GCIMS_0.<span class="fl">1.1</span>      BiocStyle_2.<span class="fl">40.0</span></span>
 <span id="cb17-26"><a href="#cb17-26" tabindex="-1"></a></span>
 <span id="cb17-27"><a href="#cb17-27" tabindex="-1"></a>loaded via a <span class="fu">namespace</span> (and not attached)<span class="sc">:</span></span>
-<span id="cb17-28"><a href="#cb17-28" tabindex="-1"></a> [<span class="dv">1</span>] sass_0.<span class="fl">4.10</span>         generics_0.<span class="fl">1.3</span>      digest_0.<span class="fl">6.37</span>      </span>
-<span id="cb17-29"><a href="#cb17-29" tabindex="-1"></a> [<span class="dv">4</span>] magrittr_2.<span class="fl">0.3</span>      evaluate_1.<span class="fl">0.3</span>      grid_4.<span class="fl">4.1</span>         </span>
-<span id="cb17-30"><a href="#cb17-30" tabindex="-1"></a> [<span class="dv">7</span>] RColorBrewer_1<span class="fl">.1</span><span class="dv">-3</span>  bookdown_0<span class="fl">.43</span>       fastmap_1.<span class="fl">2.0</span>      </span>
-<span id="cb17-31"><a href="#cb17-31" tabindex="-1"></a>[<span class="dv">10</span>] jsonlite_2.<span class="fl">0.0</span>      ProtGenerics_1.<span class="fl">36.0</span> BiocManager_1.<span class="fl">30.25</span></span>
-<span id="cb17-32"><a href="#cb17-32" tabindex="-1"></a>[<span class="dv">13</span>] purrr_1.<span class="fl">0.4</span>         viridisLite_0.<span class="fl">4.2</span>   scales_1.<span class="fl">4.0</span>       </span>
-<span id="cb17-33"><a href="#cb17-33" tabindex="-1"></a>[<span class="dv">16</span>] codetools_0<span class="fl">.2</span><span class="dv">-20</span>    textshaping_1.<span class="fl">0.1</span>   jquerylib_0.<span class="fl">1.4</span>    </span>
-<span id="cb17-34"><a href="#cb17-34" tabindex="-1"></a>[<span class="dv">19</span>] cli_3.<span class="fl">6.5</span>           rlang_1.<span class="fl">1.6</span>         Biobase_2.<span class="fl">64.0</span>     </span>
-<span id="cb17-35"><a href="#cb17-35" tabindex="-1"></a>[<span class="dv">22</span>] withr_3.<span class="fl">0.2</span>         cachem_1.<span class="fl">1.0</span>        yaml_2.<span class="fl">3.10</span>        </span>
-<span id="cb17-36"><a href="#cb17-36" tabindex="-1"></a>[<span class="dv">25</span>] parallel_4.<span class="fl">4.1</span>      tools_4.<span class="fl">4.1</span>         BiocParallel_1.<span class="fl">38.0</span></span>
-<span id="cb17-37"><a href="#cb17-37" tabindex="-1"></a>[<span class="dv">28</span>] dplyr_1.<span class="fl">1.4</span>         ggplot2_3.<span class="fl">5.2</span>       sgolay_1.<span class="fl">0.3</span>       </span>
-<span id="cb17-38"><a href="#cb17-38" tabindex="-1"></a>[<span class="dv">31</span>] BiocGenerics_0.<span class="fl">50.0</span> vctrs_0.<span class="fl">6.5</span>         R6_2.<span class="fl">6.1</span>           </span>
-<span id="cb17-39"><a href="#cb17-39" tabindex="-1"></a>[<span class="dv">34</span>] stats4_4.<span class="fl">4.1</span>        lifecycle_1.<span class="fl">0.4</span>     S4Vectors_0.<span class="fl">42.1</span>   </span>
-<span id="cb17-40"><a href="#cb17-40" tabindex="-1"></a>[<span class="dv">37</span>] fs_1.<span class="fl">6.6</span>            htmlwidgets_1.<span class="fl">6.4</span>   MASS_7<span class="fl">.3</span><span class="dv">-65</span>        </span>
-<span id="cb17-41"><a href="#cb17-41" tabindex="-1"></a>[<span class="dv">40</span>] ragg_1.<span class="fl">4.0</span>          pkgconfig_2.<span class="fl">0.3</span>     desc_1.<span class="fl">4.3</span>         </span>
-<span id="cb17-42"><a href="#cb17-42" tabindex="-1"></a>[<span class="dv">43</span>] pkgdown_2.<span class="fl">1.2</span>       bslib_0.<span class="fl">9.0</span>         pillar_1.<span class="fl">10.2</span>      </span>
-<span id="cb17-43"><a href="#cb17-43" tabindex="-1"></a>[<span class="dv">46</span>] gtable_0.<span class="fl">3.6</span>        glue_1.<span class="fl">8.0</span>          systemfonts_1.<span class="fl">2.3</span>  </span>
-<span id="cb17-44"><a href="#cb17-44" tabindex="-1"></a>[<span class="dv">49</span>] xfun_0<span class="fl">.52</span>           tibble_3.<span class="fl">2.1</span>        tidyselect_1.<span class="fl">2.1</span>   </span>
-<span id="cb17-45"><a href="#cb17-45" tabindex="-1"></a>[<span class="dv">52</span>] knitr_1<span class="fl">.50</span>          farver_2.<span class="fl">1.2</span>        htmltools_0.<span class="dv">5</span>.<span class="fl">8.1</span>  </span>
-<span id="cb17-46"><a href="#cb17-46" tabindex="-1"></a>[<span class="dv">55</span>] rmarkdown_2<span class="fl">.29</span>      labeling_0.<span class="fl">4.3</span>      signal_1<span class="fl">.8</span><span class="dv">-1</span>       </span>
-<span id="cb17-47"><a href="#cb17-47" tabindex="-1"></a>[<span class="dv">58</span>] compiler_4.<span class="fl">4.1</span>     </span></code></pre></div>
+<span id="cb17-28"><a href="#cb17-28" tabindex="-1"></a> [<span class="dv">1</span>] sass_0.<span class="fl">4.10</span>         generics_0.<span class="fl">1.4</span>      digest_0.<span class="fl">6.39</span>      </span>
+<span id="cb17-29"><a href="#cb17-29" tabindex="-1"></a> [<span class="dv">4</span>] magrittr_2.<span class="fl">0.5</span>      evaluate_1.<span class="fl">0.5</span>      grid_4.<span class="fl">6.0</span>         </span>
+<span id="cb17-30"><a href="#cb17-30" tabindex="-1"></a> [<span class="dv">7</span>] RColorBrewer_1<span class="fl">.1</span><span class="dv">-3</span>  bookdown_0<span class="fl">.47</span>       fastmap_1.<span class="fl">2.0</span>      </span>
+<span id="cb17-31"><a href="#cb17-31" tabindex="-1"></a>[<span class="dv">10</span>] jsonlite_2.<span class="fl">0.0</span>      ProtGenerics_1.<span class="fl">44.0</span> BiocManager_1.<span class="fl">30.27</span></span>
+<span id="cb17-32"><a href="#cb17-32" tabindex="-1"></a>[<span class="dv">13</span>] purrr_1.<span class="fl">2.2</span>         viridisLite_0.<span class="fl">4.3</span>   scales_1.<span class="fl">4.0</span>       </span>
+<span id="cb17-33"><a href="#cb17-33" tabindex="-1"></a>[<span class="dv">16</span>] codetools_0<span class="fl">.2</span><span class="dv">-20</span>    textshaping_1.<span class="fl">0.5</span>   jquerylib_0.<span class="fl">1.4</span>    </span>
+<span id="cb17-34"><a href="#cb17-34" tabindex="-1"></a>[<span class="dv">19</span>] cli_3.<span class="fl">6.6</span>           rlang_1.<span class="fl">2.0</span>         Biobase_2.<span class="fl">72.0</span>     </span>
+<span id="cb17-35"><a href="#cb17-35" tabindex="-1"></a>[<span class="dv">22</span>] withr_3.<span class="fl">0.3</span>         cachem_1.<span class="fl">1.0</span>        yaml_2.<span class="fl">3.12</span>        </span>
+<span id="cb17-36"><a href="#cb17-36" tabindex="-1"></a>[<span class="dv">25</span>] otel_0.<span class="fl">2.0</span>          tools_4.<span class="fl">6.0</span>         parallel_4.<span class="fl">6.0</span>     </span>
+<span id="cb17-37"><a href="#cb17-37" tabindex="-1"></a>[<span class="dv">28</span>] BiocParallel_1.<span class="fl">46.0</span> dplyr_1.<span class="fl">2.1</span>         ggplot2_4.<span class="fl">0.3</span>      </span>
+<span id="cb17-38"><a href="#cb17-38" tabindex="-1"></a>[<span class="dv">31</span>] sgolay_1.<span class="fl">0.3</span>        BiocGenerics_0.<span class="fl">58.1</span> vctrs_0.<span class="fl">7.3</span>        </span>
+<span id="cb17-39"><a href="#cb17-39" tabindex="-1"></a>[<span class="dv">34</span>] R6_2.<span class="fl">6.1</span>            stats4_4.<span class="fl">6.0</span>        lifecycle_1.<span class="fl">0.5</span>    </span>
+<span id="cb17-40"><a href="#cb17-40" tabindex="-1"></a>[<span class="dv">37</span>] S4Vectors_0.<span class="fl">50.1</span>    fs_2.<span class="fl">1.0</span>            htmlwidgets_1.<span class="fl">6.4</span>  </span>
+<span id="cb17-41"><a href="#cb17-41" tabindex="-1"></a>[<span class="dv">40</span>] MASS_7<span class="fl">.3</span><span class="dv">-65</span>         ragg_1.<span class="fl">5.2</span>          pkgconfig_2.<span class="fl">0.3</span>    </span>
+<span id="cb17-42"><a href="#cb17-42" tabindex="-1"></a>[<span class="dv">43</span>] desc_1.<span class="fl">4.3</span>          pkgdown_2.<span class="fl">2.0</span>       bslib_0.<span class="fl">11.0</span>       </span>
+<span id="cb17-43"><a href="#cb17-43" tabindex="-1"></a>[<span class="dv">46</span>] pillar_1.<span class="fl">11.1</span>       gtable_0.<span class="fl">3.6</span>        glue_1.<span class="fl">8.1</span>         </span>
+<span id="cb17-44"><a href="#cb17-44" tabindex="-1"></a>[<span class="dv">49</span>] systemfonts_1.<span class="fl">3.2</span>   tidyselect_1.<span class="fl">2.1</span>    xfun_0<span class="fl">.59</span>          </span>
+<span id="cb17-45"><a href="#cb17-45" tabindex="-1"></a>[<span class="dv">52</span>] tibble_3.<span class="fl">3.1</span>        knitr_1<span class="fl">.51</span>          farver_2.<span class="fl">1.2</span>       </span>
+<span id="cb17-46"><a href="#cb17-46" tabindex="-1"></a>[<span class="dv">55</span>] htmltools_0.<span class="fl">5.9</span>     labeling_0.<span class="fl">4.3</span>      rmarkdown_2<span class="fl">.31</span>     </span>
+<span id="cb17-47"><a href="#cb17-47" tabindex="-1"></a>[<span class="dv">58</span>] signal_1<span class="fl">.8</span><span class="dv">-1</span>        compiler_4.<span class="fl">6.0</span>      S7_0.<span class="fl">2.2</span>           </span></code></pre></div>
 </div>
   </div>
 
@@ -338,7 +353,7 @@ function:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
