@@ -54,12 +54,12 @@ jobs:
       matrix:
         config:
           - {
-              os: ubuntu-22.04,
+              os: ubuntu-24.04,
               conf_name: 'ubuntu',
-              r: '4.4',
-              bioc: '3.19',
-              cont: "bioconductor/bioconductor_docker:RELEASE_3_19",
-              rspm: "https://packagemanager.rstudio.com/cran/__linux__/jammy/latest"
+              r: '4.6',
+              bioc: '3.23',
+              cont: "bioconductor/bioconductor_docker:RELEASE_3_23",
+              rspm: "https://packagemanager.rstudio.com/cran/__linux__/noble/latest"
             }
           #- { os: macOS-latest, r: '4.2', bioc: '3.16'}
           #- { os: windows-latest, r: '4.2', bioc: '3.16'}
@@ -138,7 +138,7 @@ jobs:
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
-          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "22.04")), collapse = " "))')
+          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "24.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
           sudo apt-get install -y texlive-extra-utils texlive-latex-extra texlive-latex-base texlive-latex-recommended lmodern texlive-luatex texlive-full libmagick++-dev
@@ -318,5 +318,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@master
         with:
-          name: ${{ runner.os }}-biocversion-RELEASE_3_19-r-4.4-results
+          name: ${{ runner.os }}-biocversion-RELEASE_3_23-r-4.6-results
           path: check
