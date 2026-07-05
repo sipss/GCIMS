@@ -116,13 +116,11 @@ methods::setMethod(
     .Object@data <- data
     .Object@peaks <- NULL
     .Object@peaks_debug_info <- list()
-    if (length(dots) == 0) {
-      return(.Object)
-    }
 
     for (arg in names(dots)) {
       methods::slot(.Object, arg) <- dots[[arg]]
     }
+    methods::validObject(.Object)
     .Object
   })
 

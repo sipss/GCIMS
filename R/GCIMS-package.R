@@ -1,3 +1,4 @@
+#' @importFrom BiocParallel bpmapply
 #' @importFrom glue glue
 #' @importFrom rlang .data
 #' @importFrom rlang .env

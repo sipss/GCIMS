@@ -21,6 +21,12 @@ setMethod(
            align_ip = TRUE,
            reference_sample_idx = NULL,
            ...) {
+    if (method_rt == "pow") {
+      require_pkgs(
+        "pow",
+        msgs = c("i" = "{.pkg pow} is not on CRAN/Bioconductor. Install it with {.code remotes::install_github('sipss/pow')} if you have access to that repository.")
+      )
+    }
     if (align_dt | align_ip){
       tis_matrix <- getTIS(object)
       ric_matrix <- getRIC(object)
@@ -59,7 +65,7 @@ setMethod(
       # Optimize ret time alignment parameters:
       if (is.null(reference_sample_idx)){
         if (method_rt == "pow"){
-          reference_sample_idx <- pow::select_reference(ric_matrix)
+          reference_sample_idx <- optional_pkg_fn("pow", "select_reference")(ric_matrix)
         } else {
           reference_sample_idx <- ptw::bestref(ric_matrix)$best.ref
         }
