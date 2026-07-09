@@ -92,8 +92,14 @@ setMethod(
 )
 
 .align_fun_extract <- function(x) {
+  dt_kcorr <- x@proc_params$align$dt_kcorr
+  if (is.null(dt_kcorr)) {
+    # prealign() (and therefore alignDt()) was skipped (align_dt = FALSE,
+    # align_ip = FALSE), so no drift-time correction was ever recorded.
+    dt_kcorr <- 1
+  }
   list(
-    dt_kcorr = x@proc_params$align$dt_kcorr,
+    dt_kcorr = dt_kcorr,
     w = x@proc_params$align$w
   )
 }
