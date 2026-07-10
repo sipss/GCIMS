@@ -403,7 +403,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       # Update pData accordingly
       self$pData$SampleID <- value
       # And the sample descriptions:
-      self$updateSampleDescriptions(value)
+      private$updateSampleDescriptions(value)
       self
     }
   ),
@@ -542,6 +542,7 @@ validate_pData <- function(pData) {
   if (length(sampleid_col) > 1) {
     errors <- c(errors, "pData should only have one SampleID column (don't use sampleid or other casing)")
   }
+  abort_if_errors(errors, title = "pData is not valid")
 
   # SampleID should be a character column. If it is integer we warn.
   sampleids <- pData[[sampleid_col]]
@@ -618,9 +619,9 @@ validate_pData_samples <- function(pData, samples) {
       errors <- c(
         errors,
         "Samples given as a list, but are missing in pData.",
-        "x" = "Samples for {length(missing_samples)} SampleIDs were not found",
+        "x" = glue::glue("Samples for {length(missing_samples)} SampleIDs were not found"),
         "i" = "Either remove them from pData or provide the samples",
-        "i" = "For instance: {head(sampleids[missing_samples])}"
+        "i" = glue::glue("For instance: {paste(head(pData[['SampleID']][missing_samples]), collapse = ', ')}")
       )
     }
   }
@@ -759,7 +760,7 @@ read_sample <- function(filename, base_dir, parser = "default") {
     } else {
       cli_abort(
         message = c(
-          "Support for reading {.path filename} not yet implemented",
+          "Support for reading {.path {filename}} not yet implemented",
           "i" = "Please use a custom {.code parser}.",
           "i" = "Checkout the vignette at {.url https://sipss.github.io/GCIMS/articles/importing-custom-data-formats.html}"
         )
