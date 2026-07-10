@@ -50,7 +50,7 @@ peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
   }
 
   peak_list_clustered <- peak_list_clustered |>
-    dplyr::filter(!is.na("cluster"))
+    dplyr::filter(!is.na(.data$cluster))
 
   peak_table_duplicity <- peak_list_clustered |>
     dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) |>
@@ -59,6 +59,18 @@ peakTable <- function(peak_list_clustered, aggregate_conflicting_peaks = NULL) {
       values_from = dplyr::all_of("Volume"),
       values_fn = length
     )
+
+  if (is.null(aggregate_conflicting_peaks)) {
+    duplicity_values <- as.matrix(peak_table_duplicity[, -1, drop = FALSE])
+    if (any(duplicity_values > 1L, na.rm = TRUE)) {
+      cli_abort(
+        c(
+          "Some samples have more than one peak assigned to the same cluster",
+          "i" = "Pass a function (e.g. {.code aggregate_conflicting_peaks = max}) to summarize them, or fix the clustering upstream."
+        )
+      )
+    }
+  }
 
   peak_table <- peak_list_clustered |>
     dplyr::select(dplyr::all_of(c("SampleID", "cluster", "Volume"))) |>
