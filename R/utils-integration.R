@@ -2,7 +2,7 @@ find_regions_rip_saturated <- function(aux, rip_saturation_threshold, verbose = 
   the_rip <- find_rip(aux, verbose = verbose, retention_time = retention_time, drift_time = drift_time)
   # Search saturation regions
   rip_region <- aux[the_rip$dt_idx_start:the_rip$dt_idx_end, , drop = FALSE]
-  rip_chrom <- rowSums(rip_region) / nrow(rip_region)
+  rip_chrom <- colSums(rip_region) / nrow(rip_region)
   rt_rip_saturated_indices <- which(rip_chrom <= rip_saturation_threshold * max(rip_chrom))
   if (length(rt_rip_saturated_indices) == 0L) {
     rt_saturated_regions <- matrix(nrow = 0L, ncol = 2L)
