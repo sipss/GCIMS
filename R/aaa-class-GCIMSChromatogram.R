@@ -73,7 +73,7 @@ GCIMSChromatogram <- function(
     drift_time_ms = NA_real_, description = "",
     baseline = NULL, peaks = NULL, peaks_debug_info = NULL) {
   methods::new("GCIMSChromatogram", retention_time, intensity, drift_time_idx,
-               drift_time_ms, description, baseline = NULL, peaks = NULL,
-               peaks_debug_info = NULL)
+               drift_time_ms, description, baseline = baseline, peaks = peaks,
+               peaks_debug_info = peaks_debug_info)
 }
 
