@@ -55,6 +55,23 @@ test_that("validate_pData requires a SampleID column and errors with a clear mes
   )
 })
 
+test_that("validate_pData rejects duplicated SampleID or FileName columns", {
+  expect_error(
+    validate_pData(data.frame(SampleID = 1, sampleid = 2)),
+    "only have one SampleID column"
+  )
+  expect_error(
+    validate_pData(data.frame(SampleID = "a", FileName = "x", filename = "y")),
+    "only have one FileName column"
+  )
+})
+
+test_that("validate_pData coerces a factor SampleID to character", {
+  pd <- validate_pData(data.frame(SampleID = factor(c("a", "b"))))
+  expect_type(as.character(pd$SampleID), "character")
+  expect_equal(as.character(pd$SampleID), c("a", "b"))
+})
+
 test_that("validate_pData normalizes SampleID/FileName columns and coerces integer IDs", {
   pd <- validate_pData(data.frame(SampleID = c("s1", "s2"), Extra = "x"))
   expect_equal(colnames(pd)[1:2], c("SampleID", "FileName"))
@@ -87,10 +104,25 @@ test_that("validate_pData_samples errors with a readable message when samples ar
   )
 })
 
+test_that("validate_pData_samples informs when pData$FileName is ignored because samples are already given", {
+  s <- make_sample()
+  expect_message(
+    validate_pData_samples(data.frame(SampleID = "a", FileName = "foo.mea"), list(a = s)),
+    "FileName will be ignored"
+  )
+})
+
 test_that("check_files errors listing missing files", {
   expect_error(
     check_files("does_not_exist.mea", tempdir()),
     "does_not_exist.mea"
+  )
+})
+
+test_that("check_files truncates the listing and mentions the remaining count when there are more than 10 missing files", {
+  expect_error(
+    check_files(paste0("f", 1:11, ".mea"), tempdir()),
+    "and 6 more"
   )
 })
 
@@ -113,8 +145,20 @@ test_that("validate_base_dir requires an existing directory and normalizes the p
   expect_error(validate_base_dir("/does/not/exist/xyz123"), "does not exist")
 })
 
+test_that("validate_base_dir reports non-string input as an error, not a low-level crash", {
+  expect_error(validate_base_dir(NA_character_), "base_dir should be a string")
+})
+
 test_that("validate_scratch_dir creates a temporary directory when NULL", {
   out <- validate_scratch_dir(NULL)
+  expect_true(dir.exists(out))
+})
+
+test_that("validate_scratch_dir informs the user when a temporary directory is created for NA", {
+  expect_message(
+    out <- validate_scratch_dir(NA),
+    "temporary directory"
+  )
   expect_true(dir.exists(out))
 })
 
@@ -138,6 +182,24 @@ test_that("optimize_RIC_TIS is a no-op when neither extraction operation is queu
   expect_identical(purrr::map_chr(out, name), c("smooth", "detectPeaks"))
 })
 
+test_that("optimize_RIC_TIS moves just extract_dtime_rtime to the end when extract_RIC_and_TIS is absent", {
+  op1 <- DelayedOperation(name = "smooth", fun = function(x) x)
+  op2 <- DelayedOperation(name = "extract_dtime_rtime", fun_extract = function(x) x)
+
+  out <- optimize_RIC_TIS(list(op1, op2))
+
+  expect_equal(purrr::map_chr(out, name), c("smooth", "extract_dtime_rtime"))
+})
+
+test_that("optimize_RIC_TIS moves just extract_RIC_and_TIS to the end when extract_dtime_rtime is absent", {
+  op1 <- DelayedOperation(name = "smooth", fun = function(x) x)
+  op4 <- DelayedOperation(name = "extract_RIC_and_TIS", fun_extract = function(x) x)
+
+  out <- optimize_RIC_TIS(list(op1, op4))
+
+  expect_equal(purrr::map_chr(out, name), c("smooth", "extract_RIC_and_TIS"))
+})
+
 test_that("read_sample dispatches .mea/.mea.gz to read_mea and reads a real sample", {
   sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
 
@@ -157,4 +219,40 @@ test_that("read_sample dispatches to a custom parser function when given one", {
   out <- read_sample("whatever.xyz", base_dir = tempdir(), parser = function(filename) list(custom = filename))
 
   expect_named(out, "custom")
+})
+
+test_that("read_sample dispatches .rds files to readRDS()", {
+  s <- make_sample()
+  f <- tempfile(fileext = ".rds")
+  on.exit(unlink(f))
+  saveRDS(s, f)
+
+  out <- read_sample(basename(f), base_dir = dirname(f))
+
+  expect_s4_class(out, "GCIMSSample")
+})
+
+test_that("copy() aborts when scratch_dir is the same as the current one, for an on-disk dataset", {
+  sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
+  pData <- data.frame(SampleID = "s1", FileName = basename(sample_file))
+  scratch <- tempfile("gcims_scratch_")
+  dir.create(scratch)
+  ds <- GCIMSDataset$new(pData = pData, base_dir = dirname(sample_file), on_ram = FALSE, scratch_dir = scratch)
+
+  expect_error(ds$copy(scratch_dir = scratch), "should have been different")
+  expect_error(ds$updateScratchDir(scratch), "should have been different")
+})
+
+test_that("print() on a GCIMSDataset mentions the on-disk path once samples have been realized", {
+  sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
+  pData <- data.frame(SampleID = "s1", FileName = basename(sample_file))
+  scratch <- tempfile("gcims_scratch_")
+  dir.create(scratch)
+  ds <- GCIMSDataset$new(pData = pData, base_dir = dirname(sample_file), on_ram = FALSE, scratch_dir = scratch)
+
+  expect_match(paste(utils::capture.output(print(ds)), collapse = "\n"), "not loaded yet")
+
+  ds$getSample(1)
+
+  expect_match(paste(utils::capture.output(print(ds)), collapse = "\n"), "Stored on disk \\(at ")
 })
