@@ -164,3 +164,87 @@ test_that("realize() keeps the previous directory when keep_intermediate = TRUE"
 
   expect_true(dir.exists(dir_before))
 })
+
+test_that("getSample() errors with a clear message when the sample file is missing", {
+  ds <- make_disk_dataset(n = 1)
+  unlink(file.path(ds$getCurrentDir(), "sample_a.rds"))
+
+  expect_error(ds$getSample("a", dataset = list()), "File not found")
+})
+
+test_that("checkSampleFiles() returns character(0) when nothing has been realized yet", {
+  sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
+  ds <- DelayedDatasetDisk$new(
+    samples = c(s1 = sample_file),
+    scratch_dir = new_scratch_dir(),
+    sample_class = "GCIMSSample"
+  )
+
+  expect_null(ds$getCurrentDir())
+  expect_equal(ds$checkSampleFiles(), character(0))
+})
+
+test_that("updateScratchDir() is a no-op when the new scratch dir equals the current one", {
+  ds <- make_disk_dataset(n = 1)
+  same_dir <- ds$scratchDir
+
+  expect_null(ds$updateScratchDir(same_dir, dataset = list()))
+  expect_equal(ds$scratchDir, same_dir)
+})
+
+test_that("updateScratchDir() just switches the scratch dir when nothing has been saved yet", {
+  sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
+  ds <- DelayedDatasetDisk$new(
+    samples = c(s1 = sample_file),
+    scratch_dir = new_scratch_dir(),
+    sample_class = "GCIMSSample"
+  )
+  new_dir <- new_scratch_dir()
+
+  ds$updateScratchDir(new_dir, dataset = list())
+
+  expect_equal(ds$scratchDir, new_dir)
+  expect_null(ds$getCurrentDir())
+})
+
+test_that("updateScratchDir(override_current_dir=) copies sample files from the overridden location", {
+  # Regression test: override_current_dir used to be reduced to basename(),
+  # so dir.exists(old_current_dir) was checked against a relative path and
+  # (almost) always FALSE, silently skipping the file copy. This is the code
+  # path used by GCIMSDataset$new_from_saved_dir() to reload a dataset whose
+  # directory has moved.
+  ds <- make_disk_dataset(n = 1)
+  old_dir <- ds$getCurrentDir()
+  new_dir <- new_scratch_dir()
+
+  ds$updateScratchDir(new_dir, dataset = list(), override_current_dir = old_dir)
+
+  expect_equal(ds$scratchDir, new_dir)
+  expect_true(file.exists(file.path(ds$getCurrentDir(), "sample_a.rds")))
+  s <- ds$getSample("a", dataset = list())
+  expect_true(all(intensity(s) == 1))
+})
+
+test_that("the sampleNames setter is a no-op when nothing has been realized yet", {
+  sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
+  ds <- DelayedDatasetDisk$new(
+    samples = c(s1 = sample_file),
+    scratch_dir = new_scratch_dir(),
+    sample_class = "GCIMSSample"
+  )
+
+  expect_null(ds$getCurrentDir())
+  expect_no_error(ds$sampleNames <- c("renamed"))
+})
+
+test_that("realize() aborts with a clear message when the first queued operation is not read_sample", {
+  sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
+  ds <- DelayedDatasetDisk$new(
+    samples = c(s1 = sample_file),
+    scratch_dir = new_scratch_dir(),
+    sample_class = "GCIMSSample"
+  )
+  ds$appendDelayedOp(DelayedOperation(name = "not_read_sample", fun = function(x) x))
+
+  expect_error(ds$realize(dataset = list()), "should have been named")
+})
