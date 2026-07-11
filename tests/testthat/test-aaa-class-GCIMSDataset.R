@@ -96,6 +96,20 @@ test_that("subset(inplace = TRUE) modifies the dataset itself", {
   expect_equal(ds$sampleNames, "a")
 })
 
+test_that("subset() accepts a numeric vector of indices with more than one element", {
+  # Regression test: sample_name_or_number_to_both() used to hard-error on
+  # any numeric index vector of length > 1 (an `||` vs `|` bug), so this is
+  # a common, previously-broken usage pattern.
+  s1 <- GCIMSSample(1:2, 1:2, matrix(1, nrow = 2, ncol = 2))
+  s2 <- GCIMSSample(1:2, 1:2, matrix(2, nrow = 2, ncol = 2))
+  s3 <- GCIMSSample(1:2, 1:2, matrix(3, nrow = 2, ncol = 2))
+  ds <- GCIMSDataset$new_from_list(samples = list(a = s1, b = s2, c = s3), on_ram = TRUE, scratch_dir = NULL)
+
+  ds$subset(c(1, 3), inplace = TRUE)
+
+  expect_equal(ds$sampleNames, c("a", "c"))
+})
+
 test_that("subset() also filters the peaks slot down to the remaining samples", {
   ds <- make_ram_dataset()
   ds$peaks <- data.frame(SampleID = c("a", "a", "b"), PeakID = c("1", "2", "1"))
