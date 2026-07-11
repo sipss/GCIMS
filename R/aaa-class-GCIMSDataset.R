@@ -398,6 +398,25 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       if (anyNA(value) || anyDuplicated(value)) {
         cli_abort("Sample names must be unique and not missing")
       }
+      if (self$hasDelayedOps() && !private$delayed_dataset$dropSolePendingOp("setSampleNamesAsDescription")) {
+        # The delayed operation queued below (setSampleNamesAsDescription) is
+        # matched against each sample's current name when it actually runs
+        # during realize(). If other operations -- including the one queued
+        # at construction time -- are still pending, that name may no longer
+        # match what they expect by the time they run. Requiring a realize()
+        # first keeps sample identity unambiguous.
+        #
+        # The one exception: if the *only* thing pending is an earlier,
+        # not-yet-realized rename, it is safe to just replace it -- nothing
+        # else is queued that could have observed it in between, so no
+        # operation order is being violated.
+        cli_abort(
+          c(
+            "Can't rename samples while there are pending operations",
+            "i" = "Call {.code dataset$realize()} first, then rename the samples"
+          )
+        )
+      }
       # Rename the delayed_dataset
       private$delayed_dataset$sampleNames <- value
       # Update pData accordingly

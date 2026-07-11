@@ -26,6 +26,7 @@ test_that("GCIMSDataset construction from files errors clearly when a file is mi
 
 test_that("dataset$sampleNames<- renames samples, updates pData, and validates its input", {
   ds <- make_ram_dataset()
+  ds$realize() # sampleNames<- requires no pending operations
 
   ds$sampleNames <- c("x", "y")
 

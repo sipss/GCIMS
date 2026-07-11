@@ -87,6 +87,22 @@ DelayedDatasetBase <- R6::R6Class(
       length(private$delayed_ops) > 0
     },
     #' @description
+    #' If the *only* pending operation is the one named `name`, discard it.
+    #' This is narrowly scoped on purpose: it is only safe to replace a
+    #' pending operation with a newer, equivalent one when nothing else is
+    #' queued alongside it (otherwise the operation could be re-run out of
+    #' the order it was originally queued in, relative to whatever else is
+    #' pending).
+    #' @param name The operation name to drop, if it is the sole pending one
+    #' @return `TRUE` if the operation was dropped, `FALSE` otherwise
+    dropSolePendingOp = function(name) {
+      if (length(private$delayed_ops) == 1 && identical(private$delayed_ops[[1]]@name, name)) {
+        private$delayed_ops <- list()
+        return(invisible(TRUE))
+      }
+      invisible(FALSE)
+    },
+    #' @description
     #' Get a sample from the dataset
     #'
     #' @param sample Either an integer (sample index) or a string (sample name)
