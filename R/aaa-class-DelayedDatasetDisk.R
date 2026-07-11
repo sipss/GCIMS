@@ -118,7 +118,7 @@ DelayedDatasetDisk <- R6::R6Class(
       if (!is.null(override_current_dir)) {
         old_scratch_dir <- dirname(override_current_dir)
         real_old_scratch_dir <- private$scratch_dir
-        old_current_dir <- basename(override_current_dir)
+        old_current_dir <- override_current_dir
       } else {
         old_scratch_dir <- private$scratch_dir
         real_old_scratch_dir <- private$scratch_dir
