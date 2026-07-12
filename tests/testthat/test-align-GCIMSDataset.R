@@ -60,6 +60,14 @@ test_that("align() honors an explicit reference_sample_idx", {
 })
 
 test_that("align() with align_dt = FALSE, align_ip = FALSE skips prealign without crashing", {
+  # Registering SerialParam (instead of the default forking MulticoreParam)
+  # runs the per-sample delayed operation in this same process, so covr can
+  # instrument .align_fun_extract()'s dt_kcorr fallback below -- it would
+  # otherwise run invisibly inside a forked worker.
+  old_bpparam <- BiocParallel::bpparam()
+  BiocParallel::register(BiocParallel::SerialParam())
+  on.exit(BiocParallel::register(old_bpparam))
+
   ds <- make_dataset()
   dt_before <- dtime(ds$getSample(1))
 
@@ -67,6 +75,9 @@ test_that("align() with align_dt = FALSE, align_ip = FALSE skips prealign withou
   ds$realize()
 
   expect_identical(dtime(ds$getSample(1)), dt_before)
+  # .align_fun_extract() falls back to dt_kcorr = 1 when prealign() (and
+  # therefore alignDt()) never ran, since no drift-time correction was
+  # ever recorded on the sample:
   expect_true(all(ds$align$dt_kcorr == 1))
 })
 
@@ -79,4 +90,27 @@ test_that("align(method_rt = 'pow') on a GCIMSDataset fails fast with a clear me
     align(ds, method_rt = "pow"),
     "pow.*is not on CRAN/Bioconductor"
   )
+})
+
+test_that("alignPlots() returns rt/dt correction plots and a dt_kcorr plot with the expected data", {
+  ds <- make_dataset()
+  align(ds, method_rt = "ptw", align_dt = TRUE, align_ip = TRUE)
+  ds$realize()
+
+  plots <- alignPlots(ds)
+
+  expect_named(plots, c("rt_diff_plot", "dt_diff_plot", "dt_kcorr_plot"))
+  for (p in plots) expect_s3_class(p, "ggplot")
+
+  expect_equal(plots$rt_diff_plot$labels$x, "Retention time (s)")
+  expect_equal(plots$rt_diff_plot$labels$y, "Ret. time correction (s)")
+  expect_setequal(unique(as.character(plots$rt_diff_plot$data$SampleID)), ds$sampleNames)
+
+  expect_equal(plots$dt_diff_plot$labels$x, "Drift time (ms)")
+  expect_equal(plots$dt_diff_plot$labels$y, "Drift time correction (ms)")
+  expect_setequal(unique(as.character(plots$dt_diff_plot$data$SampleID)), ds$sampleNames)
+
+  expect_equal(plots$dt_kcorr_plot$labels$x, "SampleID")
+  expect_equal(as.character(plots$dt_kcorr_plot$data$x), ds$sampleNames)
+  expect_equal(plots$dt_kcorr_plot$data$y, unname(ds$align$dt_kcorr))
 })

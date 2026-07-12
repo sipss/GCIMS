@@ -27,6 +27,14 @@ test_that("DelayedDatasetDisk dumps a list of samples to disk on construction", 
 })
 
 test_that("GCIMSDataset(on_ram = FALSE) constructs a disk-backed dataset from files", {
+  # Registering SerialParam (instead of the default forking MulticoreParam)
+  # runs realize_one_sample_disk() in this same process, so covr can
+  # instrument its is_first_step branch below -- it would otherwise run
+  # invisibly inside a forked worker.
+  old_bpparam <- BiocParallel::bpparam()
+  BiocParallel::register(BiocParallel::SerialParam())
+  on.exit(BiocParallel::register(old_bpparam))
+
   sample_file <- system.file("extdata", "sample_formats", "small.mea.gz", package = "GCIMS")
   pData <- data.frame(SampleID = "s1", FileName = basename(sample_file))
   scratch <- new_scratch_dir()
@@ -136,6 +144,12 @@ test_that("subset() refuses to run with pending operations", {
 })
 
 test_that("realize() runs the queued operation, moves samples to a new directory, and cleans up the old one when keep_intermediate = FALSE", {
+  # Same SerialParam rationale as above: makes realize_one_sample_disk()'s
+  # existing-file branch and its saveRDS/file.copy decision visible to covr.
+  old_bpparam <- BiocParallel::bpparam()
+  BiocParallel::register(BiocParallel::SerialParam())
+  on.exit(BiocParallel::register(old_bpparam))
+
   ds <- make_disk_dataset(n = 1, keep_intermediate = FALSE)
   dir_before <- ds$getCurrentDir()
   ds$appendDelayedOp(DelayedOperation(
@@ -247,4 +261,90 @@ test_that("realize() aborts with a clear message when the first queued operation
   ds$appendDelayedOp(DelayedOperation(name = "not_read_sample", fun = function(x) x))
 
   expect_error(ds$realize(dataset = list()), "should have been named")
+})
+
+test_that("realize_one_sample_disk() copies the file as-is when nothing modifies the sample", {
+  # This is only reachable when current_filename != next_filename (so a copy
+  # is needed) while no queued op modifies the sample -- a combination that
+  # can't arise through the public API, since nextHashedDir()'s hash chain
+  # only advances (making next_filename differ from current_filename) when
+  # there IS a modifying op, which would also make needs_re_saving TRUE.
+  # Tested directly as a unit test of this internal function instead.
+  d1 <- new_scratch_dir()
+  d2 <- new_scratch_dir()
+  f1 <- file.path(d1, "sample_a.rds")
+  f2 <- file.path(d2, "sample_a.rds")
+  saveRDS(GCIMSSample(1:2, 1:2, matrix(1, 2, 2)), f1)
+  op <- DelayedOperation(name = "extract-only", fun = NULL, fun_extract = function(x) 1)
+
+  out <- realize_one_sample_disk(
+    sample_name = "a", current_filename = f1, next_filename = f2,
+    delayed_ops = list(op), is_first_step = FALSE, sample_class = "GCIMSSample"
+  )
+
+  expect_true(file.exists(f2))
+  expect_equal(out, list(1))
+})
+
+test_that("realize_one_sample_disk() errors clearly when the file.copy destination is unwritable", {
+  d1 <- new_scratch_dir()
+  f1 <- file.path(d1, "sample_a.rds")
+  saveRDS(GCIMSSample(1:2, 1:2, matrix(1, 2, 2)), f1)
+  f2_bad <- file.path(tempfile("nonexistent_dir_"), "sample_a.rds")
+  op <- DelayedOperation(name = "extract-only", fun = NULL, fun_extract = function(x) 1)
+
+  expect_error(
+    suppressWarnings(realize_one_sample_disk(
+      sample_name = "a", current_filename = f1, next_filename = f2_bad,
+      delayed_ops = list(op), is_first_step = FALSE, sample_class = "GCIMSSample"
+    )),
+    "Could not copy"
+  )
+})
+
+test_that("realize_one_sample_disk() errors clearly when the current sample file is missing", {
+  op <- DelayedOperation(name = "noop", fun = function(x) x)
+
+  expect_error(
+    realize_one_sample_disk(
+      sample_name = "a", current_filename = "/does/not/exist.rds", next_filename = "/tmp/out.rds",
+      delayed_ops = list(op), is_first_step = FALSE, sample_class = "GCIMSSample"
+    ),
+    "should exist"
+  )
+})
+
+test_that("updateScratchDir() errors clearly and restores the old scratch dir when file.copy fails", {
+  testthat::local_mocked_bindings(file.copy = function(...) FALSE, .package = "base")
+  ds <- make_disk_dataset(n = 1)
+  old_scratch <- ds$scratchDir
+
+  expect_error(ds$updateScratchDir(new_scratch_dir(), dataset = list()), "File copy failed")
+  expect_equal(ds$scratchDir, old_scratch)
+})
+
+test_that("subset() warns but continues when a sample file can't be deleted", {
+  testthat::local_mocked_bindings(unlink = function(...) 1L, .package = "base")
+  ds <- make_disk_dataset(n = 2)
+
+  expect_warning(ds$subset("a"), "Could not delete")
+  expect_equal(ds$sampleNames, "a")
+})
+
+test_that("rename_samples_and_files() is a no-op if the current directory has vanished", {
+  ds <- make_disk_dataset(n = 1)
+  unlink(ds$getCurrentDir(), recursive = TRUE)
+
+  ds$.__enclos_env__$private$rename_samples_and_files("b")
+
+  expect_equal(names(ds$.__enclos_env__$private$samples), "a")
+})
+
+test_that("nextHashedDir() equals currentHashedDir() when there are no pending operations", {
+  ds <- make_disk_dataset(n = 1)
+
+  expect_identical(
+    ds$.__enclos_env__$private$nextHashedDir(),
+    ds$.__enclos_env__$private$currentHashedDir()
+  )
 })

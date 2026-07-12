@@ -91,3 +91,46 @@ test_that("DelayedDatasetRAM$sampleNames setter renames samples and rejects dupl
     "unique and not missing"
   )
 })
+
+test_that("DelayedDatasetRAM requires a named samples list", {
+  expect_error(
+    DelayedDatasetRAM$new(samples = list(1, 2)),
+    "named list"
+  )
+})
+
+test_that("DelayedDatasetRAM$sampleNames setter rejects a length mismatch", {
+  ds <- DelayedDatasetRAM$new(samples = list(a = 1, b = 2))
+
+  expect_error(
+    {
+      ds$sampleNames <- c("x", "y", "z")
+    },
+    "not of length"
+  )
+})
+
+test_that("DelayedDatasetRAM$realize aborts with a clear message when an action returns the wrong class", {
+  # Registering SerialParam runs realize_one_sample_ram() in this same
+  # process, so covr can instrument its wrong-class-returned abort below --
+  # it would otherwise run invisibly inside a forked worker.
+  old_bpparam <- BiocParallel::bpparam()
+  BiocParallel::register(BiocParallel::SerialParam())
+  on.exit(BiocParallel::register(old_bpparam))
+
+  ds <- DelayedDatasetRAM$new(samples = list(a = 1), sample_class = "numeric")
+  ds$appendDelayedOp(DelayedOperation(name = "to_character", fun = function(x) as.character(x)))
+
+  expect_error(ds$realize(dataset = list()), "Invalid action")
+})
+
+test_that("realize() aborts with a clear message if called reentrantly", {
+  # can_realize is only FALSE transiently while realize_impl() runs (guarded
+  # by an on.exit() restore), so this defensive re-entrancy check can't be
+  # triggered through normal usage. Forced directly via R6 private access.
+  ds <- DelayedDatasetRAM$new(samples = list(a = 1))
+  ds$appendDelayedOp(DelayedOperation(name = "op", fun = function(x) x))
+  ds$.__enclos_env__$private$can_realize <- FALSE
+
+  expect_error(ds$realize(dataset = list()), "could not be realized")
+})
