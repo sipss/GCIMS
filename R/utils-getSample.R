@@ -1,7 +1,7 @@
 sample_name_or_number_to_both <- function(sample, sample_names) {
   if (is.numeric(sample)) {
     sample_num <- sample
-    if (any(sample_num < 0 || sample_num > length(sample_names))) {
+    if (any(sample_num < 0 | sample_num > length(sample_names))) {
       cli_abort("All samples should be between 1 and {length(sample_names)}")
     }
     sample_id <- sample_names[sample_num]
