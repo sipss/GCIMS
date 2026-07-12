@@ -4,6 +4,7 @@
 
 [![Build Status](https://github.com/sipss/GCIMS/actions/workflows/check-bioc.yml/badge.svg?branch=master)](https://github.com/sipss/GCIMS/actions/)
 [![Documentation](https://img.shields.io/badge/documentation-pkgdown-informational)](https://sipss.github.io/GCIMS/)
+[![codecov.io](https://codecov.io/github/sipss/GCIMS/coverage.svg?branch=master)](https://codecov.io/github/sipss/GCIMS)
 
 <!-- badges: end -->
 
