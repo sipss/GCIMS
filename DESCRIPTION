@@ -112,7 +112,7 @@ Suggests:
     png,
     pracma,
     rmarkdown,
-    scales,
+    scales (>= 1.4.0),
     testthat (>= 3.0.0),
     viridisLite
 biocViews: Software, Preprocessing, Visualization, Classification,

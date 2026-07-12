@@ -69,7 +69,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
     } else {
       cli_abort("unknown trans value")
     }
-  } else if (!inherits(trans, "trans")) {
+  } else if (!inherits(trans, "transform")) {
     cli_abort("unknown trans value")
   }
   intmat_trans <- trans$transform(intmat)
