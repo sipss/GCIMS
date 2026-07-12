@@ -183,3 +183,79 @@ test_that("align aborts instead of silently returning an empty/all-NA sample", {
     "missing values"
   )
 })
+
+test_that("align aborts when the data is already entirely missing before subsetting", {
+  s <- GCIMSSample(drift_time = 1:2, retention_time = 1:10, data = matrix(NA_real_, nrow = 2, ncol = 10))
+
+  expect_error(
+    align(s, method_rt = "none", ric_ref = rep(1, 10), ric_ref_rt = 1:10),
+    "After aligning retention time"
+  )
+})
+
+test_that("alignDt truncates dt_max_ms when the correction shrinks the high end of the drift time axis", {
+  dt <- seq(1, 10, by = 0.5)
+  rt <- 1:20
+  rip_idx <- 10 # dt[10] == 5.5
+  s <- make_rip_sample(dt, rt, rip_idx)
+
+  # rip_ref_ms < dt[rip_idx] gives Kcorr < 1, so dt_corr shrinks below dt_end:
+  aligned <- alignDt(s, rip_ref_ms = 3)
+
+  expect_lt(aligned@proc_params$align$dt_kcorr, 1)
+  expect_lt(aligned@proc_params$align$dt_max_ms, max(dt))
+})
+
+test_that("prealign aborts when drift-time alignment yields an all-NA sample", {
+  # alignDt() cannot naturally produce an all-NA sample through the public
+  # API (it interpolates with extrap = TRUE), so this defensive check is
+  # forced by mocking alignDt() directly.
+  testthat::local_mocked_bindings(
+    alignDt = function(object, rip_ref_ms) {
+      object@data[] <- NA_real_
+      object@proc_params$align <- list(
+        dt_kcorr = 1, dt_min_ms = min(dtime(object)), dt_max_ms = max(dtime(object))
+      )
+      object
+    },
+    .package = "GCIMS"
+  )
+  s <- make_rip_sample(1:2, 1:10, rip_idx = 1)
+
+  expect_error(
+    prealign(s, align_dt = TRUE, align_ip = FALSE, rip_ref_ms = 1, min_start = 1, rt_ref = 1:5),
+    "After aligning drift times"
+  )
+})
+
+test_that("prealign aborts when the post-alignment subset leaves no data", {
+  # None of prealign()'s own dt_range/rt_range computations can naturally
+  # produce an empty/all-NA subset through the public API, so this
+  # defensive check is forced by mocking subset.GCIMSSample() directly.
+  testthat::local_mocked_bindings(
+    subset.GCIMSSample = function(x, ...) {
+      x@data[] <- NA_real_
+      x
+    },
+    .package = "GCIMS"
+  )
+  s <- make_rip_sample(1:2, 1:10, rip_idx = 1)
+
+  expect_error(
+    prealign(s, align_dt = FALSE, align_ip = FALSE, rip_ref_ms = 1, min_start = 1, rt_ref = 1:5),
+    "After aligning and subsetting"
+  )
+})
+
+test_that("alignRt_ptw truncates rt_max_s when the correction shrinks the high end of the retention time axis", {
+  dt <- 1:2
+  rt <- 1:60
+
+  ref_sample <- make_bump_sample(dt, rt, center = 30)
+  ric_ref <- getRIC(ref_sample)
+  shifted_sample <- make_bump_sample(dt, rt, center = 45)
+
+  aligned <- alignRt_ptw(shifted_sample, ric_ref = ric_ref, ric_ref_rt = rt)
+
+  expect_lt(aligned@proc_params$align$rt_max_s, max(rt))
+})

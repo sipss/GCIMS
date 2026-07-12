@@ -176,7 +176,7 @@ read_mea <- function(filename) {
   } else if (params[["Chunk trigger repetition"]][["unit"]] == "s") {
     retention_time_step_s <- params[["Chunk trigger repetition"]][["value"]]
   } else {
-    stop(sprintf("Expected Chunk trigger repetition to be in ms, found %s instead. Please open an issue to implement this", params[["Chunk sample rate"]][["unit"]]))
+    stop(sprintf("Expected Chunk trigger repetition to be in ms, found %s instead. Please open an issue to implement this", params[["Chunk trigger repetition"]][["unit"]]))
   }
   ret_time_step <- (params[['Chunk averages']] + 1)*retention_time_step_s
   ret_time <- seq(from = 0.0, by = ret_time_step, length.out = params[["Chunks count"]])
