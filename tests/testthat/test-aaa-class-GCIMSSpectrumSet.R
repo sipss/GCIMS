@@ -62,3 +62,15 @@ test_that("GCIMSSpectrumSet rejects pData whose SampleID doesn't match the spect
   pd_no_sampleid <- data.frame(Group = c("A", "B"))
   expect_error(GCIMSSpectrumSet(spectra = spectra, pData = pd_no_sampleid), "SampleID column")
 })
+
+test_that("sampleNames() follows pData's row order, even when it differs from the spectra list order", {
+  spectra <- list(s1 = make_spec("s1"), s2 = make_spec("s2"))
+  pd_reversed <- data.frame(SampleID = c("s2", "s1"), Group = c("B", "A"))
+
+  ss <- GCIMSSpectrumSet(spectra = spectra, pData = pd_reversed)
+
+  expect_equal(sampleNames(ss), c("s2", "s1"))
+  # [[ is unaffected by pData order, it always looks up by name:
+  expect_identical(ss[["s1"]], spectra$s1)
+  expect_identical(ss[["s2"]], spectra$s2)
+})

@@ -60,6 +60,20 @@ test_that("plot(GCIMSChromatogramSet) colors by SampleID by default and combines
   expect_equal(range(p$data$retention_time_s[p$data$SampleID == "s2"]), c(1, 19))
 })
 
+test_that("plot(GCIMSChromatogramSet) attributes each line to the right sample even when pData's row order differs from the chromatograms list order", {
+  chroms <- list(
+    s1 = GCIMSChromatogram(retention_time = 1:3, intensity = c(100, 100, 100)),
+    s2 = GCIMSChromatogram(retention_time = 1:3, intensity = c(1, 1, 1))
+  )
+  pd_reversed <- data.frame(SampleID = c("s2", "s1"), Group = c("B", "A"))
+  cs <- GCIMSChromatogramSet(chromatograms = chroms, pData = pd_reversed)
+
+  p <- plot(cs)
+
+  expect_equal(unique(p$data$intensity[p$data$SampleID == "s1"]), 100)
+  expect_equal(unique(p$data$intensity[p$data$SampleID == "s2"]), 1)
+})
+
 test_that("plot(GCIMSChromatogramSet, color_by=) colors by an arbitrary pData column", {
   ds <- make_dataset_mismatched_axes()
   cs <- getChromatogram(ds)

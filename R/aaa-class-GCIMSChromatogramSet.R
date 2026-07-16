@@ -71,6 +71,14 @@ GCIMSChromatogramSet <- function(chromatograms = list(), pData = NULL) {
 #' @return A character vector with the sample names
 #' @export
 setMethod("sampleNames", "GCIMSChromatogramSet", function(object) {
+  # pData is the source of truth for sample identity/order when present
+  # (initialize() already checked it refers to the same samples as
+  # `chromatograms`), so plot() and other consumers that iterate
+  # sampleNames() and look up chromatograms by name stay correct
+  # regardless of the order `chromatograms` happens to be stored in.
+  if (!is.null(object@pData)) {
+    return(as.character(object@pData[["SampleID"]]))
+  }
   nms <- names(object@chromatograms)
   if (is.null(nms)) character(0) else nms
 })

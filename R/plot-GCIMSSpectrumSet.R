@@ -13,9 +13,10 @@ setMethod(
     if (length(sample_names) == 0) {
       cli_abort("Can't plot an empty GCIMSSpectrumSet")
     }
-    df <- dplyr::bind_rows(purrr::map2(
-      x@spectra, sample_names,
-      function(spec, sample_id) {
+    df <- dplyr::bind_rows(purrr::map(
+      sample_names,
+      function(sample_id) {
+        spec <- x[[sample_id]]
         data.frame(
           SampleID = sample_id,
           drift_time_ms = dtime(spec),

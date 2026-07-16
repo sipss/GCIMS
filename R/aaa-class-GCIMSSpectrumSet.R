@@ -71,6 +71,14 @@ GCIMSSpectrumSet <- function(spectra = list(), pData = NULL) {
 #' @return A character vector with the sample names
 #' @export
 setMethod("sampleNames", "GCIMSSpectrumSet", function(object) {
+  # pData is the source of truth for sample identity/order when present
+  # (initialize() already checked it refers to the same samples as
+  # `spectra`), so plot() and other consumers that iterate sampleNames()
+  # and look up spectra by name stay correct regardless of the order
+  # `spectra` happens to be stored in.
+  if (!is.null(object@pData)) {
+    return(as.character(object@pData[["SampleID"]]))
+  }
   nms <- names(object@spectra)
   if (is.null(nms)) character(0) else nms
 })

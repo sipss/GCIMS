@@ -13,9 +13,10 @@ setMethod(
     if (length(sample_names) == 0) {
       cli_abort("Can't plot an empty GCIMSChromatogramSet")
     }
-    df <- dplyr::bind_rows(purrr::map2(
-      x@chromatograms, sample_names,
-      function(chrom, sample_id) {
+    df <- dplyr::bind_rows(purrr::map(
+      sample_names,
+      function(sample_id) {
+        chrom <- x[[sample_id]]
         data.frame(
           SampleID = sample_id,
           retention_time_s = rtime(chrom),

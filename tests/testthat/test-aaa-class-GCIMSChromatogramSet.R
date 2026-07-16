@@ -62,3 +62,15 @@ test_that("GCIMSChromatogramSet rejects pData whose SampleID doesn't match the c
   pd_no_sampleid <- data.frame(Group = c("A", "B"))
   expect_error(GCIMSChromatogramSet(chromatograms = chroms, pData = pd_no_sampleid), "SampleID column")
 })
+
+test_that("sampleNames() follows pData's row order, even when it differs from the chromatograms list order", {
+  chroms <- list(s1 = make_chrom("s1"), s2 = make_chrom("s2"))
+  pd_reversed <- data.frame(SampleID = c("s2", "s1"), Group = c("B", "A"))
+
+  cs <- GCIMSChromatogramSet(chromatograms = chroms, pData = pd_reversed)
+
+  expect_equal(sampleNames(cs), c("s2", "s1"))
+  # [[ is unaffected by pData order, it always looks up by name:
+  expect_identical(cs[["s1"]], chroms$s1)
+  expect_identical(cs[["s2"]], chroms$s2)
+})
