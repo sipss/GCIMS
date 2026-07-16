@@ -15,11 +15,12 @@
 #' @param intensity_range Controls the shared color scale across all plotted
 #' samples. One of:
 #' - `"global"` (the default): each sample's full, uncropped intensity range,
-#'   cached on the dataset (computed once, alongside TIS/RIC, regardless of
-#'   `sample`/`dt_range`/`rt_range`). Free, and keeps the scale stable across
-#'   different calls with different `sample`/`dt_range`/`rt_range` selections.
-#'   Not valid together with `remove_baseline = TRUE`, since the cache holds
-#'   raw intensities.
+#'   regardless of `sample`/`dt_range`/`rt_range`, keeping the scale stable
+#'   across calls with different selections. With `remove_baseline = FALSE`,
+#'   this comes from a cache computed once, alongside TIS/RIC, so it's free.
+#'   With `remove_baseline = TRUE`, the cache (raw intensities) doesn't apply,
+#'   so each selected sample's full, uncropped, baseline-removed range is
+#'   computed instead (loading every selected sample's data an extra time).
 #' - `"ranged"`: the range of exactly what's plotted (respecting `dt_range`,
 #'   `rt_range` and `remove_baseline`). Requires loading every selected
 #'   sample's data twice (once to compute the range, once to plot).
@@ -67,16 +68,17 @@ setMethod(
       }
       ranged_range_cache
     }
+    global_range_cache <- NULL
     get_global_range <- function() {
-      if (isTRUE(remove_baseline)) {
-        cli_abort(
-          c(
-            "intensity_range can't use {.val global} together with {.code remove_baseline = TRUE}",
-            "i" = "The cached global range holds raw intensities. Use {.code intensity_range = \"ranged\"} instead"
-          )
-        )
+      if (is.null(global_range_cache)) {
+        global_range_cache <<- if (isTRUE(remove_baseline)) {
+          ranges <- purrr::map(samples, function(s) range(intensity(s) - baseline(s)))
+          range(unlist(ranges))
+        } else {
+          dataset_intensity_range(x)
+        }
       }
-      dataset_intensity_range(x)
+      global_range_cache
     }
 
     limits <- resolve_intensity_range(intensity_range, get_global_range, get_ranged_range)

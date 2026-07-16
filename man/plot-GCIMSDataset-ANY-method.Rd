@@ -38,11 +38,12 @@ baseline first}
 samples. One of:
 \itemize{
 \item \code{"global"} (the default): each sample's full, uncropped intensity range,
-cached on the dataset (computed once, alongside TIS/RIC, regardless of
-\code{sample}/\code{dt_range}/\code{rt_range}). Free, and keeps the scale stable across
-different calls with different \code{sample}/\code{dt_range}/\code{rt_range} selections.
-Not valid together with \code{remove_baseline = TRUE}, since the cache holds
-raw intensities.
+regardless of \code{sample}/\code{dt_range}/\code{rt_range}, keeping the scale stable
+across calls with different selections. With \code{remove_baseline = FALSE},
+this comes from a cache computed once, alongside TIS/RIC, so it's free.
+With \code{remove_baseline = TRUE}, the cache (raw intensities) doesn't apply,
+so each selected sample's full, uncropped, baseline-removed range is
+computed instead (loading every selected sample's data an extra time).
 \item \code{"ranged"}: the range of exactly what's plotted (respecting \code{dt_range},
 \code{rt_range} and \code{remove_baseline}). Requires loading every selected
 sample's data twice (once to compute the range, once to plot).

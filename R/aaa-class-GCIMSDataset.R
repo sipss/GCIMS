@@ -79,11 +79,11 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
     dt_ref = NULL, # numeric or NULL
     #' @field rt_ref A numeric retention time of reference
     rt_ref = NULL, # numeric or NULL
-    #' @field IntensityRange A matrix of n_samples x c(min, max) with each
+    #' @field intensity_range A matrix of n_samples x c(min, max) with each
     #' sample's raw intensity range, extracted alongside TIS/RIC. Internal
     #' only: no S4 generic exposes this, it only backs `plot(GCIMSDataset)`'s
     #' shared color scale across samples.
-    IntensityRange = NULL, # matrix or NULL
+    intensity_range = NULL, # matrix or NULL
     #' @field userData A list to store arbitrary data in the dataset
     userData = list(), # list
     # Methods:
@@ -226,7 +226,7 @@ GCIMSDataset <- R6::R6Class("GCIMSDataset",
       self$RIC <- NULL
       self$dt_ref <- NULL
       self$rt_ref <- NULL
-      self$IntensityRange <- NULL
+      self$intensity_range <- NULL
       private$delayed_dataset$subset(samples)
       self
     },

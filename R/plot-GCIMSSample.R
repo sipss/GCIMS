@@ -10,10 +10,10 @@
 #' @param intensity_range Controls the color scale limits. One of:
 #' - `"ranged"` (the default): the range of exactly what's plotted (respecting
 #'   `dt_range`, `rt_range` and `remove_baseline`).
-#' - `"global"`: this sample's own full, uncropped, raw intensity range,
-#'   regardless of `dt_range`/`rt_range` -- useful to see how strong a cropped
-#'   region is relative to the whole sample. Not valid together with
-#'   `remove_baseline = TRUE`.
+#' - `"global"`: this sample's own full, uncropped intensity range, regardless
+#'   of `dt_range`/`rt_range` -- useful to see how strong a cropped region is
+#'   relative to the whole sample. With `remove_baseline = TRUE`, this is the
+#'   full, uncropped, baseline-removed range.
 #' - A numeric vector of length 2, `c(min, max)`: fixed limits. Set this
 #'   explicitly to make several plots comparable on the same color scale.
 #' - A length-2 vector/list whose elements are independently a number,
@@ -46,14 +46,10 @@ setMethod(
 
   get_global_range <- function() {
     if (isTRUE(remove_baseline)) {
-      cli_abort(
-        c(
-          "intensity_range can't use {.val global} together with {.code remove_baseline = TRUE}",
-          "i" = "The full-sample range is raw intensity. Use {.code intensity_range = \"ranged\"} instead"
-        )
-      )
+      range(intensity(x) - baseline(x))
+    } else {
+      range(intensity(x))
     }
-    range(intensity(x))
   }
   get_ranged_range <- function() range(intmat)
 

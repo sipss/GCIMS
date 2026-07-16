@@ -110,14 +110,15 @@ test_that("plot(intensity_range = 'global') scales to the sample's full range, i
   expect_equal(p_global$scales$get_scales("fill")$get_limits(), tr$transform(c(1, 100)))
 })
 
-test_that("plot(intensity_range = 'global') errors clearly with remove_baseline = TRUE", {
-  s <- GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(1:25, nrow = 5))
-  s <- estimateBaseline(s, dt_peak_fwhm_ms = 1, dt_region_multiplier = 2, rt_length_s = 2)
+test_that("plot(intensity_range = 'global') computes the full, uncropped, baseline-removed range with remove_baseline = TRUE", {
+  s <- make_sample()
+  s <- estimateBaseline(s, dt_peak_fwhm_ms = 0.3, dt_region_multiplier = 6, rt_length_s = 10, remove = FALSE)
 
-  expect_error(
-    plot(s, remove_baseline = TRUE, intensity_range = "global"),
-    "global.*remove_baseline"
-  )
+  p <- plot(s, dt_range = c(0, 1), remove_baseline = TRUE, intensity_range = "global")
+
+  expected_range <- range(intensity(s) - baseline(s))
+  tr <- cubic_root_trans()
+  expect_equal(p$scales$get_scales("fill")$get_limits(), tr$transform(expected_range))
 })
 
 test_that("plot(intensity_range = list(min=, max=)) resolves each endpoint independently", {

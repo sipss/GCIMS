@@ -49,7 +49,7 @@ test_that("resolve_intensity_range() rejects invalid specs", {
   expect_error(resolve_intensity_range(list("nope", 1), global_range, ranged_range), "should be a number")
 })
 
-# --- IntensityRange caching ----------------------------------------------
+# --- intensity_range caching ----------------------------------------------
 
 make_range_dataset <- function() {
   s1 <- GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(1:25, nrow = 5))
@@ -57,7 +57,7 @@ make_range_dataset <- function() {
   GCIMSDataset$new_from_list(samples = list(s1 = s1, s2 = s2), on_ram = TRUE, scratch_dir = NULL)
 }
 
-test_that("realizing a dataset populates IntensityRange alongside TIS/RIC", {
+test_that("realizing a dataset populates intensity_range alongside TIS/RIC", {
   old_bpparam <- BiocParallel::bpparam()
   BiocParallel::register(BiocParallel::SerialParam())
   on.exit(BiocParallel::register(old_bpparam))
@@ -65,22 +65,22 @@ test_that("realizing a dataset populates IntensityRange alongside TIS/RIC", {
   ds <- make_range_dataset()
   ds$realize()
 
-  expect_equal(unname(ds$IntensityRange["s1", ]), c(1, 25))
-  expect_equal(unname(ds$IntensityRange["s2", ]), c(100, 124))
+  expect_equal(unname(ds$intensity_range["s1", ]), c(1, 25))
+  expect_equal(unname(ds$intensity_range["s2", ]), c(100, 124))
 })
 
-test_that("subsetting a dataset resets the cached IntensityRange", {
+test_that("subsetting a dataset resets the cached intensity_range", {
   old_bpparam <- BiocParallel::bpparam()
   BiocParallel::register(BiocParallel::SerialParam())
   on.exit(BiocParallel::register(old_bpparam))
 
   ds <- make_range_dataset()
   ds$realize()
-  expect_false(is.null(ds$IntensityRange))
+  expect_false(is.null(ds$intensity_range))
 
   ds$subset("s1", inplace = TRUE)
 
-  expect_null(ds$IntensityRange)
+  expect_null(ds$intensity_range)
 })
 
 # --- plot(GCIMSDataset) ----------------------------------------------------
@@ -100,13 +100,12 @@ test_that("plot(GCIMSDataset, sample =) restricts which samples are plotted", {
   expect_no_error(plot(ds, sample = 1))
 })
 
-test_that("plot(GCIMSDataset, intensity_range = 'global') errors clearly with remove_baseline = TRUE", {
+test_that("plot(GCIMSDataset, intensity_range = 'global') computes a baseline-removed range with remove_baseline = TRUE", {
   ds <- make_range_dataset()
+  ds <- estimateBaseline(ds, dt_peak_fwhm_ms = 1, dt_region_multiplier = 2, rt_length_s = 2)
+  ds$realize()
 
-  expect_error(
-    plot(ds, remove_baseline = TRUE),
-    "global.*remove_baseline"
-  )
+  expect_no_error(plot(ds, remove_baseline = TRUE))
 })
 
 test_that("plot(GCIMSDataset, intensity_range = 'ranged') works with remove_baseline = TRUE", {

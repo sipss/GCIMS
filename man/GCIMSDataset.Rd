@@ -96,7 +96,7 @@ dummy_dataset <- GCIMSDataset$new(
 
 \item{\code{rt_ref}}{A numeric retention time of reference}
 
-\item{\code{IntensityRange}}{A matrix of n_samples x c(min, max) with each
+\item{\code{intensity_range}}{A matrix of n_samples x c(min, max) with each
 sample's raw intensity range, extracted alongside TIS/RIC. Internal
 only: no S4 generic exposes this, it only backs \code{plot(GCIMSDataset)}'s
 shared color scale across samples.}

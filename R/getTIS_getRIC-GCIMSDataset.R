@@ -149,8 +149,8 @@ setMethod(
   }
   stopifnot(nrow(ds$TIS) == num_samples)
   stopifnot(nrow(ds$RIC) == num_samples)
-  ds$IntensityRange <- do.call(rbind, intensity_ranges)
-  colnames(ds$IntensityRange) <- c("min", "max")
+  ds$intensity_range <- do.call(rbind, intensity_ranges)
+  colnames(ds$intensity_range) <- c("min", "max")
   ds
 }
 
@@ -159,11 +159,11 @@ setMethod(
 #' @return A length-2 numeric vector `c(min, max)`
 #' @noRd
 dataset_intensity_range <- function(object) {
-  if (object$hasDelayedOps() || is.null(object$IntensityRange)) {
+  if (object$hasDelayedOps() || is.null(object$intensity_range)) {
     object$extract_RIC_and_TIS()
     object$realize()
   }
-  range(object$IntensityRange)
+  range(object$intensity_range)
 }
 
 #' Extract the Reverse Ion Chromatogram and Total Ion Spectrum from the samples
