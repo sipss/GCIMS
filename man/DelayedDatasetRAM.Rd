@@ -36,6 +36,7 @@ This class is not exported, but if you want to use it reach us at
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="appendDelayedOp"><a href='../../GCIMS/html/DelayedDatasetBase.html#method-DelayedDatasetBase-appendDelayedOp'><code>GCIMS::DelayedDatasetBase$appendDelayedOp()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="dropSolePendingOp"><a href='../../GCIMS/html/DelayedDatasetBase.html#method-DelayedDatasetBase-dropSolePendingOp'><code>GCIMS::DelayedDatasetBase$dropSolePendingOp()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="hasDelayedOps"><a href='../../GCIMS/html/DelayedDatasetBase.html#method-DelayedDatasetBase-hasDelayedOps'><code>GCIMS::DelayedDatasetBase$hasDelayedOps()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="history_as_list"><a href='../../GCIMS/html/DelayedDatasetBase.html#method-DelayedDatasetBase-history_as_list'><code>GCIMS::DelayedDatasetBase$history_as_list()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GCIMS" data-topic="DelayedDatasetBase" data-id="pending_as_list"><a href='../../GCIMS/html/DelayedDatasetBase.html#method-DelayedDatasetBase-pending_as_list'><code>GCIMS::DelayedDatasetBase$pending_as_list()</code></a></span></li>

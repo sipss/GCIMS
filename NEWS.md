@@ -1,5 +1,12 @@
 # GCIMS (development version)
 
+- `getChromatogram()` and `getSpectrum()` are now S4 generics with methods
+  for `GCIMSDataset`, in addition to the existing `GCIMSSample` method.
+  Calling them on a dataset returns a new `GCIMSChromatogramSet`/
+  `GCIMSSpectrumSet` object: one chromatogram/spectrum per sample (each kept
+  on its own native axis, no interpolation across samples), together with a
+  copy of `pData()`. Both new classes have a `plot()` method that can color
+  by `SampleID` or by any `pData()` column via `color_by`.
 - `GCIMSSample()` now validates the object right after construction, so
   passing an intensity matrix in the wrong orientation (drift time/retention
   time swapped) errors immediately with a clear message instead of

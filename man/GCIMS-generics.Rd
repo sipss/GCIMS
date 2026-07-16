@@ -3,6 +3,8 @@
 \name{GCIMS-generics}
 \alias{GCIMS-generics}
 \alias{dtime}
+\alias{getChromatogram}
+\alias{getSpectrum}
 \alias{getTIS}
 \alias{getRIC}
 \alias{plotTIS}
@@ -18,6 +20,10 @@
 \title{GCIMS Generics}
 \usage{
 dtime(object, ...)
+
+getChromatogram(object, ...)
+
+getSpectrum(object, ...)
 
 getTIS(object, ...)
 
@@ -53,6 +59,12 @@ integratePeaks(object, ...)
 \value{
 A numeric vector with the drift time
 
+A \link{GCIMSChromatogram} (one sample) or a \link{GCIMSChromatogramSet}
+(several samples, one chromatogram each, with a copy of \code{pData()})
+
+A \link{GCIMSSpectrum} (one sample) or a \link{GCIMSSpectrumSet}
+(several samples, one spectrum each, with a copy of \code{pData()})
+
 The Total Ion Spectrum as a numeric vector or a matrix
 (depending if the object is one sample or several)
 
@@ -86,6 +98,10 @@ to an existing generics-only package if you need so.
 \section{Functions}{
 \itemize{
 \item \code{dtime()}: Get drift time vector
+
+\item \code{getChromatogram()}: Get a chromatogram
+
+\item \code{getSpectrum()}: Get a spectrum
 
 \item \code{getTIS()}: Get the Total Ion Spectrum
 

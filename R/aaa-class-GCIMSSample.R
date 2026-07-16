@@ -307,7 +307,7 @@ subset.GCIMSSample <- function(
 #' getChromatogram(x)
 #' # Take the maximum intensity in the region for each retention time:
 #' sp1 <- getChromatogram(x, aggregate = function(x) apply(x, 2, max))
-getChromatogram <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = colSums) {
+setMethod("getChromatogram", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = colSums) {
   dt <- dtime(object)
   rt <- rtime(object)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
@@ -328,7 +328,7 @@ getChromatogram <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = N
     description = object@description,
     baseline = basel
   )
-}
+})
 
 #' Get IMS spectrum from a sample
 #'
@@ -348,7 +348,7 @@ getChromatogram <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = N
 #'
 #' # Take the maximum intensity in the region for each drift time:
 #' sp1 <- getSpectrum(x, aggregate = function(x) apply(x, 1, max))
-getSpectrum <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = rowSums) {
+setMethod("getSpectrum", "GCIMSSample", function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL, rt_idx = NULL, aggregate = rowSums) {
   dt <- dtime(object)
   rt <- rtime(object)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range, dt_idx, rt_idx)
@@ -369,5 +369,5 @@ getSpectrum <- function(object, dt_range = NULL, rt_range = NULL, dt_idx = NULL,
     description = object@description,
     baseline = basel
   )
-}
+})
 

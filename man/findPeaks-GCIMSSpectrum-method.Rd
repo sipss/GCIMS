@@ -27,4 +27,9 @@ The modified \link{GCIMSSpectrum}, with a peak list
 \description{
 Peak detection for a GCIMSSpectrum
 }
+\seealso{
+Other GCIMSSpectrum: 
+\code{\link{GCIMSSpectrumSet}},
+\code{\link{GCIMSSpectrumSet-class}}
+}
 \concept{GCIMSSpectrum}
