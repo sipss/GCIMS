@@ -84,8 +84,10 @@
 <url><loc>https://sipss.github.io/GCIMS/reference/peaks-GCIMSDataset-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/plot-GCIMSSample-ANY-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/plotRIC-GCIMSDataset-method.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/plotRIC-GCIMSSample-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/plotRaw.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/plotTIS-GCIMSDataset-method.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/plotTIS-GCIMSSample-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/plot_interactive.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/prealign-GCIMSSample-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/read_mea.html</loc></url>
