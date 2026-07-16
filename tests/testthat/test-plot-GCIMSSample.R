@@ -81,15 +81,52 @@ test_that("plot(remove_baseline = TRUE) on a GCIMSSample does not error once a b
   expect_s3_class(p, "ggplot")
 })
 
-test_that("plot(fill_range = ) overrides the auto-computed color scale limits", {
+test_that("plot(intensity_range = ) overrides the auto-computed color scale limits", {
   s <- GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(1:25, nrow = 5))
 
   p_auto <- plot(s)
-  p_fixed <- plot(s, fill_range = c(0, 200))
+  p_fixed <- plot(s, intensity_range = c(0, 200))
 
   tr <- cubic_root_trans()
   expect_equal(p_auto$scales$get_scales("fill")$get_limits(), tr$transform(c(1, 25)))
   expect_equal(p_fixed$scales$get_scales("fill")$get_limits(), tr$transform(c(0, 200)))
+})
+
+test_that("plot(intensity_range = 'ranged') is the default and scales to the cropped view", {
+  s <- GCIMSSample(drift_time = 1:10, retention_time = 1:10, data = matrix(1:100, nrow = 10))
+
+  p_cropped <- plot(s, dt_range = c(1, 1))
+
+  tr <- cubic_root_trans()
+  expect_equal(p_cropped$scales$get_scales("fill")$get_limits(), tr$transform(c(1, 91)))
+})
+
+test_that("plot(intensity_range = 'global') scales to the sample's full range, ignoring dt_range/rt_range", {
+  s <- GCIMSSample(drift_time = 1:10, retention_time = 1:10, data = matrix(1:100, nrow = 10))
+
+  p_global <- plot(s, dt_range = c(1, 1), intensity_range = "global")
+
+  tr <- cubic_root_trans()
+  expect_equal(p_global$scales$get_scales("fill")$get_limits(), tr$transform(c(1, 100)))
+})
+
+test_that("plot(intensity_range = 'global') errors clearly with remove_baseline = TRUE", {
+  s <- GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(1:25, nrow = 5))
+  s <- estimateBaseline(s, dt_peak_fwhm_ms = 1, dt_region_multiplier = 2, rt_length_s = 2)
+
+  expect_error(
+    plot(s, remove_baseline = TRUE, intensity_range = "global"),
+    "global.*remove_baseline"
+  )
+})
+
+test_that("plot(intensity_range = list(min=, max=)) resolves each endpoint independently", {
+  s <- GCIMSSample(drift_time = 1:10, retention_time = 1:10, data = matrix(1:100, nrow = 10))
+
+  p <- plot(s, dt_range = c(1, 1), intensity_range = list(min = "ranged", max = "global"))
+
+  tr <- cubic_root_trans()
+  expect_equal(p$scales$get_scales("fill")$get_limits(), tr$transform(c(1, 100)))
 })
 
 test_that("plot() on a GCIMSSample accepts trans as a string, or as a transform object directly", {

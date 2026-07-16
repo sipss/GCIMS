@@ -7,10 +7,17 @@
 #' @param remove_baseline Set to `TRUE` to subtract the estimated baseline first
 #' @param trans The transformation to the intensity values. "cubic_root" is the default. "intensity" is also valid.
 #' See the `trans` argument in [ggplot2::continuous_scale()] for other possibilities.
-#' @param fill_range A numeric vector of length 2 with the intensity range the
-#' color scale should span, or `NULL` (the default) to use this sample's own
-#' `range()`. Set it explicitly to make several plots comparable on the same
-#' color scale.
+#' @param intensity_range Controls the color scale limits. One of:
+#' - `"ranged"` (the default): the range of exactly what's plotted (respecting
+#'   `dt_range`, `rt_range` and `remove_baseline`).
+#' - `"global"`: this sample's own full, uncropped, raw intensity range,
+#'   regardless of `dt_range`/`rt_range` -- useful to see how strong a cropped
+#'   region is relative to the whole sample. Not valid together with
+#'   `remove_baseline = TRUE`.
+#' - A numeric vector of length 2, `c(min, max)`: fixed limits. Set this
+#'   explicitly to make several plots comparable on the same color scale.
+#' - A length-2 vector/list whose elements are independently a number,
+#'   `"global"` or `"ranged"`, e.g. `list(min = 0, max = "global")`.
 #' @return A plot of the GCIMSSample
 #' @examples
 #' dummy_obj <-GCIMSSample(
@@ -26,7 +33,7 @@
 setMethod(
   "plot",
   "GCIMSSample",
-  function(x, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE, trans = "cubic_root", fill_range = NULL) {
+  function(x, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE, trans = "cubic_root", intensity_range = "ranged") {
   dt <- dtime(x)
   rt <- rtime(x)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range)
@@ -36,6 +43,22 @@ setMethod(
     basel <- baseline(x)[idx$dt_logical, idx$rt_logical]
     intmat <- intmat - basel
   }
+
+  get_global_range <- function() {
+    if (isTRUE(remove_baseline)) {
+      cli_abort(
+        c(
+          "intensity_range can't use {.val global} together with {.code remove_baseline = TRUE}",
+          "i" = "The full-sample range is raw intensity. Use {.code intensity_range = \"ranged\"} instead"
+        )
+      )
+    }
+    range(intensity(x))
+  }
+  get_ranged_range <- function() range(intmat)
+
+  limits <- resolve_intensity_range(intensity_range, get_global_range, get_ranged_range)
+
   mat_to_gplot(
     intmat,
     dt_min = idx$dt_ms_min,
@@ -43,12 +66,12 @@ setMethod(
     rt_min = idx$rt_s_min,
     rt_max = idx$rt_s_max,
     trans = trans,
-    fill_range = fill_range
+    intensity_range = limits
   )
 })
 
 
-mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL, trans = "cubic_root", fill_range = NULL) {
+mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL, trans = "cubic_root", intensity_range = NULL) {
   require_pkgs(c("farver", "viridisLite"))
   if (is.null(dt_min)) {
     dt_min <- as.numeric(rownames(intmat)[1L])
@@ -62,7 +85,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
   if (is.null(rt_max)) {
     rt_max <- as.numeric(colnames(intmat)[ncol(intmat)])
   }
-  minmax <- if (is.null(fill_range)) range(intmat) else fill_range
+  minmax <- if (is.null(intensity_range)) range(intmat) else intensity_range
 
   if (is.character(trans)) {
     trans_func <- paste0(trans, "_trans")

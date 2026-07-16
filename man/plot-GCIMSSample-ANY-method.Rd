@@ -11,7 +11,7 @@
   ...,
   remove_baseline = FALSE,
   trans = "cubic_root",
-  fill_range = NULL
+  intensity_range = "ranged"
 )
 }
 \arguments{
@@ -28,10 +28,19 @@
 \item{trans}{The transformation to the intensity values. "cubic_root" is the default. "intensity" is also valid.
 See the \code{trans} argument in \code{\link[ggplot2:continuous_scale]{ggplot2::continuous_scale()}} for other possibilities.}
 
-\item{fill_range}{A numeric vector of length 2 with the intensity range the
-color scale should span, or \code{NULL} (the default) to use this sample's own
-\code{range()}. Set it explicitly to make several plots comparable on the same
-color scale.}
+\item{intensity_range}{Controls the color scale limits. One of:
+\itemize{
+\item \code{"ranged"} (the default): the range of exactly what's plotted (respecting
+\code{dt_range}, \code{rt_range} and \code{remove_baseline}).
+\item \code{"global"}: this sample's own full, uncropped, raw intensity range,
+regardless of \code{dt_range}/\code{rt_range} -- useful to see how strong a cropped
+region is relative to the whole sample. Not valid together with
+\code{remove_baseline = TRUE}.
+\item A numeric vector of length 2, \code{c(min, max)}: fixed limits. Set this
+explicitly to make several plots comparable on the same color scale.
+\item A length-2 vector/list whose elements are independently a number,
+\code{"global"} or \code{"ranged"}, e.g. \code{list(min = 0, max = "global")}.
+}}
 }
 \value{
 A plot of the GCIMSSample
