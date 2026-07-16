@@ -4,7 +4,7 @@
 \alias{plotRIC,GCIMSDataset-method}
 \title{Plot Reverse Ion Chromatograms}
 \usage{
-\S4method{plotRIC}{GCIMSDataset}(object, rt_range = NULL, sample = NULL)
+\S4method{plotRIC}{GCIMSDataset}(object, rt_range = NULL, sample = NULL, color_by = "SampleID")
 }
 \arguments{
 \item{object}{A \link{GCIMSDataset} object}
@@ -12,6 +12,8 @@
 \item{rt_range}{The minimum and maximum retention times to extract (length 2 vector)}
 
 \item{sample}{A number or a string with the sample index or name. If \code{NULL}, all samples are returned}
+
+\item{color_by}{The name of a \code{pData(object)} column (or \code{"SampleID"}) used to color the chromatograms}
 }
 \value{
 A plot

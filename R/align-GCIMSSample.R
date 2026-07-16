@@ -102,9 +102,8 @@ methods::setMethod(
 #' @return The modified [GCIMSSample]
 #' @export
 alignDt <- function(object, rip_ref_ms) {
-  tis <- getTIS(object)
   dt <- dtime(object)
-  rip_pos_ms <- dt[which.max(tis)]
+  rip_pos_ms <- dt[rip_position(object)]
   Kcorr <- rip_ref_ms/rip_pos_ms
 
   int_mat <- intensity(object)
