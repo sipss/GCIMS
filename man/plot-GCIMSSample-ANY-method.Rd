@@ -10,7 +10,8 @@
   rt_range = NULL,
   ...,
   remove_baseline = FALSE,
-  trans = "cubic_root"
+  trans = "cubic_root",
+  fill_range = NULL
 )
 }
 \arguments{
@@ -26,6 +27,11 @@
 
 \item{trans}{The transformation to the intensity values. "cubic_root" is the default. "intensity" is also valid.
 See the \code{trans} argument in \code{\link[ggplot2:continuous_scale]{ggplot2::continuous_scale()}} for other possibilities.}
+
+\item{fill_range}{A numeric vector of length 2 with the intensity range the
+color scale should span, or \code{NULL} (the default) to use this sample's own
+\code{range()}. Set it explicitly to make several plots comparable on the same
+color scale.}
 }
 \value{
 A plot of the GCIMSSample

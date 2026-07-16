@@ -81,6 +81,17 @@ test_that("plot(remove_baseline = TRUE) on a GCIMSSample does not error once a b
   expect_s3_class(p, "ggplot")
 })
 
+test_that("plot(fill_range = ) overrides the auto-computed color scale limits", {
+  s <- GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(1:25, nrow = 5))
+
+  p_auto <- plot(s)
+  p_fixed <- plot(s, fill_range = c(0, 200))
+
+  tr <- cubic_root_trans()
+  expect_equal(p_auto$scales$get_scales("fill")$get_limits(), tr$transform(c(1, 25)))
+  expect_equal(p_fixed$scales$get_scales("fill")$get_limits(), tr$transform(c(0, 200)))
+})
+
 test_that("plot() on a GCIMSSample accepts trans as a string, or as a transform object directly", {
   s <- make_sample()
 

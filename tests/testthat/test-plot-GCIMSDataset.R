@@ -1,0 +1,124 @@
+# --- resolve_intensity_range() -----------------------------------------
+
+make_counting_range <- function(value) {
+  n_calls <- 0L
+  fn <- function() {
+    n_calls <<- n_calls + 1L
+    value
+  }
+  attr(fn, "n_calls") <- function() n_calls
+  fn
+}
+
+test_that("resolve_intensity_range('global'/'ranged') calls only the matching closure, once", {
+  global_range <- make_counting_range(c(0, 10))
+  ranged_range <- make_counting_range(c(2, 8))
+
+  expect_equal(resolve_intensity_range("global", global_range, ranged_range), c(0, 10))
+  expect_equal(attr(global_range, "n_calls")(), 1L)
+  expect_equal(attr(ranged_range, "n_calls")(), 0L)
+})
+
+test_that("resolve_intensity_range() with a fixed numeric vector never calls either closure", {
+  global_range <- make_counting_range(c(0, 10))
+  ranged_range <- make_counting_range(c(2, 8))
+
+  expect_equal(resolve_intensity_range(c(1, 9), global_range, ranged_range), c(1, 9))
+  expect_equal(attr(global_range, "n_calls")(), 0L)
+  expect_equal(attr(ranged_range, "n_calls")(), 0L)
+})
+
+test_that("resolve_intensity_range() resolves mixed list(min=, max=) elements independently", {
+  global_range <- make_counting_range(c(0, 10))
+  ranged_range <- make_counting_range(c(2, 8))
+
+  expect_equal(resolve_intensity_range(list(min = 1, max = "global"), global_range, ranged_range), c(1, 10))
+  expect_equal(attr(global_range, "n_calls")(), 1L)
+  expect_equal(attr(ranged_range, "n_calls")(), 0L)
+
+  expect_equal(resolve_intensity_range(list("ranged", 99), global_range, ranged_range), c(2, 99))
+  expect_equal(attr(ranged_range, "n_calls")(), 1L)
+})
+
+test_that("resolve_intensity_range() rejects invalid specs", {
+  global_range <- make_counting_range(c(0, 10))
+  ranged_range <- make_counting_range(c(2, 8))
+
+  expect_error(resolve_intensity_range("nope", global_range, ranged_range), "intensity_range should be")
+  expect_error(resolve_intensity_range(c(1, 2, 3), global_range, ranged_range), "intensity_range should be")
+  expect_error(resolve_intensity_range(list("nope", 1), global_range, ranged_range), "should be a number")
+})
+
+# --- IntensityRange caching ----------------------------------------------
+
+make_range_dataset <- function() {
+  s1 <- GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(1:25, nrow = 5))
+  s2 <- GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(100:124, nrow = 5))
+  GCIMSDataset$new_from_list(samples = list(s1 = s1, s2 = s2), on_ram = TRUE, scratch_dir = NULL)
+}
+
+test_that("realizing a dataset populates IntensityRange alongside TIS/RIC", {
+  old_bpparam <- BiocParallel::bpparam()
+  BiocParallel::register(BiocParallel::SerialParam())
+  on.exit(BiocParallel::register(old_bpparam))
+
+  ds <- make_range_dataset()
+  ds$realize()
+
+  expect_equal(unname(ds$IntensityRange["s1", ]), c(1, 25))
+  expect_equal(unname(ds$IntensityRange["s2", ]), c(100, 124))
+})
+
+test_that("subsetting a dataset resets the cached IntensityRange", {
+  old_bpparam <- BiocParallel::bpparam()
+  BiocParallel::register(BiocParallel::SerialParam())
+  on.exit(BiocParallel::register(old_bpparam))
+
+  ds <- make_range_dataset()
+  ds$realize()
+  expect_false(is.null(ds$IntensityRange))
+
+  ds$subset("s1", inplace = TRUE)
+
+  expect_null(ds$IntensityRange)
+})
+
+# --- plot(GCIMSDataset) ----------------------------------------------------
+
+test_that("plot(GCIMSDataset) returns a combined plot using the cached global range by default", {
+  ds <- make_range_dataset()
+
+  p <- plot(ds)
+
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot(GCIMSDataset, sample =) restricts which samples are plotted", {
+  ds <- make_range_dataset()
+
+  expect_no_error(plot(ds, sample = "s1"))
+  expect_no_error(plot(ds, sample = 1))
+})
+
+test_that("plot(GCIMSDataset, intensity_range = 'global') errors clearly with remove_baseline = TRUE", {
+  ds <- make_range_dataset()
+
+  expect_error(
+    plot(ds, remove_baseline = TRUE),
+    "global.*remove_baseline"
+  )
+})
+
+test_that("plot(GCIMSDataset, intensity_range = 'ranged') works with remove_baseline = TRUE", {
+  ds <- make_range_dataset()
+  ds <- estimateBaseline(ds, dt_peak_fwhm_ms = 1, dt_region_multiplier = 2, rt_length_s = 2)
+  ds$realize()
+
+  expect_no_error(plot(ds, remove_baseline = TRUE, intensity_range = "ranged"))
+})
+
+test_that("plot(GCIMSDataset, intensity_range = c(min, max)) accepts fixed limits without touching the dataset", {
+  ds <- make_range_dataset()
+
+  expect_no_error(plot(ds, intensity_range = c(0, 200)))
+})
