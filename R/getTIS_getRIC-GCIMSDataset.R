@@ -35,12 +35,13 @@ setMethod("getRIC", "GCIMSDataset", function(object) {
 #' @param object A [GCIMSDataset] object
 #' @inheritParams dt_rt_range_normalization
 #' @param sample A number or a string with the sample index or name. If `NULL`, all samples are returned
+#' @param color_by The name of a `pData(object)` column (or `"SampleID"`) used to color the spectra
 #' @return The plot of the TIS
 #' @export
 setMethod(
   "plotTIS",
   "GCIMSDataset",
-  function(object, dt_range = NULL, sample = NULL) {
+  function(object, dt_range = NULL, sample = NULL, color_by = "SampleID") {
     tis <- getTIS(object)
     dt <- dtime(object)
     sample_names <- sampleNames(object)
@@ -49,22 +50,20 @@ setMethod(
     }
     sample_idx <- sample_name_or_number_to_both(sample, sample_names)
     idx <- dt_rt_range_normalization(dt = dt, dt_range = dt_range)
-    tis_long <- reshape2::melt(tis[sample_idx$idx, idx$dt_logical, drop = FALSE], value.name = "TIS")
-    gplt <- ggplot2::ggplot() +
-      ggplot2::geom_line(
-        data = tis_long,
-        mapping = ggplot2::aes(
-          x = .data$drift_time_ms,
-          y = .data$TIS,
-          color = .data$SampleID
-        )
-      ) +
-      ggplot2::labs(
-        x = "Drift time (ms)",
-        y = "TIS Intensity (a.u.)",
-        color = "SampleID"
-      )
-    gplt
+    tis_sub <- tis[sample_idx$idx, idx$dt_logical, drop = FALSE]
+    dt_sub <- dt[idx$dt_logical]
+
+    pd <- pData(object)
+    spectra <- stats::setNames(
+      purrr::map(rownames(tis_sub), function(sample_id) {
+        GCIMSSpectrum(drift_time = dt_sub, intensity = unname(tis_sub[sample_id, ]), description = sample_id)
+      }),
+      rownames(tis_sub)
+    )
+    spectrum_set <- GCIMSSpectrumSet(spectra = spectra, pData = pd[pd$SampleID %in% rownames(tis_sub), , drop = FALSE])
+
+    plot(spectrum_set, color_by = color_by) +
+      ggplot2::labs(y = "TIS Intensity (a.u.)")
   }
 )
 
@@ -73,12 +72,13 @@ setMethod(
 #' @param object A [GCIMSDataset] object
 #' @inheritParams dt_rt_range_normalization
 #' @param sample A number or a string with the sample index or name. If `NULL`, all samples are returned
+#' @param color_by The name of a `pData(object)` column (or `"SampleID"`) used to color the chromatograms
 #' @return A plot
 #' @export
 setMethod(
   "plotRIC",
   "GCIMSDataset",
-  function(object, rt_range = NULL, sample = NULL) {
+  function(object, rt_range = NULL, sample = NULL, color_by = "SampleID") {
     ric <- getRIC(object)
     rt <- rtime(object)
     sample_names <- sampleNames(object)
@@ -87,23 +87,20 @@ setMethod(
     }
     sample_idx <- sample_name_or_number_to_both(sample, sample_names)
     idx <- dt_rt_range_normalization(rt = rt, rt_range = rt_range)
-    ric_long <- reshape2::melt(ric[sample_idx$idx, idx$rt_logical, drop = FALSE], value.name = "RIC")
+    ric_sub <- ric[sample_idx$idx, idx$rt_logical, drop = FALSE]
+    rt_sub <- rt[idx$rt_logical]
 
-    gplt <- ggplot2::ggplot() +
-      ggplot2::geom_line(
-        data = ric_long,
-        mapping = ggplot2::aes(
-          x = .data$retention_time_s,
-          y = .data$RIC,
-          color = .data$SampleID
-        )
-      ) +
-      ggplot2::labs(
-        x = "Retention time (s)",
-        y = "RIC Intensity (a.u.)",
-        color = "SampleID"
-      )
-    gplt
+    pd <- pData(object)
+    chromatograms <- stats::setNames(
+      purrr::map(rownames(ric_sub), function(sample_id) {
+        GCIMSChromatogram(retention_time = rt_sub, intensity = unname(ric_sub[sample_id, ]), description = sample_id)
+      }),
+      rownames(ric_sub)
+    )
+    chromatogram_set <- GCIMSChromatogramSet(chromatograms = chromatograms, pData = pd[pd$SampleID %in% rownames(ric_sub), , drop = FALSE])
+
+    plot(chromatogram_set, color_by = color_by) +
+      ggplot2::labs(y = "RIC Intensity (a.u.)")
   }
 )
 

@@ -10,7 +10,8 @@ make_dataset <- function() {
   }
   s1 <- make_s(2, 25)
   s2 <- make_s(2.2, 25)
-  GCIMSDataset$new_from_list(samples = list(s1 = s1, s2 = s2), on_ram = TRUE, scratch_dir = NULL)
+  pd <- data.frame(SampleID = c("s1", "s2"), Group = c("A", "B"))
+  GCIMSDataset$new_from_list(samples = list(s1 = s1, s2 = s2), pData = pd, on_ram = TRUE, scratch_dir = NULL)
 }
 
 test_that("getTIS()/getRIC() extract per-sample TIS and RIC matrices, keyed by SampleID", {
@@ -39,8 +40,8 @@ test_that("plotTIS() returns a ggplot with one line per sample over the full dri
   expect_s3_class(p, "ggplot")
   expect_equal(p$labels$x, "Drift time (ms)")
   expect_equal(p$labels$y, "TIS Intensity (a.u.)")
-  expect_setequal(as.character(unique(p$layers[[1]]$data$SampleID)), c("s1", "s2"))
-  expect_equal(range(p$layers[[1]]$data$drift_time_ms), c(0, 4))
+  expect_setequal(as.character(unique(p$data$SampleID)), c("s1", "s2"))
+  expect_equal(range(p$data$drift_time_ms), c(0, 4))
 })
 
 test_that("plotTIS() restricts to dt_range and a single sample when given", {
@@ -48,8 +49,8 @@ test_that("plotTIS() restricts to dt_range and a single sample when given", {
 
   p <- plotTIS(ds, dt_range = c(1, 3), sample = "s1")
 
-  expect_equal(as.character(unique(p$layers[[1]]$data$SampleID)), "s1")
-  expect_equal(range(p$layers[[1]]$data$drift_time_ms), c(1, 3))
+  expect_equal(as.character(unique(p$data$SampleID)), "s1")
+  expect_equal(range(p$data$drift_time_ms), c(1, 3))
 })
 
 test_that("plotRIC() returns a ggplot with one line per sample over the full retention time range by default", {
@@ -60,7 +61,7 @@ test_that("plotRIC() returns a ggplot with one line per sample over the full ret
   expect_s3_class(p, "ggplot")
   expect_equal(p$labels$x, "Retention time (s)")
   expect_equal(p$labels$y, "RIC Intensity (a.u.)")
-  expect_setequal(as.character(unique(p$layers[[1]]$data$SampleID)), c("s1", "s2"))
+  expect_setequal(as.character(unique(p$data$SampleID)), c("s1", "s2"))
 })
 
 test_that("plotRIC() restricts to rt_range and a single sample when given", {
@@ -68,6 +69,16 @@ test_that("plotRIC() restricts to rt_range and a single sample when given", {
 
   p <- plotRIC(ds, rt_range = c(10, 30), sample = 1)
 
-  expect_equal(as.character(unique(p$layers[[1]]$data$SampleID)), "s1")
-  expect_equal(range(p$layers[[1]]$data$retention_time_s), c(10, 30))
+  expect_equal(as.character(unique(p$data$SampleID)), "s1")
+  expect_equal(range(p$data$retention_time_s), c(10, 30))
+})
+
+test_that("plotTIS()/plotRIC() can color by a pData column instead of SampleID", {
+  ds <- make_dataset()
+
+  p_tis <- plotTIS(ds, color_by = "Group")
+  p_ric <- plotRIC(ds, color_by = "Group")
+
+  expect_equal(sort(unique(p_tis$data$Group)), c("A", "B"))
+  expect_equal(sort(unique(p_ric$data$Group)), c("A", "B"))
 })
