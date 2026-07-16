@@ -32,6 +32,19 @@ methods::setMethod(
     if (!all(purrr::map_lgl(chromatograms, inherits, "GCIMSChromatogram"))) {
       cli_abort("All elements of chromatograms should be GCIMSChromatogram objects")
     }
+    if (!is.null(pData)) {
+      if (!"SampleID" %in% colnames(pData)) {
+        cli_abort("pData should have a SampleID column")
+      }
+      if (!setequal(as.character(pData[["SampleID"]]), names(chromatograms))) {
+        cli_abort(
+          c(
+            "pData$SampleID does not match the names of chromatograms",
+            "i" = "Both should refer to exactly the same set of samples"
+          )
+        )
+      }
+    }
     .Object@chromatograms <- chromatograms
     .Object@pData <- pData
     .Object

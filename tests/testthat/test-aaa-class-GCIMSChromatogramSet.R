@@ -46,3 +46,19 @@ test_that("GCIMSChromatogramSet rejects elements that are not GCIMSChromatogram 
 
   expect_error(GCIMSChromatogramSet(chromatograms = chroms), "GCIMSChromatogram objects")
 })
+
+test_that("GCIMSChromatogramSet rejects pData whose SampleID doesn't match the chromatogram names", {
+  chroms <- list(s1 = make_chrom("s1"), s2 = make_chrom("s2"))
+
+  # Different sample entirely:
+  pd_mismatched <- data.frame(SampleID = c("s1", "other"), Group = c("A", "B"))
+  expect_error(GCIMSChromatogramSet(chromatograms = chroms, pData = pd_mismatched), "does not match")
+
+  # Missing a sample:
+  pd_missing <- data.frame(SampleID = "s1", Group = "A")
+  expect_error(GCIMSChromatogramSet(chromatograms = chroms, pData = pd_missing), "does not match")
+
+  # No SampleID column at all:
+  pd_no_sampleid <- data.frame(Group = c("A", "B"))
+  expect_error(GCIMSChromatogramSet(chromatograms = chroms, pData = pd_no_sampleid), "SampleID column")
+})

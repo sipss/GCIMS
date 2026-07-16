@@ -46,3 +46,19 @@ test_that("GCIMSSpectrumSet rejects elements that are not GCIMSSpectrum objects"
 
   expect_error(GCIMSSpectrumSet(spectra = spectra), "GCIMSSpectrum objects")
 })
+
+test_that("GCIMSSpectrumSet rejects pData whose SampleID doesn't match the spectra names", {
+  spectra <- list(s1 = make_spec("s1"), s2 = make_spec("s2"))
+
+  # Different sample entirely:
+  pd_mismatched <- data.frame(SampleID = c("s1", "other"), Group = c("A", "B"))
+  expect_error(GCIMSSpectrumSet(spectra = spectra, pData = pd_mismatched), "does not match")
+
+  # Missing a sample:
+  pd_missing <- data.frame(SampleID = "s1", Group = "A")
+  expect_error(GCIMSSpectrumSet(spectra = spectra, pData = pd_missing), "does not match")
+
+  # No SampleID column at all:
+  pd_no_sampleid <- data.frame(Group = c("A", "B"))
+  expect_error(GCIMSSpectrumSet(spectra = spectra, pData = pd_no_sampleid), "SampleID column")
+})

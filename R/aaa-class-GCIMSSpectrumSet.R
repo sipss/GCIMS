@@ -32,6 +32,19 @@ methods::setMethod(
     if (!all(purrr::map_lgl(spectra, inherits, "GCIMSSpectrum"))) {
       cli_abort("All elements of spectra should be GCIMSSpectrum objects")
     }
+    if (!is.null(pData)) {
+      if (!"SampleID" %in% colnames(pData)) {
+        cli_abort("pData should have a SampleID column")
+      }
+      if (!setequal(as.character(pData[["SampleID"]]), names(spectra))) {
+        cli_abort(
+          c(
+            "pData$SampleID does not match the names of spectra",
+            "i" = "Both should refer to exactly the same set of samples"
+          )
+        )
+      }
+    }
     .Object@spectra <- spectra
     .Object@pData <- pData
     .Object
