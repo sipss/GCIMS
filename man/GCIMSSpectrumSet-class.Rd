@@ -5,6 +5,7 @@
 \name{GCIMSSpectrumSet-class}
 \alias{GCIMSSpectrumSet-class}
 \alias{sampleNames,GCIMSSpectrumSet-method}
+\alias{sampleNames<-,GCIMSSpectrumSet,ANY-method}
 \alias{pData,GCIMSSpectrumSet-method}
 \alias{length,GCIMSSpectrumSet-method}
 \alias{[[,GCIMSSpectrumSet-method}
@@ -12,6 +13,8 @@
 \title{GCIMSSpectrumSet class}
 \usage{
 \S4method{sampleNames}{GCIMSSpectrumSet}(object)
+
+\S4method{sampleNames}{GCIMSSpectrumSet,ANY}(object) <- value
 
 \S4method{pData}{GCIMSSpectrumSet}(object)
 
@@ -24,6 +27,8 @@
 \arguments{
 \item{object}{A \link{GCIMSSpectrumSet} object}
 
+\item{value}{A character vector of length the number of spectra with the new sample names}
+
 \item{x}{A \link{GCIMSSpectrumSet} object to plot}
 
 \item{i}{A number or a string with the sample index or name}
@@ -35,6 +40,9 @@ color the spectra}
 }
 \value{
 A character vector with the sample names
+
+The \link{GCIMSSpectrumSet} object, with samples renamed in both
+\code{spectra} and \code{pData()}
 
 A tibble with the phenotype data, or \code{NULL} if not set
 
@@ -56,6 +64,8 @@ performed.
 \section{Functions}{
 \itemize{
 \item \code{sampleNames(GCIMSSpectrumSet)}: Get the sample names
+
+\item \code{sampleNames(object = GCIMSSpectrumSet) <- value}: Set the sample names
 
 \item \code{pData(GCIMSSpectrumSet)}: Get the phenotype data
 

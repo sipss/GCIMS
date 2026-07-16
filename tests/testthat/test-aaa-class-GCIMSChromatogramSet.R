@@ -63,14 +63,48 @@ test_that("GCIMSChromatogramSet rejects pData whose SampleID doesn't match the c
   expect_error(GCIMSChromatogramSet(chromatograms = chroms, pData = pd_no_sampleid), "SampleID column")
 })
 
-test_that("sampleNames() follows pData's row order, even when it differs from the chromatograms list order", {
+test_that("construction realigns pData's row order to match the chromatograms list order", {
   chroms <- list(s1 = make_chrom("s1"), s2 = make_chrom("s2"))
+  # pData given in the opposite order, with annotations tied to SampleID:
   pd_reversed <- data.frame(SampleID = c("s2", "s1"), Group = c("B", "A"))
 
   cs <- GCIMSChromatogramSet(chromatograms = chroms, pData = pd_reversed)
 
-  expect_equal(sampleNames(cs), c("s2", "s1"))
-  # [[ is unaffected by pData order, it always looks up by name:
-  expect_identical(cs[["s1"]], chroms$s1)
-  expect_identical(cs[["s2"]], chroms$s2)
+  expect_equal(sampleNames(cs), c("s1", "s2"))
+  expect_equal(pData(cs)$SampleID, c("s1", "s2"))
+  # Annotations stay correctly attached to their sample after realignment:
+  expect_equal(pData(cs)$Group, c("A", "B"))
+})
+
+test_that("sampleNames<-() renames both the chromatograms list and pData$SampleID", {
+  chroms <- list(s1 = make_chrom("s1"), s2 = make_chrom("s2"))
+  pd <- data.frame(SampleID = c("s1", "s2"), Group = c("A", "B"))
+  cs <- GCIMSChromatogramSet(chromatograms = chroms, pData = pd)
+
+  sampleNames(cs) <- c("a", "b")
+
+  expect_equal(sampleNames(cs), c("a", "b"))
+  expect_equal(pData(cs)$SampleID, c("a", "b"))
+  expect_equal(pData(cs)$Group, c("A", "B"))
+  expect_identical(cs[["a"]], chroms$s1)
+  expect_identical(cs[["b"]], chroms$s2)
+})
+
+test_that("sampleNames<-() works without pData", {
+  chroms <- list(s1 = make_chrom("s1"), s2 = make_chrom("s2"))
+  cs <- GCIMSChromatogramSet(chromatograms = chroms)
+
+  sampleNames(cs) <- c("a", "b")
+
+  expect_equal(sampleNames(cs), c("a", "b"))
+  expect_null(pData(cs))
+})
+
+test_that("sampleNames<-() rejects the wrong length or non-unique/missing names", {
+  chroms <- list(s1 = make_chrom("s1"), s2 = make_chrom("s2"))
+  cs <- GCIMSChromatogramSet(chromatograms = chroms)
+
+  expect_error(sampleNames(cs) <- "a", "Number of samples")
+  expect_error(sampleNames(cs) <- c("a", "a"), "unique")
+  expect_error(sampleNames(cs) <- c("a", NA), "unique and not missing")
 })

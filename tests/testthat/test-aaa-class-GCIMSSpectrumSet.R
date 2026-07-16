@@ -63,14 +63,48 @@ test_that("GCIMSSpectrumSet rejects pData whose SampleID doesn't match the spect
   expect_error(GCIMSSpectrumSet(spectra = spectra, pData = pd_no_sampleid), "SampleID column")
 })
 
-test_that("sampleNames() follows pData's row order, even when it differs from the spectra list order", {
+test_that("construction realigns pData's row order to match the spectra list order", {
   spectra <- list(s1 = make_spec("s1"), s2 = make_spec("s2"))
+  # pData given in the opposite order, with annotations tied to SampleID:
   pd_reversed <- data.frame(SampleID = c("s2", "s1"), Group = c("B", "A"))
 
   ss <- GCIMSSpectrumSet(spectra = spectra, pData = pd_reversed)
 
-  expect_equal(sampleNames(ss), c("s2", "s1"))
-  # [[ is unaffected by pData order, it always looks up by name:
-  expect_identical(ss[["s1"]], spectra$s1)
-  expect_identical(ss[["s2"]], spectra$s2)
+  expect_equal(sampleNames(ss), c("s1", "s2"))
+  expect_equal(pData(ss)$SampleID, c("s1", "s2"))
+  # Annotations stay correctly attached to their sample after realignment:
+  expect_equal(pData(ss)$Group, c("A", "B"))
+})
+
+test_that("sampleNames<-() renames both the spectra list and pData$SampleID", {
+  spectra <- list(s1 = make_spec("s1"), s2 = make_spec("s2"))
+  pd <- data.frame(SampleID = c("s1", "s2"), Group = c("A", "B"))
+  ss <- GCIMSSpectrumSet(spectra = spectra, pData = pd)
+
+  sampleNames(ss) <- c("a", "b")
+
+  expect_equal(sampleNames(ss), c("a", "b"))
+  expect_equal(pData(ss)$SampleID, c("a", "b"))
+  expect_equal(pData(ss)$Group, c("A", "B"))
+  expect_identical(ss[["a"]], spectra$s1)
+  expect_identical(ss[["b"]], spectra$s2)
+})
+
+test_that("sampleNames<-() works without pData", {
+  spectra <- list(s1 = make_spec("s1"), s2 = make_spec("s2"))
+  ss <- GCIMSSpectrumSet(spectra = spectra)
+
+  sampleNames(ss) <- c("a", "b")
+
+  expect_equal(sampleNames(ss), c("a", "b"))
+  expect_null(pData(ss))
+})
+
+test_that("sampleNames<-() rejects the wrong length or non-unique/missing names", {
+  spectra <- list(s1 = make_spec("s1"), s2 = make_spec("s2"))
+  ss <- GCIMSSpectrumSet(spectra = spectra)
+
+  expect_error(sampleNames(ss) <- "a", "Number of samples")
+  expect_error(sampleNames(ss) <- c("a", "a"), "unique")
+  expect_error(sampleNames(ss) <- c("a", NA), "unique and not missing")
 })

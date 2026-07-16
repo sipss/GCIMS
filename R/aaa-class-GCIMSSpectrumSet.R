@@ -44,6 +44,9 @@ methods::setMethod(
           )
         )
       }
+      # Guarantee pData's row order matches the spectra order, so the two
+      # never need to be reconciled again afterwards (e.g. in plot()):
+      pData <- pData[match(names(spectra), as.character(pData[["SampleID"]])), , drop = FALSE]
     }
     .Object@spectra <- spectra
     .Object@pData <- pData
@@ -71,16 +74,33 @@ GCIMSSpectrumSet <- function(spectra = list(), pData = NULL) {
 #' @return A character vector with the sample names
 #' @export
 setMethod("sampleNames", "GCIMSSpectrumSet", function(object) {
-  # pData is the source of truth for sample identity/order when present
-  # (initialize() already checked it refers to the same samples as
-  # `spectra`), so plot() and other consumers that iterate sampleNames()
-  # and look up spectra by name stay correct regardless of the order
-  # `spectra` happens to be stored in.
-  if (!is.null(object@pData)) {
-    return(as.character(object@pData[["SampleID"]]))
-  }
   nms <- names(object@spectra)
   if (is.null(nms)) character(0) else nms
+})
+
+#' @describeIn GCIMSSpectrumSet-class Set the sample names
+#' @param object A [GCIMSSpectrumSet] object
+#' @param value A character vector of length the number of spectra with the new sample names
+#' @return The [GCIMSSpectrumSet] object, with samples renamed in both
+#' `spectra` and `pData()`
+#' @export
+setReplaceMethod("sampleNames", "GCIMSSpectrumSet", function(object, value) {
+  if (length(value) != length(object@spectra)) {
+    cli_abort(
+      c(
+        "Invalid sample names",
+        "x" = "The number of sample names given ({length(value)}) != Number of samples ({length(object@spectra)})"
+      )
+    )
+  }
+  if (anyNA(value) || anyDuplicated(value)) {
+    cli_abort("Sample names must be unique and not missing")
+  }
+  names(object@spectra) <- value
+  if (!is.null(object@pData)) {
+    object@pData[["SampleID"]] <- value
+  }
+  object
 })
 
 #' @describeIn GCIMSSpectrumSet-class Get the phenotype data

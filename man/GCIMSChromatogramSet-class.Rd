@@ -5,6 +5,7 @@
 \name{GCIMSChromatogramSet-class}
 \alias{GCIMSChromatogramSet-class}
 \alias{sampleNames,GCIMSChromatogramSet-method}
+\alias{sampleNames<-,GCIMSChromatogramSet,ANY-method}
 \alias{pData,GCIMSChromatogramSet-method}
 \alias{length,GCIMSChromatogramSet-method}
 \alias{[[,GCIMSChromatogramSet-method}
@@ -12,6 +13,8 @@
 \title{GCIMSChromatogramSet class}
 \usage{
 \S4method{sampleNames}{GCIMSChromatogramSet}(object)
+
+\S4method{sampleNames}{GCIMSChromatogramSet,ANY}(object) <- value
 
 \S4method{pData}{GCIMSChromatogramSet}(object)
 
@@ -24,6 +27,8 @@
 \arguments{
 \item{object}{A \link{GCIMSChromatogramSet} object}
 
+\item{value}{A character vector of length the number of chromatograms with the new sample names}
+
 \item{x}{A \link{GCIMSChromatogramSet} object to plot}
 
 \item{i}{A number or a string with the sample index or name}
@@ -35,6 +40,9 @@ color the chromatograms}
 }
 \value{
 A character vector with the sample names
+
+The \link{GCIMSChromatogramSet} object, with samples renamed in both
+\code{chromatograms} and \code{pData()}
 
 A tibble with the phenotype data, or \code{NULL} if not set
 
@@ -56,6 +64,8 @@ interpolation is performed.
 \section{Functions}{
 \itemize{
 \item \code{sampleNames(GCIMSChromatogramSet)}: Get the sample names
+
+\item \code{sampleNames(object = GCIMSChromatogramSet) <- value}: Set the sample names
 
 \item \code{pData(GCIMSChromatogramSet)}: Get the phenotype data
 

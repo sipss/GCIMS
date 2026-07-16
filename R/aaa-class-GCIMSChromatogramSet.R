@@ -44,6 +44,9 @@ methods::setMethod(
           )
         )
       }
+      # Guarantee pData's row order matches the chromatograms order, so the
+      # two never need to be reconciled again afterwards (e.g. in plot()):
+      pData <- pData[match(names(chromatograms), as.character(pData[["SampleID"]])), , drop = FALSE]
     }
     .Object@chromatograms <- chromatograms
     .Object@pData <- pData
@@ -71,16 +74,33 @@ GCIMSChromatogramSet <- function(chromatograms = list(), pData = NULL) {
 #' @return A character vector with the sample names
 #' @export
 setMethod("sampleNames", "GCIMSChromatogramSet", function(object) {
-  # pData is the source of truth for sample identity/order when present
-  # (initialize() already checked it refers to the same samples as
-  # `chromatograms`), so plot() and other consumers that iterate
-  # sampleNames() and look up chromatograms by name stay correct
-  # regardless of the order `chromatograms` happens to be stored in.
-  if (!is.null(object@pData)) {
-    return(as.character(object@pData[["SampleID"]]))
-  }
   nms <- names(object@chromatograms)
   if (is.null(nms)) character(0) else nms
+})
+
+#' @describeIn GCIMSChromatogramSet-class Set the sample names
+#' @param object A [GCIMSChromatogramSet] object
+#' @param value A character vector of length the number of chromatograms with the new sample names
+#' @return The [GCIMSChromatogramSet] object, with samples renamed in both
+#' `chromatograms` and `pData()`
+#' @export
+setReplaceMethod("sampleNames", "GCIMSChromatogramSet", function(object, value) {
+  if (length(value) != length(object@chromatograms)) {
+    cli_abort(
+      c(
+        "Invalid sample names",
+        "x" = "The number of sample names given ({length(value)}) != Number of samples ({length(object@chromatograms)})"
+      )
+    )
+  }
+  if (anyNA(value) || anyDuplicated(value)) {
+    cli_abort("Sample names must be unique and not missing")
+  }
+  names(object@chromatograms) <- value
+  if (!is.null(object@pData)) {
+    object@pData[["SampleID"]] <- value
+  }
+  object
 })
 
 #' @describeIn GCIMSChromatogramSet-class Get the phenotype data
