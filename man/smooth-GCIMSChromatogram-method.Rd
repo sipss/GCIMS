@@ -23,6 +23,8 @@ Smoothing a GCIMS chromatogram using a Savitzky-Golay filter
 Other GCIMSChromatogram: 
 \code{\link{GCIMSChromatogram}},
 \code{\link{GCIMSChromatogram-class}},
+\code{\link{GCIMSChromatogramSet}},
+\code{\link{GCIMSChromatogramSet-class}},
 \code{\link{dtime,GCIMSChromatogram-method}},
 \code{\link{estimateBaseline,GCIMSChromatogram-method}},
 \code{\link{findPeaks,GCIMSChromatogram-method}},

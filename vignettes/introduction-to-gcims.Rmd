@@ -242,6 +242,22 @@ dataset <- smooth(dataset, rt_length_s = 3, dt_length_ms = 0.14)
 dataset$realize()
 ```
 
+`getChromatogram()` and `getSpectrum()` also work directly on a `GCIMSDataset`,
+extracting one chromatogram/spectrum per sample at once (each on its own
+retention/drift time axis) together with the dataset's annotations, so you
+don't need to pick a single sample to see the effect of smoothing across the
+whole dataset:
+
+```{r}
+all_chroms <- getChromatogram(dataset, dt_range = 10.4)
+plot(all_chroms)
+```
+
+```{r}
+all_spectra <- getSpectrum(dataset, rt_range = 97.11)
+plot(all_spectra)
+```
+
 # Decimation
 
 

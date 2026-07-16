@@ -28,6 +28,7 @@ This class is not exported, but if you want to use it reach us at
 \item \href{#method-DelayedDatasetBase-registerOptimization}{\code{DelayedDatasetBase$registerOptimization()}}
 \item \href{#method-DelayedDatasetBase-appendDelayedOp}{\code{DelayedDatasetBase$appendDelayedOp()}}
 \item \href{#method-DelayedDatasetBase-hasDelayedOps}{\code{DelayedDatasetBase$hasDelayedOps()}}
+\item \href{#method-DelayedDatasetBase-dropSolePendingOp}{\code{DelayedDatasetBase$dropSolePendingOp()}}
 \item \href{#method-DelayedDatasetBase-getSample}{\code{DelayedDatasetBase$getSample()}}
 \item \href{#method-DelayedDatasetBase-history_as_list}{\code{DelayedDatasetBase$history_as_list()}}
 \item \href{#method-DelayedDatasetBase-pending_as_list}{\code{DelayedDatasetBase$pending_as_list()}}
@@ -139,6 +140,31 @@ Find out if the dataset has pending operations
 
 \subsection{Returns}{
 Returns \code{TRUE} if the dataset has pending operations, \code{FALSE} otherwise
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DelayedDatasetBase-dropSolePendingOp"></a>}}
+\if{latex}{\out{\hypertarget{method-DelayedDatasetBase-dropSolePendingOp}{}}}
+\subsection{Method \code{dropSolePendingOp()}}{
+If the \emph{only} pending operation is the one named \code{name}, discard it.
+This is narrowly scoped on purpose: it is only safe to replace a
+pending operation with a newer, equivalent one when nothing else is
+queued alongside it (otherwise the operation could be re-run out of
+the order it was originally queued in, relative to whatever else is
+pending).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DelayedDatasetBase$dropSolePendingOp(name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{The operation name to drop, if it is the sole pending one}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{TRUE} if the operation was dropped, \code{FALSE} otherwise
 }
 }
 \if{html}{\out{<hr>}}
