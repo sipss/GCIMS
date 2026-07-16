@@ -18,6 +18,8 @@
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMS-package.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSChromatogram-class.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSChromatogram.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/GCIMSChromatogramSet-class.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/GCIMSChromatogramSet.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSDataset.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSDataset_fromList.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSDelayedOp.html</loc></url>
@@ -26,6 +28,8 @@
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSSample-rtime-dtime-intensity.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSSample.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/GCIMSSpectrum-class.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/GCIMSSpectrumSet-class.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/GCIMSSpectrumSet.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/add_peaklist_rect.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/align-GCIMSDataset-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/align-GCIMSSample-method.html</loc></url>
@@ -59,11 +63,13 @@
 <url><loc>https://sipss.github.io/GCIMS/reference/findPeaks.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/findPeaksImpl.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/findPeaksImpl1D.html</loc></url>
-<url><loc>https://sipss.github.io/GCIMS/reference/getChromatogram.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/getChromatogram-GCIMSDataset-method.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/getChromatogram-GCIMSSample-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/getRIC-GCIMSDataset-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/getRIC-GCIMSSample-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/getSample.html</loc></url>
-<url><loc>https://sipss.github.io/GCIMS/reference/getSpectrum.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/getSpectrum-GCIMSDataset-method.html</loc></url>
+<url><loc>https://sipss.github.io/GCIMS/reference/getSpectrum-GCIMSSample-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/getTIS-GCIMSDataset-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/getTIS-GCIMSSample-method.html</loc></url>
 <url><loc>https://sipss.github.io/GCIMS/reference/imputePeakTable.html</loc></url>

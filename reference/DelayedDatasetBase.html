@@ -90,6 +90,7 @@ for specific implementations.</p>
 <li><p><a href="#method-DelayedDatasetBase-registerOptimization"><code>DelayedDatasetBase$registerOptimization()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetBase-appendDelayedOp"><code>DelayedDatasetBase$appendDelayedOp()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetBase-hasDelayedOps"><code>DelayedDatasetBase$hasDelayedOps()</code></a></p></li>
+<li><p><a href="#method-DelayedDatasetBase-dropSolePendingOp"><code>DelayedDatasetBase$dropSolePendingOp()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetBase-getSample"><code>DelayedDatasetBase$getSample()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetBase-history_as_list"><code>DelayedDatasetBase$history_as_list()</code></a></p></li>
 <li><p><a href="#method-DelayedDatasetBase-pending_as_list"><code>DelayedDatasetBase$pending_as_list()</code></a></p></li>
@@ -194,15 +195,40 @@ returns a more optimized version of it.</p></dd>
 <p>Returns <code>TRUE</code> if the dataset has pending operations, <code>FALSE</code> otherwise</p>
 </div>
 
-</div><p></p><hr><a id="method-DelayedDatasetBase-getSample"></a><div class="section">
-<h3 id="method-getsample-">Method <code><a href="getSample.html">getSample()</a></code><a class="anchor" aria-label="anchor" href="#method-getsample-"></a></h3>
-<p>Get a sample from the dataset</p><div class="section">
+</div><p></p><hr><a id="method-DelayedDatasetBase-dropSolePendingOp"></a><div class="section">
+<h3 id="method-dropsolependingop-">Method <code>dropSolePendingOp()</code><a class="anchor" aria-label="anchor" href="#method-dropsolependingop-"></a></h3>
+<p>If the <em>only</em> pending operation is the one named <code>name</code>, discard it.
+This is narrowly scoped on purpose: it is only safe to replace a
+pending operation with a newer, equivalent one when nothing else is
+queued alongside it (otherwise the operation could be re-run out of
+the order it was originally queued in, relative to whatever else is
+pending).</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="va">sample</span>, <span class="va">dataset</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">dropSolePendingOp</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>name</code></dt>
+<dd><p>The operation name to drop, if it is the sole pending one</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<p><code>TRUE</code> if the operation was dropped, <code>FALSE</code> otherwise</p>
+</div>
+
+</div><p></p><hr><a id="method-DelayedDatasetBase-getSample"></a><div class="section">
+<h3 id="method-getsample-">Method <code><a href="getSample.html">getSample()</a></code><a class="anchor" aria-label="anchor" href="#method-getsample-"></a></h3>
+<p>Get a sample from the dataset</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">getSample</span><span class="op">(</span><span class="va">sample</span>, <span class="va">dataset</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>sample</code></dt>
 <dd><p>Either an integer (sample index) or a string (sample name)</p></dd>
 
@@ -214,27 +240,15 @@ returns a more optimized version of it.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p>The sample object</p>
 </div>
 
 </div><p></p><hr><a id="method-DelayedDatasetBase-history_as_list"></a><div class="section">
 <h3 id="method-history-as-list-">Method <code>history_as_list()</code><a class="anchor" aria-label="anchor" href="#method-history-as-list-"></a></h3>
 <p>Get a list that describes the already executed operations</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">history_as_list</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
-<p>A list, with the operations</p>
-</div>
-
-</div><p></p><hr><a id="method-DelayedDatasetBase-pending_as_list"></a><div class="section">
-<h3 id="method-pending-as-list-">Method <code>pending_as_list()</code><a class="anchor" aria-label="anchor" href="#method-pending-as-list-"></a></h3>
-<p>Get a list that describes the queued operations</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">pending_as_list</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">history_as_list</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -242,15 +256,27 @@ returns a more optimized version of it.</p></dd>
 <p>A list, with the operations</p>
 </div>
 
+</div><p></p><hr><a id="method-DelayedDatasetBase-pending_as_list"></a><div class="section">
+<h3 id="method-pending-as-list-">Method <code>pending_as_list()</code><a class="anchor" aria-label="anchor" href="#method-pending-as-list-"></a></h3>
+<p>Get a list that describes the queued operations</p><div class="section">
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">pending_as_list</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<p>A list, with the operations</p>
+</div>
+
 </div><p></p><hr><a id="method-DelayedDatasetBase-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DelayedDatasetBase</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

@@ -67,6 +67,10 @@ to an existing generics-only package if you need so.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dtime</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">getChromatogram</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">getSpectrum</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">getTIS</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getRIC</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -111,6 +115,10 @@ to an existing generics-only package if you need so.</p>
     <div id="value">
     <h2>Value</h2>
     <p>A numeric vector with the drift time</p>
+<p>A <a href="GCIMSChromatogram.html">GCIMSChromatogram</a> (one sample) or a <a href="GCIMSChromatogramSet.html">GCIMSChromatogramSet</a>
+(several samples, one chromatogram each, with a copy of <code>pData()</code>)</p>
+<p>A <a href="GCIMSSpectrum-class.html">GCIMSSpectrum</a> (one sample) or a <a href="GCIMSSpectrumSet.html">GCIMSSpectrumSet</a>
+(several samples, one spectrum each, with a copy of <code>pData()</code>)</p>
 <p>The Total Ion Spectrum as a numeric vector or a matrix
 (depending if the object is one sample or several)</p>
 <p>The Reverse Ion Chromatogram, as a numeric vector or a
@@ -130,6 +138,8 @@ matrix (depending if the object is one sample or several)</p>
     <h2>Functions</h2>
 
 <ul><li><p><code>dtime()</code>: Get drift time vector</p></li>
+<li><p><code>getChromatogram()</code>: Get a chromatogram</p></li>
+<li><p><code>getSpectrum()</code>: Get a spectrum</p></li>
 <li><p><code>getTIS()</code>: Get the Total Ion Spectrum</p></li>
 <li><p><code>getRIC()</code>: Get the Reverse Ion Chromatogram</p></li>
 <li><p><code>plotTIS()</code>: Plot total ion spectrum</p></li>
