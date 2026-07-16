@@ -36,7 +36,7 @@
 \item{color_by}{The name of a \code{pData(x)} column (or \code{"SampleID"}) used to
 color the chromatograms}
 
-\item{y}{From the generic \code{plot} function, ignored for \code{GCIMSChromatogramSet} class objects}
+\item{...}{Ignored}
 }
 \value{
 A character vector with the sample names

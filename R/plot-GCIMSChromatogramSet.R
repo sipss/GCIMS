@@ -2,7 +2,7 @@
 #' @param x A [GCIMSChromatogramSet] object to plot
 #' @param color_by The name of a `pData(x)` column (or `"SampleID"`) used to
 #' color the chromatograms
-#' @param y From the generic `plot` function, ignored for `GCIMSChromatogramSet` class objects
+#' @param ... Ignored
 #' @return A ggplot2 plot object
 #' @export
 setMethod(

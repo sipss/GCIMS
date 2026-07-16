@@ -2,7 +2,7 @@
 #' @param x A [GCIMSSpectrumSet] object to plot
 #' @param color_by The name of a `pData(x)` column (or `"SampleID"`) used to
 #' color the spectra
-#' @param y From the generic `plot` function, ignored for `GCIMSSpectrumSet` class objects
+#' @param ... Ignored
 #' @return A ggplot2 plot object
 #' @export
 setMethod(
