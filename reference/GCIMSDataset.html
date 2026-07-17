@@ -160,6 +160,13 @@ Typically a subdirectory of <code>scratch_dir</code>.</p></li>
 <dd><p>A numeric retention time of reference</p></dd>
 
 
+<dt><code>intensity_range</code></dt>
+<dd><p>A matrix of n_samples x c(min, max) with each
+sample's raw intensity range, extracted alongside TIS/RIC. Internal
+only: no S4 generic exposes this, it only backs <code>plot(GCIMSDataset)</code>'s
+shared color scale across samples.</p></dd>
+
+
 <dt><code>userData</code></dt>
 <dd><p>A list to store arbitrary data in the dataset</p></dd>
 
