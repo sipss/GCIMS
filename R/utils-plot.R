@@ -35,6 +35,87 @@ mat_to_nativeRaster <- function(x, colormap, rangex = NULL)  {
 }
 
 
+#' Resolve the (`nrow`, `ncol`) page grid for `plot,GCIMSDataset-method`,
+#' auto-filling whichever of `nrow`/`ncol` isn't given
+#'
+#' @param nrow Number of rows, or `NULL`
+#' @param ncol Number of columns, or `NULL`
+#' @param num_samples Number of samples to lay out (before pagination)
+#' @return A list `list(nrow =, ncol =)`
+#' @noRd
+resolve_page_grid <- function(nrow, ncol, num_samples) {
+  if (is.null(nrow) && is.null(ncol)) {
+    dims <- if (num_samples <= 1) {
+      c(1L, 1L)
+    } else if (num_samples == 2) {
+      c(1L, 2L)
+    } else if (num_samples == 3) {
+      c(1L, 3L)
+    } else if (num_samples == 4) {
+      c(2L, 2L)
+    } else if (num_samples <= 6) {
+      c(2L, 3L)
+    } else {
+      c(3L, 3L)
+    }
+    return(list(nrow = dims[1], ncol = dims[2]))
+  }
+  if (is.null(nrow)) {
+    nrow <- if (num_samples > 9) 3L else ceiling(num_samples / ncol)
+    return(list(nrow = nrow, ncol = ncol))
+  }
+  if (is.null(ncol)) {
+    ncol <- if (num_samples > 9) 3L else ceiling(num_samples / nrow)
+    return(list(nrow = nrow, ncol = ncol))
+  }
+  list(nrow = nrow, ncol = ncol)
+}
+
+#' Resolve an `intensity_range` argument (shared by `plot,GCIMSSample-method`
+#' and `plot,GCIMSDataset-method`) into `c(min, max)`
+#'
+#' @param intensity_range One of `"global"`, `"ranged"`, a numeric vector of
+#' length 2, or a length-2 vector/list whose elements are independently a
+#' number, `"global"` or `"ranged"`.
+#' @param global_range A zero-argument function returning the full/uncropped
+#' `c(min, max)`. Only called if actually referenced.
+#' @param ranged_range A zero-argument function returning the `c(min, max)`
+#' of exactly what will be plotted. Only called if actually referenced.
+#' @return A numeric vector `c(min, max)`
+#' @noRd
+resolve_intensity_range <- function(intensity_range, global_range, ranged_range) {
+  resolve_endpoint <- function(value, position) {
+    if (is.numeric(value) && length(value) == 1) {
+      return(value)
+    }
+    if (identical(value, "global")) {
+      return(global_range()[position])
+    }
+    if (identical(value, "ranged")) {
+      return(ranged_range()[position])
+    }
+    cli_abort('Each element of intensity_range should be a number, "global" or "ranged"')
+  }
+
+  if (is.character(intensity_range) && length(intensity_range) == 1) {
+    if (intensity_range == "global") {
+      return(global_range())
+    } else if (intensity_range == "ranged") {
+      return(ranged_range())
+    }
+    cli_abort('intensity_range should be "global", "ranged", or a length-2 vector/list of numbers, "global" or "ranged"')
+  }
+
+  if (length(intensity_range) != 2) {
+    cli_abort('intensity_range should be "global", "ranged", or a length-2 vector/list of numbers, "global" or "ranged"')
+  }
+
+  c(
+    resolve_endpoint(intensity_range[[1]], 1L),
+    resolve_endpoint(intensity_range[[2]], 2L)
+  )
+}
+
 #' Make a plot interactive
 #'
 #' Wraps the `plt` with [plotly::ggplotly()] and sets the `xaxis` and `yaxis`

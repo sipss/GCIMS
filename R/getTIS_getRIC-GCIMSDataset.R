@@ -114,7 +114,11 @@ setMethod(
   ric <- intmat[ric_pos, ]
   ric <- max(ric) - ric
   ric <- ric/sum(ric)
-  list(ric = ric, tis = tis, rt = rt, dt = dt)
+  # intmat is already loaded here, so this rides along for free -- it backs
+  # plot(GCIMSDataset)'s shared intensity scale across samples (see
+  # dataset_intensity_range()), without a dedicated extraction pass.
+  intensity_range <- range(intmat)
+  list(ric = ric, tis = tis, rt = rt, dt = dt, intensity_range = intensity_range)
 }
 
 .extract_RIC_and_TIS_fun_aggregate <- function(ds, objs) {
@@ -123,6 +127,7 @@ setMethod(
   tiss <- purrr::map(objs, "tis")
   dtimes <- purrr::map(objs, "dt")
   rtimes <- purrr::map(objs, "rt")
+  intensity_ranges <- purrr::map(objs, "intensity_range")
 
   dt_ref <- ds$dt_ref
   rt_ref <- ds$rt_ref
@@ -144,7 +149,21 @@ setMethod(
   }
   stopifnot(nrow(ds$TIS) == num_samples)
   stopifnot(nrow(ds$RIC) == num_samples)
+  ds$intensity_range <- do.call(rbind, intensity_ranges)
+  colnames(ds$intensity_range) <- c("min", "max")
   ds
+}
+
+#' The dataset's overall raw intensity range, realizing/refreshing the cache if needed
+#' @param object A [GCIMSDataset] object
+#' @return A length-2 numeric vector `c(min, max)`
+#' @noRd
+dataset_intensity_range <- function(object) {
+  if (object$hasDelayedOps() || is.null(object$intensity_range)) {
+    object$extract_RIC_and_TIS()
+    object$realize()
+  }
+  range(object$intensity_range)
 }
 
 #' Extract the Reverse Ion Chromatogram and Total Ion Spectrum from the samples

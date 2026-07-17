@@ -7,6 +7,17 @@
 #' @param remove_baseline Set to `TRUE` to subtract the estimated baseline first
 #' @param trans The transformation to the intensity values. "cubic_root" is the default. "intensity" is also valid.
 #' See the `trans` argument in [ggplot2::continuous_scale()] for other possibilities.
+#' @param intensity_range Controls the color scale limits. One of:
+#' - `"ranged"` (the default): the range of exactly what's plotted (respecting
+#'   `dt_range`, `rt_range` and `remove_baseline`).
+#' - `"global"`: this sample's own full, uncropped intensity range, regardless
+#'   of `dt_range`/`rt_range` -- useful to see how strong a cropped region is
+#'   relative to the whole sample. With `remove_baseline = TRUE`, this is the
+#'   full, uncropped, baseline-removed range.
+#' - A numeric vector of length 2, `c(min, max)`: fixed limits. Set this
+#'   explicitly to make several plots comparable on the same color scale.
+#' - A length-2 vector/list whose elements are independently a number,
+#'   `"global"` or `"ranged"`, e.g. `list(min = 0, max = "global")`.
 #' @return A plot of the GCIMSSample
 #' @examples
 #' dummy_obj <-GCIMSSample(
@@ -22,7 +33,7 @@
 setMethod(
   "plot",
   "GCIMSSample",
-  function(x, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE, trans = "cubic_root") {
+  function(x, dt_range = NULL, rt_range = NULL, ..., remove_baseline = FALSE, trans = "cubic_root", intensity_range = "ranged") {
   dt <- dtime(x)
   rt <- rtime(x)
   idx <- dt_rt_range_normalization(dt, rt, dt_range, rt_range)
@@ -32,18 +43,31 @@ setMethod(
     basel <- baseline(x)[idx$dt_logical, idx$rt_logical]
     intmat <- intmat - basel
   }
+
+  get_global_range <- function() {
+    if (isTRUE(remove_baseline)) {
+      range(intensity(x) - baseline(x))
+    } else {
+      range(intensity(x))
+    }
+  }
+  get_ranged_range <- function() range(intmat)
+
+  limits <- resolve_intensity_range(intensity_range, get_global_range, get_ranged_range)
+
   mat_to_gplot(
     intmat,
     dt_min = idx$dt_ms_min,
     dt_max = idx$dt_ms_max,
     rt_min = idx$rt_s_min,
     rt_max = idx$rt_s_max,
-    trans = trans
+    trans = trans,
+    intensity_range = limits
   )
 })
 
 
-mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL, trans = "cubic_root") {
+mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt_max = NULL, trans = "cubic_root", intensity_range = NULL) {
   require_pkgs(c("farver", "viridisLite"))
   if (is.null(dt_min)) {
     dt_min <- as.numeric(rownames(intmat)[1L])
@@ -57,7 +81,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
   if (is.null(rt_max)) {
     rt_max <- as.numeric(colnames(intmat)[ncol(intmat)])
   }
-  minmax <- range(intmat)
+  minmax <- if (is.null(intensity_range)) range(intmat) else intensity_range
 
   if (is.character(trans)) {
     trans_func <- paste0(trans, "_trans")
@@ -76,7 +100,7 @@ mat_to_gplot <- function(intmat, dt_min = NULL, dt_max = NULL, rt_min = NULL, rt
   colormap <- farver::encode_native(
     viridisLite::viridis(256L, direction = -1, option = "G")
   )
-  nr <- mat_to_nativeRaster(intmat_trans, colormap)
+  nr <- mat_to_nativeRaster(intmat_trans, colormap, rangex = trans$transform(minmax))
 
   # The geom_rect is fake and it is only used to force the fill legend to appear
   # The geom_rect  limits are used to help set the plot limits
