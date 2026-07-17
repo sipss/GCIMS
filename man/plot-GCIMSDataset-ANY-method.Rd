@@ -13,7 +13,9 @@
   remove_baseline = FALSE,
   trans = "cubic_root",
   intensity_range = "global",
-  ncol = NULL
+  nrow = NULL,
+  ncol = NULL,
+  page = 1
 )
 }
 \arguments{
@@ -21,7 +23,7 @@
 
 \item{sample}{A number, a string, or a vector of numbers/strings with the
 sample index(es) or name(s) to plot. If \code{NULL} (the default), all samples
-are plotted.}
+are plotted (across as many pages as needed).}
 
 \item{dt_range}{The minimum and maximum drift times to extract (length 2 vector)}
 
@@ -35,29 +37,41 @@ baseline first}
 \item{trans}{The transformation to the intensity values, see \verb{plot,GCIMSSample-method}}
 
 \item{intensity_range}{Controls the shared color scale across all plotted
-samples. One of:
+samples (all pages, not just the current one). One of:
 \itemize{
 \item \code{"global"} (the default): each sample's full, uncropped intensity range,
-regardless of \code{sample}/\code{dt_range}/\code{rt_range}, keeping the scale stable
-across calls with different selections. With \code{remove_baseline = FALSE},
-this comes from a cache computed once, alongside TIS/RIC, so it's free.
-With \code{remove_baseline = TRUE}, the cache (raw intensities) doesn't apply,
-so each selected sample's full, uncropped, baseline-removed range is
-computed instead (loading every selected sample's data an extra time).
+regardless of \code{sample}/\code{dt_range}/\code{rt_range}. With \code{remove_baseline = FALSE}, this comes from a cache computed once, alongside TIS/RIC, so
+it's free. With \code{remove_baseline = TRUE}, the cache (raw intensities)
+doesn't apply, so each selected sample's full, uncropped, baseline-removed
+range is computed instead (loading every selected sample's data an extra
+time).
 \item \code{"ranged"}: the range of exactly what's plotted (respecting \code{dt_range},
-\code{rt_range} and \code{remove_baseline}). Requires loading every selected
+\code{rt_range} and \code{remove_baseline}), across \emph{every} selected sample, not
+just the current page -- so the scale is still comparable page to page.
+This is deliberately not page-scoped: a cheaper, page-local range would
+make pages incomparable to each other, defeating the purpose of paging
+through a dataset to compare samples. Costs loading every selected
 sample's data twice (once to compute the range, once to plot).
 \item A numeric vector of length 2, \code{c(min, max)}: fixed limits.
 \item A length-2 vector/list whose elements are independently a number,
 \code{"global"} or \code{"ranged"}, e.g. \code{list(min = 0, max = "global")}.
 }}
 
-\item{ncol}{Number of columns for \code{\link[cowplot:plot_grid]{cowplot::plot_grid()}}. \code{NULL} lets \code{cowplot} decide.}
+\item{nrow, ncol}{Page grid shape, forwarded to \code{\link[cowplot:plot_grid]{cowplot::plot_grid()}}. Page
+capacity is \code{nrow * ncol}. If both are \code{NULL} (the default), they're picked
+from the number of selected samples: an exact fit for 1-6 samples (e.g. 5
+or 6 samples -> 2x3), otherwise 3x3 (so page capacity maxes out at 9, and
+more than 9 selected samples span multiple pages). If only one of
+\code{nrow}/\code{ncol} is given, the other becomes \code{3} when there are more than 9
+selected samples, or just enough to fit them all on one page otherwise.}
+
+\item{page}{Which page to plot, 1-based. Errors if out of bounds.}
 }
 \value{
-A combined plot with one panel per sample
+A combined plot with one panel per sample, for the requested page
 }
 \description{
 Several samples are plotted side by side, on the same intensity color
-scale, so they are visually comparable.
+scale, so they are visually comparable. Paginated: only one page's worth
+of samples is ever loaded into memory at a time for rendering.
 }

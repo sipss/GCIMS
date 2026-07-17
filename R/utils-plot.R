@@ -35,6 +35,42 @@ mat_to_nativeRaster <- function(x, colormap, rangex = NULL)  {
 }
 
 
+#' Resolve the (`nrow`, `ncol`) page grid for `plot,GCIMSDataset-method`,
+#' auto-filling whichever of `nrow`/`ncol` isn't given
+#'
+#' @param nrow Number of rows, or `NULL`
+#' @param ncol Number of columns, or `NULL`
+#' @param num_samples Number of samples to lay out (before pagination)
+#' @return A list `list(nrow =, ncol =)`
+#' @noRd
+resolve_page_grid <- function(nrow, ncol, num_samples) {
+  if (is.null(nrow) && is.null(ncol)) {
+    dims <- if (num_samples <= 1) {
+      c(1L, 1L)
+    } else if (num_samples == 2) {
+      c(1L, 2L)
+    } else if (num_samples == 3) {
+      c(1L, 3L)
+    } else if (num_samples == 4) {
+      c(2L, 2L)
+    } else if (num_samples <= 6) {
+      c(2L, 3L)
+    } else {
+      c(3L, 3L)
+    }
+    return(list(nrow = dims[1], ncol = dims[2]))
+  }
+  if (is.null(nrow)) {
+    nrow <- if (num_samples > 9) 3L else ceiling(num_samples / ncol)
+    return(list(nrow = nrow, ncol = ncol))
+  }
+  if (is.null(ncol)) {
+    ncol <- if (num_samples > 9) 3L else ceiling(num_samples / nrow)
+    return(list(nrow = nrow, ncol = ncol))
+  }
+  list(nrow = nrow, ncol = ncol)
+}
+
 #' Resolve an `intensity_range` argument (shared by `plot,GCIMSSample-method`
 #' and `plot,GCIMSDataset-method`) into `c(min, max)`
 #'

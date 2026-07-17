@@ -49,6 +49,34 @@ test_that("resolve_intensity_range() rejects invalid specs", {
   expect_error(resolve_intensity_range(list("nope", 1), global_range, ranged_range), "should be a number")
 })
 
+# --- resolve_page_grid() --------------------------------------------------
+
+test_that("resolve_page_grid() with neither nrow nor ncol given follows the exact-fit-then-3x3-cap table", {
+  expected <- list(
+    `1` = c(1, 1), `2` = c(1, 2), `3` = c(1, 3), `4` = c(2, 2),
+    `5` = c(2, 3), `6` = c(2, 3), `7` = c(3, 3), `9` = c(3, 3), `25` = c(3, 3)
+  )
+  for (n in names(expected)) {
+    g <- resolve_page_grid(NULL, NULL, as.integer(n))
+    expect_equal(c(g$nrow, g$ncol), expected[[n]], info = n)
+  }
+})
+
+test_that("resolve_page_grid() with exactly one of nrow/ncol given fills the other", {
+  # num_samples <= 9: fit everyone on one page
+  expect_equal(resolve_page_grid(NULL, 2, 5)$nrow, 3)
+  expect_equal(resolve_page_grid(4, NULL, 9)$ncol, 3)
+
+  # num_samples > 9: missing dimension is fixed at 3, regardless of the given one
+  expect_equal(resolve_page_grid(NULL, 5, 20)$nrow, 3)
+  expect_equal(resolve_page_grid(7, NULL, 50)$ncol, 3)
+})
+
+test_that("resolve_page_grid() with both given uses them as-is", {
+  g <- resolve_page_grid(4, 5, 100)
+  expect_equal(c(g$nrow, g$ncol), c(4, 5))
+})
+
 # --- intensity_range caching ----------------------------------------------
 
 make_range_dataset <- function() {
@@ -120,4 +148,55 @@ test_that("plot(GCIMSDataset, intensity_range = c(min, max)) accepts fixed limit
   ds <- make_range_dataset()
 
   expect_no_error(plot(ds, intensity_range = c(0, 200)))
+})
+
+# --- pagination -------------------------------------------------------------
+
+make_paged_dataset <- function(n = 11) {
+  samples <- stats::setNames(
+    purrr::map(seq_len(n), function(i) {
+      GCIMSSample(drift_time = 1:5, retention_time = 1:5, data = matrix(rep(i, 25), nrow = 5))
+    }),
+    paste0("s", seq_len(n))
+  )
+  GCIMSDataset$new_from_list(samples = samples, on_ram = TRUE, scratch_dir = NULL)
+}
+
+test_that("plot(GCIMSDataset) with more than 9 samples defaults to a 3x3 first page", {
+  ds <- make_paged_dataset(11)
+
+  expect_no_error(plot(ds))
+  expect_no_error(plot(ds, page = 1))
+  expect_no_error(plot(ds, page = 2))
+})
+
+test_that("plot(GCIMSDataset, page =) errors clearly when out of bounds", {
+  ds <- make_paged_dataset(11)
+
+  expect_error(plot(ds, page = 3), "page.*3.*out of bounds")
+  expect_error(plot(ds, page = 0), "page.*0.*out of bounds")
+})
+
+test_that("plot(GCIMSDataset, intensity_range = 'ranged') is computed over every selected sample, not just the current page", {
+  # 11 samples, values 1..11 -> page 1 (samples 1-9) would only see 1..9 if
+  # ranged were page-scoped, but sample 11 (value 11) is on page 2.
+  ds <- make_paged_dataset(11)
+
+  captured <- list()
+  testthat::local_mocked_bindings(
+    mat_to_gplot = function(intmat, ..., intensity_range = NULL) {
+      captured[[length(captured) + 1]] <<- intensity_range
+      ggplot2::ggplot()
+    },
+    .package = "GCIMS"
+  )
+
+  plot(ds, intensity_range = "ranged", page = 1)
+  range_page1 <- captured[[1]]
+  captured <<- list()
+  plot(ds, intensity_range = "ranged", page = 2)
+  range_page2 <- captured[[1]]
+
+  expect_equal(range_page1, c(1, 11))
+  expect_equal(range_page2, c(1, 11))
 })
